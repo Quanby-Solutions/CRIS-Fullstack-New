@@ -21,8 +21,8 @@
  */
 
 import { fakerEN as faker } from '@faker-js/faker'
-import { BARANGAYS, CITIES, PROVINCES } from '@/lib/constants/locations'
-import { AttachmentType, AttendantType, CivilRegistryFormType, DocumentStatus, FormType, NotificationType, PrismaClient, QueueStatus, ServiceType } from '@prisma/client'
+import { COUNTRY, getAllProvinces, getBarangaysByLocation, getCachedCitySuggestions } from '@/lib/utils/location-helpers'
+import { AttachmentType, AttendantType, CivilRegistryFormType, DocumentStatus, FormType, NotificationType, PrismaClient, QueueStatus, ServiceType, Sex } from '@prisma/client'
 
 /* ======================================================================
    Helper Functions
@@ -59,45 +59,48 @@ const generateTimeString = (): string => {
  * Generate a random Philippine location.
  * Returns an object with cityMunicipality, province, region, barangay, street and houseNo.
  */
-const generatePhLocation = () => {
-  // Pick a random province from PROVINCES
-  const province = faker.helpers.arrayElement(PROVINCES)
+const generatePhLocation = (isNCRMode: boolean = false) => {
+  // Get all provinces and pick one randomly.
+  const provinces = getAllProvinces()
+  const province = faker.helpers.arrayElement(provinces)
 
-  // Filter cities that belong to the selected province (by name)
-  let possibleCities = CITIES.filter((city) => city.province === province.name)
-  if (possibleCities.length === 0) {
-    // Fallback: if none match, use all cities
-    possibleCities = CITIES
+  // Get cities/municipalities for the selected province.
+  let citySuggestions = getCachedCitySuggestions(province.psgc_id, isNCRMode)
+  if (citySuggestions.length === 0) {
+    // Fallback: if no suggestions match (or province isn't found), get all cities
+    // (This fallback depends on your application's logic.)
+    citySuggestions = getCachedCitySuggestions(province.psgc_id, false)
   }
-  const city = faker.helpers.arrayElement(possibleCities)
+  const city = faker.helpers.arrayElement(citySuggestions)
 
-  // Filter barangays by matching the city's name.
-  let possibleBarangays = BARANGAYS.filter(
-    (barangay) => barangay.city === city.name
-  )
-  if (possibleBarangays.length === 0) {
-    // Fallback: try filtering by province name
-    possibleBarangays = BARANGAYS.filter(
-      (barangay) => barangay.province === province.name
-    )
-    if (possibleBarangays.length === 0) {
-      // Final fallback: use all barangays
-      possibleBarangays = BARANGAYS
+  // Get barangays for the selected city.
+  let barangays = getBarangaysByLocation(city.psgc_id)
+  if (barangays.length === 0) {
+    // Fallback: In case no barangays are found for that city,
+    // you might consider fetching a broader list or using another logic.
+    // For now, we'll simply use an empty string.
+    return {
+      houseNo: '',
+      street: '',
+      barangay: '',
+      cityMunicipality: city.displayName,
+      province: province.name,
+      country: COUNTRY,
     }
   }
-  const barangay = faker.helpers.arrayElement(possibleBarangays).name
+  const barangay = faker.helpers.arrayElement(barangays).name
 
-  // Generate additional location details
+  // Generate additional location details.
   const street = faker.location.streetAddress()
   const houseNo = faker.location.buildingNumber()
 
   return {
-    cityMunicipality: city.name,
-    province: province.name,
-    region: province.region,
-    barangay,
-    street,
     houseNo,
+    street,
+    barangay,
+    cityMunicipality: city.displayName,
+    province: province.name,
+    country: COUNTRY,
   }
 }
 
@@ -269,7 +272,7 @@ const generateMarriageCertificate = (
         (marriageDate.getTime() - husbandBirthDate.getTime()) / 31557600000
       ),
       husbandPlaceOfBirth: generatePhLocation(),
-      husbandSex: 'Male',
+      husbandSex: Sex.Male,
       husbandCitizenship: 'Filipino',
       husbandResidence: `${husbandResidenceLocation.houseNo}, ${husbandResidenceLocation.street}, ${husbandResidenceLocation.barangay}, ${husbandResidenceLocation.cityMunicipality}, ${husbandResidenceLocation.province}, Philippines`,
       husbandReligion: faker.helpers.arrayElement([
@@ -296,7 +299,7 @@ const generateMarriageCertificate = (
         (marriageDate.getTime() - wifeBirthDate.getTime()) / 31557600000
       ),
       wifePlaceOfBirth: generatePhLocation(),
-      wifeSex: 'Female',
+      wifeSex: Sex.Female,
       wifeCitizenship: 'Filipino',
       wifeResidence: `${wifeResidenceLocation.houseNo}, ${wifeResidenceLocation.street}, ${wifeResidenceLocation.barangay}, ${wifeResidenceLocation.cityMunicipality}, ${wifeResidenceLocation.province}, Philippines`,
       wifeReligion: faker.helpers.arrayElement([

@@ -2,6 +2,7 @@
   "summary_view": "Summary View",
   "dashboard_description": "This dashboard provides a summary of the charts and metrics. For more detailed reports or to generate custom reports, navigate to the",
   "reports_section": "Reports section",
+  "No forms have been added yet": "No forms have been added yet",
   "metrics": {
     "total_registrations": "Total Registrations",
     "birth_certificates": "Birth Certificates",
@@ -130,7 +131,7 @@
   "uploadedOn": "Uploaded on",
   "exportDocument": "Export Document",
   "noDocumentFound": "No Document Found",
-  "issueCertificate": "Issue Certificate",
+  "issueCertificateAno": "Issue Annotation",
   "delete": "Delete",
   "deleting": "Deleting...",
   "death": "Death",
@@ -156,16 +157,6 @@
     "status": "Status",
     "loadingForms": "Loading Forms",
     "fetchingForms": "Please wait while we fetch the civil registry forms..."
-  },
-  "datatable": {
-    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
-    "no_rows_selected": "No rows selected.",
-    "rows_per_page": "Rows per page",
-    "page_info": "Page {{current}} of {{total}}",
-    "go_to_first_page": "Go to first page",
-    "go_to_previous_page": "Go to previous page",
-    "go_to_next_page": "Go to next page",
-    "go_to_last_page": "Go to last page"
   },
   "No results found": "No results found",
   "Try adjusting your filters or search terms": "Try adjusting your filters or search terms",
@@ -243,15 +234,33 @@
     "noPermissions": "No Permissions",
     "status": "Status",
     "activity": "Activity",
-    "verified": "Verified",
-    "unverified": "Unverified",
+    "verified": "Activated",
+    "unverified": "Inactive",
     "created": "Created",
     "updated": "Updated",
     "morePermissions": "+{{count}} more permissions",
     "allPermissions": "All Permissions",
     "username": "Username",
     "id": "ID",
-    "no_username": "No username"
+    "no_username": "No username",
+    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
+    "no_rows_selected": "No rows selected.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {{current}} of {{total}}",
+    "go_to_first_page": "Go to first page",
+    "go_to_previous_page": "Go to previous page",
+    "go_to_next_page": "Go to next page",
+    "go_to_last_page": "Go to last page"
+  },
+  "datatable": {
+    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
+    "no_rows_selected": "No rows selected.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {{current}} of {{total}}",
+    "go_to_first_page": "Go to first page",
+    "go_to_previous_page": "Go to previous page",
+    "go_to_next_page": "Go to next page",
+    "go_to_last_page": "Go to last page"
   },
   "formSelection": {
     "issueCertificate": "Issue Certificate",
@@ -396,5 +405,12 @@
   "privacyTitle": "Privacy Settings",
   "privacyModeEnabled": "Privacy Mode On",
   "privacyModeDisabled": "Privacy Mode Off",
-  "privacyModeDescription": "Your data sharing and tracking settings are minimized."
+  "privacyModeDescription": "Your data sharing and tracking settings are minimized.",
+  "reports_dashboard": "Reports Dashboard",
+  "document_requests": "Document Requests",
+  "user_activity": "User Activity",
+  "marriage_reports": "Marriage Reports",
+  "birth_reports": "Birth Reports",
+  "death_reports": "Death Reports",
+  "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use."
 }

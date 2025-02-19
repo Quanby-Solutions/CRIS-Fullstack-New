@@ -1,23 +1,24 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { User } from '@prisma/client'
+import { useRouter } from 'next/navigation'
+import { Permission } from '@prisma/client'
+import { hasPermission } from '@/types/auth'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { Table } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { useUser } from '@/context/user-context'
 import { Cross2Icon } from '@radix-ui/react-icons'
+import { AddUserDialog } from './actions/add-user-dialog'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { useTranslation } from 'react-i18next'
-import { AddUserDialog } from './actions/add-user-dialog'
-import { useUser } from '@/context/user-context'
-import { hasPermission } from '@/types/auth'
-import { Permission } from '@prisma/client'
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
+  role?: string
 }
 
 const verificationStatus = [
@@ -26,10 +27,14 @@ const verificationStatus = [
 ]
 
 export function DataTableToolbar<TData extends User>({
-  table,
+  table, role
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation()
   const { permissions } = useUser()
+  const router = useRouter()
+
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
   const isFiltered = table.getState().columnFilters.length > 0
 
   const nameColumn = table.getColumn('name')
@@ -51,16 +56,16 @@ export function DataTableToolbar<TData extends User>({
     }
   }
 
-  return (
-    <div>
-      <Alert>
-        <Icons.infoCircledIcon className="h-4 w-4" />
-        <AlertTitle>{t('summary_view_user')}</AlertTitle> {/* Translated title */}
-        <AlertDescription>
-          {t('dashboard_description_user')} {/* Translated description */}
-        </AlertDescription>
-      </Alert>
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1000)
+  }
 
+  return (
+    <div className='relative'>
       <div className="flex items-center justify-between mt-4">
         <div className="flex flex-1 items-center space-x-4">
           <div className="relative">
@@ -72,24 +77,6 @@ export function DataTableToolbar<TData extends User>({
               className="h-10 w-[200px] lg:w-[300px] pl-10"
             />
           </div>
-          {/* 
-        mar-note: Do not remove this comment, as this role column can be used for future purposes.
-        {roleColumn && (
-          <DataTableFacetedFilter
-            column={roleColumn}
-            title='Role'
-            options={userRoles.map((role) => ({
-              label: role.label,
-              value: role.value,
-              icon:
-                role.value === UserRole.ADMIN
-                  ? Icons.shield
-                  : role.value === UserRole.STAFF
-                    ? Icons.user
-                    : Icons.userCog,
-            }))}
-          />
-        )} */}
 
           {statusColumn && (
             <DataTableFacetedFilter
@@ -124,10 +111,17 @@ export function DataTableToolbar<TData extends User>({
                 table.resetColumnFilters()
                 table.resetSorting()
               }}
+              role={role}
             />
           )}
 
           <DataTableViewOptions table={table} />
+
+          <Button variant="outline" onClick={handleRefresh}>
+            <Icons.refresh
+              className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+          </Button>
         </div>
       </div>
     </div>

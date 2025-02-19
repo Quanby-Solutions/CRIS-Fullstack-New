@@ -3,8 +3,8 @@
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -12,11 +12,33 @@ import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ProfileWithUser } from '@/types/user-profile'
 import { OCCUPATIONS } from '@/lib/constants/occupations'
-import { Province, City, Barangay } from '@/lib/constants/locations'
 import { ProfileFormValues, profileFormSchema } from '@/lib/validation/profile/profile-form'
-import { PROVINCES, CITIES, BARANGAYS, COUNTRY } from '@/lib/constants/locations'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+
+// Import our location helpers and types.
+import {
+    COUNTRY,
+    getAllProvinces,
+    getCachedCitySuggestions,
+    formatLocationForDisplay,
+    getAllCitiesMunicipalities,
+    getCachedBarangaySuggestions,
+} from '@/lib/utils/location-helpers'
+import type { Province, LocationSuggestion, Barangay } from '@/lib/utils/location-helpers'
 
 interface ProfileFormProps {
     profile: ProfileWithUser
@@ -50,13 +72,13 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
         },
     })
 
+    // Replace raw arrays with helper-driven suggestions.
     const [provinceSuggestions, setProvinceSuggestions] = useState<Province[]>([])
-    const [citySuggestions, setCitySuggestions] = useState<City[]>([])
+    const [citySuggestions, setCitySuggestions] = useState<LocationSuggestion[]>([])
     const [barangaySuggestions, setBarangaySuggestions] = useState<Barangay[]>([])
     const [occupationSuggestions, setOccupationSuggestions] = useState<string[]>([])
 
     type AddressField = 'state' | 'city' | 'address'
-
 
     const handleOccupationChange = (value: string) => {
         const filteredOccupations = OCCUPATIONS.filter(occupation =>
@@ -72,24 +94,55 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
 
     const handleInputChange = (value: string, type: AddressField) => {
         if (type === 'state') {
-            const filteredProvinces = PROVINCES.filter(province =>
+            // Province suggestions
+            const allProvinces = getAllProvinces()
+            const filteredProvinces = allProvinces.filter(province =>
                 province.name.toLowerCase().includes(value.toLowerCase())
             )
             setProvinceSuggestions(filteredProvinces)
         } else if (type === 'city') {
-            const selectedProvince = form.watch('state')
-            const filteredCities = CITIES.filter(city =>
-                city.name.toLowerCase().includes(value.toLowerCase()) &&
-                (!selectedProvince || city.province === selectedProvince)
+            // City/Municipality suggestions
+            const selectedProvinceName = form.watch('state')
+            const allProvinces = getAllProvinces()
+            const selectedProvince = allProvinces.find(province =>
+                province.name.toLowerCase() === selectedProvinceName?.toLowerCase()
             )
-            setCitySuggestions(filteredCities)
+            if (selectedProvince) {
+                const cities = getCachedCitySuggestions(selectedProvince.psgc_id, false)
+                const filteredCities = cities.filter(city =>
+                    city.displayName.toLowerCase().includes(value.toLowerCase())
+                )
+                setCitySuggestions(filteredCities)
+            } else {
+                setCitySuggestions([])
+            }
         } else if (type === 'address') {
-            const selectedCity = form.watch('city')
-            const filteredBarangays = BARANGAYS.filter(barangay =>
-                barangay.name.toLowerCase().includes(value.toLowerCase()) &&
-                (!selectedCity || barangay.city === selectedCity)
+            // Barangay suggestions
+            const selectedCityName = form.watch('city')
+            console.log('Selected city name:', selectedCityName)
+
+            let selectedCity = citySuggestions.find(city =>
+                city.displayName.toLowerCase() === selectedCityName?.toLowerCase()
             )
-            setBarangaySuggestions(filteredBarangays)
+
+            if (!selectedCity && selectedCityName) {
+                const allCities = getAllCitiesMunicipalities()
+                const foundCity = allCities.find(city =>
+                    city.name.toLowerCase() === selectedCityName.toLowerCase()
+                )
+                if (foundCity) {
+                    selectedCity = formatLocationForDisplay(foundCity)
+                }
+            }
+
+            if (selectedCity) {
+                console.log('Selected city psgc_id:', selectedCity.psgc_id)
+                const filteredBarangays = getCachedBarangaySuggestions(selectedCity.psgc_id, value)
+                console.log('Filtered barangays:', filteredBarangays)
+                setBarangaySuggestions(filteredBarangays)
+            } else {
+                setBarangaySuggestions([])
+            }
         }
     }
 
@@ -149,7 +202,6 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="grid grid-cols-1 gap-8">
-
                     {/* Personal Information Section */}
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
@@ -272,7 +324,6 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Address Information</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                             {/* Province (Autocomplete) */}
                             <FormField
                                 control={form.control}
@@ -289,16 +340,19 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                                     field.onChange(e)
                                                     handleInputChange(e.target.value, 'state')
                                                 }}
+                                                onBlur={() => {
+                                                    setTimeout(() => setProvinceSuggestions([]), 100)
+                                                }}
                                                 placeholder="Type your province"
                                             />
                                         </FormControl>
                                         {provinceSuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10 bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {provinceSuggestions.map((province) => (
                                                     <div
-                                                        key={`${province.name}-${province.region}`}
+                                                        key={`${province.psgc_id}`}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                        onClick={() => handleSuggestionClick(province.name, 'state')}
+                                                        onMouseDown={() => handleSuggestionClick(province.name, 'state')}
                                                     >
                                                         {province.name}
                                                     </div>
@@ -326,18 +380,21 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                                     field.onChange(e)
                                                     handleInputChange(e.target.value, 'city')
                                                 }}
+                                                onBlur={() => {
+                                                    setTimeout(() => setCitySuggestions([]), 100)
+                                                }}
                                                 placeholder="Type your city or municipality"
                                             />
                                         </FormControl>
                                         {citySuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10 bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {citySuggestions.map((city) => (
                                                     <div
-                                                        key={`${city.name}-${city.province ?? ''}`}
+                                                        key={city.psgc_id}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                        onClick={() => handleSuggestionClick(city.name, 'city')}
+                                                        onMouseDown={() => handleSuggestionClick(city.displayName, 'city')}
                                                     >
-                                                        {city.name}
+                                                        {city.displayName}
                                                     </div>
                                                 ))}
                                             </div>
@@ -363,16 +420,19 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                                     field.onChange(e)
                                                     handleInputChange(e.target.value, 'address')
                                                 }}
+                                                onBlur={() => {
+                                                    setTimeout(() => setBarangaySuggestions([]), 100)
+                                                }}
                                                 placeholder="Type your barangay"
                                             />
                                         </FormControl>
                                         {barangaySuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10 bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {barangaySuggestions.map((barangay) => (
                                                     <div
-                                                        key={`${barangay.name}-${barangay.city ?? ''}-${barangay.municipality ?? ''}`}
+                                                        key={barangay.psgc_id}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                        onClick={() => handleSuggestionClick(barangay.name, 'address')}
+                                                        onMouseDown={() => handleSuggestionClick(barangay.name, 'address')}
                                                     >
                                                         {barangay.name}
                                                     </div>
@@ -438,16 +498,19 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                                     field.onChange(e)
                                                     handleOccupationChange(e.target.value)
                                                 }}
+                                                onBlur={() => {
+                                                    setTimeout(() => setOccupationSuggestions([]), 100)
+                                                }}
                                                 placeholder="Type your occupation"
                                             />
                                         </FormControl>
                                         {occupationSuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10 bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {occupationSuggestions.map((occupation, index) => (
                                                     <div
                                                         key={index}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                        onClick={() => handleOccupationSuggestionClick(occupation)}
+                                                        onMouseDown={() => handleOccupationSuggestionClick(occupation)}
                                                     >
                                                         {occupation}
                                                     </div>

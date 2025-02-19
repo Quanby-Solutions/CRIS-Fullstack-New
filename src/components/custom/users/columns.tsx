@@ -163,11 +163,12 @@ export const createColumns = (
                 const isVerified = row.getValue('emailVerified') as boolean
                 return (
                     <div className="flex items-center gap-2">
-                        <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'
-                            }`} />
+                        {/* <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'
+                            }`} /> */}
                         <Badge
                             variant={isVerified ? "default" : "secondary"}
-                            className="font-normal"
+                            className={`font-normal ${isVerified ? 'bg-primary hover:bg-primary/50 text-accent dark:text-accent-foreground' : 'bg-gray-300'
+                                }`}
                         >
                             {isVerified ? t('dataTable.verified') : t('dataTable.unverified')}
                         </Badge>

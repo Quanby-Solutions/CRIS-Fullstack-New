@@ -21,15 +21,11 @@ import NCRModeSwitch from './ncr-mode-switch';
 interface RegistryInformationCardProps {
   formType: FormType;
   title?: string;
-  isNCRMode: boolean;
-  setIsNCRMode: (checked: boolean) => void;
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   formType,
   title = 'Registry Information',
-  isNCRMode,
-  setIsNCRMode,
 }) => {
   const { control, setValue, setError, clearErrors } = useFormContext();
   const [registryNumber, setRegistryNumber] = useState('');
@@ -40,6 +36,8 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     error: string | null;
   }>({ exists: null, error: null });
 
+  const [ncrMode, setNcrMode] = useState(false);
+
   // Set same min and max lengths for all form types.
   const minLength = 6;
   const maxLength = 20;
@@ -48,7 +46,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     (value: string): string => {
       if (!value) return '';
 
-      // Apply the same regex for all form types.
       const formatRegex = /^\d{4}-\d+$/;
       if (!value.match(formatRegex)) {
         if (value.length < minLength) return ''; // Wait for more characters
@@ -74,7 +71,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         const response = await fetch('/api/check-registry-number', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Pass the formType for server logic if needed
           body: JSON.stringify({ registryNumber: value, formType }),
         });
 
@@ -107,6 +103,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     [setError, clearErrors, formType]
   );
 
+  // Debounced effect for asynchronous registry number check.
   useEffect(() => {
     if (debouncedRegistryNumber.length >= minLength) {
       const error = validateRegistryNumber(debouncedRegistryNumber);
@@ -165,7 +162,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return null;
   };
 
-  // Use the same placeholder and description for all form types.
   const placeholder = 'YYYY-numbers';
   const description = 'Format: YYYY-numbers (e.g., 2025-123456)';
 
@@ -175,8 +171,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* NCR Mode Switch – controlled via props */}
-        <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+        <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField
             control={control}
@@ -208,7 +203,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
             )}
           />
 
-          <LocationSelector isNCRMode={isNCRMode} className='col-span-2' />
+          <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
         </div>
       </CardContent>
     </Card>

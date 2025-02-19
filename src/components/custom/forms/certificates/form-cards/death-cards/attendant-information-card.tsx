@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -17,87 +18,142 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-;
 import { useFormContext } from 'react-hook-form';
 
 const AttendantInformationCard: React.FC = () => {
-  const { control } = useFormContext<DeathCertificateFormValues>();
+  const { control, watch } = useFormContext<DeathCertificateFormValues>();
+  const attendant = watch('medicalCertificate.attendant');
+
+  // Map the enum value to a select option value.
+  let currentValue: string = '';
+  if (attendant?.type) {
+    switch (attendant.type) {
+      case 'PRIVATE_PHYSICIAN':
+        currentValue = 'PRIVATE_PHYSICIAN';
+        break;
+      case 'PUBLIC_HEALTH_OFFICER':
+        currentValue = 'PUBLIC_HEALTH_OFFICER';
+        break;
+      case 'HOSPITAL_AUTHORITY':
+        currentValue = 'HOSPITAL_AUTHORITY';
+        break;
+      case 'NONE':
+        currentValue = 'NONE';
+        break;
+      case 'OTHERS':
+        currentValue = 'OTHERS';
+        break;
+      default:
+        currentValue = ''; // Default to empty if no value is found
+    }
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Attendant Information</CardTitle>
+        <CardTitle>21a. Attendant</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Type of Attendant */}
         <FormField
           control={control}
-          name='attendant.type' // Correct path
+          name='medicalCertificate.attendant.type'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Type of Attendant</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormLabel>Attendant Type</FormLabel>
+              <Select
+                onValueChange={field.onChange} // Use onChange directly from field
+                value={field.value || ''} // Bind value to the form field value
+              >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger ref={field.ref} className='h-10'>
                     <SelectValue placeholder='Select attendant type' />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value='Private Physician'>
-                    Private Physician
+                  <SelectItem value='PRIVATE_PHYSICIAN'>
+                    Private physician
                   </SelectItem>
-                  <SelectItem value='Public Health Officer'>
-                    Public Health Officer
+                  <SelectItem value='PUBLIC_HEALTH_OFFICER'>
+                    Public health officer
                   </SelectItem>
-                  <SelectItem value='Hospital Authority'>
-                    Hospital Authority
+                  <SelectItem value='HOSPITAL_AUTHORITY'>
+                    Hospital authority
                   </SelectItem>
-                  <SelectItem value='None'>None</SelectItem>
-                  <SelectItem value='Others'>Others</SelectItem>
+                  <SelectItem value='NONE'>None</SelectItem>
+                  <SelectItem value='OTHERS'>Others</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
-        {/* Attendance Duration Section */}
-        <div className='grid grid-cols-2 gap-4'>
-          {/* From Date */}
-          <FormField
-            control={control}
-            name='attendant.attendance.from'
-            render={({ field }) => (
-              <FormItem>
-                <DatePickerField
-                  field={{
-                    value: field.value,
-                    onChange: field.onChange,
-                  }}
-                  label='From'
-                  placeholder='Select start date'
-                />
-              </FormItem>
-            )}
-          />
 
-          {/* To Date */}
+        {/* Others Specify field - only show when "OTHERS" is selected */}
+        {attendant?.type === 'OTHERS' && (
           <FormField
             control={control}
-            name='attendant.attendance.to'
+            name='medicalCertificate.attendant.othersSpecify'
             render={({ field }) => (
               <FormItem>
-                <DatePickerField
-                  field={{
-                    value: field.value,
-                    onChange: field.onChange,
-                  }}
-                  label='To'
-                  placeholder='Select end date'
-                />
+                <FormLabel>Specify Other</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='Specify other attendant type'
+                  />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        )}
+
+        {/* Duration Section - shown when attendant type is not "NONE" */}
+        {attendant?.type !== 'NONE' && (
+          <div className='border-t pt-4'>
+            <h3 className='text-sm font-medium mb-4'>
+              21b. If attended, state duration (mm/dd/yy)
+            </h3>
+            <div className='grid grid-cols-2 gap-4'>
+              <FormField
+                control={control}
+                name='medicalCertificate.attendant.duration.from'
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: field.value ?? '',
+                        onChange: field.onChange,
+                      }}
+                      label='From'
+                      placeholder='Select start date'
+                      ref={field.ref}
+                    />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name='medicalCertificate.attendant.duration.to'
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: field.value ?? '',
+                        onChange: field.onChange,
+                      }}
+                      label='To'
+                      placeholder='Select end date'
+                      ref={field.ref}
+                    />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

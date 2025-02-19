@@ -1,6 +1,5 @@
 'use client';
 
-import { ConfirmationDialog } from '@/components/custom/confirmation-dialog/confirmation-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,149 +9,40 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { createDeathCertificate } from '@/hooks/form-certificate-actions';
-import {
-  DeathCertificateFormProps,
-  DeathCertificateFormValues,
-  createDeathCertificateSchema,
-  defaultDeathCertificateFormValues,
-} from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useDeathCertificateForm } from '@/hooks/form-certificates-hooks/useDeathCertificateForm';
+import type { DeathCertificateFormProps } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { FormType } from '@prisma/client';
-import { PDFViewer } from '@react-pdf/renderer';
-import { Loader2, Save } from 'lucide-react';
-import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { FormProvider } from 'react-hook-form';
+import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
 
-// Reusable shared components (same for Birth, Death, and Marriage)
-import PreparedByCard from './form-cards/shared-components/prepared-by-card';
-import ReceivedByCard from './form-cards/shared-components/received-by-card';
-import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
+import CausesOfDeath19bCard from './form-cards/death-cards/causes-of-death19b';
+import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
+import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
+import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
+import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
+import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
+import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
+
+import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
+import AffidavitDelayedRegistrationCard from './form-cards/death-cards/death-affidavit-elayed-registration-card';
+import EmbalmerCertificationCard from './form-cards/death-cards/embalmer-certification-card';
+import PostmortemCertificateCard from './form-cards/death-cards/postmortem-certificate-card';
+import {
+  PreparedByCard,
+  ReceivedByCard,
+  RegisteredAtOfficeCard,
+} from './form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
-
-// Death-specific components
-
-import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
-import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
-import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
-import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
-import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
-import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
-import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
-import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
-import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
-import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
 
 export default function DeathCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: DeathCertificateFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [pendingSubmission, setPendingSubmission] =
-    useState<DeathCertificateFormValues | null>(null);
-
-  // State for the RegistryInformationCard (e.g. special mode flag)
-  const [isNCRMode, setIsNCRMode] = useState(false);
-
-  const form = useForm<DeathCertificateFormValues>({
-    resolver: zodResolver(
-      createDeathCertificateSchema(isNCRMode, isNCRMode, isNCRMode, isNCRMode)
-    ),
-    defaultValues: defaultDeathCertificateFormValues,
+  const { formMethods, onSubmit, handleError } = useDeathCertificateForm({
+    onOpenChange,
   });
-
-  const onSubmit = async (values: DeathCertificateFormValues) => {
-    try {
-      setIsSubmitting(true);
-      const result = await createDeathCertificate(values);
-      if (result.success) {
-        toast.success('Death Certificate Registration', {
-          description: 'Death certificate has been registered successfully',
-        });
-        onOpenChange(false);
-        form.reset();
-      } else if (result.warning) {
-        setPendingSubmission(values);
-        setShowAlert(true);
-      } else {
-        toast.error('Registration Error', {
-          description: result.error || 'Failed to register death certificate',
-        });
-      }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'An unexpected error occurred. Please try again.';
-      toast.error('Registration Error', { description: errorMessage });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const confirmSubmit = async () => {
-    if (pendingSubmission) {
-      try {
-        setIsSubmitting(true);
-        const result = await createDeathCertificate(pendingSubmission, true);
-        if (result.success) {
-          toast.success('Death Certificate Registration', {
-            description: 'Death certificate has been registered successfully',
-          });
-          onOpenChange(false);
-          form.reset();
-        } else {
-          toast.error('Registration Error', {
-            description: result.error || 'Failed to register death certificate',
-          });
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred. Please try again.';
-        toast.error('Registration Error', { description: errorMessage });
-      } finally {
-        setIsSubmitting(false);
-        setShowAlert(false);
-        setPendingSubmission(null);
-      }
-    }
-  };
-
-  const handleError = () => {
-    const errors = form.formState.errors;
-    form
-      .trigger(['registryNumber', 'province', 'cityMunicipality'])
-      .then(() => {
-        if (
-          form.getFieldState('registryNumber').error ||
-          form.getFieldState('province').error ||
-          form.getFieldState('cityMunicipality').error
-        ) {
-          toast.error('Birth Registry Information', {
-            description:
-              'Please complete registry number, province, and city/municipality fields',
-          });
-          return;
-        }
-        if (errors.deceasedInfo) {
-          toast.error(
-            'Please check the personal information section for errors'
-          );
-          return;
-        }
-        if (errors.familyInfo) {
-          toast.error('Please check the family information section for errors');
-          return;
-        }
-        toast.error('Please check all required fields and try again');
-      });
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -168,65 +58,32 @@ export default function DeathCertificateForm({
             <div className='w-1/2 border-r'>
               <ScrollArea className='h-[calc(95vh-120px)]'>
                 <div className='p-6'>
-                  <FormProvider {...form}>
+                  <FormProvider {...formMethods}>
                     <form
-                      onSubmit={form.handleSubmit(onSubmit, handleError)}
+                      onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
-                      {/* Registry Information */}
-                      <RegistryInformationCard
-                        formType={FormType.DEATH}
-                        isNCRMode={isNCRMode}
-                        setIsNCRMode={setIsNCRMode}
-                      />
-
-                      {/* Deceased Information */}
+                      <RegistryInformationCard formType={FormType.DEATH} />
                       <DeceasedInformationCard />
-
-                      {/* Medical Certificate */}
-                      <MedicalCertificateCard />
-
-                      {/* Causes of Death */}
-                      <CausesOfDeathCard />
-
-                      {/* Maternal Condition */}
+                      <CausesOfDeath19aCard />
+                      <CausesOfDeath19bCard />
                       <MaternalConditionCard />
-
-                      {/* Death by External Causes */}
                       <DeathByExternalCausesCard />
-
-                      {/* Attendant Information */}
                       <AttendantInformationCard />
-
-                      {/* Certification of Death */}
+                      <EmbalmerCertificationCard />
+                      <PostmortemCertificateCard />
+                      <AffidavitDelayedRegistrationCard />
                       <CertificationOfDeathCard />
-
-                      {/* Disposal Information */}
                       <DisposalInformationCard />
-
-                      {/* Informant Information */}
                       <CertificationInformantCard />
-
-                      {/* Prepared By (reusable shared component) */}
-                      <PreparedByCard<DeathCertificateFormValues>
-                        fieldPrefix='preparedBy'
-                        cardTitle='Prepared By'
-                      />
-
-                      {/* Received By (reusable shared component) */}
-                      <ReceivedByCard<DeathCertificateFormValues>
-                        fieldPrefix='receivedBy'
-                        cardTitle='Received By'
-                      />
-
-                      {/* Registered At Office (reusable shared component) */}
-                      <RegisteredAtOfficeCard<DeathCertificateFormValues>
+                      <PreparedByCard />
+                      <ReceivedByCard />
+                      <RegisteredAtOfficeCard
                         fieldPrefix='registeredByOffice'
                         cardTitle='Registered at the Office of Civil Registrar'
                       />
 
-                      {/* Remarks (reusable shared component) */}
-                      <RemarksCard<DeathCertificateFormValues>
+                      <RemarksCard
                         fieldName='remarks'
                         cardTitle='Death Certificate Remarks'
                         label='Additional Remarks'
@@ -239,50 +96,22 @@ export default function DeathCertificateForm({
                           variant='outline'
                           className='h-10'
                           onClick={onCancel}
-                          disabled={isSubmitting}
                         >
                           Cancel
                         </Button>
-                        <Button
-                          type='submit'
-                          className='h-10 ml-2'
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save className='mr-2 h-4 w-4' />
-                              Save Registration
-                            </>
-                          )}
+                        <Button type='submit' className='h-10 ml-2'>
+                          Save
                         </Button>
                       </DialogFooter>
                     </form>
                   </FormProvider>
-                  <ConfirmationDialog
-                    open={showAlert}
-                    onOpenChange={setShowAlert}
-                    onConfirm={confirmSubmit}
-                    isSubmitting={isSubmitting}
-                    formType='DEATH'
-                    title='Duplicate Record Detected'
-                    description='A similar death record already exists. Do you want to proceed with saving this record?'
-                    confirmButtonText='Proceed'
-                    cancelButtonText='Cancel'
-                  />
                 </div>
               </ScrollArea>
             </div>
             {/* Right Side - Preview */}
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
-                <PDFViewer width='100%' height='100%'>
-                  <DeathCertificatePDF data={form.watch()} />
-                </PDFViewer>
+                {/* PDF Viewer or preview component can be added here */}
               </div>
             </div>
           </div>

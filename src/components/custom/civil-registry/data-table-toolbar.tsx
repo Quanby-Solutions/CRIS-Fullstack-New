@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
+import * as Tooltip from "@radix-ui/react-tooltip"
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -181,14 +182,25 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <Alert>
-        <Icons.infoCircledIcon className="h-4 w-4" />
-        <AlertTitle>{t('summary_view_civil')}</AlertTitle>
-        <AlertDescription>
-          {t('dashboard_description_civil')}
-        </AlertDescription>
-      </Alert>
+    <div className="space-y-4 relative">
+      <Tooltip.Provider>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Icons.infoCircledIcon className="h-5 w-5 cursor-pointer absolute -top-2 left-2" />
+          </Tooltip.Trigger>
+          <Tooltip.Content
+            className="bg-white dark:bg-muted p-4 rounded shadow-lg max-w-md z-50 mt-20"
+            side="right"
+          >
+            <AlertTitle>{t('summary_view_civil')}</AlertTitle>
+            <AlertDescription>
+              {t('dashboard_description_civil')}
+            </AlertDescription>
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+
+
       <div className="flex flex-col sm:flex-row">
         <div className="flex-1">
           <CardContent className="p-2.5">
@@ -196,22 +208,20 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               <div className={`flex gap-6 justify-center w-full max-w-[1000px] ${activeTab === null ? "" : "h-12"}`}>
                 <button
                   className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "basic" ? "rounded-md bg-chart-5 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
+        ${activeTab === "basic" ? "rounded-md bg-chart-3 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
                   onClick={() => handleToggleTab("basic")}
                 >
                   {t("Basic Search")}
                 </button>
                 <button
                   className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "advanced" ? "rounded-md bg-chart-5 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
+        ${activeTab === "advanced" ? "rounded-md bg-chart-3 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
                   onClick={() => handleToggleTab("advanced")}
                 >
                   {t("Name Search")}
                 </button>
               </div>
             </div>
-
-
 
             {/* Basic Search Input Fields */}
             {activeTab === "basic" && (

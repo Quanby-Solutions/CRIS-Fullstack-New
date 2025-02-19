@@ -1,21 +1,27 @@
 'use client'
 
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next' // Import useTranslation hook
-import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Icons } from '@/components/ui/icons'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form'
-import DeathCertificateForm from '@/components/custom/forms/certificates/death-certificate-form'
-import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form'
+import DeathCertificateForm from '../../forms/certificates/death-certificate-form'
 
 export function AddCivilRegistryFormDialog() {
-  const { t } = useTranslation() // Initialize translation hook
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false)
-  const [birthCertificateFormOpen, setBirthCertificateFormOpen] = useState(false)
+  const [birthCertificateFormOpen, setBirthCertificateFormOpen] =
+    useState(false)
   const [deathCertificateOpen, setDeathCertificateOpen] = useState(false)
 
   const handleFormSelect = (formType: string) => {
@@ -42,13 +48,13 @@ export function AddCivilRegistryFormDialog() {
         <DialogTrigger asChild className=' h-fit'>
           <Button>
             <Icons.plus className='mr-2 h-4 w-4' />
-            {t('Create New Form')} {/* Translatable text */}
+            {t('Create New Form')}
           </Button>
         </DialogTrigger>
         <DialogContent className='sm:max-w-4xl'>
           <DialogHeader>
             <DialogTitle className='text-center text-xl font-semibold'>
-              {t('Select Form Type')} {/* Translatable title */}
+              {t('Select Form Type')}
             </DialogTitle>
           </DialogHeader>
 
@@ -59,12 +65,12 @@ export function AddCivilRegistryFormDialog() {
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
-                  {t('Certificate of Live Birth')} {/* Translatable form name */}
+                  {t('Certificate of Live Birth')}{' '}
                 </CardTitle>
               </CardHeader>
               <CardContent className='text-center'>
                 <p className='text-sm text-muted-foreground'>
-                  {t('(Municipal Form No. 102)')} {/* Translatable text */}
+                  {t('(Municipal Form No. 102)')}
                 </p>
               </CardContent>
             </Card>
@@ -74,12 +80,12 @@ export function AddCivilRegistryFormDialog() {
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
-                  {t('Certificate of Death')} {/* Translatable form name */}
+                  {t('Certificate of Death')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='text-center'>
                 <p className='text-sm text-muted-foreground'>
-                  {t('(Municipal Form No. 103)')} {/* Translatable text */}
+                  {t('(Municipal Form No. 103)')}
                 </p>
               </CardContent>
             </Card>
@@ -90,28 +96,27 @@ export function AddCivilRegistryFormDialog() {
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
-                  {t('Certificate of Marriage')} {/* Translatable form name */}
+                  {t('Certificate of Marriage')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='text-center'>
                 <p className='text-sm text-muted-foreground'>
-                  {t('(Municipal Form No. 97)')} {/* Translatable text */}
+                  {t('(Municipal Form No. 97)')}
                 </p>
               </CardContent>
             </Card>
           </div>
-
         </DialogContent>
       </Dialog>
 
-      <MarriageCertificateForm
+      {/* <MarriageCertificateForm
         open={marriageCertificateOpen}
         onOpenChange={setMarriageCertificateOpen}
         onCancel={() => {
           setMarriageCertificateOpen(false)
           setTimeout(() => setOpen(true), 0)
         }}
-      />
+      /> */}
 
       <BirthCertificateForm
         open={birthCertificateFormOpen}
