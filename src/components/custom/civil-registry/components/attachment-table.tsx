@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Attachment,
@@ -53,9 +53,10 @@ export type AttachmentWithCertifiedCopies = Attachment & {
     certifiedCopies: CertifiedCopy[]
 }
 
-interface AttachmentsTableProps {
+export interface AttachmentsTableProps {
     attachments: AttachmentWithCertifiedCopies[]
     onAttachmentDeleted?: (deletedId: string) => void
+    onAttachmentsUpdated?: ((updatedAttachments: AttachmentWithCertifiedCopies[]) => void) | undefined
     canDelete?: boolean
     formType: FormType
     formData?: BaseRegistryFormWithRelations & {
@@ -66,13 +67,14 @@ interface AttachmentsTableProps {
 }
 
 export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
-    attachments,
+    attachments: initialAttachments,
     onAttachmentDeleted,
+    onAttachmentsUpdated,
     canDelete = false,
     formType,
     formData,
 }) => {
-    const [updatedAttachments, setUpdatedAttachments] = useState(attachments);
+    const [attachments, setAttachments] = useState<AttachmentWithCertifiedCopies[]>(initialAttachments);
     const { t } = useTranslation()
     const { permissions } = useUser()
 
@@ -92,6 +94,33 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
 
     const [ctcFormOpen, setCtcFormOpen] = useState(false)
 
+    // Update attachments when initial prop changes
+    useEffect(() => {
+        setAttachments(initialAttachments);
+    }, [initialAttachments]);
+
+    const handleAttachmentsRefresh = async () => {
+        try {
+            // Refetch attachments for the current form
+            const response = await fetch(`/api/forms/${formData?.id}/attachments`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch attachments');
+            }
+            const updatedAttachments = await response.json();
+
+            // Update local state
+            setAttachments(updatedAttachments);
+
+            // Call parent update handler if provided
+            if (onAttachmentsUpdated) {
+                onAttachmentsUpdated(updatedAttachments);
+            }
+        } catch (error) {
+            console.error('Error refreshing attachments:', error);
+            toast.error(t('Failed to refresh attachments'));
+        }
+    }
+
     // Handler to open the annotation dialog.
     const handleIssueCertificate = (attachment: AttachmentWithCertifiedCopies) => {
         setCurrentAttachment(attachment);
@@ -99,19 +128,9 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     }
 
     const handleCtc = async (attachment: AttachmentWithCertifiedCopies) => {
-        console.log('Selected Attachment for CTC:', attachment);
         setCurrentAttachment(attachment);
         setCtcFormOpen(true);
-        // You might want to set the current attachment in some state here
-        // setCurrentAttachment(attachment);
     }
-
-    // Function to refresh the attachments list when an update occurs
-    const handleAttachmentUpdated = () => {
-        // Update attachments state or refetch attachments if needed
-        // This could involve re-fetching the data from the server or updating local state
-        setUpdatedAttachments([...updatedAttachments]);
-    };
 
     const handleDelete = async (attachmentId: string) => {
         try {
@@ -123,7 +142,13 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                 throw new Error(json.error || t('Failed to delete attachment'))
             }
             toast.success(t('Attachment deleted successfully'))
-            onAttachmentDeleted?.(attachmentId)
+
+            // Remove the deleted attachment from local state
+            const updatedAttachments = attachments.filter(att => att.id !== attachmentId);
+            setAttachments(updatedAttachments);
+
+            // Call parent delete handler
+            onAttachmentDeleted?.(attachmentId);
         } catch (error: unknown) {
             console.error('Delete error:', error)
             const errMsg =
@@ -202,7 +227,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
 
     return (
         <>
-            {updatedAttachments.length === 0 ? (
+            {attachments.length === 0 ? (
                 <p className="py-4 text-center text-sm text-muted-foreground">
                     {t('No attachments available.')}
                 </p>
@@ -355,7 +380,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                 onOpenChange={setCtcFormOpen}
                                 onClose={() => setCtcFormOpen(false)}
                                 attachment={currentAttachment}
-                                onAttachmentUpdated={handleAttachmentUpdated}
+                                onAttachmentUpdated={handleAttachmentsRefresh}
                             />
 
                             {/* for creating annotation */}

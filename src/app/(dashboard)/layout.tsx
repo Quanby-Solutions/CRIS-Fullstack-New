@@ -31,7 +31,7 @@ export default async function AuthLayout({ children }: ChildrenProps) {
   return (
     <TranslationProvider>
       <LanguageProvider>
-        <SidebarProvider>
+        <SidebarProvider className="theme-container">
           <UserProvider>
             <AppSidebar user={user} />
             <SidebarInset>

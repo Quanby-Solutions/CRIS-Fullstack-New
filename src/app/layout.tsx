@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`theme-container ${geistSans.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
       <body className="text-foreground" data-theme="light">
         <Providers>
           {children}

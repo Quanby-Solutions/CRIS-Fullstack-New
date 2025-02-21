@@ -93,8 +93,12 @@
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
     line-height: 1.4;
-    /* Apply brightness & contrast filter */
+  }
 
+  /* Apply brightness & contrast filter to a specific container instead of the whole body */
+  .theme-container {
+    filter: brightness(var(--brightness)) contrast(var(--contrast));
+    transition: filter 0.3s ease;
   }
 
   img {
