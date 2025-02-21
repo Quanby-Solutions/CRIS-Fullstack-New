@@ -3,6 +3,7 @@
 import { Label } from '@radix-ui/react-label'
 import { useEffect, useState } from 'react'
 import { Skeleton } from '../ui/skeleton'
+import { Button } from '../ui/button'
 
 
 export function ThemeBrightness() {
@@ -92,12 +93,13 @@ export function ThemeBrightness() {
         />
       </div>
       <div>
-        <button
+        <Button
           onClick={resetValues}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+          variant={'default'}
+          size={'sm'}
         >
           Reset to Default
-        </button>
+        </Button>
       </div>
     </>
   )
