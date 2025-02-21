@@ -33,7 +33,7 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
-      onChange?.(file);
+      onChange?.(file); // Pass the file to the parent
     }
   };
 
@@ -48,7 +48,7 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
         id={name}
         name={name}
         type='file'
-        accept='image/*'
+        accept='image/*' // Restrict file types to images
         onChange={handleFileChange}
         className='hidden'
       />
