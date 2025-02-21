@@ -284,6 +284,7 @@ const WifeInfoCard: React.FC = () => {
             )}
           />
           {/* Residence */}
+
           <FormField
             control={control}
             name='wifeInfo.residence'
@@ -303,6 +304,7 @@ const WifeInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+
         </div>
 
       </CardContent>

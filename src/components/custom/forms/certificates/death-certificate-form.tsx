@@ -47,7 +47,7 @@ export default function DeathCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
+      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0' >
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
@@ -61,7 +61,7 @@ export default function DeathCertificateForm({
               </DialogHeader>
               <div className='flex flex-1 overflow-hidden'>
                 {/* Left Side - Form */}
-                <div className='w-1/2 border-r'>
+                <div className='w-full'>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
                       <RegistryInformationCard formType={FormType.DEATH} />
@@ -94,11 +94,11 @@ export default function DeathCertificateForm({
                   </ScrollArea>
                 </div>
                 {/* Right Side - Preview */}
-                <div className='w-1/2'>
+                {/* <div className='w-1/2'>
                   <div className='h-[calc(95vh-120px)] p-6'>
-                    {/* PDF Viewer or preview component can be added here */}
+                    PDF Viewer or preview component can be added here
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>

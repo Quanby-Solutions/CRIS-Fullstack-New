@@ -239,14 +239,14 @@ export const SolemnizingOfficerCertification: React.FC<
               )}
             />
             {/* Registry Details */}
-            <div className='col-span-3'>
+            <div className='col-span-1'>
               <FormField
                 control={control}
                 name='solemnizingOfficer.registryNoExpiryDate'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-foreground'>
-                      Religion/Religious Sect, Registry No. and Expiration Date, (if applicable)
+                    <FormLabel className='text-foreground whitespace-nowrap'>
+                      Religion/Religious Sect, Registry No. (with Date)
                     </FormLabel>
                     <FormControl>
                       <Input
