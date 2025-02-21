@@ -10,7 +10,6 @@ export async function POST(
 ) {
     const { documentId } = params
     const requestData = await request.json()
-    console.log('Received request:', requestData)
 
     const { userId, fileUrl, fileName, fileSize, mimeType, type } = requestData
 

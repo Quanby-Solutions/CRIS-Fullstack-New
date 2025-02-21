@@ -60,14 +60,14 @@ export const routeConfigs: RouteConfig[] = [
         iconName: "briefcase",
         requiredPermissions: [Permission.DOCUMENT_READ],
     },
-    {
-        id: "certified-true-copies",
-        path: "/certified-true-copies",
-        type: "ui",
-        title: "Transactions",
-        iconName: "building",
-        requiredPermissions: [Permission.DOCUMENT_VERIFY],
-    },
+    // {
+    //     id: "certified-true-copies",
+    //     path: "/certified-true-copies",
+    //     type: "ui",
+    //     title: "Transactions",
+    //     iconName: "building",
+    //     requiredPermissions: [Permission.DOCUMENT_VERIFY],
+    // },
     {
         id: "manage-queue",
         path: "/manage-queue",

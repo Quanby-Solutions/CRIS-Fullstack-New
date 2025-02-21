@@ -1,15 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
 import {
     Attachment,
     BirthCertificateForm,
@@ -80,6 +72,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     formType,
     formData,
 }) => {
+    const [updatedAttachments, setUpdatedAttachments] = useState(attachments);
     const { t } = useTranslation()
     const { permissions } = useUser()
 
@@ -112,6 +105,13 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
         // You might want to set the current attachment in some state here
         // setCurrentAttachment(attachment);
     }
+
+    // Function to refresh the attachments list when an update occurs
+    const handleAttachmentUpdated = () => {
+        // Update attachments state or refetch attachments if needed
+        // This could involve re-fetching the data from the server or updating local state
+        setUpdatedAttachments([...updatedAttachments]);
+    };
 
     const handleDelete = async (attachmentId: string) => {
         try {
@@ -202,7 +202,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
 
     return (
         <>
-            {attachments.length === 0 ? (
+            {updatedAttachments.length === 0 ? (
                 <p className="py-4 text-center text-sm text-muted-foreground">
                     {t('No attachments available.')}
                 </p>
@@ -350,11 +350,12 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                         <>
                             {/* for creating ctc */}
                             <BirthCertificateFormCTC
-                                formData={formData!}
+                                formData={formData}
                                 open={ctcFormOpen}
                                 onOpenChange={setCtcFormOpen}
                                 onClose={() => setCtcFormOpen(false)}
                                 attachment={currentAttachment}
+                                onAttachmentUpdated={handleAttachmentUpdated}
                             />
 
                             {/* for creating annotation */}
