@@ -1,144 +1,154 @@
-"use client";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Bell, Download, Palette, Save, Lock } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useBackup } from "@/lib/context/BackupContext";
-import { LanguageSelector } from "@/components/custom/language/language-selector";
-import { ThemeChange } from "@/components/theme/theme-change";
-import { t } from "i18next";
-import { useState } from "react";
+"use client"
 
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Bell, Download, Palette, Save, Lock, ChevronRight } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useBackup } from "@/lib/context/BackupContext"
+import { LanguageSelector } from "@/components/custom/language/language-selector"
+import { ThemeChange } from "@/components/theme/theme-change"
+import { t } from "i18next"
+import { ThemeBrightness } from "@/components/theme/theme-brightness"
+import { Separator } from "@/components/ui/separator"
 
 export function SettingsUI() {
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
-  const [isPrivacyModeEnabled, setIsPrivacyModeEnabled] = useState(false);
-  const { isBackupEnabled, toggleBackup, triggerManualBackup } = useBackup();
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false)
+  const [isPrivacyModeEnabled, setIsPrivacyModeEnabled] = useState(false)
+  const { isBackupEnabled, toggleBackup, triggerManualBackup } = useBackup()
 
-  // Prevent hydration error by not rendering content until state is loaded
   if (isBackupEnabled === null) {
-    return <p className="text-center text-sm text-muted-foreground">Loading backup settings...</p>;
+    return <p className="text-center text-sm text-muted-foreground">Loading backup settings...</p>
   }
 
   return (
-    <div className="container flex flex-col gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Interface Settings */}
-        <Card className="shadow-lg border border-border">
-          <CardHeader className="flex items-center gap-3 pb-4">
-            <Palette className="h-6 w-6 text-chart-1" />
-            <CardTitle className="text-lg font-semibold">{t("interfaceTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="w-full flex items-start justify-between">
-              <div>
-                <h3 className="text-base font-medium">{t("themeTitle")}</h3>
-                <CardDescription className="text-sm">{t("themeDescription")}</CardDescription>
+    <div className="container max-w-7xl mx-auto p-6 h-screen flex flex-col">
+      <h1 className="text-3xl font-bold mb-6">Settings</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow overflow-auto">
+        <div className="space-y-6">
+          {/* Interface Settings */}
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Palette className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl">{t("interfaceTitle")}</CardTitle>
               </div>
-              <ThemeChange />
-            </div>
-            <div className="w-full flex items-start justify-between">
-              <div>
-                <h3 className="text-base font-medium">{t("languageTitle")}</h3>
-                <CardDescription className="text-sm">{t("languageDescription")}</CardDescription>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium">{t("themeTitle")}</h3>
+                  <CardDescription>{t("themeDescription")}</CardDescription>
+                </div>
+                <ThemeChange />
               </div>
-              <LanguageSelector />
-            </div>
-          </CardContent>
-        </Card>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium">{t("languageTitle")}</h3>
+                  <CardDescription>{t("languageDescription")}</CardDescription>
+                </div>
+                <LanguageSelector />
+              </div>
+              <Separator />
+              <ThemeBrightness />
+            </CardContent>
+          </Card>
 
-        {/* Notification Settings */}
-        <Card className="shadow-lg border border-border">
-          <CardHeader className="flex items-center gap-3 pb-4">
-            <Bell className="h-6 w-6 text-chart-1" />
-            <CardTitle className="text-lg font-semibold">{t("notificationTitle", "Notifications")}</CardTitle>
-          </CardHeader>
-          <CardContent className="">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="notification-toggle" className="text-base font-medium">
-                {isNotificationsEnabled ? t("notificationsEnabled") : t("notificationsDisabled")}
-              </Label>
+          {/* <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Bell className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl">{t("notificationTitle", "Notifications")}</CardTitle>
+              </div>
               <Switch
                 id="notification-toggle"
                 checked={isNotificationsEnabled}
                 onCheckedChange={setIsNotificationsEnabled}
-                className="scale-110"
               />
-            </div>
-            {isNotificationsEnabled && (
-              <CardDescription className="text-sm text-muted-foreground">
-                {t("notificationsDescription", "You will receive important updates and alerts.")}
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                {isNotificationsEnabled
+                  ? t("notificationsDescription", "You will receive important updates and alerts.")
+                  : t("notificationsDisabled", "Notifications are currently disabled.")}
               </CardDescription>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card> */}
+        </div>
 
-        {/* Privacy Settings */}
-        <Card className="shadow-lg border border-border">
-          <CardHeader className="flex items-center gap-3 pb-4">
-            <Lock className="h-6 w-6 text-chart-1" /> 
-            <CardTitle className="text-lg font-semibold">{t("privacyTitle", "Privacy Settings")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="privacy-mode" className="text-base font-medium">
-                {isPrivacyModeEnabled ? t("privacyModeEnabled") : t("privacyModeDisabled")}
-              </Label>
-              <Switch
-                id="privacy-mode"
-                checked={isPrivacyModeEnabled}
-                onCheckedChange={setIsPrivacyModeEnabled}
-                className="scale-110"
-              />
-            </div>
-            {isPrivacyModeEnabled && (
-              <CardDescription className="mt-3 text-sm text-muted-foreground">
-                {t("privacyModeDescription", "Your data sharing and tracking settings are minimized.")}
-              </CardDescription>
-            )}
-          </CardContent>
-        </Card>
-        {/* Backup Settings */}
-        <Card className="shadow-lg border border-border">
-          <CardHeader className="flex items-center">
-            <Download className="h-6 w-6 text-chart-1" />
-            <CardTitle className="text-lg font-semibold">Backup Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="backup-mode" className="text-base font-medium">
-                  {isBackupEnabled ? "Automatic backup enabled" : "Automatic backup disabled"}
-                </Label>
-                <Switch
-                  id="backup-mode"
-                  checked={isBackupEnabled}
-                  onCheckedChange={toggleBackup}
-                  className="scale-110"
-                />
+        <div className="space-y-6">
+          {/* Privacy Settings */}
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Lock className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl">{t("privacyTitle", "Privacy Settings")}</CardTitle>
               </div>
-              {isBackupEnabled && (
-                <CardDescription className="text-sm text-muted-foreground">
-                  Auto-backup is enabled. Backups will be created every minute.
-                </CardDescription>
-              )}
-            </div>
-            <div>
-              <CardDescription className="text-sm mb-3">
-                You can manually trigger a backup if needed.
+              <Switch id="privacy-mode" checked={isPrivacyModeEnabled} onCheckedChange={setIsPrivacyModeEnabled} />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                {isPrivacyModeEnabled
+                  ? t("privacyModeDescription", "Your data sharing and tracking settings are minimized.")
+                  : t("privacyModeDisabled", "Standard privacy settings are in effect.")}
               </CardDescription>
-              <Button
-                onClick={triggerManualBackup}
-                className="w-full flex items-center gap-2 py-2 hover:bg-chart-1/90 transition"
-              >
-                <Save className="h-5 w-5" />
-                Manual Backup
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Backup Settings */}
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Download className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl">Backup Settings</CardTitle>
+              </div>
+              <Switch id="backup-mode" checked={isBackupEnabled} onCheckedChange={toggleBackup} />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <CardDescription>
+                {isBackupEnabled
+                  ? "Auto-backup is enabled. Backups will be created every minute."
+                  : "Automatic backups are currently disabled."}
+              </CardDescription>
+              <Separator />
+              <div>
+                <CardDescription className="mb-3">You can manually trigger a backup if needed.</CardDescription>
+                <Button
+                  onClick={triggerManualBackup}
+                  className="w-full flex items-center justify-center gap-2 py-2"
+                  variant="outline"
+                >
+                  <Save className="h-5 w-5" />
+                  Manual Backup
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
-  );
+  )
 }
+
+ {/* <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Bell className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl">{t("notificationTitle", "Notifications")}</CardTitle>
+              </div>
+              <Switch
+                id="notification-toggle"
+                checked={isNotificationsEnabled}
+                onCheckedChange={setIsNotificationsEnabled}
+              />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                {isNotificationsEnabled
+                  ? t("notificationsDescription", "You will receive important updates and alerts.")
+                  : t("notificationsDisabled", "Notifications are currently disabled.")}
+              </CardDescription>
+            </CardContent>
+          </Card> */}
