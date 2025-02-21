@@ -25,18 +25,18 @@ const ExternalCausesCard: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>19d. Death by External Causes</CardTitle>
+        <CardTitle>Death by External Causes</CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
         {/* External Causes Section */}
-        <div className='space-y-4'>
+        <div className='gap-4 grid md:grid-cols-3 grid-cols-1 items-center'>
           <FormField
             control={control}
             name='medicalCertificate.externalCauses.mannerOfDeath'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  a. Manner of death (Homicide, Suicide, Accident, Legal
+                <FormLabel className='line-clamp-1'>
+                  19d. (a) Manner of death (Homicide, Suicide, Accident, Legal
                   Intervention, etc.)
                 </FormLabel>
                 <FormControl>
@@ -52,8 +52,8 @@ const ExternalCausesCard: React.FC = () => {
             name='medicalCertificate.externalCauses.placeOfOccurrence'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  b. Place of Occurrence of External Cause (e.g. home, farm,
+                <FormLabel className='line-clamp-1'>
+                  (b) Place of Occurrence of External Cause (e.g. home, farm,
                   factory, street, sea, etc.)
                 </FormLabel>
                 <FormControl>
@@ -63,39 +63,31 @@ const ExternalCausesCard: React.FC = () => {
               </FormItem>
             )}
           />
-        </div>
 
-        {/* Autopsy Section with divider */}
-        <div className='pt-4 border-t'>
-          <div className='space-y-2'>
-            <h3 className='text-sm font-medium'>20. Autopsy</h3>
-            <p className='text-sm text-muted-foreground'>(Yes/No)</p>
-          </div>
-          <div className='mt-2'>
-            <FormField
-              control={control}
-              name='medicalCertificate.autopsy'
-              render={({ field }) => (
-                <FormItem>
-                  <Select
-                    onValueChange={(value) => field.onChange(value === 'yes')}
-                    value={field.value ? 'yes' : 'no'}
-                  >
-                    <FormControl>
-                      <SelectTrigger ref={field.ref} className='h-10'>
-                        <SelectValue placeholder='Select autopsy status' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='yes'>Yes</SelectItem>
-                      <SelectItem value='no'>No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={control}
+            name='medicalCertificate.autopsy'
+            render={({ field }) => (
+              <FormItem className=' flex flex-col'>
+                <FormLabel>20. Autopsy (Yes/No)</FormLabel>
+                <Select
+                  onValueChange={(value) => field.onChange(value === 'yes')}
+                  value={field.value ? 'yes' : 'no'}
+                >
+                  <FormControl>
+                    <SelectTrigger ref={field.ref} className='h-8.5'>
+                      <SelectValue placeholder='Select autopsy status' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value='yes'>Yes</SelectItem>
+                    <SelectItem value='no'>No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </CardContent>
     </Card>

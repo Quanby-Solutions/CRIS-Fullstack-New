@@ -24,92 +24,95 @@ const CausesOfDeath19aCard: React.FC = () => {
         </p>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Main Disease/Condition */}
-        <FormField
-          control={control}
-          name='medicalCertificate.causesOfDeath.mainDiseaseOfInfant'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Main Disease/Condition</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder='Enter main disease/condition' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
-        {/* Other Diseases/Conditions */}
-        <FormField
-          control={control}
-          name='medicalCertificate.causesOfDeath.otherDiseasesOfInfant'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Other Diseases/Conditions</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder='Enter other diseases/conditions (optional)'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
-        {/* Main Maternal Disease */}
-        <FormField
-          control={control}
-          name='medicalCertificate.causesOfDeath.mainMaternalDisease'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Main Maternal Disease</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder='Enter main maternal disease (if applicable)'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          {/* Main Disease/Condition */}
+          <FormField
+            control={control}
+            name='medicalCertificate.causesOfDeath.mainDiseaseOfInfant'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Disease/Condition</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='Enter main disease/condition' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Other Diseases/Conditions */}
+          <FormField
+            control={control}
+            name='medicalCertificate.causesOfDeath.otherDiseasesOfInfant'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Diseases/Conditions</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='Enter other diseases/conditions (optional)'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Other Maternal Disease */}
-        <FormField
-          control={control}
-          name='medicalCertificate.causesOfDeath.otherMaternalDisease'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Other Maternal Disease</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder='Enter other maternal disease (if applicable)'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Main Maternal Disease */}
+          <FormField
+            control={control}
+            name='medicalCertificate.causesOfDeath.mainMaternalDisease'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Maternal Disease</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='Enter main maternal disease (if applicable)'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Other Relevant Circumstances */}
-        <FormField
-          control={control}
-          name='medicalCertificate.causesOfDeath.otherRelevantCircumstances'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Other Relevant Circumstances</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder='Enter any other relevant circumstances'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Other Maternal Disease */}
+          <FormField
+            control={control}
+            name='medicalCertificate.causesOfDeath.otherMaternalDisease'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Maternal Disease</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='Enter other maternal disease (if applicable)'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Other Relevant Circumstances */}
+          <FormField
+            control={control}
+            name='medicalCertificate.causesOfDeath.otherRelevantCircumstances'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Relevant Circumstances</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='Enter any other relevant circumstances'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </CardContent>
     </Card>
   );

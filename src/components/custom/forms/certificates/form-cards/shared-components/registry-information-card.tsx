@@ -193,58 +193,63 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <FormField
-            control={control}
-            name='registryNumber'
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Registry Number</FormLabel>
-                <div className='relative flex items-center'>
-                  {/* Button for generating registry number */}
-                  <Button
-                    type='button'
-                    onClick={handleGenerateRegistryNumber}
-                    className='sm:btn sm:btn-primary absolute left-1 z-10'
-                    size={'sm'}
-                    variant={'default'}
-                  >
-                    <motion.div
-                      key={animationKey}
-                      variants={refreshIconVariants}
-                      initial="initial"
-                      animate="animate"
-                      whileTap="whileTap"
-                    >
-                      <Icons.refresh className='h-3 w-3' />
-                    </motion.div>
-                  </Button>
-                  <FormControl>
-                    <Input
-                      className='h-10 pl-14'
-                      placeholder={placeholder}
-                      {...field}
-                      onChange={handleRegistryNumberChange}
-                      value={field.value || ''}
-                      maxLength={maxLength}
-                      inputMode='numeric'
-                    />
-                  </FormControl>
-                  <div className='absolute right-2 top-[10px]'>
-                    {getValidationIcon()}
-                  </div>
-                </div>
-                <FormDescription>{description}</FormDescription>
-                {fieldState.error && (
-                  <FormMessage>{fieldState.error.message}</FormMessage>
+        
+        <Card>
+          <CardContent className='p-6'>
+          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              <FormField
+                control={control}
+                name='registryNumber'
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Registry Number</FormLabel>
+                    <div className='relative flex items-center'>
+                      {/* Button for generating registry number */}
+                      <Button
+                        type='button'
+                        onClick={handleGenerateRegistryNumber}
+                        className='sm:btn sm:btn-primary absolute left-1 z-10'
+                        size={'sm'}
+                        variant={'default'}
+                      >
+                        <motion.div
+                          key={animationKey}
+                          variants={refreshIconVariants}
+                          initial="initial"
+                          animate="animate"
+                          whileTap="whileTap"
+                        >
+                          <Icons.refresh className='h-3 w-3' />
+                        </motion.div>
+                      </Button>
+                      <FormControl>
+                        <Input
+                          className='h-10 pl-14'
+                          placeholder={placeholder}
+                          {...field}
+                          onChange={handleRegistryNumberChange}
+                          value={field.value || ''}
+                          maxLength={maxLength}
+                          inputMode='numeric'
+                        />
+                      </FormControl>
+                      <div className='absolute right-2 top-[10px]'>
+                        {getValidationIcon()}
+                      </div>
+                    </div>
+                    <FormDescription>{description}</FormDescription>
+                    {fieldState.error && (
+                      <FormMessage>{fieldState.error.message}</FormMessage>
+                    )}
+                  </FormItem>
                 )}
-              </FormItem>
-            )}
-          />
+              />
 
-          <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
-        </div>
+              <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
+            </div>
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   )

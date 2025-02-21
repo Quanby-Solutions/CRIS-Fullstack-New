@@ -24,7 +24,8 @@ const DisposalInformationCard: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Disposal Method */}
-        <FormField
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+      <FormField
           control={control}
           name="corpseDisposal"
           render={({ field }) => (
@@ -41,6 +42,7 @@ const DisposalInformationCard: React.FC = () => {
             </FormItem>
           )}
         />
+      </div>
 
         {/* Burial/Cremation Permit Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -126,39 +128,41 @@ const DisposalInformationCard: React.FC = () => {
         {/* Cemetery or Crematory Information */}
         <div className="space-y-4">
           <h4 className="text-sm font-medium">Cemetery or Crematory Information</h4>
-          <FormField
-            control={control}
-            name="cemeteryOrCrematory.name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input
-                    className="h-10"
-                    placeholder="Enter cemetery or crematory name"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className='grid md:grid-cols-3 grid-cols-1 gap-4'>
+            <FormField
+              control={control}
+              name="cemeteryOrCrematory.name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="h-10"
+                      placeholder="Enter cemetery or crematory name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Use LocationSelector for the cemetery/crematory address */}
-          <LocationSelector
-     
-            provinceFieldName="cemeteryOrCrematory.address.province"
-            municipalityFieldName="cemeteryOrCrematory.address.cityMunicipality"
-            barangayFieldName="cemeteryOrCrematory.address.barangay"
-            provinceLabel="Province"
-            municipalityLabel="City/Municipality"
-            barangayLabel="Barangay"
-            provincePlaceholder="Select province..."
-            municipalityPlaceholder="Select city/municipality..."
-            barangayPlaceholder="Select barangay..."
-            showBarangay={true}
-            isNCRMode={false}
-          />
+            {/* Use LocationSelector for the cemetery/crematory address */}
+            <LocationSelector
+
+              provinceFieldName="cemeteryOrCrematory.address.province"
+              municipalityFieldName="cemeteryOrCrematory.address.cityMunicipality"
+              barangayFieldName="cemeteryOrCrematory.address.barangay"
+              provinceLabel="Province"
+              municipalityLabel="City/Municipality"
+              barangayLabel="Barangay"
+              provincePlaceholder="Select province..."
+              municipalityPlaceholder="Select city/municipality..."
+              barangayPlaceholder="Select barangay..."
+              showBarangay={true}
+              isNCRMode={false}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
