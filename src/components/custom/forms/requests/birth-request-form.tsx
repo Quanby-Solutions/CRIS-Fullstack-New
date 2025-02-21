@@ -10,7 +10,7 @@ import { SubmitCertifiedCopyRequestParams, useSubmitCertifiedCopyRequest } from 
 import { toast } from "sonner"
 import { z } from "zod"
 import {
-  BirthCertificateForm as BirthCertificateFormCTC,
+  BirthCertificateForm,
   DeathCertificateForm,
   MarriageCertificateForm,
 } from "@prisma/client"
@@ -31,7 +31,7 @@ const schema = z.object({
 
 interface BirthCertificateFormProps {
   formData?: BaseRegistryFormWithRelations & {
-    birthCertificateForm?: BirthCertificateFormCTC | null
+    birthCertificateForm?: BirthCertificateForm | null
     deathCertificateForm?: DeathCertificateForm | null
     marriageCertificateForm?: MarriageCertificateForm | null
   }
@@ -42,7 +42,7 @@ interface BirthCertificateFormProps {
   onAttachmentUpdated: () => void
 }
 
-const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({
+const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
   formData,
   open,
   onOpenChange,
@@ -483,4 +483,4 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({
   );
 };
 
-export default BirthCertificateForm;
+export default BirthCertificateFormCTC;
