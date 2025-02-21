@@ -65,7 +65,7 @@ export default function BirthCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
+      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0' >
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(handleFormSubmit, handleError)}

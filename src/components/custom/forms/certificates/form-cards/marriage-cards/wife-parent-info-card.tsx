@@ -32,7 +32,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s First Name</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter first name'
                     {...field}
@@ -52,7 +52,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s Middle Name</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter middle name'
                     {...field}
@@ -72,7 +72,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s Last Name</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter last name'
                     {...field}
@@ -95,7 +95,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s First Name</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter first name'
                     {...field}
@@ -115,7 +115,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s Middle Name</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter middle name'
                     {...field}
@@ -135,7 +135,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s (Maiden) Name</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter last name'
                     {...field}
@@ -147,7 +147,7 @@ const WifeParentsInfoCard: React.FC = () => {
             )}
           />
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           {/* Father's Citizenship */}
           <FormField
             control={control}
@@ -157,7 +157,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s Citizenship</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter citizenship'
                     {...field}
@@ -177,7 +177,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s Citizenship</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter citizenship'
                     {...field}
@@ -204,7 +204,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Adviser (First Name)</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter Adviser (first)'
                     {...field}
@@ -223,7 +223,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Adviser (Middle Name)</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter Adviser (middle)'
                     {...field}
@@ -242,7 +242,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Adviser (Last Name)</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter Adviser (last)'
                     {...field}
@@ -268,7 +268,7 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Relationship</FormLabel>
                 <FormControl>
                   <Input
-                  type='text'
+                    type='text'
                     className='h-10'
                     placeholder='Enter relationship'
                     {...field}
@@ -279,30 +279,28 @@ const WifeParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
-          <div className='col-span-2'>
-            <FormField
-              control={control}
-              name='wifeInfo.wifeConsentPerson.residence'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Residence</FormLabel>
-                  <FormControl>
-                    <Input
+
+          <FormField
+            control={control}
+            name='wifeInfo.wifeConsentPerson.residence'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Residence</FormLabel>
+                <FormControl>
+                  <Input
                     type='text'
-                      className='h-10'
-                      placeholder='House No., St., Barangay, City/Municipality, Province, Country'
-                      {...field}
-                      value={field.value ?? ''}
+                    className='h-10'
+                    placeholder='House No., St., Barangay, City/Municipality, Province, Country'
+                    {...field}
+                    value={field.value ?? ''}
 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-
       </CardContent>
     </Card >
   );
