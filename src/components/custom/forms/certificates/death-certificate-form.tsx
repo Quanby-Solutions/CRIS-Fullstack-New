@@ -23,10 +23,12 @@ import DeceasedInformationCard from './form-cards/death-cards/deceased-informati
 import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
 import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
 
+import { FormType } from '@prisma/client';
 import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
 import AffidavitDelayedRegistrationCard from './form-cards/death-cards/death-affidavit-elayed-registration-card';
 import EmbalmerCertificationCard from './form-cards/death-cards/embalmer-certification-card';
 import PostmortemCertificateCard from './form-cards/death-cards/postmortem-certificate-card';
+import PaginationInputs from './form-cards/shared-components/pagination-inputs';
 import {
   PreparedByCard,
   ReceivedByCard,
@@ -34,7 +36,6 @@ import {
 } from './form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
-import { FormType } from '@prisma/client';
 
 export default function DeathCertificateForm({
   open,
@@ -47,7 +48,7 @@ export default function DeathCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0' >
+      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0'>
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
@@ -64,6 +65,7 @@ export default function DeathCertificateForm({
                 <div className='w-full'>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
+                      <PaginationInputs />
                       <RegistryInformationCard formType={FormType.DEATH} />
                       <DeceasedInformationCard />
                       <CausesOfDeath19aCard />

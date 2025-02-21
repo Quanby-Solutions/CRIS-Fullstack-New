@@ -495,6 +495,16 @@ const generateDeathCertificate = (
   const deathDate = randomDate(new Date(2020, 0, 1), new Date());
   const birthDate = randomDate(new Date(1940, 0, 1), new Date(2000, 0, 1));
   const residenceLocation = generatePhLocation();
+  const placeOfDeathLocation = generatePhLocation();
+
+  // Calculate age at death
+  const yearsAtDeath = Math.floor(
+    (deathDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+  );
+  const monthsAtDeath = Math.floor(Math.random() * 11);
+  const daysAtDeath = Math.floor(Math.random() * 30);
+  const hoursAtDeath = Math.floor(Math.random() * 24);
+
   return {
     baseForm: generateBaseRegistryForm(
       FormType.DEATH,
@@ -502,13 +512,18 @@ const generateDeathCertificate = (
       registrationDate
     ),
     deathCertificateForm: {
-      certificationType: faker.helpers.arrayElement(['ORIGINAL', 'COPY']),
       deceasedName: generatePersonName(),
       sex: faker.helpers.arrayElement(['Male', 'Female']),
       dateOfDeath: deathDate,
-      placeOfDeath: { ...generatePhLocation(), country: 'Philippines' },
+      timeOfDeath: deathDate, // Use the same date object but will be formatted as time in the DB
       dateOfBirth: birthDate,
-      placeOfBirth: { ...generatePhLocation(), country: 'Philippines' },
+      ageAtDeath: {
+        years: yearsAtDeath.toString(),
+        months: monthsAtDeath.toString(),
+        days: daysAtDeath.toString(),
+        hours: hoursAtDeath.toString(),
+      },
+      placeOfDeath: placeOfDeathLocation,
       civilStatus: faker.helpers.arrayElement([
         'Single',
         'Married',
@@ -517,34 +532,182 @@ const generateDeathCertificate = (
       ]),
       religion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       citizenship: 'Filipino',
-      residence: {
-        houseNo: residenceLocation.houseNo,
-        street: residenceLocation.street,
-        barangay: residenceLocation.barangay,
-        cityMunicipality: residenceLocation.cityMunicipality,
-        province: residenceLocation.province,
-        country: 'Philippines',
-      },
+      residence: residenceLocation,
       occupation: faker.person.jobTitle(),
-      nameOfFather: generatePersonName(),
-      nameOfMother: generatePersonName(),
-      causesOfDeath: {
-        immediate: faker.helpers.arrayElement([
-          'Cardiac Arrest',
-          'Respiratory Failure',
-          'Multiple Organ Failure',
+
+      // Parent Information
+      parentInfo: {
+        fatherName: generatePersonName(),
+        motherName: generatePersonName(),
+      },
+
+      // Birth Information (if applicable)
+      birthInformation: faker.helpers.maybe(() => ({
+        ageOfMother: faker.number.int({ min: 18, max: 45 }).toString(),
+        methodOfDelivery: faker.helpers.arrayElement([
+          'Normal spontaneous vertex',
+          'Caesarean section',
+          'Forceps',
         ]),
-        antecedent: faker.helpers.arrayElement([
-          'Pneumonia',
-          'Sepsis',
-          'Acute Renal Failure',
+        lengthOfPregnancy: faker.number.int({ min: 30, max: 42 }),
+        typeOfBirth: faker.helpers.arrayElement(['Single', 'Twin', 'Triplet']),
+        birthOrder: faker.helpers.arrayElement([
+          'First',
+          'Second',
+          'Third',
+          'Fourth',
         ]),
-        underlying: faker.helpers.arrayElement([
-          'Hypertension',
-          'Diabetes Mellitus',
-          'Cancer',
+      })),
+
+      // Medical Certificate
+      medicalCertificate: {
+        causesOfDeath: faker.helpers.arrayElement([
+          // Infant-style cause of death
+          {
+            mainDiseaseOfInfant: faker.helpers.arrayElement([
+              'Respiratory Distress Syndrome',
+              'Neonatal Sepsis',
+              'Congenital Heart Disease',
+            ]),
+            otherDiseasesOfInfant: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement(['Jaundice', 'Premature Birth'])
+            ),
+            mainMaternalDisease: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement([
+                'Preeclampsia',
+                'Gestational Diabetes',
+              ])
+            ),
+            otherMaternalDisease: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement(['Anemia', 'Infections'])
+            ),
+            otherRelevantCircumstances: faker.helpers.maybe(() =>
+              faker.lorem.sentence()
+            ),
+          },
+          // Standard cause of death
+          {
+            immediate: {
+              cause: faker.helpers.arrayElement([
+                'Cardiac Arrest',
+                'Respiratory Failure',
+                'Multiple Organ Failure',
+              ]),
+              interval: faker.helpers.arrayElement([
+                'Minutes',
+                'Hours',
+                'Days',
+              ]),
+            },
+            antecedent: {
+              cause: faker.helpers.arrayElement([
+                'Pneumonia',
+                'Sepsis',
+                'Acute Renal Failure',
+              ]),
+              interval: faker.helpers.arrayElement(['Days', 'Weeks', 'Months']),
+            },
+            underlying: {
+              cause: faker.helpers.arrayElement([
+                'Hypertension',
+                'Diabetes Mellitus',
+                'Cancer',
+              ]),
+              interval: faker.helpers.arrayElement(['Months', 'Years']),
+            },
+            otherSignificantConditions: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement([
+                'Chronic Kidney Disease',
+                'Coronary Artery Disease',
+                'COPD',
+              ])
+            ),
+          },
         ]),
-        otherSignificant: faker.helpers.maybe(() =>
+
+        // Maternal condition (optional)
+        maternalCondition: faker.helpers.maybe(() => ({
+          pregnantNotInLabor: faker.datatype.boolean(),
+          pregnantInLabor: faker.datatype.boolean(),
+          lessThan42Days: faker.datatype.boolean(),
+          daysTo1Year: faker.datatype.boolean(),
+          noneOfTheAbove: faker.datatype.boolean(),
+        })),
+
+        // External causes
+        externalCauses: {
+          mannerOfDeath: faker.helpers.arrayElement([
+            'Natural',
+            'Accident',
+            'Suicide',
+            'Homicide',
+          ]),
+          placeOfOccurrence: faker.helpers.arrayElement([
+            'Home',
+            'Hospital',
+            'Road',
+            'Workplace',
+          ]),
+        },
+
+        // Attendant
+        attendant: {
+          type: faker.helpers.arrayElement([
+            'Private physician',
+            'Public health officer',
+            'Hospital authority',
+            'None',
+            'Others',
+          ]),
+          othersSpecify: faker.helpers.maybe(() => faker.lorem.word()),
+          duration: {
+            from: randomDate(new Date(2019, 0, 1), deathDate),
+            to: deathDate,
+          },
+          certification: {
+            time: deathDate,
+            signature: faker.person.fullName(),
+            name: faker.person.fullName(),
+            title: faker.helpers.arrayElement([
+              'MD',
+              'RN',
+              'Attending Physician',
+            ]),
+            address: generatePhLocation(),
+            date: deathDate,
+          },
+        },
+
+        autopsy: faker.datatype.boolean(),
+      },
+
+      // Causes of Death (specific section - standard format)
+      causesOfDeath19b: {
+        immediate: {
+          cause: faker.helpers.arrayElement([
+            'Cardiac Arrest',
+            'Respiratory Failure',
+            'Multiple Organ Failure',
+          ]),
+          interval: faker.helpers.arrayElement(['Minutes', 'Hours', 'Days']),
+        },
+        antecedent: {
+          cause: faker.helpers.arrayElement([
+            'Pneumonia',
+            'Sepsis',
+            'Acute Renal Failure',
+          ]),
+          interval: faker.helpers.arrayElement(['Days', 'Weeks', 'Months']),
+        },
+        underlying: {
+          cause: faker.helpers.arrayElement([
+            'Hypertension',
+            'Diabetes Mellitus',
+            'Cancer',
+          ]),
+          interval: faker.helpers.arrayElement(['Months', 'Years']),
+        },
+        otherSignificantConditions: faker.helpers.maybe(() =>
           faker.helpers.arrayElement([
             'Chronic Kidney Disease',
             'Coronary Artery Disease',
@@ -552,55 +715,190 @@ const generateDeathCertificate = (
           ])
         ),
       },
-      deathInterval: {
-        immediate: 'Hours',
-        antecedent: 'Days',
-        underlying: 'Years',
-      },
-      pregnancy: faker.datatype.boolean(),
-      attendedByPhysician: faker.datatype.boolean(),
-      mannerOfDeath: faker.helpers.arrayElement(['Natural', 'Accident']),
-      autopsyPerformed: faker.datatype.boolean(),
-      certifier: {
-        name: faker.person.fullName(),
-        title: 'MD',
-        address: faker.location.streetAddress(),
+
+      // Certification of Death
+      certificationOfDeath: {
+        hasAttended: faker.datatype.boolean(),
         signature: faker.person.fullName(),
-        date: deathDate,
+        nameInPrint: faker.person.fullName(),
+        titleOfPosition: faker.helpers.arrayElement([
+          'MD',
+          'RN',
+          'Medical Examiner',
+        ]),
+        address: generatePhLocation(),
+        date: randomDate(deathDate, new Date(deathDate.getTime() + 86400000)),
+        healthOfficerSignature: faker.person.fullName(),
+        healthOfficerNameInPrint: faker.person.fullName(),
       },
-      disposalDetails: {
-        method: faker.helpers.arrayElement(['Burial', 'Cremation']),
-        place: faker.location.streetAddress(),
+
+      // Review Information
+      reviewedBy: {
+        signature: faker.person.fullName(),
         date: randomDate(
           deathDate,
-          new Date(deathDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+          new Date(deathDate.getTime() + 86400000 * 7)
         ),
       },
+
+      // Optional Certificates
+      postmortemCertificate: faker.helpers.maybe(
+        () => ({
+          causeOfDeath: faker.helpers.arrayElement([
+            'Multiple traumatic injuries',
+            'Gunshot wound',
+            'Blunt force trauma',
+          ]),
+          signature: faker.person.fullName(),
+          nameInPrint: faker.person.fullName(),
+          date: randomDate(
+            deathDate,
+            new Date(deathDate.getTime() + 86400000 * 3)
+          ),
+          titleDesignation: 'Forensic Pathologist',
+          address: faker.location.streetAddress(),
+        }),
+        { probability: 0.2 }
+      ),
+
+      embalmerCertification: faker.helpers.maybe(
+        () => ({
+          nameOfDeceased: `${faker.person.firstName()} ${faker.person.lastName()}`,
+          signature: faker.person.fullName(),
+          nameInPrint: faker.person.fullName(),
+          address: faker.location.streetAddress(),
+          titleDesignation: 'Licensed Embalmer',
+          licenseNo: faker.string.numeric(8),
+          issuedOn: randomDate(new Date(2015, 0, 1), new Date(2022, 0, 1))
+            .toISOString()
+            .split('T')[0],
+          issuedAt: faker.location.city(),
+          expiryDate: randomDate(new Date(), new Date(2025, 0, 1))
+            .toISOString()
+            .split('T')[0],
+        }),
+        { probability: 0.3 }
+      ),
+
+      delayedRegistration: faker.helpers.maybe(
+        () => ({
+          affiant: {
+            name: faker.person.fullName(),
+            civilStatus: faker.helpers.arrayElement([
+              'Single',
+              'Married',
+              'Widowed',
+              'Divorced',
+            ]),
+            residenceAddress: faker.location.streetAddress(),
+            age: faker.number.int({ min: 21, max: 70 }).toString(),
+            signature: faker.person.fullName(),
+          },
+          deceased: {
+            name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+            dateOfDeath: deathDate.toISOString().split('T')[0],
+            placeOfDeath: faker.location.city(),
+            burialInfo: {
+              date: randomDate(
+                deathDate,
+                new Date(deathDate.getTime() + 86400000 * 7)
+              )
+                .toISOString()
+                .split('T')[0],
+              place: faker.location.city(),
+              method: faker.helpers.arrayElement(['Buried', 'Cremated']),
+            },
+          },
+          attendance: {
+            wasAttended: faker.datatype.boolean(),
+            attendedBy: faker.helpers.maybe(() => faker.person.fullName()),
+          },
+          causeOfDeath: faker.helpers.arrayElement([
+            'Heart Attack',
+            'Cancer',
+            'Stroke',
+            'Respiratory Failure',
+          ]),
+          reasonForDelay: faker.helpers.arrayElement([
+            'Family was in mourning',
+            'Unaware of registration requirement',
+            'Lived in remote area',
+            'Documentation issues',
+          ]),
+          affidavitDate: randomDate(deathDate, new Date()),
+          affidavitDatePlace: faker.location.city(),
+          adminOfficer: {
+            signature: faker.person.fullName(),
+            position: 'Civil Registrar',
+          },
+          ctcInfo: {
+            number: faker.string.numeric(10),
+            issuedOn: randomDate(new Date(2015, 0, 1), new Date())
+              .toISOString()
+              .split('T')[0],
+            issuedAt: faker.location.city(),
+          },
+        }),
+        { probability: 0.25 }
+      ),
+
+      // Disposal Information
+      corpseDisposal: faker.helpers.arrayElement([
+        'Burial',
+        'Cremation',
+        'Embalming',
+      ]),
+      burialPermit: {
+        number: faker.string.numeric(8),
+        dateIssued: randomDate(
+          deathDate,
+          new Date(deathDate.getTime() + 86400000 * 3)
+        ),
+      },
+
+      transferPermit: faker.helpers.maybe(
+        () => ({
+          number: faker.string.numeric(8),
+          dateIssued: randomDate(
+            deathDate,
+            new Date(deathDate.getTime() + 86400000 * 3)
+          )
+            .toISOString()
+            .split('T')[0],
+        }),
+        { probability: 0.3 }
+      ),
+
+      cemeteryOrCrematory: {
+        name: faker.helpers.arrayElement([
+          'Manila Memorial Park',
+          'Loyola Memorial Park',
+          'Holy Cross Memorial Park',
+          'Forest Lake Memorial Park',
+        ]),
+        address: generatePhLocation(),
+      },
+
+      // Informant Information
       informant: {
-        name: faker.person.fullName(),
         signature: faker.person.fullName(),
-        relationship: faker.helpers.arrayElement([
+        nameInPrint: faker.person.fullName(),
+        relationshipToDeceased: faker.helpers.arrayElement([
           'Spouse',
           'Child',
           'Sibling',
+          'Parent',
+          'Other Relative',
         ]),
-        address: faker.location.streetAddress(),
-        date: deathDate,
-      },
-      preparer: {
-        name: faker.person.fullName(),
-        signature: faker.person.fullName(),
-        title: 'Civil Registry Staff',
-        date: deathDate,
-      },
-      burialPermit: {
-        number: faker.string.numeric(8),
+        address: generatePhLocation(),
         date: randomDate(
           deathDate,
-          new Date(deathDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+          new Date(deathDate.getTime() + 86400000 * 3)
         ),
-        cemetery: faker.location.streetAddress(),
       },
+
+      // Additional Fields
+      remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
     },
   };
 };
