@@ -1,4 +1,3 @@
-// src\components\custom\civil-registry\components\status-dropdown.tsx
 'use client'
 
 import { useState } from 'react'
@@ -31,16 +30,29 @@ export default function StatusSelect({
     onStatusChange,
 }: StatusSelectProps) {
     const [loading, setLoading] = useState(false)
+    // Add local state to track current status
+    const [status, setStatus] = useState<DocumentStatus>(currentStatus)
 
     const updateStatus = async (newStatus: DocumentStatus) => {
+        if (newStatus === status) return;
+
         setLoading(true)
         try {
+            // Update local state immediately for a responsive UI
+            setStatus(newStatus);
+
+            // Then update on the server
             await updateFormStatus(formId, newStatus)
             toast.success('Status updated successfully')
+
+            // Notify parent component about the status change
             onStatusChange?.(newStatus)
         } catch (error: unknown) {
             console.error(error)
             toast.error('Failed to update status')
+
+            // Revert to previous status on error
+            setStatus(currentStatus)
         } finally {
             setLoading(false)
         }
@@ -48,23 +60,23 @@ export default function StatusSelect({
 
     return (
         <Select
-            value={currentStatus}
+            value={status}
             onValueChange={(newStatus) => updateStatus(newStatus as DocumentStatus)}
         >
-            <SelectTrigger 
-                disabled={loading} 
+            <SelectTrigger
+                disabled={loading}
                 className={clsx(
                     'w-[180px] rounded-md border shadow-sm px-4 py-2 ',
-                    statusVariants[currentStatus].bgColor
+                    statusVariants[status].bgColor
                 )}
             >
                 <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
                 {Object.entries(statusVariants).map(([statusKey, statusInfo]) => (
-                    <SelectItem 
-                        key={statusKey} 
-                        value={statusKey} 
+                    <SelectItem
+                        key={statusKey}
+                        value={statusKey}
                         className={clsx('py-2 px-4 rounded-md ')}
                     >
                         {statusInfo.label}
