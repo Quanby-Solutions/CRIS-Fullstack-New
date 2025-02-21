@@ -30,15 +30,15 @@ export default async function AuthLayout({ children }: ChildrenProps) {
 
   return (
     <TranslationProvider>
-       <LanguageProvider>
-      <SidebarProvider>
-        <UserProvider>
-          <AppSidebar user={user} />
-          <SidebarInset>
-            <main className="flex-1">{children}</main>
-          </SidebarInset>
-        </UserProvider>
-      </SidebarProvider>
+      <LanguageProvider>
+        <SidebarProvider>
+          <UserProvider>
+            <AppSidebar user={user} />
+            <SidebarInset>
+              <main className="flex-1">{children}</main>
+            </SidebarInset>
+          </UserProvider>
+        </SidebarProvider>
       </LanguageProvider>
     </TranslationProvider>
   )
