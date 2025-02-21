@@ -2,9 +2,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -464,265 +462,9 @@ import { revalidatePath } from 'next/cache';
 //   }
 // }
 
-
-
 // ------------------------------- Birth Certificate Server Action -------------------------------//
 
-export async function checkRegistryNumberExists(
-  registryNumber: string,
-  formType: FormType
-) {
-  try {
-    if (!registryNumber || !formType) {
-      throw new Error(
-        'Invalid input. Registry number and form type are required.'
-      );
-    }
-
-    const existingRegistry = await prisma.baseRegistryForm.findFirst({
-      where: {
-        registryNumber,
-        formType,
-      },
-    });
-
-    return { exists: !!existingRegistry };
-  } catch (error) {
-    console.error('Error checking registry number:', error);
-    return {
-      error: 'Failed to check registry number. Please try again later.',
-    };
-  }
-}
-
 const PAGES_PER_BOOK = 100;
-
-export async function submitBirthCertificateForm(
-  formData: BirthCertificateFormValues
-) {
-  try {
-    if (!formData) {
-      throw new Error('No form data provided');
-    }
-
-    return await prisma.$transaction(
-      async (tx) => {
-        // Find the user by name
-        const preparedByUser = await tx.user.findFirst({
-          where: {
-            name: formData.preparedBy.nameInPrint,
-          },
-        });
-
-        if (!preparedByUser) {
-          throw new Error(
-            `No user found with name: ${formData.preparedBy.nameInPrint}`
-          );
-        }
-
-        // Get the latest book and page numbers with collision checking
-        async function getNextBookAndPage(): Promise<{
-          bookNumber: string;
-          pageNumber: string;
-        }> {
-          const latestForm = await tx.baseRegistryForm.findFirst({
-            where: {
-              formType: FormType.BIRTH,
-              province: formData.province,
-              cityMunicipality: formData.cityMunicipality,
-            },
-            orderBy: [{ bookNumber: 'desc' }, { pageNumber: 'desc' }],
-          });
-
-          if (!latestForm) {
-            return { bookNumber: '1', pageNumber: '1' };
-          }
-
-          let currentPage = parseInt(latestForm.pageNumber);
-          let currentBook = parseInt(latestForm.bookNumber);
-
-          if (currentPage >= PAGES_PER_BOOK) {
-            currentBook++;
-            currentPage = 1;
-          } else {
-            currentPage++;
-          }
-
-          // Check for collision
-          const existingEntry = await tx.baseRegistryForm.findFirst({
-            where: {
-              formType: FormType.BIRTH,
-              province: formData.province,
-              cityMunicipality: formData.cityMunicipality,
-              bookNumber: currentBook.toString(),
-              pageNumber: currentPage.toString(),
-            },
-          });
-
-          if (existingEntry) {
-            currentPage++;
-            if (currentPage > PAGES_PER_BOOK) {
-              currentBook++;
-              currentPage = 1;
-            }
-            return getNextBookAndPage();
-          }
-
-          return {
-            bookNumber: currentBook.toString(),
-            pageNumber: currentPage.toString(),
-          };
-        }
-
-        const { bookNumber, pageNumber } = await getNextBookAndPage();
-
-        // Create the BaseRegistryForm record
-        const baseForm = await tx.baseRegistryForm.create({
-          data: {
-            formNumber: '102',
-            formType: FormType.BIRTH,
-            registryNumber: formData.registryNumber,
-            province: formData.province,
-            cityMunicipality: formData.cityMunicipality,
-            pageNumber,
-            bookNumber,
-            dateOfRegistration: new Date(),
-            isLateRegistered: formData.isDelayedRegistration,
-            status: DocumentStatus.PENDING,
-            preparedById: preparedByUser.id,
-            verifiedById: null,
-            preparedByName: formData.preparedBy.nameInPrint,
-            verifiedByName: null,
-            receivedBy: formData.receivedBy.nameInPrint,
-            receivedByPosition: formData.receivedBy.titleOrPosition,
-            receivedDate: formData.receivedBy.date,
-            registeredBy: formData.registeredByOffice.nameInPrint,
-            registeredByPosition: formData.registeredByOffice.titleOrPosition,
-            registrationDate: formData.registeredByOffice.date,
-            remarks: formData.remarks,
-          },
-        });
-
-        // Helper function to convert Date to ISO string for JSON
-        const dateToJSON = (date: Date) => date.toISOString();
-
-        // Create the BirthCertificateForm record
-        await tx.birthCertificateForm.create({
-          data: {
-            baseFormId: baseForm.id,
-            childName: {
-              first: formData.childInfo.firstName,
-              middle: formData.childInfo.middleName || '',
-              last: formData.childInfo.lastName,
-            } as Prisma.JsonObject,
-            sex: formData.childInfo.sex,
-            dateOfBirth: formData.childInfo.dateOfBirth,
-            placeOfBirth: formData.childInfo.placeOfBirth as Prisma.JsonObject,
-            typeOfBirth: formData.childInfo.typeOfBirth,
-            multipleBirthOrder: formData.childInfo.multipleBirthOrder || '',
-            birthOrder: formData.childInfo.birthOrder,
-            weightAtBirth: parseFloat(formData.childInfo.weightAtBirth),
-            motherMaidenName: {
-              first: formData.motherInfo.firstName,
-              middle: formData.motherInfo.middleName || '',
-              last: formData.motherInfo.lastName,
-            } as Prisma.JsonObject,
-            motherCitizenship: formData.motherInfo.citizenship,
-            motherReligion: formData.motherInfo.religion || '',
-            motherOccupation: formData.motherInfo.occupation,
-            motherAge: parseInt(formData.motherInfo.age),
-            motherResidence: formData.motherInfo.residence as Prisma.JsonObject,
-            totalChildrenBornAlive: parseInt(
-              formData.motherInfo.totalChildrenBornAlive
-            ),
-            childrenStillLiving: parseInt(
-              formData.motherInfo.childrenStillLiving
-            ),
-            childrenNowDead: parseInt(formData.motherInfo.childrenNowDead),
-            fatherName: !formData.fatherInfo
-              ? Prisma.JsonNull
-              : ({
-                  first: formData.fatherInfo.firstName,
-                  middle: formData.fatherInfo.middleName || '',
-                  last: formData.fatherInfo.lastName,
-                } as Prisma.JsonObject),
-            fatherCitizenship: formData.fatherInfo?.citizenship || '',
-            fatherReligion: formData.fatherInfo?.religion || '',
-            fatherOccupation: formData.fatherInfo?.occupation || '',
-            fatherAge: formData.fatherInfo
-              ? parseInt(formData.fatherInfo.age)
-              : 0,
-            fatherResidence: !formData.fatherInfo
-              ? Prisma.JsonNull
-              : (formData.fatherInfo.residence as Prisma.JsonObject),
-            parentMarriage: !formData.parentMarriage
-              ? Prisma.JsonNull
-              : ({
-                  date: dateToJSON(formData.parentMarriage.date),
-                  place: formData.parentMarriage.place,
-                } as Prisma.JsonObject),
-            attendant: {
-              type: formData.attendant.type,
-              certification: {
-                ...formData.attendant.certification,
-                time: dateToJSON(formData.attendant.certification.time),
-                date: dateToJSON(formData.attendant.certification.date),
-              },
-            } as Prisma.JsonObject,
-            informant: {
-              ...formData.informant,
-              date: dateToJSON(formData.informant.date),
-            } as Prisma.JsonObject,
-            preparer: {
-              ...formData.preparedBy,
-              date: dateToJSON(formData.preparedBy.date),
-            } as Prisma.JsonObject,
-            hasAffidavitOfPaternity: formData.hasAffidavitOfPaternity,
-            affidavitOfPaternityDetails:
-              !formData.hasAffidavitOfPaternity ||
-              !formData.affidavitOfPaternityDetails
-                ? Prisma.JsonNull
-                : (formData.affidavitOfPaternityDetails as Prisma.JsonObject),
-            isDelayedRegistration: formData.isDelayedRegistration,
-            affidavitOfDelayedRegistration:
-              !formData.isDelayedRegistration ||
-              !formData.affidavitOfDelayedRegistration
-                ? Prisma.JsonNull
-                : (formData.affidavitOfDelayedRegistration as Prisma.JsonObject),
-            reasonForDelay:
-              (formData.isDelayedRegistration &&
-                formData.affidavitOfDelayedRegistration?.reasonForDelay) ||
-              '',
-          },
-        });
-
-        // Revalidate the path
-        revalidatePath('/civil-registry');
-
-        return {
-          success: true,
-          message: 'Birth certificate submitted successfully',
-          data: {
-            baseFormId: baseForm.id,
-            bookNumber,
-            pageNumber,
-          },
-        };
-      },
-      {
-        maxWait: 10000,
-        timeout: 30000,
-      }
-    );
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : 'Failed to submit birth certificate form',
-    };
-  }
-}
 
 export async function submitDeathCertificateForm(
   formData: DeathCertificateFormValues
@@ -872,7 +614,8 @@ export async function submitDeathCertificateForm(
             attendedByPhysician:
               formData.medicalCertificate.attendant.type &&
               formData.medicalCertificate.attendant.type !== 'NONE',
-            attendanceDuration: formData.medicalCertificate.attendant.duration as any, 
+            attendanceDuration: formData.medicalCertificate.attendant
+              .duration as any,
             mannerOfDeath:
               formData.medicalCertificate.externalCauses.mannerOfDeath || null,
             autopsyPerformed: formData.medicalCertificate.autopsy,
@@ -937,7 +680,6 @@ export async function submitDeathCertificateForm(
     };
   }
 }
-
 
 // export async function submitMarriageCertificateForm(
 //   formData: MarriageCertificateFormValues
