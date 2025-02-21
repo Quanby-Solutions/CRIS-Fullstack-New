@@ -1,9 +1,9 @@
-// src/app/(dashboard)/civil-registry/page.tsx
+// src/app/(dashboard)/civil-registry/page.tsx -- make it like this
 import { Suspense, type FC } from 'react'
 import { PageProps } from '@/lib/types/page'
 import { Breadcrumb } from '@/types/dashboard'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { CivilRegistryClientPage, CivilRegistryTableSkeleton } from '@/components/custom/civil-registry/client/users-client'
+import { CivilRegistryClientPage, CivilRegistryTableSkeleton } from '@/components/custom/civil-registry/client/civil-registry-client'
 
 const breadcrumbs: Breadcrumb[] = [
   { label: 'Dashboard', href: '/dashboard', active: false },
