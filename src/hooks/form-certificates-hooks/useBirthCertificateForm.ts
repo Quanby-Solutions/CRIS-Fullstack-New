@@ -217,8 +217,7 @@
 
 //   return { formMethods, onSubmit, handleError };
 // }
-// hooks/form-certificates-hooks/useBirthCertificateForm.ts
-// hooks/form-certificates-hooks/useBirthCertificateForm.ts
+
 import { submitBirthCertificateForm } from '@/components/custom/civil-registry/actions/certificate-actions/birth-certificate-actions';
 import {
   BirthCertificateFormValues,

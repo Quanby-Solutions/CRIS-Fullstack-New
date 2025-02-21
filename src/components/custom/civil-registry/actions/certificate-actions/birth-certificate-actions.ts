@@ -1,8 +1,8 @@
 // src\app\actions\certificate-actions\birth-certificate-actions.ts
-
 'use server';
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -79,7 +79,6 @@ export async function submitBirthCertificateForm(
           },
         });
 
-        // Save the eSignature for preparedBy, receivedBy, and registeredBy
         await tx.user.updateMany({
           where: {
             id: {
@@ -87,11 +86,30 @@ export async function submitBirthCertificateForm(
             },
           },
           data: {
-            eSignature: JSON.stringify({
-              preparedBy: formData.preparedBy.signature,
-              receivedBy: formData.receivedBy.signature,
-              registeredBy: formData.registeredByOffice.signature,
-            }),
+            eSignature:
+              formData.preparedBy.signature instanceof File
+                ? await fileToBase64(formData.preparedBy.signature)
+                : formData.preparedBy.signature, // If it's already base64, leave it unchanged
+          },
+        });
+
+        await tx.user.update({
+          where: { id: receivedByUser.id },
+          data: {
+            eSignature:
+              formData.receivedBy.signature instanceof File
+                ? await fileToBase64(formData.receivedBy.signature)
+                : formData.receivedBy.signature,
+          },
+        });
+
+        await tx.user.update({
+          where: { id: registeredByUser.id },
+          data: {
+            eSignature:
+              formData.registeredByOffice.signature instanceof File
+                ? await fileToBase64(formData.registeredByOffice.signature)
+                : formData.registeredByOffice.signature,
           },
         });
 
