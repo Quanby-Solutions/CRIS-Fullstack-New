@@ -142,7 +142,7 @@ const HusbandParentsInfoCard: React.FC = () => {
             )}
           />
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           {/* Father's Citizenship */}
           <FormField
             control={control}
@@ -268,26 +268,26 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
-          <div className='col-span-2'>
-            <FormField
-              control={control}
-              name='husbandInfo.husbandConsentPerson.residence'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Residence</FormLabel>
-                  <FormControl>
-                    <Input type='text'
-                      className='h-10'
-                      placeholder='House No., St., Barangay, City/Municipality, Province, Country'
-                      {...field}
-                      value={field.value ?? ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+
+          <FormField
+            control={control}
+            name='husbandInfo.husbandConsentPerson.residence'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Residence</FormLabel>
+                <FormControl>
+                  <Input type='text'
+                    className='h-10'
+                    placeholder='House No., St., Barangay, City/Municipality, Province, Country'
+                    {...field}
+                    value={field.value ?? ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
         </div>
 
       </CardContent>

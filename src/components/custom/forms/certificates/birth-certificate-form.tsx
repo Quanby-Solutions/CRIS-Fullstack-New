@@ -19,6 +19,7 @@ import {
   RegisteredAtOfficeCard,
 } from './form-cards/shared-components/processing-details-cards';
 
+import { BirthCertificateFormProps } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { FormType } from '@prisma/client';
 import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
 import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity';
@@ -28,14 +29,9 @@ import ChildInformationCard from './form-cards/birth-cards/child-information-car
 import FatherInformationCard from './form-cards/birth-cards/father-information-card';
 import MarriageInformationCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
+import { PaginationInputs } from './form-cards/shared-components/pagination-inputs';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
-
-interface BirthCertificateFormProps {
-  open: boolean;
-  onOpenChangeAction: () => Promise<void>;
-  onCancelAction: () => Promise<void>;
-}
 
 export default function BirthCertificateForm({
   open,
@@ -65,7 +61,7 @@ export default function BirthCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
+      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0' >
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(handleFormSubmit, handleError)}
@@ -82,6 +78,7 @@ export default function BirthCertificateForm({
                 <div className='w-full'>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
+                      <PaginationInputs />
                       <RegistryInformationCard formType={FormType.BIRTH} />
                       <ChildInformationCard />
                       <MotherInformationCard />
@@ -101,6 +98,7 @@ export default function BirthCertificateForm({
                         label='Additional Remarks'
                         placeholder='Enter any additional remarks or annotations'
                       />
+
                       <AffidavitOfPaternityForm />
                       <DelayedRegistrationForm />
                     </div>

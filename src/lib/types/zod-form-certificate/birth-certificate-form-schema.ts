@@ -4,6 +4,7 @@ import {
   cityMunicipalitySchema,
   createDateFieldSchema,
   nameSchema,
+  paginationSchema,
   processingDetailsSchema,
   provinceSchema,
   registryNumberSchema,
@@ -279,6 +280,7 @@ export const birthCertificateFormSchema = z
       .nullable()
       .optional(),
     remarks: remarksAnnotationsSchema,
+    pagination: paginationSchema.optional(),
   })
   .superRefine((data, ctx) => {
     if (data.hasAffidavitOfPaternity && !data.affidavitOfPaternityDetails) {
@@ -305,6 +307,6 @@ export type BirthCertificateFormValues = z.infer<
 
 export interface BirthCertificateFormProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
+  onOpenChangeAction: () => Promise<void>;
+  onCancelAction: () => Promise<void>;
 }

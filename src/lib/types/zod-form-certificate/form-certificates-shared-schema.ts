@@ -53,11 +53,17 @@ export const createDateFieldSchema = (options?: {
 // Each has Signature, Name in Print, Title/Position, and Date
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const signatureSchema = z
-  .instanceof(File, { message: 'A signature file is required' })
-  .refine((file) => file.size <= 5 * 1024 * 1024, {
-    message: 'File size must be less than 5MB',
-  });
+export const signatureSchema = z.union([
+  z
+    .instanceof(File, { message: 'A signature file is required' })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: 'File size must be less than 5MB',
+    })
+    .refine((file) => file.type.startsWith('image/'), {
+      message: 'File must be an image (e.g., PNG, JPEG)',
+    }),
+  z.string().min(1, 'A signature is required'),
+]);
 
 export const signatoryDetailsSchema = z.object({
   signature: signatureSchema,
@@ -139,3 +145,32 @@ export const lateRegistrationOptionSchema = z.boolean().optional();
 export const documentStatusSchema = z
   .string()
   .nonempty('Document status is required');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PAGINATION INFORMATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const paginationSchema = z.object({
+  pageNumber: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true; // Skip validation if not provided.
+        const num = parseInt(val, 10);
+        return !isNaN(num) && num > 0;
+      },
+      { message: 'Page number must be a valid positive number' }
+    ),
+  bookNumber: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true; // Skip validation if not provided.
+        const num = parseInt(val, 10);
+        return !isNaN(num) && num > 0;
+      },
+      { message: 'Book number must be a valid positive number' }
+    ),
+});

@@ -675,13 +675,16 @@ export const AffidavitForDelayedMarriageRegistration: React.FC<
                             <CardTitle>Reason for the delayed marriage registration</CardTitle>
                         </CardHeader>
                         <CardContent className='p-6 space-y-6'>
-                            <div className='grid grid-cols-1 '>
+                            <div className='grid grid-cols-2 '>
                                 {/* License No */}
                                 <FormField
                                     control={control}
                                     name='affidavitForDelayed.e'
                                     render={({ field }) => (
                                         <FormItem>
+                                            <FormLabel className='text-foreground'>
+                                                Affiant reason for delayed registration
+                                            </FormLabel>
                                             <FormControl>
                                                 <Textarea
                                                     placeholder='Enter reason for the delayed marriage registration'
