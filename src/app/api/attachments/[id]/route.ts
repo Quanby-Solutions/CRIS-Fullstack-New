@@ -1,16 +1,18 @@
 // src\app\api\attachments\[id]\route.ts
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-export const DELETE = async (
-    req: Request,
-    { params }: { params: { id: string } }
-) => {
+export async function DELETE(
+    req: NextRequest,
+    context: { params: { id: string } }
+) {
+    const { id } = await context.params;
+
     try {
         await prisma.attachment.delete({
-            where: { id: params.id },
+            where: { id },
         })
 
         return NextResponse.json(
@@ -26,10 +28,12 @@ export const DELETE = async (
     }
 }
 
-export const PATCH = async (
-    req: Request,
-    { params }: { params: { id: string } }
-) => {
+export async function PATCH(
+    req: NextRequest,
+    context: { params: { id: string } }
+) {
+    const { id } = await context.params;
+
     try {
         const { status } = await req.json()
 
@@ -43,7 +47,7 @@ export const PATCH = async (
 
         // Update the attachment status
         const updatedAttachment = await prisma.attachment.update({
-            where: { id: params.id },
+            where: { id },
             data: { status },
         })
 

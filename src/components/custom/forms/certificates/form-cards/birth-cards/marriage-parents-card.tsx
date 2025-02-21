@@ -29,21 +29,7 @@ export default function MarriageInformationCard() {
       </CardHeader>
       <CardContent className='space-y-6'>
         {/* Marriage Date */}
-        <FormField
-          control={control}
-          name='parentMarriage.date'
-          render={({ field }) => (
-            <DatePickerField
-              field={{
-                value: field.value,
-                onChange: field.onChange,
-              }}
-              label='Marriage Date'
-              placeholder='Select marriage date'
-              ref={field.ref}
-            />
-          )}
-        />
+
 
         {/* Marriage Place */}
         <Card className='border'>
@@ -53,7 +39,22 @@ export default function MarriageInformationCard() {
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              <FormField
+                control={control}
+                name='parentMarriage.date'
+                render={({ field }) => (
+                  <DatePickerField
+                    field={{
+                      value: field.value,
+                      onChange: field.onChange,
+                    }}
+                    label='Marriage Date'
+                    placeholder='Select marriage date'
+                    ref={field.ref}
+                  />
+                )}
+              />
               <FormField
                 control={control}
                 name='parentMarriage.place.houseNo'
@@ -81,36 +82,39 @@ export default function MarriageInformationCard() {
                 )}
               />
             </div>
-
-            {/* NCR Mode Switch & Location Selector */}
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
-            <LocationSelector
-              provinceFieldName='parentMarriage.place.province'
-              municipalityFieldName='parentMarriage.place.cityMunicipality'
-              barangayFieldName='parentMarriage.place.barangay'
-              provinceLabel='Province'
-              municipalityLabel='City/Municipality'
-              barangayLabel='Barangay'
-              isNCRMode={ncrMode}
-              showBarangay={true}
-              provincePlaceholder='Select province'
-              municipalityPlaceholder='Select city/municipality'
-              barangayPlaceholder='Select barangay'
-            />
+            {/* NCR Mode Switch & Location Selector */}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 
-            <FormField
-              control={control}
-              name='parentMarriage.place.country'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Enter country' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <LocationSelector
+                provinceFieldName='parentMarriage.place.province'
+                municipalityFieldName='parentMarriage.place.cityMunicipality'
+                barangayFieldName='parentMarriage.place.barangay'
+                provinceLabel='Province'
+                municipalityLabel='City/Municipality'
+                barangayLabel='Barangay'
+                isNCRMode={ncrMode}
+                showBarangay={true}
+                provincePlaceholder='Select province'
+                municipalityPlaceholder='Select city/municipality'
+                barangayPlaceholder='Select barangay'
+              />
+              <FormField
+                control={control}
+                name='parentMarriage.place.country'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Enter country' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+
           </CardContent>
         </Card>
       </CardContent>

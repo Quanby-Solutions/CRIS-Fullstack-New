@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
     const requestData = await request.json()
-    console.log('Received request:', requestData)
 
     const { userId, formId, fileUrl, fileName, fileSize, mimeType, type, title, status } = requestData
 

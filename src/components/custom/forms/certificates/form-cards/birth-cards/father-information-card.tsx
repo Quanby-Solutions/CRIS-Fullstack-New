@@ -145,10 +145,8 @@ const FatherInformationCard: React.FC = () => {
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className='mt-4'>
-              <FormField
+<FormField
                 control={control}
                 name='fatherInfo.age'
                 render={({ field }) => (
@@ -174,6 +172,7 @@ const FatherInformationCard: React.FC = () => {
                 )}
               />
             </div>
+
           </CardContent>
         </Card>
 
@@ -187,6 +186,19 @@ const FatherInformationCard: React.FC = () => {
           <CardContent className='space-y-4'>
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <LocationSelector
+                provinceFieldName='fatherInfo.residence.province'
+                municipalityFieldName='fatherInfo.residence.cityMunicipality'
+                barangayFieldName='fatherInfo.residence.barangay'
+                provinceLabel='Province'
+                municipalityLabel='City/Municipality'
+                barangayLabel='Barangay'
+                isNCRMode={ncrMode}
+                showBarangay={true}
+                provincePlaceholder='Select province'
+                municipalityPlaceholder='Select city/municipality'
+                barangayPlaceholder='Select barangay'
+              />
               {/* House Number */}
               <FormField
                 control={control}
@@ -242,23 +254,6 @@ const FatherInformationCard: React.FC = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-            </div>
-
-            {/* Location Selector for Province, City/Municipality, and Barangay */}
-            <div className='mt-4'>
-              <LocationSelector
-                provinceFieldName='fatherInfo.residence.province'
-                municipalityFieldName='fatherInfo.residence.cityMunicipality'
-                barangayFieldName='fatherInfo.residence.barangay'
-                provinceLabel='Province'
-                municipalityLabel='City/Municipality'
-                barangayLabel='Barangay'
-                isNCRMode={ncrMode}
-                showBarangay={true}
-                provincePlaceholder='Select province'
-                municipalityPlaceholder='Select city/municipality'
-                barangayPlaceholder='Select barangay'
               />
             </div>
           </CardContent>

@@ -29,8 +29,6 @@ import RegistryInformationCard from './form-cards/shared-components/registry-inf
 import RemarksCard from './form-cards/shared-components/remarks-card';
 import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
 import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
-import { PDFViewer } from '@react-pdf/renderer';
-import MarriageCertificatePDF from './preview/marriage-certificate/marriage-certificate-pdf';
 
 export default function MarriageCertificateForm({
   open,
@@ -43,7 +41,7 @@ export default function MarriageCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0' >
+      <DialogContent className='max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0' >
         <Form {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
