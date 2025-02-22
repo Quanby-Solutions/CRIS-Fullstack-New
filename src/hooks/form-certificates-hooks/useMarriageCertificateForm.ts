@@ -310,9 +310,9 @@ export function useMarriageCertificateForm({
                     a: {
                         agreement: true,
                         nameOfPartner: {
-                            first: 'James',
-                            middle: 'M',
-                            last: 'Smith'
+                            first: '',
+                            middle: '',
+                            last: ''
                         },
                         placeOfMarriage: 'Makati City Hall',
                         dateOfMarriage: new Date('2024-02-16'),
@@ -320,14 +320,14 @@ export function useMarriageCertificateForm({
                     b: {
                         agreement: false,
                         nameOfHusband: {
-                            first: 'Jome',
+                            first: '',
                             middle: '',
-                            last: 'Pal'
+                            last: ''
                         },
                         nameOfWife: {
-                            first: 'Queen',
+                            first: '',
                             middle: '',
-                            last: 'Doe'
+                            last: ''
                         },
                         placeOfMarriage: 'Makati City Hall',
                         dateOfMarriage: undefined,
@@ -440,17 +440,24 @@ export function useMarriageCertificateForm({
                 middle: husbandName.middle || '',
                 last: husbandName.last || '',
             });
+
         }
     }, [husbandName, formMethods]);
 
     // ✅ Sync wife's name to affidavit
     React.useEffect(() => {
         if (wifeName) {
+            // formMethods.setValue('affidavitForDelayed.a.b.nameOfWife',  {
+            //     first: wifeName.first || '',
+            //     middle: wifeName.middle || '',
+            //     last: wifeName.last || '',
+            // });
             formMethods.setValue('affidavitOfSolemnizingOfficer.a.nameOfWife', {
                 first: wifeName.first || '',
                 middle: wifeName.middle || '',
                 last: wifeName.last || '',
             });
+
         }
     }, [wifeName, formMethods]);
 
