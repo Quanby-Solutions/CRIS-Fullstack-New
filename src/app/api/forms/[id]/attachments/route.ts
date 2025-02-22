@@ -1,13 +1,17 @@
-// src/app/api/forms/[id]/attachments/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
     try {
-        const formId = params.id
+        const url = request.url
+        const segments = url.split('/')
+        const formId = segments[segments.length - 2]
+        if (!formId) {
+            return NextResponse.json(
+                { error: 'Missing form ID' },
+                { status: 400 }
+            )
+        }
 
         // Validate the form exists
         const existingForm = await prisma.baseRegistryForm.findUnique({
