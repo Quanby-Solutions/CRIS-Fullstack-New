@@ -27,7 +27,7 @@ const schema = z.object({
   requesterName: z.string().min(1, "Requester name is required"),
   copies: z.number().min(1, "At least one copy is required"),
   isCertified: z.boolean().refine((val) => val === true, "You must certify the information"),
-});
+})
 
 interface BirthCertificateFormProps {
   formData?: BaseRegistryFormWithRelations & {
@@ -187,34 +187,35 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
       date: formObj.datePaid ? formObj.datePaid.toString() : undefined,
       whenRegistered: isRegisteredLate ? formObj.whenRegistered?.toString() : undefined,
       attachmentId: attachment?.id ?? '',
+      copies: parseInt(formState.required.copies, 10)
     }
 
     try {
       await submitRequest(requestData)
       toast.success("Request submitted successfully")
       resetForm()
-      onAttachmentUpdated() // This ensures the table is updated once the request is successful
+      onAttachmentUpdated()
       onClose?.()
     } catch (error) {
       toast.error("Failed to submit request")
     }
   }
 
-  const childName = formData?.birthCertificateForm?.childName as NameObject | undefined;
-  const placeOfBirth = formData?.birthCertificateForm?.placeOfBirth as PlaceOfBirthObject | undefined;
-  const motherMaidenName = formData?.birthCertificateForm?.motherMaidenName as NameObject | undefined;
-  const fatherName = formData?.birthCertificateForm?.fatherName as NameObject | undefined;
-  const dob = formData?.birthCertificateForm?.dateOfBirth;
+  const childName = formData?.birthCertificateForm?.childName as NameObject | undefined
+  const placeOfBirth = formData?.birthCertificateForm?.placeOfBirth as PlaceOfBirthObject | undefined
+  const motherMaidenName = formData?.birthCertificateForm?.motherMaidenName as NameObject | undefined
+  const fatherName = formData?.birthCertificateForm?.fatherName as NameObject | undefined
+  const dob = formData?.birthCertificateForm?.dateOfBirth
 
   const formatName = (name: NameObject | undefined): string => {
-    if (!name || !name.first || !name.last) return "";
-    return `${name.first} ${name.middle || ""} ${name.last}`.trim();
-  };
+    if (!name || !name.first || !name.last) return ""
+    return `${name.first} ${name.middle || ""} ${name.last}`.trim()
+  }
 
   const formatPlaceOfBirth = (place: PlaceOfBirthObject | undefined): string => {
-    if (!place || !place.hospital || !place.cityMunicipality || !place.province || !place.country) return "";
-    return `${place.hospital}, ${place.street || ""}, ${place.barangay || ""}, ${place.cityMunicipality}, ${place.province}, ${place.country}`.trim();
-  };
+    if (!place || !place.hospital || !place.cityMunicipality || !place.province || !place.country) return ""
+    return `${place.hospital}, ${place.street || ""}, ${place.barangay || ""}, ${place.cityMunicipality}, ${place.province}, ${place.country}`.trim()
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -480,7 +481,7 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default BirthCertificateFormCTC;
+export default BirthCertificateFormCTC

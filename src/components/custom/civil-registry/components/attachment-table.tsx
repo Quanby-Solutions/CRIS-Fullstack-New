@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Attachment,
@@ -74,11 +74,12 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     formType,
     formData,
 }) => {
-    const [attachments, setAttachments] = useState<AttachmentWithCertifiedCopies[]>(initialAttachments);
+    const [attachments, setAttachments] = useState<AttachmentWithCertifiedCopies[]>([])
     const { t } = useTranslation()
     const { permissions } = useUser()
 
-    const [currentAttachment, setCurrentAttachment] = useState<AttachmentWithCertifiedCopies | null>(null);
+    const [currentAttachment, setCurrentAttachment] = useState<AttachmentWithCertifiedCopies | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
 
     // Global export permission: allow if in development or if user has DOCUMENT_EXPORT permission.
     const exportAllowed =
@@ -94,89 +95,171 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
 
     const [ctcFormOpen, setCtcFormOpen] = useState(false)
 
-    // Update attachments when initial prop changes
+    // Function to sort attachments by upload date (newest first)
+    const sortAttachments = useCallback((items: AttachmentWithCertifiedCopies[]) => {
+        return [...items].sort((a, b) =>
+            new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+        )
+    }, [])
+
+    // Initialize and update attachments when props change
     useEffect(() => {
-        setAttachments(initialAttachments);
-    }, [initialAttachments]);
+        if (initialAttachments && initialAttachments.length > 0) {
+            setAttachments(sortAttachments(initialAttachments))
+        }
+    }, [initialAttachments, sortAttachments])
 
-    const handleAttachmentsRefresh = async () => {
+    // Direct API fetch function to ensure we always get the latest data with relationships
+    const fetchAttachments = useCallback(async (): Promise<AttachmentWithCertifiedCopies[]> => {
+        if (!formData?.id) {
+            console.warn('Cannot fetch attachments: formData or formData.id is missing')
+            return []
+        }
+
+        setIsLoading(true)
         try {
-            // Refetch attachments for the current form
-            const response = await fetch(`/api/forms/${formData?.id}/attachments`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch attachments');
-            }
-            const updatedAttachments = await response.json();
+            const response = await fetch(`/api/forms/${formData.id}/attachments`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            })
 
-            // Update local state
-            setAttachments(updatedAttachments);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch attachments: ${response.statusText}`)
+            }
+
+            const data = await response.json()
+
+            // Verify that certifiedCopies is included in the response
+            const hasCertifiedCopies = data.length > 0 && 'certifiedCopies' in data[0]
+
+            if (!hasCertifiedCopies) {
+                console.warn('API response missing certifiedCopies relationship, using different endpoint')
+
+                // Try a different approach to get the full data with relationships
+                const detailedAttachments = await Promise.all(
+                    data.map(async (att: Attachment) => {
+                        try {
+                            const detailResponse = await fetch(`/api/attachments/${att.id}`)
+                            if (detailResponse.ok) {
+                                return await detailResponse.json()
+                            }
+                            return { ...att, certifiedCopies: [] }
+                        } catch (error) {
+                            console.error(`Error fetching details for attachment ${att.id}:`, error)
+                            return { ...att, certifiedCopies: [] }
+                        }
+                    })
+                )
+
+                return detailedAttachments
+            }
+
+            return data
+        } catch (error) {
+            console.error('Error fetching attachments:', error)
+            toast.error(t('Failed to refresh attachments'))
+            return []
+        } finally {
+            setIsLoading(false)
+        }
+    }, [formData?.id, t])
+
+    // Comprehensive refresh function
+    const handleAttachmentsRefresh = useCallback(async () => {
+        const updatedAttachments = await fetchAttachments()
+
+        if (updatedAttachments.length > 0) {
+            const sortedAttachments = sortAttachments(updatedAttachments)
+            setAttachments(sortedAttachments)
 
             // Call parent update handler if provided
             if (onAttachmentsUpdated) {
-                onAttachmentsUpdated(updatedAttachments);
+                onAttachmentsUpdated(sortedAttachments)
             }
-        } catch (error) {
-            console.error('Error refreshing attachments:', error);
-            toast.error(t('Failed to refresh attachments'));
         }
-    }
+    }, [fetchAttachments, onAttachmentsUpdated, sortAttachments])
 
     // Handler to open the annotation dialog.
-    const handleIssueCertificate = (attachment: AttachmentWithCertifiedCopies) => {
-        setCurrentAttachment(attachment);
-        setAnnotationFormOpen(true);
-    }
+    const handleIssueCertificate = useCallback((attachment: AttachmentWithCertifiedCopies) => {
+        setCurrentAttachment(attachment)
+        setAnnotationFormOpen(true)
+    }, [])
 
-    const handleCtc = async (attachment: AttachmentWithCertifiedCopies) => {
-        setCurrentAttachment(attachment);
-        setCtcFormOpen(true);
-    }
+    const handleCtc = useCallback((attachment: AttachmentWithCertifiedCopies) => {
+        setCurrentAttachment(attachment)
+        setCtcFormOpen(true)
+    }, [])
 
-    const handleDelete = async (attachmentId: string) => {
+    const handleDelete = useCallback(async (attachmentId: string) => {
         try {
+            setIsLoading(true)
             const res = await fetch(`/api/attachments/${attachmentId}`, {
                 method: 'DELETE',
             })
-            const json = await res.json()
+
             if (!res.ok) {
+                const json = await res.json()
                 throw new Error(json.error || t('Failed to delete attachment'))
             }
+
             toast.success(t('Attachment deleted successfully'))
 
-            // Remove the deleted attachment from local state
-            const updatedAttachments = attachments.filter(att => att.id !== attachmentId);
-            setAttachments(updatedAttachments);
-
             // Call parent delete handler
-            onAttachmentDeleted?.(attachmentId);
+            onAttachmentDeleted?.(attachmentId)
+
+            // Immediately remove the deleted attachment from local state
+            setAttachments(prev => prev.filter(att => att.id !== attachmentId))
+
+            // Also refresh from server to ensure consistency
+            await fetchAttachments().then(updatedAttachments => {
+                const sortedAttachments = sortAttachments(updatedAttachments)
+                setAttachments(sortedAttachments)
+
+                // Call parent update handler if provided
+                if (onAttachmentsUpdated) {
+                    onAttachmentsUpdated(sortedAttachments)
+                }
+            })
         } catch (error: unknown) {
             console.error('Delete error:', error)
-            const errMsg =
-                error instanceof Error ? error.message : t('Failed to delete attachment')
+            const errMsg = error instanceof Error ? error.message : t('Failed to delete attachment')
             toast.error(errMsg)
+        } finally {
+            setIsLoading(false)
         }
-    }
+    }, [fetchAttachments, onAttachmentDeleted, onAttachmentsUpdated, sortAttachments, t])
 
-    const handleExport = async (attachment: AttachmentWithCertifiedCopies) => {
+    const handleExport = useCallback(async (attachment: AttachmentWithCertifiedCopies) => {
         try {
-            // Check if a certified true copy (CTC) exists.
-            const hasCTC = (attachment.certifiedCopies?.length ?? 0) > 0
+            // Double-check CTC status by fetching the latest data for this attachment
+            const latestAttachmentResponse = await fetch(`/api/attachments/${attachment.id}`)
+            let hasCTC = (attachment.certifiedCopies?.length ?? 0) > 0
+
+            if (latestAttachmentResponse.ok) {
+                const latestAttachment = await latestAttachmentResponse.json()
+                hasCTC = (latestAttachment.certifiedCopies?.length ?? 0) > 0
+            }
 
             if (!hasCTC) {
                 toast.error(t('You need to issue a certified true copy (CTC) for export'))
                 return
             }
+
             if (!exportAllowed) {
                 toast.error(t('You do not have credentials to export this document'))
                 return
             }
 
-            // Use the new API endpoint structure with the attachment ID in the path
+            setIsLoading(true)
+            // Export logic
             const exportUrl = `/api/attachments/${attachment.id}/export?zip=true`
             const res = await fetch(exportUrl, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/zip'
+                    'Accept': 'application/zip',
+                    'Cache-Control': 'no-cache'
                 }
             })
 
@@ -191,7 +274,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
             const disposition = res.headers.get('Content-Disposition')
             let filename = ''
             if (disposition) {
-                const filenameMatch = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+                const filenameMatch = disposition.match(/filename[^=\n]*=((['"]).*?\2|[^\n]*)/)
                 if (filenameMatch && filenameMatch[1]) {
                     // Remove quotes if present
                     filename = filenameMatch[1].replace(/['"]/g, '')
@@ -222,12 +305,40 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
             console.error('Export error:', error)
             const errMsg = error instanceof Error ? error.message : t('Failed to export attachment')
             toast.error(errMsg)
+        } finally {
+            setIsLoading(false)
         }
-    }
+    }, [exportAllowed, t])
+
+    // Initial load of attachments
+    useEffect(() => {
+        // Only fetch if we have formData (prevents unnecessary fetch on mount)
+        if (formData?.id) {
+            fetchAttachments().then(fetchedAttachments => {
+                const sortedAttachments = sortAttachments(fetchedAttachments)
+                setAttachments(sortedAttachments)
+
+                // Call parent update handler if provided
+                if (onAttachmentsUpdated) {
+                    onAttachmentsUpdated(sortedAttachments)
+                }
+            })
+        } else {
+            // If no formData, just use the initialAttachments (sorted)
+            setAttachments(sortAttachments(initialAttachments))
+        }
+        // Handle formData and initialAttachments changing
+    }, [fetchAttachments, formData?.id, initialAttachments, onAttachmentsUpdated, sortAttachments])
 
     return (
         <>
-            {attachments.length === 0 ? (
+            {isLoading && attachments.length === 0 && (
+                <div className="flex justify-center py-4">
+                    <Icons.spinner className="h-6 w-6 animate-spin" />
+                </div>
+            )}
+
+            {!isLoading && attachments.length === 0 ? (
                 <p className="py-4 text-center text-sm text-muted-foreground">
                     {t('No attachments available.')}
                 </p>
@@ -239,7 +350,14 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                 <TableHead className="px-4 py-2 text-left">{t('File Name')}</TableHead>
                                 <TableHead className="px-4 py-2 text-left">{t('Uploaded On')}</TableHead>
                                 <TableHead className="px-4 py-2 text-left">{t('CTC Issued')}</TableHead>
-                                <TableHead className="px-4 py-2 text-left">{t('Actions')}</TableHead>
+                                <TableHead className="px-4 py-2 text-left">
+                                    <div className="flex items-center justify-between">
+                                        {t('Actions')}
+                                        {isLoading && (
+                                            <Icons.spinner className="h-4 w-4 animate-spin ml-2" />
+                                        )}
+                                    </div>
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -269,7 +387,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                 {deleteAllowed && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
-                                                            <Button variant="destructive" size="sm">
+                                                            <Button variant="destructive" size="sm" disabled={isLoading}>
                                                                 {t('Delete')}
                                                             </Button>
                                                         </AlertDialogTrigger>
@@ -321,7 +439,11 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() => handleExport(attachment)}
+                                                        disabled={isLoading}
                                                     >
+                                                        {isLoading ? (
+                                                            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                                                        ) : null}
                                                         {t('Export (ZIP)')}
                                                     </Button>
                                                 )}
@@ -330,6 +452,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     onClick={() => handleCtc(attachment)}
                                                     variant="secondary"
                                                     size="sm"
+                                                    disabled={isLoading}
                                                 >
                                                     <Icons.files className="mr-2 h-4 w-4" />
                                                     {t('issueCtc')}
@@ -340,6 +463,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                         onClick={() => handleIssueCertificate(attachment)}
                                                         variant="secondary"
                                                         size="sm"
+                                                        disabled={isLoading}
                                                     >
                                                         <Icons.files className="mr-2 h-4 w-4" />
                                                         {t('issueCertificateAno')}
@@ -377,8 +501,16 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             <BirthCertificateFormCTC
                                 formData={formData}
                                 open={ctcFormOpen}
-                                onOpenChange={setCtcFormOpen}
-                                onClose={() => setCtcFormOpen(false)}
+                                onOpenChange={(open) => {
+                                    setCtcFormOpen(open)
+                                    if (!open) {
+                                        handleAttachmentsRefresh()
+                                    }
+                                }}
+                                onClose={() => {
+                                    setCtcFormOpen(false)
+                                    handleAttachmentsRefresh()
+                                }}
                                 attachment={currentAttachment}
                                 onAttachmentUpdated={handleAttachmentsRefresh}
                             />
@@ -387,10 +519,19 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             {currentAttachment && currentAttachment.certifiedCopies.length > 0 && (
                                 <BirthAnnotationForm
                                     open={annotationFormOpen}
-                                    onOpenChange={setAnnotationFormOpen}
+                                    onOpenChange={(open) => {
+                                        setAnnotationFormOpen(open)
+                                        if (!open) {
+                                            setTimeout(() => {
+                                                handleAttachmentsRefresh()
+                                            }, 500)
+                                            setCurrentAttachment(null)
+                                        }
+                                    }}
                                     onCancel={() => {
-                                        setAnnotationFormOpen(false);
-                                        setCurrentAttachment(null);
+                                        setAnnotationFormOpen(false)
+                                        setCurrentAttachment(null)
+                                        handleAttachmentsRefresh()
                                     }}
                                     formData={formData!}
                                     certifiedCopyId={currentAttachment.certifiedCopies[0].id}
@@ -400,24 +541,77 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                     )}
                     {formType === 'DEATH' && (
                         <>
-                            <DeathCertificateFormCTC />
+                            <DeathCertificateFormCTC
+                                formData={formData}
+                                open={ctcFormOpen}
+                                onOpenChange={(open) => {
+                                    setCtcFormOpen(open)
+                                    if (!open) {
+                                        handleAttachmentsRefresh()
+                                    }
+                                }}
+                                onClose={() => {
+                                    setCtcFormOpen(false)
+                                    handleAttachmentsRefresh()
+                                }}
+                                attachment={currentAttachment}
+                                onAttachmentUpdated={handleAttachmentsRefresh}
+                            />
 
                             <DeathAnnotationForm
                                 open={annotationFormOpen}
-                                onOpenChange={setAnnotationFormOpen}
-                                onCancel={() => setAnnotationFormOpen(false)}
+                                onOpenChange={(open) => {
+                                    setAnnotationFormOpen(open)
+                                    if (!open) {
+                                        setTimeout(() => {
+                                            handleAttachmentsRefresh()
+                                        }, 500)
+                                        setCurrentAttachment(null)
+                                    }
+                                }}
+                                onCancel={() => {
+                                    setAnnotationFormOpen(false)
+                                    setCurrentAttachment(null)
+                                    handleAttachmentsRefresh()
+                                }}
                                 formData={formData!}
                             />
                         </>
                     )}
                     {formType === 'MARRIAGE' && (
                         <>
-                            <MarriageCertificateFormCTC />
+                            <MarriageCertificateFormCTC formData={formData}
+                                open={ctcFormOpen}
+                                onOpenChange={(open) => {
+                                    setCtcFormOpen(open)
+                                    if (!open) {
+                                        handleAttachmentsRefresh()
+                                    }
+                                }}
+                                onClose={() => {
+                                    setCtcFormOpen(false)
+                                    handleAttachmentsRefresh()
+                                }}
+                                attachment={currentAttachment}
+                                onAttachmentUpdated={handleAttachmentsRefresh}
+                            />
 
                             <MarriageAnnotationForm
                                 open={annotationFormOpen}
-                                onOpenChange={setAnnotationFormOpen}
-                                onCancel={() => setAnnotationFormOpen(false)}
+                                onOpenChange={(open) => {
+                                    setAnnotationFormOpen(open)
+                                    if (!open) {
+                                        setTimeout(() => {
+                                            handleAttachmentsRefresh()
+                                        }, 500)
+                                        setCurrentAttachment(null)
+                                    }
+                                }}
+                                onCancel={() => {
+                                    setAnnotationFormOpen(false)
+                                    setCurrentAttachment(null)
+                                    handleAttachmentsRefresh()
+                                }}
                                 formData={formData!}
                             />
                         </>

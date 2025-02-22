@@ -18,7 +18,9 @@ export interface SubmitCertifiedCopyRequestParams {
   isRegisteredLate: boolean
   whenRegistered?: string
   attachmentId: string
+  copies: number
 }
+
 
 export const useSubmitCertifiedCopyRequest = () => {
   const [isLoading, setIsLoading] = useState(false)

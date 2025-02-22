@@ -20,9 +20,25 @@
  * The exported function generateTestData(prisma, userIds) calls all seeding functions.
  */
 
-import { fakerEN as faker } from '@faker-js/faker'
-import { COUNTRY, getAllProvinces, getBarangaysByLocation, getCachedCitySuggestions } from '@/lib/utils/location-helpers'
-import { AttachmentType, AttendantType, CivilRegistryFormType, DocumentStatus, FormType, NotificationType, PrismaClient, QueueStatus, ServiceType, Sex } from '@prisma/client'
+import {
+  COUNTRY,
+  getAllProvinces,
+  getBarangaysByLocation,
+  getCachedCitySuggestions,
+} from '@/lib/utils/location-helpers';
+import { fakerEN as faker } from '@faker-js/faker';
+import {
+  AttachmentType,
+  AttendantType,
+  CivilRegistryFormType,
+  DocumentStatus,
+  FormType,
+  NotificationType,
+  PrismaClient,
+  QueueStatus,
+  ServiceType,
+  Sex,
+} from '@prisma/client';
 
 /* ======================================================================
    Helper Functions
@@ -32,7 +48,7 @@ import { AttachmentType, AttendantType, CivilRegistryFormType, DocumentStatus, F
  * Generate a random date between two dates.
  */
 const randomDate = (start: Date, end: Date): Date =>
-  new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+  new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
 /**
  * Generate a person’s name in JSON format.
@@ -41,19 +57,19 @@ const generatePersonName = () => ({
   first: faker.person.firstName(),
   middle: faker.person.lastName(),
   last: faker.person.lastName(),
-})
+});
 
 /**
  * Generate a time string in "HH:mm AM/PM" format.
  */
 const generateTimeString = (): string => {
-  const hours = faker.number.int({ min: 1, max: 12 })
-  const minutes = faker.number.int({ min: 0, max: 59 })
-  const ampm = faker.helpers.arrayElement(['AM', 'PM'])
+  const hours = faker.number.int({ min: 1, max: 12 });
+  const minutes = faker.number.int({ min: 0, max: 59 });
+  const ampm = faker.helpers.arrayElement(['AM', 'PM']);
   return `${hours.toString().padStart(2, '0')}:${minutes
     .toString()
-    .padStart(2, '0')} ${ampm}`
-}
+    .padStart(2, '0')} ${ampm}`;
+};
 
 /**
  * Generate a random Philippine location.
@@ -61,20 +77,20 @@ const generateTimeString = (): string => {
  */
 const generatePhLocation = (isNCRMode: boolean = false) => {
   // Get all provinces and pick one randomly.
-  const provinces = getAllProvinces()
-  const province = faker.helpers.arrayElement(provinces)
+  const provinces = getAllProvinces();
+  const province = faker.helpers.arrayElement(provinces);
 
   // Get cities/municipalities for the selected province.
-  let citySuggestions = getCachedCitySuggestions(province.psgc_id, isNCRMode)
+  let citySuggestions = getCachedCitySuggestions(province.psgc_id, isNCRMode);
   if (citySuggestions.length === 0) {
     // Fallback: if no suggestions match (or province isn't found), get all cities
     // (This fallback depends on your application's logic.)
-    citySuggestions = getCachedCitySuggestions(province.psgc_id, false)
+    citySuggestions = getCachedCitySuggestions(province.psgc_id, false);
   }
-  const city = faker.helpers.arrayElement(citySuggestions)
+  const city = faker.helpers.arrayElement(citySuggestions);
 
   // Get barangays for the selected city.
-  let barangays = getBarangaysByLocation(city.psgc_id)
+  let barangays = getBarangaysByLocation(city.psgc_id);
   if (barangays.length === 0) {
     // Fallback: In case no barangays are found for that city,
     // you might consider fetching a broader list or using another logic.
@@ -86,13 +102,13 @@ const generatePhLocation = (isNCRMode: boolean = false) => {
       cityMunicipality: city.displayName,
       province: province.name,
       country: COUNTRY,
-    }
+    };
   }
-  const barangay = faker.helpers.arrayElement(barangays).name
+  const barangay = faker.helpers.arrayElement(barangays).name;
 
   // Generate additional location details.
-  const street = faker.location.streetAddress()
-  const houseNo = faker.location.buildingNumber()
+  const street = faker.location.streetAddress();
+  const houseNo = faker.location.buildingNumber();
 
   return {
     houseNo,
@@ -101,8 +117,8 @@ const generatePhLocation = (isNCRMode: boolean = false) => {
     cityMunicipality: city.displayName,
     province: province.name,
     country: COUNTRY,
-  }
-}
+  };
+};
 
 /* ======================================================================
    Seed Data for Simple Tables
@@ -115,7 +131,7 @@ export const seedFeedbackData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding Feedback data...')
+  console.log('Seeding Feedback data...');
   const feedbackData = Array(50)
     .fill(null)
     .map(() => ({
@@ -142,10 +158,10 @@ export const seedFeedbackData = async (
         from: new Date(2023, 0, 1),
         to: new Date(),
       }),
-    }))
-  await prisma.feedback.createMany({ data: feedbackData })
-  console.log('Feedback data seeded successfully!')
-}
+    }));
+  await prisma.feedback.createMany({ data: feedbackData });
+  console.log('Feedback data seeded successfully!');
+};
 
 /**
  * Seed Notification data.
@@ -154,7 +170,7 @@ export const seedNotificationData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding Notification data...')
+  console.log('Seeding Notification data...');
   const notificationData = Array(100)
     .fill(null)
     .map(() => ({
@@ -192,10 +208,10 @@ export const seedNotificationData = async (
         from: new Date(2023, 0, 1),
         to: new Date(),
       }),
-    }))
-  await prisma.notification.createMany({ data: notificationData })
-  console.log('Notification data seeded successfully!')
-}
+    }));
+  await prisma.notification.createMany({ data: notificationData });
+  console.log('Notification data seeded successfully!');
+};
 
 /* ======================================================================
    Base Registry Forms & Certificate Data Generation
@@ -209,14 +225,14 @@ const generateBaseRegistryForm = (
   userIds: string[],
   registrationDate: Date
 ) => {
-  const location = generatePhLocation()
+  const location = generatePhLocation();
   return {
     formNumber:
       formType === FormType.MARRIAGE
         ? '97'
         : formType === FormType.BIRTH
-          ? '102'
-          : '103',
+        ? '102'
+        : '103',
     formType,
     registryNumber: faker.string.numeric(8),
     province: location.province,
@@ -225,11 +241,10 @@ const generateBaseRegistryForm = (
     bookNumber: faker.string.numeric(3),
     receivedBy: faker.person.fullName(),
     receivedByPosition: 'Civil Registry Officer',
-    receivedDate: registrationDate,
+    receivedByDate: registrationDate,
     registeredBy: faker.person.fullName(),
     registeredByPosition: 'Civil Registrar',
-    registrationDate: registrationDate,
-    dateOfRegistration: registrationDate,
+    dateOfRegistration: registrationDate, // Corrected line
     isLateRegistered: faker.datatype.boolean(),
     remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
     lcroNotations: faker.helpers.maybe(() => faker.string.alpha(10)),
@@ -239,8 +254,8 @@ const generateBaseRegistryForm = (
       () => faker.helpers.arrayElement(userIds),
       { probability: 0.8 }
     ),
-  }
-}
+  };
+};
 
 /**
  * Generate Marriage Certificate data.
@@ -249,14 +264,14 @@ const generateMarriageCertificate = (
   userIds: string[],
   registrationDate: Date
 ) => {
-  const marriageDate = registrationDate
+  const marriageDate = registrationDate;
   const husbandBirthDate = randomDate(
     new Date(1970, 0, 1),
     new Date(2000, 0, 1)
-  )
-  const wifeBirthDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1))
-  const husbandResidenceLocation = generatePhLocation()
-  const wifeResidenceLocation = generatePhLocation()
+  );
+  const wifeBirthDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1));
+  const husbandResidenceLocation = generatePhLocation();
+  const wifeResidenceLocation = generatePhLocation();
   return {
     baseForm: generateBaseRegistryForm(
       FormType.MARRIAGE,
@@ -361,8 +376,8 @@ const generateMarriageCertificate = (
           signature: faker.person.fullName(),
         })),
     },
-  }
-}
+  };
+};
 
 /**
  * Generate Birth Certificate data.
@@ -371,11 +386,11 @@ const generateBirthCertificate = (
   userIds: string[],
   registrationDate: Date
 ) => {
-  const birthDate = randomDate(new Date(2020, 0, 1), new Date())
-  const motherAge = faker.number.int({ min: 18, max: 45 })
-  const fatherAge = faker.number.int({ min: 20, max: 50 })
-  const motherResidenceLocation = generatePhLocation()
-  const fatherResidenceLocation = generatePhLocation()
+  const birthDate = randomDate(new Date(2020, 0, 1), new Date());
+  const motherAge = faker.number.int({ min: 18, max: 45 });
+  const fatherAge = faker.number.int({ min: 20, max: 50 });
+  const motherResidenceLocation = generatePhLocation();
+  const fatherResidenceLocation = generatePhLocation();
   return {
     baseForm: generateBaseRegistryForm(
       FormType.BIRTH,
@@ -467,8 +482,8 @@ const generateBirthCertificate = (
         date: birthDate,
       },
     },
-  }
-}
+  };
+};
 
 /**
  * Generate Death Certificate data.
@@ -477,9 +492,19 @@ const generateDeathCertificate = (
   userIds: string[],
   registrationDate: Date
 ) => {
-  const deathDate = randomDate(new Date(2020, 0, 1), new Date())
-  const birthDate = randomDate(new Date(1940, 0, 1), new Date(2000, 0, 1))
-  const residenceLocation = generatePhLocation()
+  const deathDate = randomDate(new Date(2020, 0, 1), new Date());
+  const birthDate = randomDate(new Date(1940, 0, 1), new Date(2000, 0, 1));
+  const residenceLocation = generatePhLocation();
+  const placeOfDeathLocation = generatePhLocation();
+
+  // Calculate age at death
+  const yearsAtDeath = Math.floor(
+    (deathDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+  );
+  const monthsAtDeath = Math.floor(Math.random() * 11);
+  const daysAtDeath = Math.floor(Math.random() * 30);
+  const hoursAtDeath = Math.floor(Math.random() * 24);
+
   return {
     baseForm: generateBaseRegistryForm(
       FormType.DEATH,
@@ -487,13 +512,18 @@ const generateDeathCertificate = (
       registrationDate
     ),
     deathCertificateForm: {
-      certificationType: faker.helpers.arrayElement(['ORIGINAL', 'COPY']),
       deceasedName: generatePersonName(),
       sex: faker.helpers.arrayElement(['Male', 'Female']),
       dateOfDeath: deathDate,
-      placeOfDeath: { ...generatePhLocation(), country: 'Philippines' },
+      timeOfDeath: deathDate, // Use the same date object but will be formatted as time in the DB
       dateOfBirth: birthDate,
-      placeOfBirth: { ...generatePhLocation(), country: 'Philippines' },
+      ageAtDeath: {
+        years: yearsAtDeath.toString(),
+        months: monthsAtDeath.toString(),
+        days: daysAtDeath.toString(),
+        hours: hoursAtDeath.toString(),
+      },
+      placeOfDeath: placeOfDeathLocation,
       civilStatus: faker.helpers.arrayElement([
         'Single',
         'Married',
@@ -502,34 +532,182 @@ const generateDeathCertificate = (
       ]),
       religion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       citizenship: 'Filipino',
-      residence: {
-        houseNo: residenceLocation.houseNo,
-        street: residenceLocation.street,
-        barangay: residenceLocation.barangay,
-        cityMunicipality: residenceLocation.cityMunicipality,
-        province: residenceLocation.province,
-        country: 'Philippines',
-      },
+      residence: residenceLocation,
       occupation: faker.person.jobTitle(),
-      nameOfFather: generatePersonName(),
-      nameOfMother: generatePersonName(),
-      causesOfDeath: {
-        immediate: faker.helpers.arrayElement([
-          'Cardiac Arrest',
-          'Respiratory Failure',
-          'Multiple Organ Failure',
+
+      // Parent Information
+      parentInfo: {
+        fatherName: generatePersonName(),
+        motherName: generatePersonName(),
+      },
+
+      // Birth Information (if applicable)
+      birthInformation: faker.helpers.maybe(() => ({
+        ageOfMother: faker.number.int({ min: 18, max: 45 }).toString(),
+        methodOfDelivery: faker.helpers.arrayElement([
+          'Normal spontaneous vertex',
+          'Caesarean section',
+          'Forceps',
         ]),
-        antecedent: faker.helpers.arrayElement([
-          'Pneumonia',
-          'Sepsis',
-          'Acute Renal Failure',
+        lengthOfPregnancy: faker.number.int({ min: 30, max: 42 }),
+        typeOfBirth: faker.helpers.arrayElement(['Single', 'Twin', 'Triplet']),
+        birthOrder: faker.helpers.arrayElement([
+          'First',
+          'Second',
+          'Third',
+          'Fourth',
         ]),
-        underlying: faker.helpers.arrayElement([
-          'Hypertension',
-          'Diabetes Mellitus',
-          'Cancer',
+      })),
+
+      // Medical Certificate
+      medicalCertificate: {
+        causesOfDeath: faker.helpers.arrayElement([
+          // Infant-style cause of death
+          {
+            mainDiseaseOfInfant: faker.helpers.arrayElement([
+              'Respiratory Distress Syndrome',
+              'Neonatal Sepsis',
+              'Congenital Heart Disease',
+            ]),
+            otherDiseasesOfInfant: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement(['Jaundice', 'Premature Birth'])
+            ),
+            mainMaternalDisease: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement([
+                'Preeclampsia',
+                'Gestational Diabetes',
+              ])
+            ),
+            otherMaternalDisease: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement(['Anemia', 'Infections'])
+            ),
+            otherRelevantCircumstances: faker.helpers.maybe(() =>
+              faker.lorem.sentence()
+            ),
+          },
+          // Standard cause of death
+          {
+            immediate: {
+              cause: faker.helpers.arrayElement([
+                'Cardiac Arrest',
+                'Respiratory Failure',
+                'Multiple Organ Failure',
+              ]),
+              interval: faker.helpers.arrayElement([
+                'Minutes',
+                'Hours',
+                'Days',
+              ]),
+            },
+            antecedent: {
+              cause: faker.helpers.arrayElement([
+                'Pneumonia',
+                'Sepsis',
+                'Acute Renal Failure',
+              ]),
+              interval: faker.helpers.arrayElement(['Days', 'Weeks', 'Months']),
+            },
+            underlying: {
+              cause: faker.helpers.arrayElement([
+                'Hypertension',
+                'Diabetes Mellitus',
+                'Cancer',
+              ]),
+              interval: faker.helpers.arrayElement(['Months', 'Years']),
+            },
+            otherSignificantConditions: faker.helpers.maybe(() =>
+              faker.helpers.arrayElement([
+                'Chronic Kidney Disease',
+                'Coronary Artery Disease',
+                'COPD',
+              ])
+            ),
+          },
         ]),
-        otherSignificant: faker.helpers.maybe(() =>
+
+        // Maternal condition (optional)
+        maternalCondition: faker.helpers.maybe(() => ({
+          pregnantNotInLabor: faker.datatype.boolean(),
+          pregnantInLabor: faker.datatype.boolean(),
+          lessThan42Days: faker.datatype.boolean(),
+          daysTo1Year: faker.datatype.boolean(),
+          noneOfTheAbove: faker.datatype.boolean(),
+        })),
+
+        // External causes
+        externalCauses: {
+          mannerOfDeath: faker.helpers.arrayElement([
+            'Natural',
+            'Accident',
+            'Suicide',
+            'Homicide',
+          ]),
+          placeOfOccurrence: faker.helpers.arrayElement([
+            'Home',
+            'Hospital',
+            'Road',
+            'Workplace',
+          ]),
+        },
+
+        // Attendant
+        attendant: {
+          type: faker.helpers.arrayElement([
+            'Private physician',
+            'Public health officer',
+            'Hospital authority',
+            'None',
+            'Others',
+          ]),
+          othersSpecify: faker.helpers.maybe(() => faker.lorem.word()),
+          duration: {
+            from: randomDate(new Date(2019, 0, 1), deathDate),
+            to: deathDate,
+          },
+          certification: {
+            time: deathDate,
+            signature: faker.person.fullName(),
+            name: faker.person.fullName(),
+            title: faker.helpers.arrayElement([
+              'MD',
+              'RN',
+              'Attending Physician',
+            ]),
+            address: generatePhLocation(),
+            date: deathDate,
+          },
+        },
+
+        autopsy: faker.datatype.boolean(),
+      },
+
+      // Causes of Death (specific section - standard format)
+      causesOfDeath19b: {
+        immediate: {
+          cause: faker.helpers.arrayElement([
+            'Cardiac Arrest',
+            'Respiratory Failure',
+            'Multiple Organ Failure',
+          ]),
+          interval: faker.helpers.arrayElement(['Minutes', 'Hours', 'Days']),
+        },
+        antecedent: {
+          cause: faker.helpers.arrayElement([
+            'Pneumonia',
+            'Sepsis',
+            'Acute Renal Failure',
+          ]),
+          interval: faker.helpers.arrayElement(['Days', 'Weeks', 'Months']),
+        },
+        underlying: {
+          cause: faker.helpers.arrayElement([
+            'Hypertension',
+            'Diabetes Mellitus',
+            'Cancer',
+          ]),
+          interval: faker.helpers.arrayElement(['Months', 'Years']),
+        },
+        otherSignificantConditions: faker.helpers.maybe(() =>
           faker.helpers.arrayElement([
             'Chronic Kidney Disease',
             'Coronary Artery Disease',
@@ -537,58 +715,193 @@ const generateDeathCertificate = (
           ])
         ),
       },
-      deathInterval: {
-        immediate: 'Hours',
-        antecedent: 'Days',
-        underlying: 'Years',
-      },
-      pregnancy: faker.datatype.boolean(),
-      attendedByPhysician: faker.datatype.boolean(),
-      mannerOfDeath: faker.helpers.arrayElement(['Natural', 'Accident']),
-      autopsyPerformed: faker.datatype.boolean(),
-      certifier: {
-        name: faker.person.fullName(),
-        title: 'MD',
-        address: faker.location.streetAddress(),
+
+      // Certification of Death
+      certificationOfDeath: {
+        hasAttended: faker.datatype.boolean(),
         signature: faker.person.fullName(),
-        date: deathDate,
+        nameInPrint: faker.person.fullName(),
+        titleOfPosition: faker.helpers.arrayElement([
+          'MD',
+          'RN',
+          'Medical Examiner',
+        ]),
+        address: generatePhLocation(),
+        date: randomDate(deathDate, new Date(deathDate.getTime() + 86400000)),
+        healthOfficerSignature: faker.person.fullName(),
+        healthOfficerNameInPrint: faker.person.fullName(),
       },
-      disposalDetails: {
-        method: faker.helpers.arrayElement(['Burial', 'Cremation']),
-        place: faker.location.streetAddress(),
+
+      // Review Information
+      reviewedBy: {
+        signature: faker.person.fullName(),
         date: randomDate(
           deathDate,
-          new Date(deathDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+          new Date(deathDate.getTime() + 86400000 * 7)
         ),
       },
+
+      // Optional Certificates
+      postmortemCertificate: faker.helpers.maybe(
+        () => ({
+          causeOfDeath: faker.helpers.arrayElement([
+            'Multiple traumatic injuries',
+            'Gunshot wound',
+            'Blunt force trauma',
+          ]),
+          signature: faker.person.fullName(),
+          nameInPrint: faker.person.fullName(),
+          date: randomDate(
+            deathDate,
+            new Date(deathDate.getTime() + 86400000 * 3)
+          ),
+          titleDesignation: 'Forensic Pathologist',
+          address: faker.location.streetAddress(),
+        }),
+        { probability: 0.2 }
+      ),
+
+      embalmerCertification: faker.helpers.maybe(
+        () => ({
+          nameOfDeceased: `${faker.person.firstName()} ${faker.person.lastName()}`,
+          signature: faker.person.fullName(),
+          nameInPrint: faker.person.fullName(),
+          address: faker.location.streetAddress(),
+          titleDesignation: 'Licensed Embalmer',
+          licenseNo: faker.string.numeric(8),
+          issuedOn: randomDate(new Date(2015, 0, 1), new Date(2022, 0, 1))
+            .toISOString()
+            .split('T')[0],
+          issuedAt: faker.location.city(),
+          expiryDate: randomDate(new Date(), new Date(2025, 0, 1))
+            .toISOString()
+            .split('T')[0],
+        }),
+        { probability: 0.3 }
+      ),
+
+      delayedRegistration: faker.helpers.maybe(
+        () => ({
+          affiant: {
+            name: faker.person.fullName(),
+            civilStatus: faker.helpers.arrayElement([
+              'Single',
+              'Married',
+              'Widowed',
+              'Divorced',
+            ]),
+            residenceAddress: faker.location.streetAddress(),
+            age: faker.number.int({ min: 21, max: 70 }).toString(),
+            signature: faker.person.fullName(),
+          },
+          deceased: {
+            name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+            dateOfDeath: deathDate.toISOString().split('T')[0],
+            placeOfDeath: faker.location.city(),
+            burialInfo: {
+              date: randomDate(
+                deathDate,
+                new Date(deathDate.getTime() + 86400000 * 7)
+              )
+                .toISOString()
+                .split('T')[0],
+              place: faker.location.city(),
+              method: faker.helpers.arrayElement(['Buried', 'Cremated']),
+            },
+          },
+          attendance: {
+            wasAttended: faker.datatype.boolean(),
+            attendedBy: faker.helpers.maybe(() => faker.person.fullName()),
+          },
+          causeOfDeath: faker.helpers.arrayElement([
+            'Heart Attack',
+            'Cancer',
+            'Stroke',
+            'Respiratory Failure',
+          ]),
+          reasonForDelay: faker.helpers.arrayElement([
+            'Family was in mourning',
+            'Unaware of registration requirement',
+            'Lived in remote area',
+            'Documentation issues',
+          ]),
+          affidavitDate: randomDate(deathDate, new Date()),
+          affidavitDatePlace: faker.location.city(),
+          adminOfficer: {
+            signature: faker.person.fullName(),
+            position: 'Civil Registrar',
+          },
+          ctcInfo: {
+            number: faker.string.numeric(10),
+            issuedOn: randomDate(new Date(2015, 0, 1), new Date())
+              .toISOString()
+              .split('T')[0],
+            issuedAt: faker.location.city(),
+          },
+        }),
+        { probability: 0.25 }
+      ),
+
+      // Disposal Information
+      corpseDisposal: faker.helpers.arrayElement([
+        'Burial',
+        'Cremation',
+        'Embalming',
+      ]),
+      burialPermit: {
+        number: faker.string.numeric(8),
+        dateIssued: randomDate(
+          deathDate,
+          new Date(deathDate.getTime() + 86400000 * 3)
+        ),
+      },
+
+      transferPermit: faker.helpers.maybe(
+        () => ({
+          number: faker.string.numeric(8),
+          dateIssued: randomDate(
+            deathDate,
+            new Date(deathDate.getTime() + 86400000 * 3)
+          )
+            .toISOString()
+            .split('T')[0],
+        }),
+        { probability: 0.3 }
+      ),
+
+      cemeteryOrCrematory: {
+        name: faker.helpers.arrayElement([
+          'Manila Memorial Park',
+          'Loyola Memorial Park',
+          'Holy Cross Memorial Park',
+          'Forest Lake Memorial Park',
+        ]),
+        address: generatePhLocation(),
+      },
+
+      // Informant Information
       informant: {
-        name: faker.person.fullName(),
         signature: faker.person.fullName(),
-        relationship: faker.helpers.arrayElement([
+        nameInPrint: faker.person.fullName(),
+        relationshipToDeceased: faker.helpers.arrayElement([
           'Spouse',
           'Child',
           'Sibling',
+          'Parent',
+          'Other Relative',
         ]),
-        address: faker.location.streetAddress(),
-        date: deathDate,
-      },
-      preparer: {
-        name: faker.person.fullName(),
-        signature: faker.person.fullName(),
-        title: 'Civil Registry Staff',
-        date: deathDate,
-      },
-      burialPermit: {
-        number: faker.string.numeric(8),
+        address: generatePhLocation(),
         date: randomDate(
           deathDate,
-          new Date(deathDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+          new Date(deathDate.getTime() + 86400000 * 3)
         ),
-        cemetery: faker.location.streetAddress(),
       },
+
+      // Additional Fields
+      remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
     },
-  }
-}
+  };
+};
 
 /* ======================================================================
    Certified Copy Data Generation
@@ -598,10 +911,10 @@ const generateDeathCertificate = (
  * Generate Certified Copy data.
  */
 const generateCertifiedCopy = (formIds: string[], documentIds: string[]) => {
-  const createdAt = randomDate(new Date(2021, 0, 1), new Date())
+  const createdAt = randomDate(new Date(2021, 0, 1), new Date());
   const registeredDate = faker.helpers.maybe(() =>
     randomDate(createdAt, new Date())
-  )
+  );
   return {
     formId: faker.helpers.arrayElement(formIds),
     lcrNo: faker.helpers.maybe(() => faker.string.numeric(8)),
@@ -639,14 +952,14 @@ const generateCertifiedCopy = (formIds: string[], documentIds: string[]) => {
     signature: faker.helpers.maybe(() => faker.person.fullName()),
     updatedAt: new Date(),
     attachmentId: faker.helpers.arrayElement(documentIds),
-  }
-}
+  };
+};
 
 /**
  * Seed Certified Copy data.
  */
 export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
-  console.log('Seeding Certified Copy data...')
+  console.log('Seeding Certified Copy data...');
   // Create CivilRegistryFormBase entries with linked specific forms.
   const civilRegistryForms = await Promise.all(
     Array(20)
@@ -656,7 +969,7 @@ export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
           'FORM_1A',
           'FORM_2A',
           'FORM_3A',
-        ])
+        ]);
         const baseFormData = {
           formType,
           pageNumber: faker.string.numeric(3),
@@ -683,10 +996,10 @@ export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
           }),
           orNumber: faker.string.numeric(7),
           datePaid: faker.date.recent(),
-        }
+        };
         const baseForm = await prisma.civilRegistryFormBase.create({
           data: baseFormData,
-        })
+        });
         if (formType === 'FORM_1A') {
           await prisma.civilRegistryForm1A.create({
             data: {
@@ -702,7 +1015,7 @@ export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
               dateMarriageParents: faker.date.past(),
               placeMarriageParents: faker.location.city(),
             },
-          })
+          });
         } else if (formType === 'FORM_2A') {
           await prisma.civilRegistryForm2A.create({
             data: {
@@ -725,7 +1038,7 @@ export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
                 'Multiple Organ Failure',
               ]),
             },
-          })
+          });
         } else if (formType === 'FORM_3A') {
           await prisma.civilRegistryForm3A.create({
             data: {
@@ -761,12 +1074,12 @@ export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
               dateOfMarriage: randomDate(new Date(2020, 0, 1), new Date()),
               placeOfMarriage: faker.location.city(),
             },
-          })
+          });
         }
-        return baseForm
+        return baseForm;
       })
-  )
-  const formIds = civilRegistryForms.map((form) => form.id)
+  );
+  const formIds = civilRegistryForms.map((form) => form.id);
   // Create additional Document entries.
   const documents = await Promise.all(
     Array(20)
@@ -788,20 +1101,20 @@ export const seedCertifiedCopyData = async (prisma: PrismaClient) => {
           },
         })
       )
-  )
-  const documentIds = documents.map((doc) => doc.id)
+  );
+  const documentIds = documents.map((doc) => doc.id);
   if (formIds.length === 0 || documentIds.length === 0) {
     console.error(
       'Cannot generate CertifiedCopy records: formIds or documentIds is empty.'
-    )
-    return
+    );
+    return;
   }
   const certifiedCopyData = Array(50)
     .fill(null)
-    .map(() => generateCertifiedCopy(formIds, documentIds))
-  await prisma.certifiedCopy.createMany({ data: certifiedCopyData })
-  console.log('Certified Copy data seeded successfully!')
-}
+    .map(() => generateCertifiedCopy(formIds, documentIds));
+  await prisma.certifiedCopy.createMany({ data: certifiedCopyData });
+  console.log('Certified Copy data seeded successfully!');
+};
 
 /* ======================================================================
    Bulk Data Generation
@@ -816,15 +1129,15 @@ export const generateBulkData = async (
   count = 1000
 ): Promise<void> => {
   if (userIds.length === 0) {
-    throw new Error('No user IDs available for preparedById')
+    throw new Error('No user IDs available for preparedById');
   }
-  console.log('Generating bulk data...')
+  console.log('Generating bulk data...');
   const recordTypes = Array(count)
     .fill(null)
-    .map(() => faker.helpers.arrayElement(['marriage', 'birth', 'death']))
+    .map(() => faker.helpers.arrayElement(['marriage', 'birth', 'death']));
   for (let i = 0; i < recordTypes.length; i++) {
-    const recordType = recordTypes[i]
-    const createdAt = randomDate(new Date(2021, 0, 1), new Date())
+    const recordType = recordTypes[i];
+    const createdAt = randomDate(new Date(2021, 0, 1), new Date());
     if (recordType === 'marriage') {
       await prisma.baseRegistryForm.create({
         data: {
@@ -835,7 +1148,7 @@ export const generateBulkData = async (
               .marriageCertificateForm,
           },
         },
-      })
+      });
     } else if (recordType === 'birth') {
       await prisma.baseRegistryForm.create({
         data: {
@@ -846,7 +1159,7 @@ export const generateBulkData = async (
               .birthCertificateForm,
           },
         },
-      })
+      });
     } else if (recordType === 'death') {
       await prisma.baseRegistryForm.create({
         data: {
@@ -857,12 +1170,12 @@ export const generateBulkData = async (
               .deathCertificateForm,
           },
         },
-      })
+      });
     }
-    if (i % 100 === 0) console.log(`Generated ${i} records...`)
+    if (i % 100 === 0) console.log(`Generated ${i} records...`);
   }
-  console.log('Bulk data generation completed!')
-}
+  console.log('Bulk data generation completed!');
+};
 
 /* ======================================================================
    Additional Test Data Generation
@@ -872,8 +1185,8 @@ export const generateBulkData = async (
  * Generate additional test data for additional documents and certified copies.
  */
 export const generateAdditionalData = async (prisma: PrismaClient) => {
-  console.log('Generating additional test data...')
-  console.log('Generating additional documents...')
+  console.log('Generating additional test data...');
+  console.log('Generating additional documents...');
   const additionalDocs = await Promise.all(
     Array(10)
       .fill(null)
@@ -894,28 +1207,28 @@ export const generateAdditionalData = async (prisma: PrismaClient) => {
           },
         })
       )
-  )
-  const additionalDocIds = additionalDocs.map((doc) => doc.id)
+  );
+  const additionalDocIds = additionalDocs.map((doc) => doc.id);
   const civilRegistryForms = await prisma.civilRegistryFormBase.findMany({
     select: { id: true },
-  })
-  const formIds = civilRegistryForms.map((form) => form.id)
+  });
+  const formIds = civilRegistryForms.map((form) => form.id);
   if (formIds.length === 0 || additionalDocIds.length === 0) {
     console.error(
       'Cannot generate CertifiedCopy records: formIds or documentIds is empty.'
-    )
-    return
+    );
+    return;
   }
-  console.log(`Generating 50 certified copy requests (additional)...`)
+  console.log(`Generating 50 certified copy requests (additional)...`);
   const certifiedCopyData = Array(50)
     .fill(null)
     .map(() => ({
       ...generateCertifiedCopy(formIds, additionalDocIds),
       attachmentId: faker.helpers.arrayElement(additionalDocIds),
-    }))
-  await prisma.certifiedCopy.createMany({ data: certifiedCopyData })
-  console.log('Additional test data generation completed!')
-}
+    }));
+  await prisma.certifiedCopy.createMany({ data: certifiedCopyData });
+  console.log('Additional test data generation completed!');
+};
 
 /* ======================================================================
    Seed Data for Audit Logs, Accounts, Sessions, Roles & RolePermissions,
@@ -926,16 +1239,16 @@ export const seedAuditLogData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding AuditLog data...')
-  const documents = await prisma.document.findMany({ select: { id: true } })
+  console.log('Seeding AuditLog data...');
+  const documents = await prisma.document.findMany({ select: { id: true } });
   const forms = await prisma.civilRegistryFormBase.findMany({
     select: { id: true },
-  })
-  const documentIds = documents.map((doc) => doc.id)
-  const formIds = forms.map((form) => form.id)
+  });
+  const documentIds = documents.map((doc) => doc.id);
+  const formIds = forms.map((form) => form.id);
   // Fallback in case arrays are empty
   if (documentIds.length === 0) {
-    console.warn('No documents found. Creating a dummy document...')
+    console.warn('No documents found. Creating a dummy document...');
     const dummyDoc = await prisma.document.create({
       data: {
         type: AttachmentType.BIRTH_CERTIFICATE,
@@ -948,11 +1261,11 @@ export const seedAuditLogData = async (
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-    })
-    documentIds.push(dummyDoc.id)
+    });
+    documentIds.push(dummyDoc.id);
   }
   if (formIds.length === 0) {
-    console.warn('No civil registry forms found. Creating a dummy form...')
+    console.warn('No civil registry forms found. Creating a dummy form...');
     const dummyForm = await prisma.civilRegistryFormBase.create({
       data: {
         formType: CivilRegistryFormType.FORM_1A,
@@ -962,8 +1275,8 @@ export const seedAuditLogData = async (
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-    })
-    formIds.push(dummyForm.id)
+    });
+    formIds.push(dummyForm.id);
   }
   const actions = [
     'USER_LOGIN',
@@ -972,31 +1285,31 @@ export const seedAuditLogData = async (
     'DOCUMENT_UPDATED',
     'FORM_SUBMITTED',
     'ACCOUNT_UPDATED',
-  ]
+  ];
   const auditLogsData = Array(100)
     .fill(null)
     .map(() => {
-      const userId = faker.helpers.arrayElement(userIds)
-      const userName = faker.person.fullName()
-      const action = faker.helpers.arrayElement(actions)
+      const userId = faker.helpers.arrayElement(userIds);
+      const userName = faker.person.fullName();
+      const action = faker.helpers.arrayElement(actions);
       const entityType = faker.helpers.arrayElement([
         'User',
         'Document',
         'CivilRegistryForm',
         'Account',
-      ])
+      ]);
       const documentId =
         entityType === 'Document'
           ? faker.helpers.arrayElement(documentIds)
-          : null
+          : null;
       const civilRegistryFormId =
         entityType === 'CivilRegistryForm'
           ? faker.helpers.arrayElement(formIds)
-          : null
-      const details = { info: faker.lorem.sentence() }
-      const ipAddress = faker.internet.ip()
-      const userAgent = faker.internet.userAgent()
-      const createdAt = faker.date.recent()
+          : null;
+      const details = { info: faker.lorem.sentence() };
+      const ipAddress = faker.internet.ip();
+      const userAgent = faker.internet.userAgent();
+      const createdAt = faker.date.recent();
       return {
         userId,
         userName,
@@ -1008,17 +1321,17 @@ export const seedAuditLogData = async (
         ipAddress,
         userAgent,
         createdAt,
-      }
-    })
-  await prisma.auditLog.createMany({ data: auditLogsData })
-  console.log('AuditLog data seeded successfully!')
-}
+      };
+    });
+  await prisma.auditLog.createMany({ data: auditLogsData });
+  console.log('AuditLog data seeded successfully!');
+};
 
 export const seedAccountData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding Account data...')
+  console.log('Seeding Account data...');
   const accountsData = Array(20)
     .fill(null)
     .map(() => ({
@@ -1031,16 +1344,16 @@ export const seedAccountData = async (
       idToken: faker.string.alpha(20),
       createdAt: faker.date.recent(),
       updatedAt: new Date(),
-    }))
-  await prisma.account.createMany({ data: accountsData })
-  console.log('Account data seeded successfully!')
-}
+    }));
+  await prisma.account.createMany({ data: accountsData });
+  console.log('Account data seeded successfully!');
+};
 
 export const seedSessionData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding Session data...')
+  console.log('Seeding Session data...');
   const sessionsData = Array(20)
     .fill(null)
     .map(() => ({
@@ -1051,16 +1364,16 @@ export const seedSessionData = async (
       userId: faker.helpers.arrayElement(userIds),
       createdAt: faker.date.recent(),
       updatedAt: new Date(),
-    }))
-  await prisma.session.createMany({ data: sessionsData })
-  console.log('Session data seeded successfully!')
-}
+    }));
+  await prisma.session.createMany({ data: sessionsData });
+  console.log('Session data seeded successfully!');
+};
 
 /**
  * Seed Verification data.
  */
 export const seedVerificationData = async (prisma: PrismaClient) => {
-  console.log('Seeding Verification data...')
+  console.log('Seeding Verification data...');
   const verificationData = Array(10)
     .fill(null)
     .map(() => ({
@@ -1070,10 +1383,10 @@ export const seedVerificationData = async (prisma: PrismaClient) => {
       expiresAt: faker.date.future(),
       createdAt: faker.date.past(),
       updatedAt: faker.date.recent(),
-    }))
-  await prisma.verification.createMany({ data: verificationData })
-  console.log('Verification data seeded successfully!')
-}
+    }));
+  await prisma.verification.createMany({ data: verificationData });
+  console.log('Verification data seeded successfully!');
+};
 
 /**
  * Seed Queue data.
@@ -1082,7 +1395,7 @@ export const seedQueueData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding Queue data...')
+  console.log('Seeding Queue data...');
   const queueData = Array(20)
     .fill(null)
     .map(() => ({
@@ -1101,16 +1414,16 @@ export const seedQueueData = async (
         probability: 0.5,
       }),
       userName: faker.person.fullName(),
-    }))
-  await prisma.queue.createMany({ data: queueData })
-  console.log('Queue data seeded successfully!')
-}
+    }));
+  await prisma.queue.createMany({ data: queueData });
+  console.log('Queue data seeded successfully!');
+};
 
 /**
  * Seed Document data.
  */
 export const seedDocumentData = async (prisma: PrismaClient) => {
-  console.log('Seeding Document data...')
+  console.log('Seeding Document data...');
   const documentData = Array(20)
     .fill(null)
     .map(() => ({
@@ -1123,10 +1436,10 @@ export const seedDocumentData = async (prisma: PrismaClient) => {
       isLatest: true,
       createdAt: faker.date.past(),
       updatedAt: new Date(),
-    }))
-  await prisma.document.createMany({ data: documentData })
-  console.log('Document data seeded successfully!')
-}
+    }));
+  await prisma.document.createMany({ data: documentData });
+  console.log('Document data seeded successfully!');
+};
 
 /**
  * Seed Attachment data.
@@ -1136,7 +1449,7 @@ export const seedAttachmentData = async (
   userIds: string[],
   documentIds: string[]
 ) => {
-  console.log('Seeding Attachment data...')
+  console.log('Seeding Attachment data...');
   const attachmentData = Array(20)
     .fill(null)
     .map(() => ({
@@ -1162,10 +1475,10 @@ export const seedAttachmentData = async (
       }),
       metadata: {},
       hash: faker.string.alphanumeric(32),
-    }))
-  await prisma.attachment.createMany({ data: attachmentData })
-  console.log('Attachment data seeded successfully!')
-}
+    }));
+  await prisma.attachment.createMany({ data: attachmentData });
+  console.log('Attachment data seeded successfully!');
+};
 
 /**
  * Seed Workflow data (with steps).
@@ -1174,12 +1487,12 @@ export const seedWorkflowData = async (
   prisma: PrismaClient,
   userIds: string[]
 ) => {
-  console.log('Seeding Workflow data...')
+  console.log('Seeding Workflow data...');
   await Promise.all(
     Array(5)
       .fill(null)
       .map(async (_, i) => {
-        const createdBy = faker.helpers.arrayElement(userIds)
+        const createdBy = faker.helpers.arrayElement(userIds);
         await prisma.workflow.create({
           data: {
             name: `Workflow ${i + 1}`,
@@ -1205,11 +1518,11 @@ export const seedWorkflowData = async (
                 })),
             },
           },
-        })
+        });
       })
-  )
-  console.log('Workflow data seeded successfully!')
-}
+  );
+  console.log('Workflow data seeded successfully!');
+};
 
 /* ======================================================================
    Final Combined Export
@@ -1226,19 +1539,19 @@ export const generateTestData = async (
   userIds: string[]
 ) => {
   // First, seed data that is needed for relationships
-  await seedAccountData(prisma, userIds)
-  await seedSessionData(prisma, userIds)
-  await generateBulkData(prisma, userIds)
-  await generateAdditionalData(prisma)
-  await seedFeedbackData(prisma, userIds)
-  await seedNotificationData(prisma, userIds)
-  await seedAuditLogData(prisma, userIds)
-  await seedVerificationData(prisma)
-  await seedQueueData(prisma, userIds)
-  await seedDocumentData(prisma)
+  await seedAccountData(prisma, userIds);
+  await seedSessionData(prisma, userIds);
+  await generateBulkData(prisma, userIds);
+  await generateAdditionalData(prisma);
+  await seedFeedbackData(prisma, userIds);
+  await seedNotificationData(prisma, userIds);
+  await seedAuditLogData(prisma, userIds);
+  await seedVerificationData(prisma);
+  await seedQueueData(prisma, userIds);
+  await seedDocumentData(prisma);
   // After seeding documents, fetch their IDs:
-  const docs = await prisma.document.findMany({ select: { id: true } })
-  const documentIds = docs.map((doc) => doc.id)
-  await seedAttachmentData(prisma, userIds, documentIds)
-  await seedWorkflowData(prisma, userIds)
-}
+  const docs = await prisma.document.findMany({ select: { id: true } });
+  const documentIds = docs.map((doc) => doc.id);
+  await seedAttachmentData(prisma, userIds, documentIds);
+  await seedWorkflowData(prisma, userIds);
+};
