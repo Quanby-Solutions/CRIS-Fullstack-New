@@ -558,24 +558,28 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                 onAttachmentUpdated={handleAttachmentsRefresh}
                             />
 
-                            <DeathAnnotationForm
-                                open={annotationFormOpen}
-                                onOpenChange={(open) => {
-                                    setAnnotationFormOpen(open)
-                                    if (!open) {
-                                        setTimeout(() => {
-                                            handleAttachmentsRefresh()
-                                        }, 500)
+                            {/* for creating annotation */}
+                            {currentAttachment && currentAttachment.certifiedCopies.length > 0 && (
+                                <DeathAnnotationForm
+                                    open={annotationFormOpen}
+                                    onOpenChange={(open) => {
+                                        setAnnotationFormOpen(open)
+                                        if (!open) {
+                                            setTimeout(() => {
+                                                handleAttachmentsRefresh()
+                                            }, 500)
+                                            setCurrentAttachment(null)
+                                        }
+                                    }}
+                                    onCancel={() => {
+                                        setAnnotationFormOpen(false)
                                         setCurrentAttachment(null)
-                                    }
-                                }}
-                                onCancel={() => {
-                                    setAnnotationFormOpen(false)
-                                    setCurrentAttachment(null)
-                                    handleAttachmentsRefresh()
-                                }}
-                                formData={formData!}
-                            />
+                                        handleAttachmentsRefresh()
+                                    }}
+                                    formData={formData!}
+                                    certifiedCopyId={currentAttachment.certifiedCopies[0].id}
+                                />
+                            )}
                         </>
                     )}
                     {formType === 'MARRIAGE' && (
@@ -596,24 +600,28 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                 onAttachmentUpdated={handleAttachmentsRefresh}
                             />
 
-                            <MarriageAnnotationForm
-                                open={annotationFormOpen}
-                                onOpenChange={(open) => {
-                                    setAnnotationFormOpen(open)
-                                    if (!open) {
-                                        setTimeout(() => {
-                                            handleAttachmentsRefresh()
-                                        }, 500)
+                            {/* for creating annotation */}
+                            {currentAttachment && currentAttachment.certifiedCopies.length > 0 && (
+                                <MarriageAnnotationForm
+                                    open={annotationFormOpen}
+                                    onOpenChange={(open) => {
+                                        setAnnotationFormOpen(open)
+                                        if (!open) {
+                                            setTimeout(() => {
+                                                handleAttachmentsRefresh()
+                                            }, 500)
+                                            setCurrentAttachment(null)
+                                        }
+                                    }}
+                                    onCancel={() => {
+                                        setAnnotationFormOpen(false)
                                         setCurrentAttachment(null)
-                                    }
-                                }}
-                                onCancel={() => {
-                                    setAnnotationFormOpen(false)
-                                    setCurrentAttachment(null)
-                                    handleAttachmentsRefresh()
-                                }}
-                                formData={formData!}
-                            />
+                                        handleAttachmentsRefresh()
+                                    }}
+                                    formData={formData!}
+                                    certifiedCopyId={currentAttachment.certifiedCopies[0].id}
+                                />
+                            )}
                         </>
                     )}
                 </>

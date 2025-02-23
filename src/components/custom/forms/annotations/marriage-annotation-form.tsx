@@ -18,19 +18,31 @@ import { Label } from '@/components/ui/label'
 import { createMarriageAnnotation } from '@/hooks/form-annotations-actions'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  ExtendedMarriageAnnotationFormProps,
   MarriageAnnotationFormValues,
   marriageAnnotationSchema,
 } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+
+export interface MarriageAnnotationFormProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
+  certifiedCopyId: string
+}
+
+export interface ExtendedMarriageAnnotationFormProps extends MarriageAnnotationFormProps {
+  formData: BaseRegistryFormWithRelations
+}
 
 // Inline type for name structure.
 type NameType = { firstName?: string; first?: string; lastName?: string; last?: string }
 
+// Use string types for date fields like in the birth annotation form.
 const defaultValues: MarriageAnnotationFormValues = {
   pageNumber: '',
   bookNumber: '',
   registryNumber: '',
-  dateOfRegistration: new Date(),
+  dateOfRegistration: '',
   husbandName: '',
   husbandDateOfBirthAge: '',
   husbandCitizenship: '',
@@ -43,7 +55,7 @@ const defaultValues: MarriageAnnotationFormValues = {
   wifeCivilStatus: '',
   wifeFather: '',
   wifeMother: '',
-  dateOfMarriage: new Date(),
+  dateOfMarriage: '',
   placeOfMarriage: '',
   issuedTo: '',
   purpose: '',
@@ -55,7 +67,7 @@ const defaultValues: MarriageAnnotationFormValues = {
   civilRegistrarPosition: 'OIC - City Civil Registrar',
   amountPaid: 0,
   orNumber: '',
-  datePaid: new Date(),
+  datePaid: '',
 }
 
 const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
@@ -63,6 +75,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
   onOpenChange,
   onCancel,
   formData,
+  certifiedCopyId,
 }) => {
   const {
     register,
@@ -75,6 +88,12 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
     defaultValues,
   })
 
+  // Helper to convert a Date or string to YYYY-MM-DD format
+  const formatDateForInput = (date: Date | string) => {
+    const d = new Date(date)
+    return d.toISOString().split('T')[0]
+  }
+
   useEffect(() => {
     if (formData) {
       const form = formData
@@ -84,7 +103,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
         setValue('pageNumber', form.pageNumber)
         setValue('bookNumber', form.bookNumber)
         setValue('registryNumber', form.registryNumber)
-        setValue('dateOfRegistration', new Date(form.dateOfRegistration))
+        setValue('dateOfRegistration', formatDateForInput(form.dateOfRegistration))
 
         // Husband's Information
         const husbandFullName = `${marriageForm.husbandFirstName} ${marriageForm.husbandMiddleName} ${marriageForm.husbandLastName}`.trim()
@@ -148,7 +167,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
 
         // Marriage Details
         if (marriageForm.dateOfMarriage) {
-          setValue('dateOfMarriage', new Date(marriageForm.dateOfMarriage))
+          setValue('dateOfMarriage', formatDateForInput(marriageForm.dateOfMarriage))
         }
         if (marriageForm.placeOfMarriage && typeof marriageForm.placeOfMarriage === 'object') {
           const placeObj = marriageForm.placeOfMarriage as { church?: string; cityMunicipality?: string; province?: string }
@@ -172,14 +191,14 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
         setValue('purpose', 'Legal Purposes')
         setValue('issuedTo', husbandFullName)
         setValue('amountPaid', 250.0)
-        setValue('datePaid', new Date())
+        setValue('datePaid', formatDateForInput(new Date()))
       }
     }
   }, [formData, setValue])
 
   const onSubmit = async (data: MarriageAnnotationFormValues) => {
     try {
-      const response = await createMarriageAnnotation(data)
+      const response = await createMarriageAnnotation(data, certifiedCopyId)
       if (response.success) {
         toast.success('Marriage annotation created successfully')
         onOpenChange(false)
@@ -193,6 +212,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
     }
   }
 
+  // Define handleCancel similar to your birth cert form
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     reset()
@@ -352,7 +372,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
             </div>
           </div>
           <DialogFooter className="mt-8">
-            <Button type="button" variant="outline" onClick={handleCancel}>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting} className="ml-2">
