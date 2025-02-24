@@ -432,8 +432,8 @@
   "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use.",
 
 
-
-
+  "Submit:":"Submit",  
+  "Submit...":"Submiting...",
   "Update Role": "Edit Role",
   "Update the details for the role.": "Edit the details for the role.",
   "Updating...": "Editing...",
