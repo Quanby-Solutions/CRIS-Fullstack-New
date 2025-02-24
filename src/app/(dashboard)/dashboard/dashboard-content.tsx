@@ -24,7 +24,7 @@ export default function DashboardContent() {
   }
 
   return (
-    <div className="w-full h-fit flex flex-1 flex-col gap-4 p-4">
+    <div className="max-h-[90vh] overflow-y-auto w-full flex flex-1 flex-col gap-4 p-4">
       <Alert>
         <Icons.infoCircledIcon className="h-4 w-4" />
         <AlertTitle>{t("summary_view")}</AlertTitle>
