@@ -288,13 +288,15 @@ export function DataTableRowActions({
 
       {canUpload && (
         <FileUploadDialog
-          open={uploadDialogOpen}
-          onOpenChangeAction={setUploadDialogOpen}
-          formId={form.id}
-          formType={form.formType}
-          registryNumber={form.registryNumber}
-          onUploadSuccess={handleAttachmentsRefresh}
-        />
+        open={uploadDialogOpen}
+        onOpenChangeAction={setUploadDialogOpen}
+        formId={form.id}
+        formType={form.formType}
+        registryNumber={form.registryNumber}
+        bookNumber={form.bookNumber}     
+        pageNumber={form.pageNumber}    
+        onUploadSuccess={handleAttachmentsRefresh}
+      />
       )}
 
       {/* CTC Forms */}

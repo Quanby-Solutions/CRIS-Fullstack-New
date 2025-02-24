@@ -2,7 +2,7 @@
 
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { FormType } from "@prisma/client"
+import { FormType, Permission } from "@prisma/client"
 import { redirect } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useDropzone } from "react-dropzone"
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 import Image from "next/image"
 import useCreateDocument from "@/hooks/use-create-document"
+import { notifyUsersWithPermission } from "@/hooks/users-action"
 
 interface FileUploadDialogProps {
     open: boolean
@@ -21,6 +22,8 @@ interface FileUploadDialogProps {
     formId: string
     formType: FormType
     registryNumber: string
+    bookNumber: string       // added prop
+    pageNumber: string
 }
 
 export function FileUploadDialog({
@@ -30,6 +33,8 @@ export function FileUploadDialog({
     formId,
     formType,
     registryNumber,
+    bookNumber,          // destructured added prop
+    pageNumber,          // destructured added prop
 }: FileUploadDialogProps) {
     const { data: session } = useSession()
     const { createDocument } = useCreateDocument()
@@ -144,12 +149,18 @@ export function FileUploadDialog({
                     url: fileUrl,
                     id: document.id,
                     attachmentId: attachment.id,
-                    fileName: file.name // Pass the original file name to the parent component
+                    fileName: file.name
                 })
             }
 
             // Close the dialog
             onOpenChangeAction(false)
+
+            const documentRead = Permission.DOCUMENT_READ
+            const title = `New Attachment for "${formType} Certificate" has been uploaded.`
+            const message = `New Attachment for (Book ${bookNumber}, Page ${pageNumber}, Registry Number ${registryNumber}) has been uploaded.`
+            notifyUsersWithPermission(documentRead, title, message)
+
         } catch (error) {
             console.error("Upload process error:", error)
             toast.error(error instanceof Error ? error.message : "Failed to upload file")

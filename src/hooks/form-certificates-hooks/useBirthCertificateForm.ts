@@ -228,7 +228,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '../users-action';
 interface UseBirthCertificateFormProps {
   onOpenChange?: (open: boolean) => void;
 }
@@ -236,6 +237,7 @@ interface UseBirthCertificateFormProps {
 export function useBirthCertificateForm({
   onOpenChange,
 }: UseBirthCertificateFormProps = {}) {
+
   const formMethods = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateFormSchema),
     mode: 'onChange',
@@ -403,6 +405,13 @@ export function useBirthCertificateForm({
         toast.success(
           `Birth certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
         );
+        
+        const documentRead = Permission.DOCUMENT_READ
+        const Title = "New uploaded Birth Certificate"
+        const message = `New Birth Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+
+
         onOpenChange?.(false);
       } else if ('error' in result) {
         console.log('Submission error:', result.error);

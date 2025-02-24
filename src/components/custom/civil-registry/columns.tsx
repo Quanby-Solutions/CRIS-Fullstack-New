@@ -346,7 +346,7 @@ export const createColumns = (
     {
       accessorFn: (row) => {
         const receivedBy = `${row.receivedBy || ''} ${row.receivedByPosition || ''}`.trim()
-        const receivedDate = row.receivedDate ? safeFormatDate(row.receivedDate) : 'N/A'
+        const receivedDate = row.receivedByDate ? safeFormatDate(row.receivedByDate) : 'N/A'
         return `${receivedBy} - ${receivedDate}`
       },
       id: 'received',
@@ -423,6 +423,10 @@ export const createColumns = (
         return (
           <StatusDropdown
             formId={row.original.id}
+            registryNumber={row.original.registryNumber ?? 'N/A'}
+            bookNumber={row.original.bookNumber ?? 'N/A'}
+            pageNumber={row.original.pageNumber ?? 'N/A'}
+            formType={row.original.formType ?? 'N/A'}
             currentStatus={status}
             onStatusChange={(newStatus) => {
               row.original.status = newStatus

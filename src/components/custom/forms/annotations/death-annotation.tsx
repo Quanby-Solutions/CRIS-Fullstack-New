@@ -26,6 +26,8 @@ import {
 } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
 
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
 
 export interface DeathAnnotationFormProps {
   open: boolean
@@ -144,12 +146,12 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
         }
 
         if (
-          deathForm.causesOfDeath &&
-          typeof deathForm.causesOfDeath === 'object' &&
-          deathForm.causesOfDeath !== null &&
-          'immediate' in deathForm.causesOfDeath
+          deathForm.causesOfDeath19b &&
+          typeof deathForm.causesOfDeath19b === 'object' &&
+          deathForm.causesOfDeath19b !== null &&
+          'immediate' in deathForm.causesOfDeath19b
         ) {
-          setValue('causeOfDeath', String(deathForm.causesOfDeath.immediate || ''))
+          setValue('causeOfDeath', String(deathForm.causesOfDeath19b.immediate || ''))
         }
       }
 
@@ -175,6 +177,13 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
       const response = await createDeathAnnotation(data, certifiedCopyId)
       if (response.success) {
         toast.success('Death annotation created successfully')
+
+        const documentRead = Permission.DOCUMENT_READ
+        const Title = "New Annotation for Death Certificate"
+        const message = `New Annotation for Death Certificate with the details (Book: ${formData?.bookNumber}
+                 Page: ${formData?.pageNumber}, Form Type: ${formData?.formType}) has been Created.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+        
         onOpenChange(false)
         reset()
       } else {

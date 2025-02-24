@@ -36,7 +36,7 @@ async function notify(
  * Finds all users having a specific permission and sends them a notification.
  * The permission parameter is typed as Permission (enum) to match Prisma's expectations.
  */
-async function notifyUsersWithPermission(
+export async function notifyUsersWithPermission(
   permission: Permission,
   title: string,
   message: string,

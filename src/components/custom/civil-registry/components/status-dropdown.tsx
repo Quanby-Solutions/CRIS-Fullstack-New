@@ -8,6 +8,8 @@ import { updateFormStatus } from '@/hooks/update-status-action'
 import clsx from 'clsx'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
 
 export const statusVariants: Record<
   DocumentStatus,
@@ -42,11 +44,23 @@ export const statusVariants: Record<
 
 interface StatusSelectProps {
   formId: string
+  registryNumber: string
+  bookNumber: string
+  pageNumber: string
+  formType: string
   currentStatus: DocumentStatus
   onStatusChange?: (newStatus: DocumentStatus) => void
 }
 
-export default function StatusSelect({ formId, currentStatus, onStatusChange }: StatusSelectProps) {
+export default function StatusSelect({
+  formId,
+  registryNumber,
+  bookNumber,
+  pageNumber,
+  formType,
+  currentStatus,
+  onStatusChange,
+}: StatusSelectProps) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<DocumentStatus>(currentStatus)
   const [pendingStatus, setPendingStatus] = useState<DocumentStatus | null>(null)
@@ -60,13 +74,21 @@ export default function StatusSelect({ formId, currentStatus, onStatusChange }: 
       setStatus(pendingStatus)
 
       await updateFormStatus(formId, pendingStatus)
-      toast.success('Status updated successfully')
+      console.log(pendingStatus,   formId,
+        registryNumber,
+        bookNumber,
+        pageNumber,)
+      // Notify users with DOCUMENT_READ permission
+      const documentRead = Permission.DOCUMENT_READ
+      const title = ` Form Certificate Status Updated to ${pendingStatus}`
+      const message = `Form certificate with the (Book: ${bookNumber}, Page: ${pageNumber}, Registry Number: ${registryNumber} and FormType: ${formType}) has been updated to ${pendingStatus}`
+      notifyUsersWithPermission(documentRead, title, message)
 
+      toast.success('Status updated successfully')
       onStatusChange?.(pendingStatus)
     } catch (error: unknown) {
       console.error(error)
       toast.error('Failed to update status')
-
       setStatus(currentStatus)
     } finally {
       setLoading(false)
@@ -91,10 +113,7 @@ export default function StatusSelect({ formId, currentStatus, onStatusChange }: 
       >
         <SelectTrigger
           disabled={loading}
-          className={clsx(
-            'w-[180px] rounded-md border shadow-sm px-4 py-2',
-            statusVariants[status].bgColor
-          )}
+          className={clsx('w-[180px] rounded-md border shadow-sm px-4 py-2', statusVariants[status].bgColor)}
         >
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
