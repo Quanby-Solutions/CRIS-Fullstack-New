@@ -305,6 +305,8 @@
   "notificationList": {
     "title": "List Notification",
     "unread": "unread",
+    "unreadTab": "unread",
+    "noUnread": "No Unread Notification",
     "searchPlaceholder": "Search...",
     "all": "All",
     "archive": "Archive",
@@ -312,7 +314,15 @@
     "loading": "Loading...",
     "noNotifications": "No notifications",
     "noArchived": "No archived notifications",
-    "noFavorite": "No favorite notifications"
+    "noFavorite": "No favorite notifications",
+    "dateRange": "Date Range",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "resetDateRange": "Reset",
+    "sortNewestToOldest": "Newest to Oldest",
+    "sortOldestToNewest": "Oldest to Newest"
+
+    
   },
   "feedbacks": {
     "emptyError": "Feedback cannot be empty.",

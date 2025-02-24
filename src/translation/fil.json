@@ -312,13 +312,23 @@
     "title": "Listahan ng mga Notipikasyon",
     "unread": "hindi nabasa",
     "searchPlaceholder": "Maghanap...",
+    "unreadTab": "Hindi nabasa",
+    "noUnread": "Walang hindi nabasang abiso",
     "all": "Lahat",
     "archive": "Arkibo",
     "favorite": "Paborito",
     "loading": "Naglo-load...",
     "noNotifications": "Walang mga notipikasyon",
     "noArchived": "Walang mga nakatagong notipikasyon",
-    "noFavorite": "Walang mga paboritong notipikasyon"
+    "noFavorite": "Walang mga paboritong notipikasyon",
+
+    "dateRange": "Saklaw ng Petsa",
+    "startDate": "Petsa ng Pagsisimula",
+    "endDate": "Petsa ng Pagwawakas",
+    "resetDateRange": "I-reset",
+    "sortNewestToOldest": "Pinakabago hanggang Pinakaluma",
+    "sortOldestToNewest": "Pinakaluma hanggang Pinakabago"
+
   },
   "feedbacks": {
     "emptyError": "Hindi pwedeng walang puna.",
