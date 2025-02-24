@@ -57,20 +57,16 @@ export default function StatusSelect({ formId, currentStatus, onStatusChange }: 
     setDialogOpen(false)
     setLoading(true)
     try {
-      // Update local state immediately for a responsive UI
       setStatus(pendingStatus)
 
-      // Then update on the server
       await updateFormStatus(formId, pendingStatus)
       toast.success('Status updated successfully')
 
-      // Notify parent component about the status change
       onStatusChange?.(pendingStatus)
     } catch (error: unknown) {
       console.error(error)
       toast.error('Failed to update status')
 
-      // Revert to previous status on error
       setStatus(currentStatus)
     } finally {
       setLoading(false)
@@ -111,7 +107,6 @@ export default function StatusSelect({ formId, currentStatus, onStatusChange }: 
         </SelectContent>
       </Select>
 
-      {/* ShadCN‑style modal for confirmation */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
