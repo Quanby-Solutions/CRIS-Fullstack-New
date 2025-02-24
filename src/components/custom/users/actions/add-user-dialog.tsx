@@ -108,10 +108,13 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
 
   // Reset form when dialog closes
   useEffect(() => {
-    if (!open) {
-      form.reset(defaultValues)
+    if (role) {
+      form.reset({
+        ...defaultValues,
+        roleId: role,
+      });
     }
-  }, [open, form])
+  }, [role, form])
 
   const handleGeneratePassword = useCallback(() => {
     const newPassword = generateSecurePassword()
