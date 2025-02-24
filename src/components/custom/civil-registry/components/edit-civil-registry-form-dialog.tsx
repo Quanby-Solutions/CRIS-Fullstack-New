@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 import { useTranslation } from 'react-i18next'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -23,7 +25,9 @@ export function EditCivilRegistryFormDialog({
                 <DialogHeader>
                     <DialogTitle>{t('editForm.title')}</DialogTitle>
                 </DialogHeader>
-                {/* Add form editing components here */}
+
+                <Image src={'/images/maintain.jpg'} className={''} width={500} height={500} alt={''} />
+
             </DialogContent>
         </Dialog>
     )
