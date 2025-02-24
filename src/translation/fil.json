@@ -3,6 +3,8 @@
   "dashboard_description": "Ang dashboard na ito ay nagbibigay ng buod ng mga tsart at metrics. Para sa mas detalyadong mga ulat o upang makabuo ng mga pasadyang ulat, pumunta sa",
   "reports_section": "Seksyon ng Mga Ulat",
   "No forms have been added yet": "Wala pang naidagdag na mga form",
+  "late_registration": "Huli na Rehistro",
+  "ready_for_release": "Handa Ilabas",
   "metrics": {
     "total_registrations": "Kabuuang Mga Rehistro",
     "birth_certificates": "Mga Sertipiko ng Kapanganakan",

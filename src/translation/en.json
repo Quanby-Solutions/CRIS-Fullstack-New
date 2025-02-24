@@ -3,6 +3,8 @@
   "dashboard_description": "This dashboard provides a summary of the charts and metrics. For more detailed reports or to generate custom reports, navigate to the",
   "reports_section": "Reports section",
   "No forms have been added yet": "No forms have been added yet",
+  "late_registration": "Late registration",
+  "ready_for_release": "Ready for release",
   "metrics": {
     "total_registrations": "Total Registrations",
     "birth_certificates": "Birth Certificates",
