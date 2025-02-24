@@ -79,7 +79,7 @@ export function NotificationList({ userId }: { userId: string }) {
             </div>
           )}
         </div>
-        <div className='flex'>
+        <div className='flex gap-4'>
         <div className="relative mb-4">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -89,9 +89,7 @@ export function NotificationList({ userId }: { userId: string }) {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        {/* Controls: Date Range popover and Sort Order toggle */}
         <div className="flex items-center space-x-4 mb-4">
-          {/* Date Range Picker */}
           <Popover>
             <PopoverTrigger asChild>
               <Button
