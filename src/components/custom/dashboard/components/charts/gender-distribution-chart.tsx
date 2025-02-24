@@ -31,15 +31,15 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
         return (
             <Card className="lg:col-span-3 flex flex-col min-h-[400px]">
                 <CardHeader>
-                    <Skeleton className="h-6 w-1/3 mb-2" /> {/* Title Skeleton */}
-                    <Skeleton className="h-4 w-1/2" /> {/* Description Skeleton */}
+                    <Skeleton className="h-6 w-1/3 mb-2" />
+                    <Skeleton className="h-4 w-1/2" />
                 </CardHeader>
                 <CardContent className="flex-1 flex justify-center items-center">
-                    <Skeleton className="rounded-full h-[250px] w-[250px]" /> {/* Pie Chart Skeleton */}
+                    <Skeleton className="rounded-full h-[250px] w-[250px]" />
                 </CardContent>
                 <CardFooter className="flex justify-around">
-                    <Skeleton className="h-4 w-1/4" /> {/* Male count Skeleton */}
-                    <Skeleton className="h-4 w-1/4" /> {/* Female count Skeleton */}
+                    <Skeleton className="h-4 w-1/4" />
+                    <Skeleton className="h-4 w-1/4" />
                 </CardFooter>
             </Card>
         )
@@ -112,7 +112,7 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full"  />
+                        <div className="h-3 w-3 rounded-full" />
                         <span className="text-muted-foreground">
                             {t('female')}: {femalePercentage}% ({totalFemale.toLocaleString()})
                         </span>

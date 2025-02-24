@@ -128,12 +128,12 @@ export const navigationConfig: NavigationConfiguration = {
             url: "/settings",
             iconName: "gear",
         },
-        {
-            id: "help",
-            type: "projects",
-            title: "Help",
-            url: "/help",
-            iconName: "help",
-        },
+        // {
+        //     id: "help",
+        //     type: "projects",
+        //     title: "Help",
+        //     url: "/help",
+        //     iconName: "help",
+        // },
     ],
 }
