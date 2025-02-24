@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Icons } from "@/components/ui/icons"
 import Link from "next/link"
 import ChartsDashboard from "@/components/custom/dashboard/components/charts"
 import MetricsDashboard from "@/components/custom/dashboard/components/metrics"
 import StatisticsDashboard from "@/components/custom/dashboard/components/statistics"
+
+import { useState } from "react"
+import { Icons } from "@/components/ui/icons"
+import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function DashboardContent() {
