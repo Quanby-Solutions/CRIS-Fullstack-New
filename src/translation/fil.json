@@ -431,5 +431,15 @@
   "marriage_reports": "Kasal",
   "birth_reports": "Kapanganakan",
   "death_reports": "Kamatayan",
-  "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit."
+  "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit.",
+
+
+
+  "Update Role": "I-Edit ang Tungkulin",
+  "Update the details for the role.": "I-update ang mga detalye para sa tungkulin.",
+  "Updating...": "Ine-Editing...",
+  "Update": "I-Edit",
+  "Role updated successfully": "Matagumpay na na-edit ang tungkulin",
+  "Unknown error occurred": "Hindi kilalang error ang nangyari",
+  "Failed to update role:": "Nabigong i-Edit ang tungkulin:"
 }

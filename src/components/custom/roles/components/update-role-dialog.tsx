@@ -122,7 +122,7 @@ export function UpdateRoleDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-full max-w-lg sm:max-w-2xl p-6">
+      <DialogContent className="w-full max-w-lg sm:max-w-2xl p-6 max-h-[100vh]">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-bold">
             {t('Update Role')}
@@ -162,7 +162,7 @@ export function UpdateRoleDialog({
 
           <div>
             <Label className="block mb-2">{t('Permissions')}</Label>
-            <ScrollArea className="h-[400px] rounded-md border">
+            <ScrollArea className="h-[30vh] rounded-md border">
               <div className="space-y-4 p-4">
                 {Object.entries(permissionGroups).map(([group, permissions]) => (
                   <div key={group} className="space-y-2">

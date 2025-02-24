@@ -176,7 +176,7 @@ const ChildInformationCard: React.FC = () => {
                   }}
                   label='Date'
                   placeholder='Please select a date'
-                  ref={field.ref} // Forward ref for auto-focus
+                  ref={field.ref}
                 />
               )}
             />

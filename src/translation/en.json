@@ -429,5 +429,16 @@
   "marriage_reports": "Marriage Reports",
   "birth_reports": "Birth Reports",
   "death_reports": "Death Reports",
-  "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use."
+  "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use.",
+
+
+
+
+  "Update Role": "Edit Role",
+  "Update the details for the role.": "Edit the details for the role.",
+  "Updating...": "Editing...",
+  "Update": "Edit",
+  "Role updated successfully": "Role updated successfully",
+  "Unknown error occurred": "Unknown error occurred",
+  "Failed to update role:": "Failed to Edit role:"
 }
