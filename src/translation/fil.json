@@ -5,6 +5,10 @@
   "No forms have been added yet": "Wala pang naidagdag na mga form",
   "late_registration": "Huli na Rehistro",
   "ready_for_release": "Handa Ilabas",
+  "marriage_registration_trends": "Mga Trend ng Pagpaparehistro ng Kasal",
+  "marriage_registrations_over_time": "Pagpaparehistro ng Kasal sa Paglipas ng Panahon",
+  "from_last_month": "mula noong nakaraang buwan",
+  "last_6_months_data": "Data ng Huling 6 na Buwan",
   "metrics": {
     "total_registrations": "Kabuuang Mga Rehistro",
     "birth_certificates": "Mga Sertipiko ng Kapanganakan",

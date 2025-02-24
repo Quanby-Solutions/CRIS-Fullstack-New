@@ -301,6 +301,10 @@
   "loggingOut": "Logging out...",
   "signInToSubmitFeedback": "Please sign in to submit feedback.",
   "areYouSureToLogout": "Are you sure you want to log out?",
+  "marriage_registration_trends": "Marriage Registration Trends",
+  "marriage_registrations_over_time": "Marriage Registrations Over Time",
+  "from_last_month": "from last month",
+  "last_6_months_data": "Last 6 months data",
   "logOut": "Log Out",
   "notificationList": {
     "title": "List Notification",

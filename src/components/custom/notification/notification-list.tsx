@@ -169,7 +169,7 @@ export function NotificationList({ userId }: { userId: string }) {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-2 max-h-[450px] overflow-y-auto">
+        <TabsContent value="all" className="space-y-2 max-h-[400px] overflow-y-auto">
           {isLoading ? (
             <div className="text-center text-muted-foreground">{t('notificationList.loading')}</div>
           ) : error ? (
