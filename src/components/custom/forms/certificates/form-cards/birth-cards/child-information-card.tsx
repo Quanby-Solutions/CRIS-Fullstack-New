@@ -98,6 +98,7 @@ const ChildInformationCard: React.FC = () => {
         </Card>
 
         {/* Physical Information Section */}
+        <div className='flex gap-4 w-full'>
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Physical Information</h3>
@@ -159,12 +160,11 @@ const ChildInformationCard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Date of Birth */}
-        <Card>
+        <Card className='w-[49%]'>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Birth Date</h3>
           </CardHeader>
-          <CardContent>
+          <CardContent className='w-52'>
             <FormField
               control={control}
               name='childInfo.dateOfBirth'
@@ -174,7 +174,7 @@ const ChildInformationCard: React.FC = () => {
                     value: field.value,
                     onChange: field.onChange,
                   }}
-                  label='Birth Date'
+                  label='Date'
                   placeholder='Please select a date'
                   ref={field.ref} // Forward ref for auto-focus
                 />
@@ -182,7 +182,7 @@ const ChildInformationCard: React.FC = () => {
             />
           </CardContent>
         </Card>
-
+        </div>
         {/* Place of Birth */}
         <Card>
           <CardHeader className='pb-3'>
