@@ -51,12 +51,12 @@ export function DataTableRowActions({
   const { permissions } = useUser()
   const form = row.original
 
-  // const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [ctcFormOpen, setCtcFormOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
   const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
-  const [ctcFormOpen, setCtcFormOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [currentAttachment, setCurrentAttachment] = useState<AttachmentWithCertifiedCopies | null>(null)
 
   const { handleDelete, isLoading: isDeleteLoading } = useDeleteFormAction({ form })
@@ -227,12 +227,12 @@ export function DataTableRowActions({
             </>
           )}
 
-          {/* {canEdit && (
+          {canEdit && (
             <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
               <Icons.folder className="mr-2 h-4 w-4" />
               {t('editForm.title')}
             </DropdownMenuItem>
-          )} */}
+          )}
 
           {canExport && (
             <DropdownMenuItem
@@ -260,7 +260,7 @@ export function DataTableRowActions({
       </DropdownMenu>
 
       {/* Dialogs */}
-      {/* {canEdit && (
+      {canEdit && (
         <EditCivilRegistryFormDialog
           form={form}
           open={editDialogOpen}
@@ -271,7 +271,7 @@ export function DataTableRowActions({
             setEditDialogOpen(false)
           }}
         />
-      )} */}
+      )}
 
       {canDelete && (
         <DeleteConfirmationDialog
