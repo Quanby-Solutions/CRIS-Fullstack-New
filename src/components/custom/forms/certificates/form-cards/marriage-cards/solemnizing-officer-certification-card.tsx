@@ -25,7 +25,7 @@ export const SolemnizingOfficerCertification: React.FC<
   const { control, watch } = useFormContext<MarriageCertificateFormValues>();
 
   // Watch specific form fields for dynamic updates
-  const marriageLicenseNumber = watch('marriageLicenseDetails.licensenumber');
+  const marriageLicenseNumber = watch('marriageLicenseDetails.licenseNumber');
   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued');
   const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued');
   const marriageArticleNumber = watch('marriageArticle.article');
@@ -120,7 +120,7 @@ export const SolemnizingOfficerCertification: React.FC<
             {/* License No */}
             <FormField
               control={control}
-              name='marriageLicenseDetails.licensenumber'
+              name='marriageLicenseDetails.licenseNumber'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>

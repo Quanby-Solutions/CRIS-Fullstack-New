@@ -238,7 +238,7 @@ export async function submitMarriageCertificateForm(
                         //>arriageLicense Details
                         marriageLicenseDetails: {
                             ...formData.marriageLicenseDetails,
-                            licenseNumber: formData.marriageLicenseDetails.licensenumber,
+                            licenseNumber: formData.marriageLicenseDetails.licenseNumber,
                             dateIssued: formData.marriageLicenseDetails.dateIssued,
                             placeIssued: formData.marriageLicenseDetails.placeIssued,
                             marriageAgreement: formData.marriageLicenseDetails.marriageAgreement,
