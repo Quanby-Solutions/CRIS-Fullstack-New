@@ -390,12 +390,12 @@ const generateMarriageCertificate = (
       contractingPartiesSignature: [
         {
           party: 'husband',
-          signature: '',
+          signature: faker.person.fullName(),
           agreement: true
         },
         {
           party: 'wife',
-          signature: '',
+          signature: faker.person.fullName(),
           agreement: true
         }
       ],
@@ -425,14 +425,14 @@ const generateMarriageCertificate = (
         .fill(null)
         .map(() => ({
           name: faker.person.fullName(),
-          signature: ''
+          signature: faker.person.fullName()
         })),
 
       // Marriage License Details
       marriageLicenseDetails: {
         licenseNumber: faker.string.numeric(8),
         dateIssued: randomDate(new Date(2020, 0, 1), dateOfMarriage),
-        placeIssued: 'Office of the Civil Registrar, ' + faker.location.city(),
+        placeIssued: 'Office of the Civil Registrar, ',
         marriageAgreement: true
       },
 
@@ -461,14 +461,14 @@ const generateMarriageCertificate = (
           'Minister',
         ]),
         registryNoExpiryDate: faker.date.future().toISOString(),
-        signature: ''
+        signature: faker.person.fullName()
       },
 
       // Registered By Office
       registeredByOffice: {
         date: faker.date.recent(),
         nameInPrint: faker.person.fullName(),
-        signature: '',
+        signature: faker.person.fullName(),
         title: faker.helpers.arrayElement([
           'Civil Registrar',
           'Assistant Civil Registrar',
@@ -483,7 +483,7 @@ const generateMarriageCertificate = (
       affidavitOfSolemnizingOfficer: {
         administeringInformation: {
           nameOfOfficer: faker.person.fullName(),
-          signatureOfOfficer: '',
+          signatureOfOfficer: faker.person.fullName(),
           position: faker.helpers.arrayElement(['Judge', 'Mayor', 'Priest']),
           addressOfOffice: {
             st: faker.location.street(),
@@ -543,7 +543,7 @@ const generateMarriageCertificate = (
         nameOfAdmin: {
           address: faker.location.streetAddress(),
           signature: {
-            signature: '',
+            signature: faker.person.fullName(),
             name2: faker.person.fullName(),
             position: faker.helpers.arrayElement(['Notary Public', 'Judge', 'Mayor'])
           }
@@ -554,7 +554,7 @@ const generateMarriageCertificate = (
       affidavitOfdelayedRegistration: faker.datatype.boolean(0.3) ? {
         // Administering Information
         administeringInformation: {
-          signatureOfAdmin: '',
+          signatureOfAdmin: faker.person.fullName(),
           nameOfOfficer: faker.person.fullName(),
           position: faker.helpers.arrayElement(['Judge', 'Notary Public', 'Mayor']),
           addressOfOfficer: {
@@ -568,7 +568,7 @@ const generateMarriageCertificate = (
 
         // Applicant Information
         applicantInformation: {
-          signatureOfApplicant: '',
+          signatureOfApplicant: faker.person.fullName(),
           nameOfApplicant: faker.person.fullName(),
           postalCode: faker.location.zipCode(),
           applicantAddress: {
@@ -755,12 +755,12 @@ const generateBirthCertificate = (
         name: faker.person.fullName(),
         title: 'MD',
         address: faker.location.streetAddress(),
-        signature: '',
+        signature: faker.person.fullName(),
         date: birthDate,
       },
       informant: {
         name: faker.person.fullName(),
-        signature: '',
+        signature: faker.person.fullName(),
         relationship: faker.helpers.arrayElement([
           'Mother',
           'Father',
@@ -771,7 +771,7 @@ const generateBirthCertificate = (
       },
       preparer: {
         name: faker.person.fullName(),
-        signature: '',
+        signature: faker.person.fullName(),
         title: 'Civil Registry Staff',
         date: birthDate,
       },
@@ -960,7 +960,7 @@ const generateDeathCertificate = (
           },
           certification: {
             time: deathDate,
-            signature: '',
+            signature: faker.person.fullName(),
             name: faker.person.fullName(),
             title: faker.helpers.arrayElement([
               'MD',
@@ -1013,7 +1013,7 @@ const generateDeathCertificate = (
       // Certification of Death
       certificationOfDeath: {
         hasAttended: faker.datatype.boolean(),
-        signature: '',
+        signature: faker.person.fullName(),
         nameInPrint: faker.person.fullName(),
         titleOfPosition: faker.helpers.arrayElement([
           'MD',
@@ -1022,13 +1022,13 @@ const generateDeathCertificate = (
         ]),
         address: generatePhLocation(),
         date: randomDate(deathDate, new Date(deathDate.getTime() + 86400000)),
-        healthOfficerSignature: '',
+        healthOfficerSignature: faker.person.fullName(),
         healthOfficerNameInPrint: faker.person.fullName(),
       },
 
       // Review Information
       reviewedBy: {
-        signature: '',
+        signature: faker.person.fullName(),
         date: randomDate(
           deathDate,
           new Date(deathDate.getTime() + 86400000 * 7)
@@ -1043,7 +1043,7 @@ const generateDeathCertificate = (
             'Gunshot wound',
             'Blunt force trauma',
           ]),
-          signature: '',
+          signature: faker.person.fullName(),
           nameInPrint: faker.person.fullName(),
           date: randomDate(
             deathDate,
@@ -1058,7 +1058,7 @@ const generateDeathCertificate = (
       embalmerCertification: faker.helpers.maybe(
         () => ({
           nameOfDeceased: `${faker.person.firstName()} ${faker.person.lastName()}`,
-          signature: '',
+          signature: faker.person.fullName(),
           nameInPrint: faker.person.fullName(),
           address: faker.location.streetAddress(),
           titleDesignation: 'Licensed Embalmer',
@@ -1086,7 +1086,7 @@ const generateDeathCertificate = (
             ]),
             residenceAddress: faker.location.streetAddress(),
             age: faker.number.int({ min: 21, max: 70 }).toString(),
-            signature: '',
+            signature: faker.person.fullName(),
           },
           deceased: {
             name: `${faker.person.firstName()} ${faker.person.lastName()}`,
@@ -1122,7 +1122,7 @@ const generateDeathCertificate = (
           affidavitDate: randomDate(deathDate, new Date()),
           affidavitDatePlace: faker.location.city(),
           adminOfficer: {
-            signature: '',
+            signature: faker.person.fullName(),
             position: 'Civil Registrar',
           },
           ctcInfo: {
@@ -1175,7 +1175,7 @@ const generateDeathCertificate = (
 
       // Informant Information
       informant: {
-        signature: '',
+        signature: faker.person.fullName(),
         nameInPrint: faker.person.fullName(),
         relationshipToDeceased: faker.helpers.arrayElement([
           'Spouse',

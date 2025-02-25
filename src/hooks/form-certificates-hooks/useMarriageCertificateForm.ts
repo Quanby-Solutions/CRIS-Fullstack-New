@@ -14,8 +14,8 @@ interface UseMarriageCertificateFormProps {
 const preparePrismaData = (data: any) => {
     // Convert Date objects to ISO strings for JSON fields
     const formatTimeString = (date: Date) => {
-        return date instanceof Date ? 
-            date.toLocaleTimeString('en-US', { 
+        return date instanceof Date ?
+            date.toLocaleTimeString('en-US', {
                 hour12: false,
                 hour: '2-digit',
                 minute: '2-digit'
@@ -23,7 +23,7 @@ const preparePrismaData = (data: any) => {
     };
 
     // Create a deep copy to avoid mutating the original
-    const processedData = {...data};
+    const processedData = { ...data };
 
 
     return processedData;
@@ -32,7 +32,7 @@ const preparePrismaData = (data: any) => {
 export function useMarriageCertificateForm({
     onOpenChange,
 }: UseMarriageCertificateFormProps = {}) {
-    
+
     const formMethods = useForm<MarriageCertificateFormValues>({
         resolver: zodResolver(marriageCertificateSchema),
         mode: 'onChange',
@@ -42,7 +42,7 @@ export function useMarriageCertificateForm({
             registryNumber: '2025-000123',
             province: 'Albay',
             cityMunicipality: 'City of Tabaco',
-    
+
             // Husband Information
             husbandName: {
                 first: 'Juan Miguel',
@@ -87,7 +87,7 @@ export function useMarriageCertificateForm({
                 },
                 motherCitizenship: 'Filipino'
             },
-    
+
             // Wife Information
             wifeName: {
                 first: 'Maria Cristina',
@@ -132,7 +132,7 @@ export function useMarriageCertificateForm({
                 },
                 motherCitizenship: 'Filipino'
             },
-    
+
             // Marriage Details
             placeOfMarriage: {
                 houseNo: '',
@@ -144,7 +144,7 @@ export function useMarriageCertificateForm({
             },
             dateOfMarriage: new Date('2025-05-14'),
             timeOfMarriage: new Date(),
-    
+
             // Witnesses
             husbandWitnesses: [
                 {
@@ -166,7 +166,7 @@ export function useMarriageCertificateForm({
                     signature: 'Angelica M. Torres'
                 }
             ],
-    
+
             // Contracting Parties
             husbandContractParty: {
                 signature: 'Juan Miguel D. Santos',
@@ -176,25 +176,25 @@ export function useMarriageCertificateForm({
                 signature: 'Maria Cristina F. Reyes',
                 agreement: true
             },
-    
+
             // Marriage License Details
             marriageLicenseDetails: {
-                
+
                 dateIssued: new Date('2025-04-15'),
                 placeIssued: 'Office of the Civil Registrar, Tabaco City, Albay',
                 licenseNumber: 'ML-2025-0452',
                 marriageAgreement: true
             },
-    
+
             // Marriage Article
             marriageArticle: {
                 article: 'Article 1',
                 marriageArticle: true
             },
-    
+
             // Marriage Settlement
             marriageSettlement: true,
-    
+
             // Solemnizing Officer
             solemnizingOfficer: {
                 name: 'Rev. Fr. Miguel Antonio Santos',
@@ -202,7 +202,7 @@ export function useMarriageCertificateForm({
                 signature: 'Fr. Miguel A. Santos',
                 registryNoExpiryDate: '2027-12-31'
             },
-    
+
             // Registered at Civil Registrar
             preparedBy: {
                 date: new Date('2025-01-15'),
@@ -222,14 +222,14 @@ export function useMarriageCertificateForm({
                 signature: 'Maria Corazon G. Bautista',
                 titleOrPosition: 'City Civil Registrar'
             },
-    
+
             // Optional Sections
             remarks: 'Marriage ceremony conducted in accordance with Catholic rites. Reception held at Tabaco City Convention Center.',
             pagination: {
                 pageNumber: '42',
                 bookNumber: '7'
             },
-            
+
             // Back page data - Affidavit of Solemnizing Officer
             affidavitOfSolemnizingOfficer: {
                 administeringInformation: {
@@ -300,7 +300,7 @@ export function useMarriageCertificateForm({
                     }
                 }
             },
-    
+
             // Affidavit for Delayed Registration
             affidavitForDelayed: {
                 administeringInformation: {
@@ -364,8 +364,8 @@ export function useMarriageCertificateForm({
                         dateIssued: new Date('2025-04-15'),
                         placeOfSolemnizedMarriage: 'St. John the Baptist Parish Church, Tabaco City',
                     },
-                    b: { 
-                        underArticle: 'Article 1 of the Family Code of the Philippines' 
+                    b: {
+                        underArticle: 'Article 1 of the Family Code of the Philippines'
                     },
                 },
                 d: {
@@ -406,15 +406,15 @@ export function useMarriageCertificateForm({
     const onSubmit = async (data: MarriageCertificateFormValues) => {
         try {
             console.log('Raw form data:', data);
-            
+
             // First prepare the data structure
             const preparedData = preparePrismaData(data);
-            
+
             // Process file uploads and convert to base64
             const processedData = await handleFileUploads(preparedData);
-            
+
             console.log('Processed data before submission:', processedData);
-            
+
             // Submit the processed data
             const result = await submitMarriageCertificateForm(processedData);
 
@@ -430,9 +430,13 @@ export function useMarriageCertificateForm({
                     : result.error;
                 toast.error(errorMessage);
             }
-        } catch (error) {
-            console.error('Form submission error:', error);
-            toast.error('An unexpected error occurred while submitting the form');
+        }
+        catch (error) {
+            console.error('Error in submitMarriageCertificateForm:', error);
+            return {
+                success: false,
+                error: 'Internal server error',
+            };
         }
     };
 
@@ -452,8 +456,8 @@ export function useMarriageCertificateForm({
     // Extract file upload processing to a separate function
     const handleFileUploads = async (data: any) => {
         // Create a deep copy to avoid mutating the original
-        const processedData = {...data};
-        
+        const processedData = { ...data };
+
         // Process all signatures
         // Prepared By, Received By, and Registered By signatures
         if (processedData.preparedBy?.signature instanceof File) {
@@ -491,8 +495,8 @@ export function useMarriageCertificateForm({
             processedData.husbandWitnesses = await Promise.all(
                 processedData.husbandWitnesses.map(async (witness: any) => ({
                     ...witness,
-                    signature: witness.signature instanceof File 
-                        ? await fileToBase64(witness.signature) 
+                    signature: witness.signature instanceof File
+                        ? await fileToBase64(witness.signature)
                         : witness.signature
                 }))
             );
@@ -502,8 +506,8 @@ export function useMarriageCertificateForm({
             processedData.wifeWitnesses = await Promise.all(
                 processedData.wifeWitnesses.map(async (witness: any) => ({
                     ...witness,
-                    signature: witness.signature instanceof File 
-                        ? await fileToBase64(witness.signature) 
+                    signature: witness.signature instanceof File
+                        ? await fileToBase64(witness.signature)
                         : witness.signature
                 }))
             );
@@ -512,12 +516,12 @@ export function useMarriageCertificateForm({
         // Affidavit of Solemnizing Officer
         if (processedData.affidavitOfSolemnizingOfficer) {
             if (processedData.affidavitOfSolemnizingOfficer.administeringInformation.signatureOfOfficer instanceof File) {
-                processedData.affidavitOfSolemnizingOfficer.administeringInformation.signatureOfOfficer = 
+                processedData.affidavitOfSolemnizingOfficer.administeringInformation.signatureOfOfficer =
                     await fileToBase64(processedData.affidavitOfSolemnizingOfficer.administeringInformation.signatureOfOfficer);
             }
-            
+
             if (processedData.affidavitOfSolemnizingOfficer.nameOfAdmin?.signature?.signature instanceof File) {
-                processedData.affidavitOfSolemnizingOfficer.nameOfAdmin.signature.signature = 
+                processedData.affidavitOfSolemnizingOfficer.nameOfAdmin.signature.signature =
                     await fileToBase64(processedData.affidavitOfSolemnizingOfficer.nameOfAdmin.signature.signature);
             }
         }
@@ -525,12 +529,12 @@ export function useMarriageCertificateForm({
         // Affidavit for Delayed Registration (optional)
         if (processedData.affidavitForDelayed) {
             if (processedData.affidavitForDelayed.administeringInformation.signatureOfAdmin instanceof File) {
-                processedData.affidavitForDelayed.administeringInformation.signatureOfAdmin = 
+                processedData.affidavitForDelayed.administeringInformation.signatureOfAdmin =
                     await fileToBase64(processedData.affidavitForDelayed.administeringInformation.signatureOfAdmin);
             }
-            
+
             if (processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant instanceof File) {
-                processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant = 
+                processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant =
                     await fileToBase64(processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant);
             }
         }
