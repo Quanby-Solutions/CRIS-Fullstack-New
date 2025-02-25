@@ -22,6 +22,7 @@ import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
 import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
 import { WitnessesCard } from './form-cards/marriage-cards/witnesses-section-card';
 import {
+  PreparedByCard,
   ReceivedByCard,
   RegisteredAtOfficeCard,
 } from './form-cards/shared-components/processing-details-cards';
@@ -71,10 +72,11 @@ export default function MarriageCertificateForm({
                       <ContractingPartiesCertificationCard />
                       <SolemnizingOfficerCertification />
                       <WitnessesCard />
+                      <PreparedByCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard
-                        fieldPrefix='registeredAtCivilRegistrar'
-                        cardTitle='Registered At Office'
+                        fieldPrefix='registeredByOffice'
+                        cardTitle='Registered at the Office of Civil Registrar'
                       />
                       <RemarksCard />
                       <AffidavitOfSolemnizingOfficer />
@@ -121,11 +123,11 @@ export default function MarriageCertificateForm({
                 type='submit'
                 className='py-2 w-32 bg-primary/80 hover:bg-primary'
               >
-                Save  
+                Save
               </Button>
-              {/* <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
+              <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
                 Log Form Data
-              </Button> */}
+              </Button>
 
             </DialogFooter>
           </form>

@@ -346,7 +346,7 @@ export const createColumns = (
     {
       accessorFn: (row) => {
         const receivedBy = `${row.receivedBy || ''} ${row.receivedByPosition || ''}`.trim()
-        const receivedDate = row.receivedDate ? safeFormatDate(row.receivedDate) : 'N/A'
+        const receivedDate = row.receivedByDate ? safeFormatDate(row.receivedByDate) : 'N/A'
         return `${receivedBy} - ${receivedDate}`
       },
       id: 'received',
