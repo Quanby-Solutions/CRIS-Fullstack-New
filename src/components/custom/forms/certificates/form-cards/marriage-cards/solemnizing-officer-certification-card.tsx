@@ -25,10 +25,10 @@ export const SolemnizingOfficerCertification: React.FC<
   const { control, watch } = useFormContext<MarriageCertificateFormValues>();
 
   // Watch specific form fields for dynamic updates
-  const marriageLicenseNumber = watch('marriageLicenseDetails.number');
+  const marriageLicenseNumber = watch('marriageLicenseDetails.licenseNumber');
   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued');
   const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued');
-  const marriageArticleNumber = watch('marriageArticle.articleExecutiveOrder');
+  const marriageArticleNumber = watch('marriageArticle.article');
 
   return (
     <Card className={cn('border dark:border-border', className)}>
@@ -53,7 +53,7 @@ export const SolemnizingOfficerCertification: React.FC<
           <div className='space-y-4'>
             <FormField
               control={control}
-              name='marriageLicenseDetails.marriageAgree.agreement'
+              name='marriageLicenseDetails.marriageAgreement'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                   <FormControl>
@@ -76,7 +76,7 @@ export const SolemnizingOfficerCertification: React.FC<
             />
             <FormField
               control={control}
-              name='marriageArticle.articleAgree.agreement'
+              name='marriageArticle.marriageArticle'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                   <FormControl>
@@ -97,7 +97,7 @@ export const SolemnizingOfficerCertification: React.FC<
             />
             <FormField
               control={control}
-              name='marriageSolemnized.agreement'
+              name='marriageSettlement'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                   <FormControl>
@@ -120,7 +120,7 @@ export const SolemnizingOfficerCertification: React.FC<
             {/* License No */}
             <FormField
               control={control}
-              name='marriageLicenseDetails.number'
+              name='marriageLicenseDetails.licenseNumber'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>
@@ -178,7 +178,7 @@ export const SolemnizingOfficerCertification: React.FC<
             {/* Article No. */}
             <FormField
               control={control}
-              name='marriageArticle.articleExecutiveOrder'
+              name='marriageArticle.article'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>

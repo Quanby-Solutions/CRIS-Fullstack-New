@@ -231,8 +231,8 @@ const generateBaseRegistryForm = (
       formType === FormType.MARRIAGE
         ? '97'
         : formType === FormType.BIRTH
-        ? '102'
-        : '103',
+          ? '102'
+          : '103',
     formType,
     registryNumber: faker.string.numeric(8),
     province: location.province,
@@ -272,16 +272,39 @@ const generateMarriageCertificate = (
   const wifeBirthDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1));
   const husbandResidenceLocation = generatePhLocation();
   const wifeResidenceLocation = generatePhLocation();
+
+  // Get the name values for reuse
+  const husbandFirstName = faker.person.firstName('male');
+  const husbandMiddleName = faker.person.lastName();
+  const husbandLastName = faker.person.lastName();
+
+  const wifeFirstName = faker.person.firstName('female');
+  const wifeMiddleName = faker.person.lastName();
+  const wifeLastName = faker.person.lastName();
+
+  // Generate random time string for wedding time
+  const weddingTime = generateTimeString();
+
+  // Generate random date for marriage
+  const dateOfMarriage = randomDate(new Date(2020, 0, 1), new Date());
+
+  // Generate contract day
+  const contractDay = randomDate(new Date(2020, 0, 1), marriageDate);
+
+  // Create base form
+  const baseForm = generateBaseRegistryForm(
+    FormType.MARRIAGE,
+    userIds,
+    registrationDate
+  );
+
   return {
-    baseForm: generateBaseRegistryForm(
-      FormType.MARRIAGE,
-      userIds,
-      registrationDate
-    ),
+    baseForm: baseForm,
     marriageCertificateForm: {
-      husbandFirstName: faker.person.firstName('male'),
-      husbandMiddleName: faker.person.lastName(),
-      husbandLastName: faker.person.lastName(),
+      // Husband Information
+      husbandFirstName: husbandFirstName,
+      husbandMiddleName: husbandMiddleName,
+      husbandLastName: husbandLastName,
       husbandDateOfBirth: husbandBirthDate,
       husbandAge: Math.floor(
         (marriageDate.getTime() - husbandBirthDate.getTime()) / 31557600000
@@ -301,14 +324,28 @@ const generateMarriageCertificate = (
         'Widowed',
         'Divorced',
       ]),
+
+      // Husband Parents Information
       husbandFatherName: generatePersonName(),
       husbandFatherCitizenship: 'Filipino',
       husbandMotherMaidenName: generatePersonName(),
       husbandMotherCitizenship: 'Filipino',
 
-      wifeFirstName: faker.person.firstName('female'),
-      wifeMiddleName: faker.person.lastName(),
-      wifeLastName: faker.person.lastName(),
+      // Husband Consent Person
+      husbandConsentPerson: {
+        name: generatePersonName(),
+        relationship: faker.helpers.arrayElement([
+          'Parent',
+          'Child',
+          'Sibling',
+        ]),
+        residence: faker.location.streetAddress(),
+      },
+
+      // Wife Information
+      wifeFirstName: wifeFirstName,
+      wifeMiddleName: wifeMiddleName,
+      wifeLastName: wifeLastName,
       wifeDateOfBirth: wifeBirthDate,
       wifeAge: Math.floor(
         (marriageDate.getTime() - wifeBirthDate.getTime()) / 31557600000
@@ -328,32 +365,93 @@ const generateMarriageCertificate = (
         'Widowed',
         'Divorced',
       ]),
+
+      // Wife Parents Information
       wifeFatherName: generatePersonName(),
       wifeFatherCitizenship: 'Filipino',
       wifeMotherMaidenName: generatePersonName(),
       wifeMotherCitizenship: 'Filipino',
 
-      placeOfMarriage: {
-        office: faker.helpers.arrayElement([
-          'Church',
-          'City Hall',
-          'Garden',
-          'Beach Resort',
+      // Wife Consent Person
+      wifeConsentPerson: {
+        name: generatePersonName(),
+        relationship: faker.helpers.arrayElement([
+          'Parent',
+          'Child',
+          'Sibling',
         ]),
-        ...generatePhLocation(),
+        residence: faker.location.streetAddress(),
       },
-      dateOfMarriage: marriageDate,
-      timeOfMarriage: generateTimeString(),
-      marriageSettlement: faker.datatype.boolean(),
-      contractingPartiesSignature: {
-        husband: faker.person.fullName(),
-        wife: faker.person.fullName(),
-      },
+
+      // Contract Party
+      contractDay: contractDay,
+
+      // Contracting Parties Signature
+      contractingPartiesSignature: [
+        {
+          party: 'husband',
+          signature: faker.person.fullName(),
+          agreement: true
+        },
+        {
+          party: 'wife',
+          signature: faker.person.fullName(),
+          agreement: true
+        }
+      ],
+
+      // Marriage Details
+      placeOfMarriage: generatePhLocation(),
+      dateOfMarriage: dateOfMarriage,
+      // In your seed script
+      timeOfMarriage: (() => {
+        const dateOfMarriage = new Date("2023-07-08T11:33:36.060Z");
+        const [time, period] = "03:14 PM".split(' ');
+        const [hours, minutes] = time.split(':');
+
+        let convertedHours = Number(hours);
+        if (period === 'PM' && convertedHours !== 12) {
+          convertedHours += 12;
+        } else if (period === 'AM' && convertedHours === 12) {
+          convertedHours = 0;
+        }
+
+        dateOfMarriage.setHours(convertedHours, Number(minutes), 0, 0);
+        return dateOfMarriage;
+      })(),
+
+      // Witnesses
+      witnesses: Array(2)
+        .fill(null)
+        .map(() => ({
+          name: faker.person.fullName(),
+          signature: faker.person.fullName()
+        })),
+
+      // Marriage License Details
       marriageLicenseDetails: {
-        number: faker.string.numeric(8),
-        dateIssued: randomDate(new Date(2020, 0, 1), marriageDate),
-        placeIssued: generatePhLocation(),
+        licenseNumber: faker.string.numeric(8),
+        dateIssued: randomDate(new Date(2020, 0, 1), dateOfMarriage),
+        placeIssued: 'Office of the Civil Registrar, ',
+        marriageAgreement: true
       },
+
+      // Marriage Article
+      marriageArticle: {
+        article: faker.helpers.arrayElement([
+          'Article 1',
+          'Article 2',
+          'Article 3',
+          'Article 4',
+          'Article 5',
+        ]),
+        marriageArticle: faker.datatype.boolean()
+      },
+
+      // Marriage Settlement
+      marriageSettlement: faker.datatype.boolean(),
+
+      // Solemnizing Officer
       solemnizingOfficer: {
         name: faker.person.fullName(),
         position: faker.helpers.arrayElement([
@@ -362,20 +460,216 @@ const generateMarriageCertificate = (
           'Mayor',
           'Minister',
         ]),
-        religion: faker.helpers.arrayElement([
-          'Catholic',
-          'Protestant',
-          'Islam',
-        ]),
         registryNoExpiryDate: faker.date.future().toISOString(),
+        signature: faker.person.fullName()
       },
-      witnesses: Array(2)
-        .fill(null)
-        .map(() => ({
-          name: faker.person.fullName(),
-          signature: faker.person.fullName(),
-        })),
-    },
+
+      // Registered By Office
+      registeredByOffice: {
+        date: faker.date.recent(),
+        nameInPrint: faker.person.fullName(),
+        signature: faker.person.fullName(),
+        title: faker.helpers.arrayElement([
+          'Civil Registrar',
+          'Assistant Civil Registrar',
+          'Registration Officer'
+        ])
+      },
+
+      // Remarks
+      remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
+
+      // Affidavit of Solemnizing Officer
+      affidavitOfSolemnizingOfficer: {
+        administeringInformation: {
+          nameOfOfficer: faker.person.fullName(),
+          signatureOfOfficer: faker.person.fullName(),
+          position: faker.helpers.arrayElement(['Judge', 'Mayor', 'Priest']),
+          addressOfOffice: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          }
+        },
+        nameOfPlace: faker.location.city(),
+        addressAt: faker.location.streetAddress(),
+        a: {
+          nameOfHusband: {
+            first: husbandFirstName,
+            middle: husbandMiddleName,
+            last: husbandLastName
+          },
+          nameOfWife: {
+            first: wifeFirstName,
+            middle: wifeMiddleName,
+            last: wifeLastName
+          }
+        },
+        b: {
+          a: faker.datatype.boolean(0.2),
+          b: faker.datatype.boolean(0.2),
+          c: faker.datatype.boolean(0.2),
+          d: faker.datatype.boolean(0.2),
+          e: faker.datatype.boolean(0.2)
+        },
+        c: faker.lorem.sentence(),
+        d: {
+          dayOf: randomDate(new Date(2020, 0, 1), dateOfMarriage),
+          atPlaceOfMarriage: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          }
+        },
+        dateSworn: {
+          dayOf: faker.date.recent(),
+          atPlaceOfSworn: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          },
+          ctcInfo: {
+            number: faker.string.alphanumeric(10),
+            dateIssued: faker.date.recent(),
+            placeIssued: faker.location.city()
+          }
+        },
+        nameOfAdmin: {
+          address: faker.location.streetAddress(),
+          signature: {
+            signature: faker.person.fullName(),
+            name2: faker.person.fullName(),
+            position: faker.helpers.arrayElement(['Notary Public', 'Judge', 'Mayor'])
+          }
+        }
+      },
+
+      // Optional affidavit for delayed registration
+      affidavitOfdelayedRegistration: faker.datatype.boolean(0.3) ? {
+        // Administering Information
+        administeringInformation: {
+          signatureOfAdmin: faker.person.fullName(),
+          nameOfOfficer: faker.person.fullName(),
+          position: faker.helpers.arrayElement(['Judge', 'Notary Public', 'Mayor']),
+          addressOfOfficer: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          }
+        },
+
+        // Applicant Information
+        applicantInformation: {
+          signatureOfApplicant: faker.person.fullName(),
+          nameOfApplicant: faker.person.fullName(),
+          postalCode: faker.location.zipCode(),
+          applicantAddress: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          }
+        },
+
+        // Section A
+        a: {
+          a: {
+            agreement: faker.datatype.boolean(),
+            nameOfPartner: {
+              first: faker.person.firstName(),
+              middle: faker.person.lastName(),
+              last: faker.person.lastName()
+            },
+            placeOfMarriage: faker.location.city(),
+            dateOfMarriage: randomDate(new Date(2020, 0, 1), new Date())
+          },
+          b: {
+            agreement: faker.datatype.boolean(),
+            nameOfHusband: {
+              first: husbandFirstName,
+              middle: husbandMiddleName,
+              last: husbandLastName
+            },
+            nameOfWife: {
+              first: wifeFirstName,
+              middle: wifeMiddleName,
+              last: wifeLastName
+            },
+            placeOfMarriage: faker.location.city(),
+            dateOfMarriage: dateOfMarriage
+          }
+        },
+
+        // Section B
+        b: {
+          solemnizedBy: faker.person.fullName(),
+          sector: faker.helpers.arrayElement(['religious-ceremony', 'civil-ceremony', 'tribal-ceremony'])
+        },
+
+        // Section C
+        c: {
+          a: {
+            licenseNo: faker.string.numeric(8),
+            dateIssued: randomDate(new Date(2020, 0, 1), dateOfMarriage),
+            placeOfSolemnizedMarriage: faker.location.city()
+          },
+          b: {
+            underArticle: faker.helpers.arrayElement([
+              'Article 1 of the Family Code',
+              'Article 34 of Executive Order No. 209',
+              'Presidential Decree No. 1083'
+            ])
+          }
+        },
+
+        // Section D
+        d: {
+          husbandCitizenship: 'Filipino',
+          wifeCitizenship: 'Filipino'
+        },
+
+        // Section E
+        e: faker.lorem.paragraph(),
+
+        // Section F
+        f: {
+          date: faker.date.recent(),
+          place: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          }
+        },
+
+        // Date Sworn
+        dateSworn: {
+          dayOf: faker.date.recent(),
+          atPlaceOfSworn: {
+            st: faker.location.street(),
+            barangay: faker.location.county(),
+            cityMunicipality: faker.location.city(),
+            province: faker.location.state(),
+            country: 'Philippines'
+          },
+          ctcInfo: {
+            number: faker.string.alphanumeric(10),
+            dateIssued: faker.date.recent(),
+            placeIssued: faker.location.city()
+          }
+        }
+      } : {}
+    }
   };
 };
 
@@ -532,7 +826,7 @@ const generateDeathCertificate = (
       ]),
       religion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       citizenship: 'Filipino',
-      residence: residenceLocation,
+      residence: generatePhLocation(),
       occupation: faker.person.jobTitle(),
 
       // Parent Information

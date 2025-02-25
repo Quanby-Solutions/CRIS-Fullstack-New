@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import TimePicker from '@/components/custom/time/time-picker';
 
 const MarriageDetailsCard: React.FC = () => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
@@ -26,9 +27,9 @@ const MarriageDetailsCard: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
           {/* Place of Birth */}
           <LocationSelector
-            provinceFieldName='marriageDetails.placeOfMarriage.province'
-            municipalityFieldName='marriageDetails.placeOfMarriage.cityMunicipality'
-            barangayFieldName='marriageDetails.placeOfMarriage.barangay'
+            provinceFieldName='placeOfMarriage.province'
+            municipalityFieldName='placeOfMarriage.cityMunicipality'
+            barangayFieldName='placeOfMarriage.barangay'
             provinceLabel='Province'
             municipalityLabel='City/Municipality'
             barangayLabel='Barangay'
@@ -40,7 +41,7 @@ const MarriageDetailsCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='marriageDetails.placeOfMarriage.country'
+            name='placeOfMarriage.country'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country</FormLabel>
@@ -57,7 +58,7 @@ const MarriageDetailsCard: React.FC = () => {
           {/* Date of Marriage */}
           <FormField
             control={control}
-            name='marriageDetails.dateOfMarriage'
+            name='dateOfMarriage'
             render={({ field }) => (
               <DatePickerField field={{
                 value: field.value || '',
@@ -73,18 +74,16 @@ const MarriageDetailsCard: React.FC = () => {
           {/* Time of Marriage */}
           <FormField
             control={control}
-            name='marriageDetails.timeOfMarriage'
+            name='timeOfMarriage'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Time of Marriage</FormLabel>
                 <FormControl>
-                  <Input
-                    className='h-10'
-                    type='time'
-                    placeholder='Enter time of marriage'
+                  <TimePicker
 
-                    {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? null}
+                    onChange={(value) => field.onChange(value)}
+                    ref={field.ref}
                   />
                 </FormControl>
                 <FormMessage />

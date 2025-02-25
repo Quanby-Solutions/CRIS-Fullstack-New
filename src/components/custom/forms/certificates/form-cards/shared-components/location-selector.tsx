@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   FormControl,
@@ -6,18 +6,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useLocationSelector } from '@/hooks/use-location-selector';
-import { LocationSelectorProps } from '@/lib/types/location-selector';
-import React from 'react';
-import { useFormContext } from 'react-hook-form';
+} from '@/components/ui/select'
+import { useLocationSelector } from '@/hooks/use-location-selector'
+import { LocationSelectorProps } from '@/lib/types/location-selector'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useFormContext, Controller } from 'react-hook-form'
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({
   provinceFieldName = 'province',
@@ -39,10 +39,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 }) => {
   const {
     control,
-    setValue,
     trigger,
-    formState: { isSubmitted },
-  } = useFormContext();
+    setValue,
+    getValues,
+    setError,
+    clearErrors,
+    formState: { errors }
+  } = useFormContext()
 
   const {
     selectedProvince,
@@ -64,22 +67,48 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     onProvinceChange,
     onMunicipalityChange,
     onBarangayChange,
-  });
+    trigger,
+  })
 
-  // For NCR mode, define a static province with proper keys.
-  const provinceOptions = isNCRMode
-    ? [
-        {
-          psgc_id: 'metro-manila',
-          name: 'Metro Manila',
-          geographic_level: 'Region',
-        },
-      ]
-    : provinces;
+  // State to track initial values and loading status
+  const [initialMunicipalityValue] = useState(getValues(municipalityFieldName) || '')
+  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false)
+
+  // Effect to handle initial loading for edit scenarios
+  useEffect(() => {
+    // If there's an initial municipality value and municipalities are loaded
+    if (
+      initialMunicipalityValue &&
+      municipalities.length > 0 &&
+      !isInitialLoadComplete
+    ) {
+      // Find the matching municipality
+      const matchingMunicipality = municipalities.find(
+        (mun) =>
+          mun.displayName === initialMunicipalityValue ||
+          mun.displayName.toLowerCase() === initialMunicipalityValue.toLowerCase()
+      )
+
+      if (matchingMunicipality) {
+        // Trigger municipality change with the matched municipality
+        handleMunicipalityChange(matchingMunicipality.id)
+
+        // Mark initial load as complete
+        setIsInitialLoadComplete(true)
+      }
+    }
+  }, [
+    initialMunicipalityValue,
+    municipalities,
+    isInitialLoadComplete,
+    handleMunicipalityChange
+  ])
 
   // Styling classes for select triggers.
   const selectTriggerClasses =
-    'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
+    'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'
+
+  const isMunicipalityDisabled = !selectedProvince
 
   return (
     <>
@@ -96,21 +125,19 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               <Select
                 value={selectedProvince}
                 onValueChange={(value: string) => {
-                  field.onChange(value);
-                  handleProvinceChange(value);
-                  trigger(provinceFieldName);
+                  field.onChange(value)
+                  handleProvinceChange(value)
+                  trigger(provinceFieldName)
                 }}
                 disabled={isNCRMode}
               >
                 <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue
-                    placeholder={
-                      isNCRMode ? 'Metro Manila' : provincePlaceholder
-                    }
+                    placeholder={isNCRMode ? 'Metro Manila' : provincePlaceholder}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {provinceOptions.map((prov) => (
+                  {provinces.map((prov) => (
                     <SelectItem key={prov.psgc_id} value={prov.psgc_id}>
                       {isNCRMode ? 'Metro Manila' : prov.name}
                     </SelectItem>
@@ -124,23 +151,42 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       />
 
       {/* Municipality/City Field */}
-      <FormField
+      <Controller
         control={control}
         name={municipalityFieldName}
+        rules={{
+          validate: {
+            required: (value) => {
+              // Skip validation if field is disabled or no province selected
+              if (isMunicipalityDisabled || !selectedProvince) return true
+
+              // Require a value only when province is selected
+              return !!value || 'City/Municipality is required'
+            }
+          }
+        }}
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
-            <FormLabel className={formLabelClassName}>
-              {municipalityLabel}
-            </FormLabel>
+            <FormLabel className={formLabelClassName}>{municipalityLabel}</FormLabel>
             <FormControl>
               <Select
                 value={selectedMunicipality}
                 onValueChange={(value: string) => {
-                  field.onChange(value);
-                  handleMunicipalityChange(value);
-                  trigger(municipalityFieldName);
+                  // Find the full municipality details
+                  const selectedMun = municipalities.find(m => m.id === value)
+
+                  if (selectedMun) {
+                    // Set the value using Controller's onChange
+                    field.onChange(selectedMun.displayName)
+
+                    // Update selected municipality
+                    handleMunicipalityChange(value)
+
+                    // Clear any previous errors
+                    clearErrors(municipalityFieldName)
+                  }
                 }}
-                disabled={!selectedProvince}
+                disabled={isMunicipalityDisabled}
               >
                 <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue placeholder={municipalityPlaceholder} />
@@ -154,7 +200,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{fieldState.error?.message}</FormMessage>
+            {/* Show error message only if a province is selected and field is not disabled */}
+            <FormMessage>
+              {!isMunicipalityDisabled && selectedProvince ? fieldState.error?.message : ''}
+            </FormMessage>
           </FormItem>
         )}
       />
@@ -166,23 +215,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           name={barangayFieldName}
           render={({ field, fieldState }) => (
             <FormItem className={formItemClassName}>
-              <FormLabel className={formLabelClassName}>
-                {barangayLabel}
-              </FormLabel>
+              <FormLabel className={formLabelClassName}>{barangayLabel}</FormLabel>
               <FormControl>
                 <Select
                   value={selectedBarangay}
                   onValueChange={(value: string) => {
-                    field.onChange(value);
-                    handleBarangayChange(value);
-                    trigger(barangayFieldName);
+                    field.onChange(value)
+                    handleBarangayChange(value)
+                    trigger(barangayFieldName)
                   }}
                   disabled={!selectedMunicipality}
                 >
-                  <SelectTrigger
-                    ref={field.ref}
-                    className={selectTriggerClasses}
-                  >
+                  <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                     <SelectValue placeholder={barangayPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
@@ -200,7 +244,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         />
       )}
     </>
-  );
-};
+  )
+}
 
-export default LocationSelector;
+export default LocationSelector

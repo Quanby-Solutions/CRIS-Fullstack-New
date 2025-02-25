@@ -203,6 +203,8 @@ model MarriageCertificateForm {
   husbandFatherCitizenship    String
   husbandMotherMaidenName     Json
   husbandMotherCitizenship    String
+  husbandConsentPerson        Json?
+
   wifeFirstName               String
   wifeMiddleName              String?
   wifeLastName                String
@@ -218,20 +220,24 @@ model MarriageCertificateForm {
   wifeFatherCitizenship       String
   wifeMotherMaidenName        Json
   wifeMotherCitizenship       String
-  husbandConsentPerson        Json?
   wifeConsentPerson           Json?
+  remarks                     String?
+
   placeOfMarriage             Json
   dateOfMarriage              DateTime
-  timeOfMarriage              String            @db.VarChar(8)
+  timeOfMarriage              DateTime            
+  contractDay                 DateTime
+
   marriageSettlement          Boolean           @default(false)
-  contractingPartiesSignature Json?
+  contractingPartiesSignature Json[]
   marriageLicenseDetails      Json?
-  noMarriageLicense           Boolean           @default(false)
+  marriageArticle             Json?           
   executiveOrderApplied       Boolean           @default(false)
-  presidentialDecreeApplied   Boolean           @default(false)
   solemnizingOfficer          Json
-  solemnizingOfficerSignature String?
   witnesses                   Json[]
+  registeredByOffice          Json?
+  affidavitOfSolemnizingOfficer Json?
+  affidavitOfdelayedRegistration Json?
   baseForm                    BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
 
   @@index([husbandLastName, husbandFirstName])

@@ -27,7 +27,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Father's First Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.father.first'
+            name='husbandParents.fatherName.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s First Name</FormLabel>
@@ -46,7 +46,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Father's Middle Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.father.middle'
+            name='husbandParents.fatherName.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s Middle Name</FormLabel>
@@ -65,7 +65,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Father's Last Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.father.last'
+            name='husbandParents.fatherName.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s Last Name</FormLabel>
@@ -87,7 +87,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Maiden Mother's First Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.mother.first'
+            name='husbandParents.motherName.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s First Name</FormLabel>
@@ -106,7 +106,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Maiden Mother's Middle Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.mother.middle'
+            name='husbandParents.motherName.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s Middle Name</FormLabel>
@@ -125,7 +125,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Maiden Mother's last Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.mother.last'
+            name='husbandParents.motherName.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s (Maiden) Name</FormLabel>
@@ -146,7 +146,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Father's Citizenship */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.fatherCitizenship'
+            name='husbandParents.fatherCitizenship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s Citizenship</FormLabel>
@@ -165,7 +165,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Mother's Citizenship */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.motherCitizenship'
+            name='husbandParents.motherCitizenship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s Citizenship</FormLabel>
@@ -191,7 +191,7 @@ const HusbandParentsInfoCard: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.first'
+            name='husbandConsentPerson.name.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Adviser (First Name)</FormLabel>
@@ -209,7 +209,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.middle'
+            name='husbandConsentPerson.name.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Adviser (Middle Name)</FormLabel>
@@ -227,7 +227,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.last'
+            name='husbandConsentPerson.name.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Adviser (Last Name)</FormLabel>
@@ -252,7 +252,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Parents Relationship */}
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.relationship'
+            name='husbandConsentPerson.relationship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Relationship</FormLabel>
@@ -271,7 +271,7 @@ const HusbandParentsInfoCard: React.FC = () => {
 
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.residence'
+            name='husbandConsentPerson.residence'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Residence</FormLabel>

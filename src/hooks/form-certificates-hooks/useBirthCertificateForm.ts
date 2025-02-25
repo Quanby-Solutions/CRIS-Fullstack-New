@@ -218,24 +218,27 @@
 //   return { formMethods, onSubmit, handleError };
 // }
 
-import { submitBirthCertificateForm } from '@/components/custom/civil-registry/actions/certificate-actions/birth-certificate-actions';
+// src\hooks\form-certificates-hooks\useBirthCertificateForm.ts
+import { submitBirthCertificateForm } from '@/components/custom/civil-registry/actions/certificate-actions/birth-certificate-actions'
 import {
   BirthCertificateFormValues,
   birthCertificateFormSchema,
-} from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import { fileToBase64 } from '@/lib/utils/fileToBase64';
-import { zodResolver } from '@hookform/resolvers/zod';
-
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+} from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
+import { fileToBase64 } from '@/lib/utils/fileToBase64'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { Permission } from '@prisma/client'
-import { notifyUsersWithPermission } from '../users-action';
+import { notifyUsersWithPermission } from '../users-action'
+
 interface UseBirthCertificateFormProps {
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void
+  defaultValues?: Partial<BirthCertificateFormValues>
 }
 
 export function useBirthCertificateForm({
   onOpenChange,
+  defaultValues,
 }: UseBirthCertificateFormProps = {}) {
 
   const formMethods = useForm<BirthCertificateFormValues>({
@@ -313,7 +316,7 @@ export function useBirthCertificateForm({
         type: 'Physician',
         certification: {
           time: new Date('2022-01-01T10:00:00'),
-          signature: undefined, // Initially no file selected
+          signature: undefined,
           name: 'Dr. Smith',
           title: 'Chief Physician',
           address: {
@@ -328,7 +331,7 @@ export function useBirthCertificateForm({
         },
       },
       informant: {
-        signature: undefined, // Initially no file selected
+        signature: undefined,
         name: 'Emily Doe',
         relationship: 'Mother',
         address: {
@@ -342,19 +345,19 @@ export function useBirthCertificateForm({
         date: new Date('2022-01-01'),
       },
       preparedBy: {
-        signature: undefined, // Initially no file selected
+        signature: undefined,
         nameInPrint: 'Admin User',
         titleOrPosition: 'Registrar',
         date: new Date('2022-01-02'),
       },
       receivedBy: {
-        signature: undefined, // Initially no file selected
+        signature: undefined,
         nameInPrint: 'Office Staff',
         titleOrPosition: 'Receiver',
         date: new Date('2022-01-02'),
       },
       registeredByOffice: {
-        signature: undefined, // Initially no file selected
+        signature: undefined,
         nameInPrint: 'Registrar Office',
         titleOrPosition: 'Registrar',
         date: new Date('2022-01-03'),
@@ -368,69 +371,69 @@ export function useBirthCertificateForm({
         pageNumber: '1',
         bookNumber: '1',
       },
+      ...defaultValues,
     },
-  });
+  })
 
   const onSubmit = async (data: BirthCertificateFormValues) => {
     try {
-      // Convert all signature fields to Base64 if they're File objects
+      // Convert signature fields if needed
       if (data.attendant.certification.signature instanceof File) {
         data.attendant.certification.signature = await fileToBase64(
           data.attendant.certification.signature
-        );
+        )
       }
       if (data.informant.signature instanceof File) {
-        data.informant.signature = await fileToBase64(data.informant.signature);
+        data.informant.signature = await fileToBase64(data.informant.signature)
       }
       if (data.preparedBy.signature instanceof File) {
         data.preparedBy.signature = await fileToBase64(
           data.preparedBy.signature
-        );
+        )
       }
       if (data.receivedBy.signature instanceof File) {
         data.receivedBy.signature = await fileToBase64(
           data.receivedBy.signature
-        );
+        )
       }
       if (data.registeredByOffice.signature instanceof File) {
         data.registeredByOffice.signature = await fileToBase64(
           data.registeredByOffice.signature
-        );
+        )
       }
 
-      const result = await submitBirthCertificateForm(data);
+      const result = await submitBirthCertificateForm(data)
 
       if ('data' in result) {
-        console.log('Submission successful:', result);
+        console.log('Submission successful:', result)
         toast.success(
           `Birth certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
-        );
-        
+        )
+
         const documentRead = Permission.DOCUMENT_READ
         const Title = "New uploaded Birth Certificate"
-        const message = `New Birth Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`;
-        notifyUsersWithPermission(documentRead, Title, message);
+        const message = `New Birth Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
+        notifyUsersWithPermission(documentRead, Title, message)
 
-
-        onOpenChange?.(false);
+        onOpenChange?.(false)
       } else if ('error' in result) {
-        console.log('Submission error:', result.error);
+        console.log('Submission error:', result.error)
         const errorMessage = result.error.includes('No user found with name')
           ? 'Invalid prepared by user. Please check the name.'
-          : result.error;
-        toast.error(errorMessage);
+          : result.error
+        toast.error(errorMessage)
       }
-      formMethods.reset();
+      formMethods.reset()
     } catch (error) {
-      console.error('Form submission error:', error);
-      toast.error('An unexpected error occurred while submitting the form');
+      console.error('Form submission error:', error)
+      toast.error('An unexpected error occurred while submitting the form')
     }
-  };
+  }
 
   const handleError = (errors: any) => {
-    console.log('Form Validation Errors:', JSON.stringify(errors, null, 2));
-    toast.error('Please check form for errors');
-  };
+    console.log('Form Validation Errors:', JSON.stringify(errors, null, 2))
+    toast.error('Please check form for errors')
+  }
 
-  return { formMethods, onSubmit, handleError };
+  return { formMethods, onSubmit, handleError }
 }

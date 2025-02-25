@@ -64,7 +64,7 @@ const deceasedInformationSchema = z.object({
       .string()
       .default('Normal spontaneous vertex')
       .optional(),
-    lengthOfPregnancy: z.number().min(0).max(45).optional(),
+    lengthOfPregnancy: z.number().optional(),
     typeOfBirth: z
       .enum(['Single', 'Twin', 'Triplet'])
       .default('Single')
