@@ -264,7 +264,7 @@ export async function submitMarriageCertificateForm(
 
                         remarks: formData.remarks,
 
-                        affidavitOfSolemnizingOfficer: formData.affidavitOfSolemnizingOfficer ? {
+                        affidavitOfSolemnizingOfficer:  {
                             administeringInformation: {
                                 nameOfOfficer: formData.affidavitOfSolemnizingOfficer.administeringInformation.nameOfOfficer,
                                 signatureOfOfficer: formData.affidavitOfSolemnizingOfficer.administeringInformation.signatureOfOfficer instanceof File
@@ -328,7 +328,7 @@ export async function submitMarriageCertificateForm(
                                     name2: formData.affidavitOfSolemnizingOfficer.nameOfAdmin.signature.name2,
                                 }
                             }
-                        } as Prisma.JsonObject : Prisma.JsonNull,
+                        } as Prisma.JsonObject ,
 
                         affidavitOfdelayedRegistration: formData.affidavitForDelayed?.delayedRegistration === 'Yes' ? {
                             delayedRegistration: 'Yes',

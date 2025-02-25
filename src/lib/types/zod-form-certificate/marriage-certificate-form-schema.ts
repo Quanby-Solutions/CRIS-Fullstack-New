@@ -272,7 +272,7 @@ export const marriageCertificateSchema = z.object({
 
   // Marriage License Details
   marriageLicenseDetails: z.object({
-    licensenumber: z.string(),
+    licenseNumber: z.string(),
     dateIssued: z.date(),
     placeIssued: z.string(),
     marriageAgreement: z.boolean()
