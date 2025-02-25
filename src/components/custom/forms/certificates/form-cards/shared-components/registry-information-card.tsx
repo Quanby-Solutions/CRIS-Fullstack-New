@@ -47,6 +47,11 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const minLength = 6
   const maxLength = 20
 
+  const generateRegistryNumber = () => {
+    const year = new Date().getFullYear()
+    return `${year}-${Math.floor(Math.random() * 1000000)}`
+  }
+
   const validateRegistryNumber = useCallback(
     (value: string): string => {
       if (!value) return ''
@@ -85,6 +90,16 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         const { exists } = await response.json()
 
         if (exists) {
+          // If no initial value and number is taken, auto-regenerate
+          if (!initialRegistryNumber) {
+            const newRegistryNumber = generateRegistryNumber()
+            setRegistryNumber(newRegistryNumber)
+            setValue('registryNumber', newRegistryNumber)
+            // Recursively check the new number
+            await checkRegistryNumber(newRegistryNumber)
+            return
+          }
+
           setError('registryNumber', {
             type: 'manual',
             message: 'This registry number is already in use.',
@@ -104,7 +119,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         setIsChecking(false)
       }
     },
-    [setError, clearErrors, formType]
+    [setError, clearErrors, formType, initialRegistryNumber, setValue]
   )
 
   useEffect(() => {
@@ -128,6 +143,9 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const handleRegistryNumberChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    // Skip if no initial value (input should be disabled)
+    if (!initialRegistryNumber) return
+
     let value = event.target.value.replace(/[^\d-]/g, '')
     if (value.length >= 4 && !value.includes('-')) {
       value = value.slice(0, 4) + '-' + value.slice(4)
@@ -154,8 +172,10 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   }
 
   const handleGenerateRegistryNumber = () => {
-    const year = new Date().getFullYear()
-    const generatedNumber = `${year}-${Math.floor(Math.random() * 1000000)}`
+    // Skip if no initial value (button should be hidden)
+    if (!initialRegistryNumber) return
+
+    const generatedNumber = generateRegistryNumber()
     setRegistryNumber(generatedNumber)
     setValue('registryNumber', generatedNumber)
     clearErrors('registryNumber')
@@ -163,6 +183,9 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   }
 
   const getValidationIcon = () => {
+    // Only show validation icon if there's an initial value
+    if (!initialRegistryNumber) return null
+
     if (isChecking) {
       return <Loader2 className='h-4 w-4 animate-spin text-yellow-500' />
     }
@@ -198,23 +221,25 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                   <FormItem>
                     <FormLabel>Registry Number</FormLabel>
                     <div className='relative flex items-center'>
-                      <Button
-                        type='button'
-                        onClick={handleGenerateRegistryNumber}
-                        className='sm:btn sm:btn-primary absolute left-1 z-10'
-                        size={'sm'}
-                        variant={'default'}
-                      >
-                        <motion.div
-                          key={animationKey}
-                          variants={refreshIconVariants}
-                          initial="initial"
-                          animate="animate"
-                          whileTap="whileTap"
+                      {initialRegistryNumber && (
+                        <Button
+                          type='button'
+                          onClick={handleGenerateRegistryNumber}
+                          className='sm:btn sm:btn-primary absolute left-1 z-10'
+                          size={'sm'}
+                          variant={'default'}
                         >
-                          <Icons.refresh className='h-3 w-3' />
-                        </motion.div>
-                      </Button>
+                          <motion.div
+                            key={animationKey}
+                            variants={refreshIconVariants}
+                            initial="initial"
+                            animate="animate"
+                            whileTap="whileTap"
+                          >
+                            <Icons.refresh className='h-3 w-3' />
+                          </motion.div>
+                        </Button>
+                      )}
                       <FormControl>
                         <Input
                           className='h-10 pl-14'
@@ -223,6 +248,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                           value={registryNumber}
                           maxLength={maxLength}
                           inputMode='numeric'
+                          disabled={!initialRegistryNumber}
                         />
                       </FormControl>
                       <div className='absolute right-2 top-[10px]'>

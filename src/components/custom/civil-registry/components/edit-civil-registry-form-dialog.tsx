@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
 import { toast } from 'sonner'
 import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm'
@@ -310,19 +310,21 @@ export function EditCivilRegistryFormDialog({
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-2 mt-4">
+                            <DialogFooter className="absolute bottom-2 right-2 gap-2 flex items-center">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     className="py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent"
-                                    onClick={handleCancel}
+                                    onClick={() => {
+                                        handleCancel()
+                                    }}
                                 >
-                                    {t('Cancel')}
+                                    Cancel
                                 </Button>
                                 <Button type="submit" variant="default" className="py-2 w-32">
-                                    {t('Update')}
+                                    Update
                                 </Button>
-                            </div>
+                            </DialogFooter>
                         </form>
                     </FormProvider>
                 )
