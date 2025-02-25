@@ -218,6 +218,7 @@
 //   return { formMethods, onSubmit, handleError };
 // }
 
+// src\hooks\form-certificates-hooks\useBirthCertificateForm.ts
 import { submitBirthCertificateForm } from '@/components/custom/civil-registry/actions/certificate-actions/birth-certificate-actions'
 import {
   BirthCertificateFormValues,
@@ -225,7 +226,6 @@ import {
 } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
 import { fileToBase64 } from '@/lib/utils/fileToBase64'
 import { zodResolver } from '@hookform/resolvers/zod'
-
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Permission } from '@prisma/client'
@@ -371,13 +371,13 @@ export function useBirthCertificateForm({
         pageNumber: '1',
         bookNumber: '1',
       },
-      ...defaultValues
+      ...defaultValues,
     },
   })
 
   const onSubmit = async (data: BirthCertificateFormValues) => {
     try {
-      // Convert all signature fields to Base64 if they're File objects
+      // Convert signature fields if needed
       if (data.attendant.certification.signature instanceof File) {
         data.attendant.certification.signature = await fileToBase64(
           data.attendant.certification.signature
@@ -414,7 +414,6 @@ export function useBirthCertificateForm({
         const Title = "New uploaded Birth Certificate"
         const message = `New Birth Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
         notifyUsersWithPermission(documentRead, Title, message)
-
 
         onOpenChange?.(false)
       } else if ('error' in result) {

@@ -48,7 +48,8 @@ export function EditCivilRegistryFormDialog({
             return dateString
         }
 
-        // Create a mapping based on available fields in form
+        console.log("form.cityMunicipality-> ", form.cityMunicipality)
+
         return {
             registryNumber: form.registryNumber || '',
             province: form.province || '',
@@ -59,12 +60,12 @@ export function EditCivilRegistryFormDialog({
             },
             remarks: form.remarks || '',
 
-            // Child information - create with default values
+            // Child information - default values
             childInfo: {
                 firstName: '',
                 middleName: '',
                 lastName: '',
-                sex: 'Male' as 'Male' | 'Female',
+                sex: 'Male',
                 dateOfBirth: new Date(),
                 placeOfBirth: {
                     hospital: '',
@@ -166,8 +167,7 @@ export function EditCivilRegistryFormDialog({
                 date: new Date(),
             },
 
-            // Processing details - using form data where available
-            // Handle preparedBy based on its actual type (could be a string or object)
+            // Processing details
             preparedBy: {
                 signature: '',
                 nameInPrint: typeof form.preparedBy === 'string'
@@ -176,8 +176,6 @@ export function EditCivilRegistryFormDialog({
                 titleOrPosition: '',
                 date: parseDateSafely(form.preparedByDate),
             },
-
-            // Handle receivedBy which is an object in BirthCertificateFormValues
             receivedBy: {
                 signature: '',
                 nameInPrint: typeof form.receivedBy === 'string'
@@ -186,8 +184,6 @@ export function EditCivilRegistryFormDialog({
                 titleOrPosition: '',
                 date: parseDateSafely(form.receivedByDate),
             },
-
-            // Handle registeredByOffice which is an object in BirthCertificateFormValues
             registeredByOffice: {
                 signature: '',
                 nameInPrint: typeof form.registeredBy === 'string'
@@ -197,7 +193,7 @@ export function EditCivilRegistryFormDialog({
                 date: parseDateSafely(form.registeredByDate),
             },
 
-            // Default values for affidavits
+            // Affidavit information
             hasAffidavitOfPaternity: false,
             affidavitOfPaternityDetails: null,
             isDelayedRegistration: false,
@@ -205,69 +201,51 @@ export function EditCivilRegistryFormDialog({
         }
     }
 
-    // For rendering Birth Certificate Form directly
     const initialData = mapToBirthCertificateValues(form)
 
-    // For converting Birth Certificate Form data back to BaseRegistryFormWithRelations
     const handleEditSubmit = async (
         data: BirthCertificateFormValues
     ): Promise<void> => {
         try {
-            // Create a preparedBy value based on the expected type in BaseRegistryFormWithRelations
-            // Based on the error message, it seems preparedBy should be an object with a name property
             const preparedByValue = {
                 name: data.preparedBy.nameInPrint
             }
 
-            // Create the updated form with fields that exist in BaseRegistryFormWithRelations
             const updatedForm: BaseRegistryFormWithRelations = {
-                ...form, // Keep original data
-
-                // Update fields that exist in BaseRegistryFormWithRelations
+                ...form,
                 registryNumber: data.registryNumber,
                 province: data.province,
                 cityMunicipality: data.cityMunicipality,
                 pageNumber: data.pagination?.pageNumber || form.pageNumber,
                 bookNumber: data.pagination?.bookNumber || form.bookNumber,
-                remarks: data.remarks || null, // Ensure null if empty
-
-                // Use the properly typed objects for these fields
+                remarks: data.remarks || null,
                 preparedBy: preparedByValue,
                 preparedByDate: data.preparedBy.date,
-
-                // Convert the receivedBy object to the format expected by the API
                 receivedBy: data.receivedBy.nameInPrint || null,
                 receivedByDate: data.receivedBy.date,
-
-                // Convert the registeredByOffice object to the format expected by the API
                 registeredBy: data.registeredByOffice.nameInPrint || null,
                 registeredByDate: data.registeredByOffice.date,
-
-                // Update audit fields
                 updatedAt: new Date(),
             }
 
             await onSaveAction(updatedForm)
             toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
-            onOpenChangeAction(false) // Close the dialog after successful submission
+            onOpenChangeAction(false)
         } catch (error) {
             console.error('Error updating form:', error)
             toast.error(t('errorUpdatingForm'))
         }
     }
 
-    // Use the hook with initialData for edit mode
     const { formMethods, handleError } = useBirthCertificateForm({
         onOpenChange: () => {
-            // Not needed here as we'll handle dialog state at this level
+            // Handle any side effects on open change if necessary
         },
         defaultValues: initialData,
     })
 
-    // Direct form submission handler (no nested dialog needed)
     const handleFormSubmit = async (data: BirthCertificateFormValues): Promise<void> => {
         const result = await formMethods.trigger()
-
         if (result) {
             try {
                 await handleEditSubmit(data)
@@ -286,7 +264,6 @@ export function EditCivilRegistryFormDialog({
         onOpenChangeAction(false)
     }
 
-    // Render the appropriate form based on form type
     const renderForm = () => {
         switch (editType) {
             case 'BIRTH':
@@ -350,19 +327,23 @@ export function EditCivilRegistryFormDialog({
                     </FormProvider>
                 )
             case 'DEATH':
-                return <>
-                    <DialogHeader>
-                        <DialogTitle>{t('editForm.title')}</DialogTitle>
-                    </DialogHeader>
-                    {t('Death certificate edit form coming soon.')}
-                </>
+                return (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>{t('editForm.title')}</DialogTitle>
+                        </DialogHeader>
+                        {t('Death certificate edit form coming soon.')}
+                    </>
+                )
             case 'MARRIAGE':
-                return <>
-                    <DialogHeader>
-                        <DialogTitle>{t('editForm.title')}</DialogTitle>
-                    </DialogHeader>
-                    {t('Marriage certificate edit form coming soon.')}
-                </>
+                return (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>{t('editForm.title')}</DialogTitle>
+                        </DialogHeader>
+                        {t('Marriage certificate edit form coming soon.')}
+                    </>
+                )
             default:
                 return null
         }
