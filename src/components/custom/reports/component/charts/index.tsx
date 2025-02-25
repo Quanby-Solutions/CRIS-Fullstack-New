@@ -22,13 +22,21 @@ export const Chart = <T extends Record<string, any>>({
     const resolveCssVariable = (variableName: string) =>
         getComputedStyle(document.documentElement).getPropertyValue(variableName).trim()
 
+    // const COLORS = [
+    //     `hsl(${resolveCssVariable('--chart-1')})`,
+    //     `hsl(${resolveCssVariable('--chart-2')})`,
+    //     `hsl(${resolveCssVariable('--chart-3')})`,
+    //     `hsl(${resolveCssVariable('--chart-4')})`,
+    //     `hsl(${resolveCssVariable('--chart-5')})`,
+    // ]
+
     const COLORS = [
-        `hsl(${resolveCssVariable('--chart-1')})`,
-        `hsl(${resolveCssVariable('--chart-2')})`,
-        `hsl(${resolveCssVariable('--chart-3')})`,
-        `hsl(${resolveCssVariable('--chart-4')})`,
-        `hsl(${resolveCssVariable('--chart-5')})`,
-    ]
+        "hsl(200, 100%, 30%)", // Darker Blue
+        "hsl(120, 100%, 40%)", // Darker Green
+        "hsl(50, 100%, 40%)",  // Darker Yellow
+        "hsl(10, 100%, 40%)",  // Darker Red-Orange
+        "hsl(280, 100%, 40%)", // Darker Purple
+    ];
 
     // Calculate total for DonutChartComponent
     const aggregatedData = dataKeysY.map((key) => ({

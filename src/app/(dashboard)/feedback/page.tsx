@@ -70,7 +70,7 @@ export default async function FeedbackPage() {
         ]}
       />
   
-        <ScrollArea className="max-h-[100vh]">
+        <ScrollArea className="max-h-[calc(100vh-4rem)]">
       <div className="flex-1 p-4 space-y-4">
 
         <Suspense fallback={<FeedbackTableSkeleton />}>

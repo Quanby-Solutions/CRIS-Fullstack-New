@@ -308,8 +308,8 @@
   "logOut": "Log Out",
   "notificationList": {
     "title": "List Notification",
-    "unread": "unread",
-    "unreadTab": "unread",
+    "unread": "Unread",
+    "unreadTab": "Unread",
     "noUnread": "No Unread Notification",
     "searchPlaceholder": "Search...",
     "all": "All",

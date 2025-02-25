@@ -33,7 +33,6 @@ export function SettingsUI() {
                 <Palette className="h-6 w-6 text-primary" />
                 <CardTitle className="text-xl">{t("interfaceTitle")}</CardTitle>
               </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -104,17 +103,19 @@ export function SettingsUI() {
                 <Download className="h-6 w-6 text-primary" />
                 <CardTitle className="text-xl">Backup Settings</CardTitle>
               </div>
-              <Switch id="backup-mode" checked={isBackupEnabled} onCheckedChange={toggleBackup} />
+              <Switch id="backup-mode" checked={isBackupEnabled} onCheckedChange={toggleBackup}
+              />
             </CardHeader>
             <CardContent className="space-y-4">
               <CardDescription>
                 {isBackupEnabled
-                  ? "Auto-backup is enabled. Backups will be created every minute."
-                  : "Automatic backups are currently disabled."}
+                // Enabled
+                  ? `Autosave is enabled. Backups will be created daily every 5:00 PM. `
+                // Disabled 
+                  : `Backup settings are currently disabled. Turn on to enable "automatic save" feature.`}
               </CardDescription>
               <Separator />
               <div>
-                <CardDescription className="mb-3">You can manually trigger a backup if needed.</CardDescription>
                 <Button
                   onClick={triggerManualBackup}
                   className="w-full flex items-center justify-center gap-2 py-2"
@@ -132,7 +133,7 @@ export function SettingsUI() {
   )
 }
 
- {/* <Card className="shadow-sm">
+{/* <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Bell className="h-6 w-6 text-primary" />
