@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Icons } from "@/components/ui/icons"
 import Link from "next/link"
 import ChartsDashboard from "@/components/custom/dashboard/components/charts"
 import MetricsDashboard from "@/components/custom/dashboard/components/metrics"
 import StatisticsDashboard from "@/components/custom/dashboard/components/statistics"
+
+import { useState } from "react"
+import { Icons } from "@/components/ui/icons"
+import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function DashboardContent() {
@@ -24,7 +25,7 @@ export default function DashboardContent() {
   }
 
   return (
-    <div className="w-full h-fit flex flex-1 flex-col gap-4 p-4">
+    <div className="max-h-[90vh] overflow-y-auto w-full flex flex-1 flex-col gap-4 p-4">
       <Alert>
         <Icons.infoCircledIcon className="h-4 w-4" />
         <AlertTitle>{t("summary_view")}</AlertTitle>

@@ -5,6 +5,8 @@ import { DataTable } from '@/components/custom/feedback/data-table'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import FeedbackHeader from '@/components/custom/feedback/feedback-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Scrollbar } from '@radix-ui/react-scroll-area'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 async function getFeedback() {
   try {
@@ -67,7 +69,8 @@ export default async function FeedbackPage() {
           { label: 'Feedback', href: '/feedback', active: true },
         ]}
       />
-
+  
+        <ScrollArea className="max-h-[100vh]">
       <div className="flex-1 p-4 space-y-4">
 
         <Suspense fallback={<FeedbackTableSkeleton />}>
@@ -75,6 +78,7 @@ export default async function FeedbackPage() {
           <FeedbackHeader feedback={feedback} />
         </Suspense>
       </div>
+      </ScrollArea>
     </div>
   )
 }

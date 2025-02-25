@@ -3,6 +3,12 @@
   "dashboard_description": "Ang dashboard na ito ay nagbibigay ng buod ng mga tsart at metrics. Para sa mas detalyadong mga ulat o upang makabuo ng mga pasadyang ulat, pumunta sa",
   "reports_section": "Seksyon ng Mga Ulat",
   "No forms have been added yet": "Wala pang naidagdag na mga form",
+  "late_registration": "Huli na Rehistro",
+  "ready_for_release": "Handa Ilabas",
+  "marriage_registration_trends": "Mga Trend ng Pagpaparehistro ng Kasal",
+  "marriage_registrations_over_time": "Pagpaparehistro ng Kasal sa Paglipas ng Panahon",
+  "from_last_month": "mula noong nakaraang buwan",
+  "last_6_months_data": "Data ng Huling 6 na Buwan",
   "metrics": {
     "total_registrations": "Kabuuang Mga Rehistro",
     "birth_certificates": "Mga Sertipiko ng Kapanganakan",
@@ -88,7 +94,7 @@
   "Year": "Taon",
   "Prepared By": "Inihanda ng",
   "Verified By": "Nai-verify ni",
-  "Pick a date range": "Pumili ng saklaw ng petsa",
+  "Pick a date range": "Petsa",
   "Export": "I-export",
   "Reset": "I-reset",
   "Pending": "Naka-hold",
@@ -107,8 +113,8 @@
   "sex": "Kasarian",
   "dateOfBirth": "Petsa ng Kapanganakan",
   "dateOfDeath": "Petsa ng Kamatayan",
-  "husband": "Asawa (Lalaki)",
-  "wife": "Asawa (Babae)",
+  "husband": "Lalaki",
+  "wife": "Babae",
   "dateOfMarriage": "Petsa ng Kasal",
   "location": "Lokasyon",
   "preparedBy": "Inihanda Ni",
@@ -162,7 +168,7 @@
   "No results found": "Walang nahanap na resulta",
   "Try adjusting your filters or search terms": "Subukang i-adjust ang iyong mga filter o paghahanap",
   "No requests have been added yet": "Wala pang naidagdag na mga kahilingan",
-  "Create New Form": "Lumikha ng Bagong Form",
+  "Create New Form": "Bagong Form?",
   "Select Form Type": "Piliin ang Uri ng Form",
   "Certificate of Live Birth": "Sertipiko ng Buhay na Kapanganakan",
   "Certificate of Death": "Sertipiko ng Kamatayan",
@@ -310,13 +316,23 @@
     "title": "Listahan ng mga Notipikasyon",
     "unread": "hindi nabasa",
     "searchPlaceholder": "Maghanap...",
+    "unreadTab": "Hindi nabasa",
+    "noUnread": "Walang hindi nabasang abiso",
     "all": "Lahat",
     "archive": "Arkibo",
     "favorite": "Paborito",
     "loading": "Naglo-load...",
     "noNotifications": "Walang mga notipikasyon",
     "noArchived": "Walang mga nakatagong notipikasyon",
-    "noFavorite": "Walang mga paboritong notipikasyon"
+    "noFavorite": "Walang mga paboritong notipikasyon",
+
+    "dateRange": "Saklaw ng Petsa",
+    "startDate": "Petsa ng Pagsisimula",
+    "endDate": "Petsa ng Pagwawakas",
+    "resetDateRange": "I-reset",
+    "sortNewestToOldest": "Pinakabago hanggang Pinakaluma",
+    "sortOldestToNewest": "Pinakaluma hanggang Pinakabago"
+
   },
   "feedbacks": {
     "emptyError": "Hindi pwedeng walang puna.",
@@ -415,5 +431,14 @@
   "marriage_reports": "Kasal",
   "birth_reports": "Kapanganakan",
   "death_reports": "Kamatayan",
-  "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit."
+  "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit.",
+
+
+  "Submit:":"Isubmit",  
+  "Submit...":"Isina-Submiting...",
+  "Update the details for the role.": "I-update ang mga detalye para sa tungkulin.",
+  "Update": "I-Edit",
+  "Role updated successfully": "Matagumpay na na-edit ang tungkulin",
+  "Unknown error occurred": "Hindi kilalang error ang nangyari",
+  "Failed to update role:": "Nabigong i-Edit ang tungkulin:"
 }

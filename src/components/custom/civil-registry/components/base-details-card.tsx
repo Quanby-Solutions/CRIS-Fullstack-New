@@ -188,6 +188,10 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         <div>
                             <StatusSelect
                                 formId={formData.id}
+                                registryNumber={formData.registryNumber ?? 'N/A'}
+                                bookNumber={formData.bookNumber ?? 'N/A'}
+                                pageNumber={formData.pageNumber ?? 'N/A'}
+                                formType={formData.formType ?? 'N/A'}
                                 currentStatus={formData.status as DocumentStatus}
                                 onStatusChange={(newStatus) => {
                                     const updatedForm = { ...formData, status: newStatus };
@@ -195,6 +199,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                                     onUpdateAction?.(updatedForm);
                                 }}
                             />
+
                         </div>
                     </div>
                 </div>
@@ -241,6 +246,8 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     onUploadSuccess={handleUploadSuccess}
                     formId={formData.id}
                     formType={formData.formType}
+                    bookNumber={formData.bookNumber}     
+                    pageNumber={formData.pageNumber}
                     registryNumber={formData.registryNumber}
                 />
             )}

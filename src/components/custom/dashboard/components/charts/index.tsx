@@ -1,9 +1,8 @@
-"use client"
-
 import { useEffect, useMemo, useState } from "react"
 import { getBirthAndDeathGenderCount, getRecentRegistrations } from "@/hooks/count-metrics"
 import { GenderDistributionChart } from "@/components/custom/dashboard/components/charts/gender-distribution-chart"
 import { RecentRegistrationsTable } from "@/components/custom/dashboard/components/charts/recent-registrations-table"
+import { MarriageStatsChart } from "./marriage-distribution-chart"
 
 interface GenderCountData {
     name: string
@@ -16,11 +15,17 @@ interface BaseRegistration {
     sex: string
     dateOfBirth: string
     registrationDate: string
+    formType: string
 }
 
 interface RecentRegistration extends BaseRegistration {
     id: string
     type: string
+}
+
+interface MonthlyMarriageData {
+    month: string
+    count: number
 }
 
 const TEN_DAYS = 10 * 24 * 60 * 60 * 1000
@@ -35,14 +40,19 @@ const calculateTotalsByGender = (data: GenderCountData[]) => {
     )
 }
 
-const filterRecentRegistrations = (registrations: BaseRegistration[]): RecentRegistration[] => {
+const filterRecentRegistrations = (registrations: BaseRegistration[], selectedModel: string): RecentRegistration[] => {
     const tenDaysAgo = Date.now() - TEN_DAYS
     return registrations
-        .filter(reg => new Date(reg.registrationDate).getTime() >= tenDaysAgo)
+        .filter(reg => {
+            const isRecent = new Date(reg.registrationDate).getTime() >= tenDaysAgo
+            const matchesType = selectedModel === "baseRegistryForm" ||
+                reg.formType.toLowerCase() === selectedModel.replace("CertificateForm", "").toLowerCase()
+            return isRecent && matchesType
+        })
         .map((registration, index) => ({
             ...registration,
             id: `registration-${index}`,
-            type: "Birth",
+            type: registration.formType.charAt(0).toUpperCase() + registration.formType.slice(1).toLowerCase(),
         }))
 }
 
@@ -69,14 +79,17 @@ export default function ChartsDashboard({ selectedMetric }: ChartsDashboardProps
             setIsLoading(true)
             try {
                 if (!selectedMetric.model) return
-                const type = selectedMetric.model === "birthCertificateForm" ? "birth" : "death"
+
+                const type = selectedMetric.model === "birthCertificateForm" ? "birth" :
+                    selectedMetric.model === "deathCertificateForm" ? "death" : null
+
                 const [genderCountData, recentRegistrationsData] = await Promise.all([
-                    getBirthAndDeathGenderCount(type),
+                    type ? getBirthAndDeathGenderCount(type) : Promise.resolve([]),
                     getRecentRegistrations()
                 ])
 
                 setChartData(genderCountData)
-                setRecentRegistrations(filterRecentRegistrations(recentRegistrationsData))
+                setRecentRegistrations(filterRecentRegistrations(recentRegistrationsData, selectedMetric.model))
             } catch (error) {
                 console.error("Error fetching data:", error)
             } finally {
@@ -84,20 +97,56 @@ export default function ChartsDashboard({ selectedMetric }: ChartsDashboardProps
             }
         }
         fetchData()
-    }, [selectedMetric]) // Re-fetch data when selectedMetric changes
+    }, [selectedMetric])
+
+    const getMarriageStatsData = (): MonthlyMarriageData[] => {
+        const monthlyDataMap = recentRegistrations.reduce<Record<string, number>>((acc, reg) => {
+            const month = new Date(reg.registrationDate).toLocaleString('default', { month: 'short' })
+            acc[month] = (acc[month] || 0) + 1
+            return acc
+        }, {})
+
+        return Object.entries(monthlyDataMap).map(([month, count]) => ({
+            month,
+            count,
+        }))
+    }
+
+    const calculateMarriageTrend = () => {
+        const sortedData = getMarriageStatsData().sort((a, b) =>
+            new Date(a.month + ' 2024').getTime() - new Date(b.month + ' 2024').getTime()
+        )
+        const currentCount = sortedData[sortedData.length - 1]?.count || 0
+        const previousCount = sortedData[sortedData.length - 2]?.count || 0
+        const percentage = previousCount ? ((currentCount - previousCount) / previousCount * 100).toFixed(1) : '0'
+
+        return {
+            percentage,
+            isUp: currentCount >= previousCount
+        }
+    }
+
+    const showGenderDistribution = selectedMetric.model === "birthCertificateForm" || selectedMetric.model === "deathCertificateForm"
 
     return (
         <div className="grid gap-6 lg:grid-cols-5">
-            {/* Gender Distribution Chart with Skeleton Loader */}
-            <GenderDistributionChart
-                totalMale={totalMale}
-                totalFemale={totalFemale}
-                totalRegistrations={totalRegistrations}
-                name={selectedMetric.model === "birthCertificateForm" ? "Birth" : "Death"}
-                isLoading={isLoading}
-            />
+            {showGenderDistribution ? (
+                <GenderDistributionChart
+                    totalMale={totalMale}
+                    totalFemale={totalFemale}
+                    totalRegistrations={totalRegistrations}
+                    name={selectedMetric.model === "birthCertificateForm" ? "Birth" : "Death"}
+                    isLoading={isLoading}
+                />
+            ) : selectedMetric.model === "marriageCertificateForm" || selectedMetric.model === "baseRegistryForm" ? (
+                <MarriageStatsChart
+                    data={getMarriageStatsData()}
+                    isLoading={isLoading}
+                    totalMarriages={recentRegistrations.length}
+                    trend={calculateMarriageTrend()}
+                />
+            ) : null}
 
-            {/* Recent Registrations Table with Skeleton Loader */}
             <RecentRegistrationsTable
                 recentRegistrations={recentRegistrations}
                 isLoading={isLoading}

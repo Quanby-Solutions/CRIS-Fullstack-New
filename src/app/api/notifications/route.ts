@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId")
 
     if (!userId) {
-        console.error("User ID is required") // Debugging
+        console.error("User ID is required")
         return NextResponse.json({ error: "User ID is required" }, { status: 400 })
     }
 
@@ -16,6 +16,9 @@ export async function GET(request: Request) {
             where: {
                 userId,
                 read: false,
+            },
+            orderBy: {
+                createdAt: 'desc',
             },
         })
         return NextResponse.json(notifications)

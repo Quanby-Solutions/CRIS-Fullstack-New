@@ -29,6 +29,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
 
 export interface ExtendedBirthAnnotationFormProps extends BirthAnnotationFormProps {
   formData?: BaseRegistryFormWithRelations
@@ -234,6 +236,13 @@ const BirthAnnotationForm = ({
 
       if (response.success) {
         toast.success('Birth annotation created successfully')
+
+        const documentRead = Permission.DOCUMENT_READ
+        const Title = "New Annotation for Birth Certificate"
+        const message = `New Annotation for Birth Certificate with the details (Book: ${formData?.bookNumber}
+         Page: ${formData?.pageNumber}, Form Type: ${formData?.formType}) has been Created.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+
         onOpenChange(false)
         reset()
       } else {

@@ -93,6 +93,8 @@
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
     line-height: 1.4;
+    overflow: hidden;
+    height: 100%;
   }
 
   /* Apply brightness & contrast filter to a specific container instead of the whole body */

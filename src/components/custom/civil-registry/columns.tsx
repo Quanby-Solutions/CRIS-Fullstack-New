@@ -423,6 +423,10 @@ export const createColumns = (
         return (
           <StatusDropdown
             formId={row.original.id}
+            registryNumber={row.original.registryNumber ?? 'N/A'}
+            bookNumber={row.original.bookNumber ?? 'N/A'}
+            pageNumber={row.original.pageNumber ?? 'N/A'}
+            formType={row.original.formType ?? 'N/A'}
             currentStatus={status}
             onStatusChange={(newStatus) => {
               row.original.status = newStatus
