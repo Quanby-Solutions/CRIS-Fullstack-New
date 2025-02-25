@@ -70,15 +70,45 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     trigger,
   })
 
-  // State to track initial values
+  // State to track initial values and loading status
   const [initialMunicipalityValue] = useState(getValues(municipalityFieldName) || '')
+  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false)
+
+  // Effect to handle initial loading for edit scenarios
+  useEffect(() => {
+    // If there's an initial municipality value and municipalities are loaded
+    if (
+      initialMunicipalityValue &&
+      municipalities.length > 0 &&
+      !isInitialLoadComplete
+    ) {
+      // Find the matching municipality
+      const matchingMunicipality = municipalities.find(
+        (mun) =>
+          mun.displayName === initialMunicipalityValue ||
+          mun.displayName.toLowerCase() === initialMunicipalityValue.toLowerCase()
+      )
+
+      if (matchingMunicipality) {
+        // Trigger municipality change with the matched municipality
+        handleMunicipalityChange(matchingMunicipality.id)
+
+        // Mark initial load as complete
+        setIsInitialLoadComplete(true)
+      }
+    }
+  }, [
+    initialMunicipalityValue,
+    municipalities,
+    isInitialLoadComplete,
+    handleMunicipalityChange
+  ])
 
   // Styling classes for select triggers.
   const selectTriggerClasses =
     'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'
 
-  // Determine if municipality should be disabled
-  const isMunicipalityDisabled = !selectedProvince && !initialMunicipalityValue
+  const isMunicipalityDisabled = !selectedProvince
 
   return (
     <>
@@ -126,10 +156,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         name={municipalityFieldName}
         rules={{
           validate: {
-            required: () => {
-              // If province is selected or there's an initial value, skip validation
-              if (selectedProvince || initialMunicipalityValue) return true
-              return 'City/Municipality is required'
+            required: (value) => {
+              // Skip validation if field is disabled or no province selected
+              if (isMunicipalityDisabled || !selectedProvince) return true
+
+              // Require a value only when province is selected
+              return !!value || 'City/Municipality is required'
             }
           }
         }}
@@ -168,9 +200,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {/* Show error message only if a province is selected */}
+            {/* Show error message only if a province is selected and field is not disabled */}
             <FormMessage>
-              {selectedProvince || initialMunicipalityValue ? '' : fieldState.error?.message}
+              {!isMunicipalityDisabled && selectedProvince ? fieldState.error?.message : ''}
             </FormMessage>
           </FormItem>
         )}
