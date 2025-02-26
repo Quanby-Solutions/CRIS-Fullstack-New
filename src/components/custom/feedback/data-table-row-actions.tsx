@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Row } from '@tanstack/react-table'
 import { hasPermission } from '@/types/auth'
 import { Icons } from '@/components/ui/icons'
@@ -19,7 +19,7 @@ import { DeleteFeedbackDialog } from './components/delete-feedback-dialog'
 import { FeedbackDetailsDialog } from './components/feedback-details-dialog'
 import { useRouter } from 'next/navigation'
 
-type FeedbackRow = Feedback & {
+export type FeedbackRow = Feedback & {
   user: {
     name: string
     email: string
@@ -29,12 +29,18 @@ type FeedbackRow = Feedback & {
 
 interface DataTableRowActionsProps {
   row: Row<FeedbackRow>
+  onUpdateFeedback?: (feedback: FeedbackRow) => void
+  onDeleteFeedback?: (id: string) => void
 }
 
-export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+export function DataTableRowActions({
+  row,
+  onUpdateFeedback,
+  onDeleteFeedback,
+}: DataTableRowActionsProps) {
   const feedback = row.original
-  const [viewDetailsOpen, setViewDetailsOpen] = React.useState(false)
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false)
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const { permissions } = useUser()
   const router = useRouter()
 
@@ -44,6 +50,9 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   // Delete success: refresh the table data via Next.js router refresh.
   const handleDeleteSuccess = () => {
     router.refresh()
+    if (onDeleteFeedback) {
+      onDeleteFeedback(feedback.id)
+    }
   }
 
   return (

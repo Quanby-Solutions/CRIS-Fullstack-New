@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useEffect, useState } from 'react'
 import {
     ColumnFiltersState,
     SortingState,
@@ -12,9 +13,9 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
+    ColumnDef,
 } from '@tanstack/react-table'
 import type { Feedback } from '@prisma/client'
-
 import {
     Table,
     TableBody,
@@ -23,7 +24,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-
 import { DataTablePagination } from '@/components/custom/table/data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { CardContent } from '@/components/ui/card'
@@ -31,31 +31,32 @@ import { useTranslation } from 'react-i18next'
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
-import { useColumns } from './columns'
-import React, { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import Lottie from 'lottie-react'
 import certificateAnimation from '@lottie/blue.json'
 
-// type FeedbackValue = string | number | boolean | Date | null | undefined
-
-interface DataTableProps<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }> {
+export interface DataTableProps<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }> {
     data: TData[]
+    columns: ColumnDef<TData>[]
     searchKey?: string
     selection?: boolean
+    role?: string
 }
 
 export function DataTable<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }>({
     data,
+    columns,
     selection = true,
+    role,
 }: DataTableProps<TData>) {
     const { t } = useTranslation()
     const { permissions } = useUser()
+    const { data: session } = useSession()
     const [rowSelection, setRowSelection] = useState({})
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
     const [shake, setShake] = useState(false)
-    const columns = useColumns()
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -65,19 +66,9 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
         return () => clearInterval(interval)
     }, [])
 
-    const canViewDetails = hasPermission(permissions ?? [], Permission.FEEDBACK_READ)
-    const filteredColumns = React.useMemo(() => {
-        return columns.filter(column => {
-            if (column.id === 'actions') {
-                return canViewDetails
-            }
-            return true
-        })
-    }, [canViewDetails, columns])
-
     const table = useReactTable({
         data,
-        columns: filteredColumns,
+        columns,
         state: {
             sorting,
             columnVisibility,
@@ -98,9 +89,9 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
     })
 
     return (
-        <div className='space-y-4'>
+        <div className="space-y-4">
             <DataTableToolbar table={table} />
-            <div className='rounded-md border bg-popover shadow-md'>
+            <div className="rounded-md border bg-popover shadow-md">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -134,11 +125,16 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={filteredColumns.length} className="h-24 text-center">
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
                                     <div className="mx-auto max-w-lg">
                                         <CardContent className="flex flex-col items-center space-y-4 p-6">
                                             <div className="w-40 h-40">
-                                                <Lottie animationData={certificateAnimation} loop autoplay className="w-full h-full" />
+                                                <Lottie
+                                                    animationData={certificateAnimation}
+                                                    loop
+                                                    autoplay
+                                                    className="w-full h-full"
+                                                />
                                             </div>
                                             <p
                                                 className={`text-lg font-semibold transition-transform ${shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''

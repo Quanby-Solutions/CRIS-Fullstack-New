@@ -29,9 +29,6 @@ export function FeedbackDetailsDialog({
                     <DialogTitle className="text-lg font-bold">
                         Feedback Details
                     </DialogTitle>
-                    <Badge variant="secondary">
-                        {feedback.user ? 'User Feedback' : 'Anonymous Feedback'}
-                    </Badge>
                     <DialogDescription className="text-sm text-muted-foreground">
                         Detailed information about the feedback submission.
                     </DialogDescription>
