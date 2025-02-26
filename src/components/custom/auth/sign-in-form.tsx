@@ -36,15 +36,21 @@ export const SignInFormComponent = () => {
             const result = await handleCredentialsSignin(values)
 
             if (result?.success) {
-                toast.success("Signed in successfully")
+                toast.success("Signed in successfully", {
+                    "description": "You are now signed in.",
+                })
                 // Redirect to dashboard
                 window.location.href = result.redirectTo || "/dashboard"
             } else {
-                toast.error(result?.message || "Sign-in failed")
+                toast.error(result?.message || "Sign-in failed", {
+                    "description": "Please check your email and password and try again.",
+                })
             }
         } catch (error) {
-            console.error("Sign-in error:", error)
-            toast.error("An unexpected error occurred. Please try again.")
+            // console.error("Sign-in error:", error)
+            toast.error("An unexpected error occurred. Please try again.", {
+                "description": error instanceof Error ? error.message : "Failed to sign in.",
+            })
         } finally {
             setIsLoading(false)
         }

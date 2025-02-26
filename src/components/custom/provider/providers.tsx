@@ -2,7 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { ReactNode, useEffect, useState } from 'react'
-import { BackupProvider } from '@/lib/context/BackupContext'
+import { BackupProvider } from '@/lib/context/backup-context'
 import { ThemeProvider } from '@/components/custom/provider/theme-provider'
 
 import { Toaster } from 'sonner'

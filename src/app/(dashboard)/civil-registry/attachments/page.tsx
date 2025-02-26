@@ -20,12 +20,15 @@ async function getFormData(formId: string) {
         const form = await prisma.baseRegistryForm.findUnique({
             where: { id: formId },
             include: {
-                // Include the document with attachments and their certified copies.
-                document: {
+                documents: {
                     include: {
-                        attachments: {
-                            include: { certifiedCopies: true },
-                            orderBy: { updatedAt: 'desc' },
+                        document: {
+                            include: {
+                                attachments: {
+                                    include: { certifiedCopies: true },
+                                    orderBy: { updatedAt: 'desc' },
+                                },
+                            },
                         },
                     },
                 },
@@ -35,14 +38,14 @@ async function getFormData(formId: string) {
                 marriageCertificateForm: true,
                 deathCertificateForm: true,
             },
-        })
+        });
 
         return {
             attachments:
-                (form?.document?.attachments as AttachmentWithCertifiedCopies[]) ?? [],
+                (form?.documents[0]?.document?.attachments as AttachmentWithCertifiedCopies[]) ?? [],
             formType: form?.formType ?? null,
             form,
-        }
+        };
     } catch (error) {
         console.error('Error:', error)
         return { attachments: [], formType: null, form: null }
@@ -122,7 +125,12 @@ export default async function AttachmentsPage({
                                     attachments={attachments}
                                     canDelete={true}
                                     formType={formType}
-                                    formData={form}
+                                    formData={{
+                                        ...form,
+                                        preparedBy: form?.preparedBy ?? null,
+                                        verifiedBy: form?.verifiedBy ?? null,
+                                        documents: form?.documents ?? [],
+                                    }}
                                 />
                             ) : (
                                 <p className="py-4 text-center text-sm text-muted-foreground">

@@ -1,7 +1,7 @@
 'use client'
 
-import FeedbackUserChart from './feedback-user-chart'
-import FeedbackWordCloud from './feedback-wordcloud'
+import FeedbackUserChart from './components/feedback-user-chart'
+import FeedbackWordCloud from './components/feedback-wordcloud'
 
 interface FeedbackItem {
     id: string
