@@ -1,19 +1,19 @@
 "use client"
 
+import { t } from "i18next"
 import { useState } from "react"
+import { Icons } from "@/components/ui/icons"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { Bell, Download, Palette, Save, Lock, ChevronRight } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useBackup } from "@/lib/context/BackupContext"
-import { LanguageSelector } from "@/components/custom/language/language-selector"
-import { ThemeChange } from "@/components/theme/theme-change"
-import { t } from "i18next"
-import { ThemeBrightness } from "@/components/theme/theme-brightness"
 import { Separator } from "@/components/ui/separator"
+import { useBackup } from "@/lib/context/backup-context"
+import { ThemeChange } from "@/components/theme/theme-change"
+import { ThemeBrightness } from "@/components/theme/theme-brightness"
+import { LanguageSelector } from "@/components/custom/language/language-selector"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function SettingsUI() {
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false)
+  // const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false)
   const [isPrivacyModeEnabled, setIsPrivacyModeEnabled] = useState(false)
   const { isBackupEnabled, toggleBackup, triggerManualBackup } = useBackup()
 
@@ -30,7 +30,7 @@ export function SettingsUI() {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Palette className="h-6 w-6 text-primary" />
+                <Icons.palette className="h-6 w-6 text-primary" />
                 <CardTitle className="text-xl">{t("interfaceTitle")}</CardTitle>
               </div>
             </CardHeader>
@@ -82,7 +82,7 @@ export function SettingsUI() {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Lock className="h-6 w-6 text-primary" />
+                <Icons.lock className="h-6 w-6 text-primary" />
                 <CardTitle className="text-xl">{t("privacyTitle", "Privacy Settings")}</CardTitle>
               </div>
               <Switch id="privacy-mode" checked={isPrivacyModeEnabled} onCheckedChange={setIsPrivacyModeEnabled} />
@@ -100,7 +100,7 @@ export function SettingsUI() {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Download className="h-6 w-6 text-primary" />
+                <Icons.download className="h-6 w-6 text-primary" />
                 <CardTitle className="text-xl">Backup Settings</CardTitle>
               </div>
               <Switch id="backup-mode" checked={isBackupEnabled} onCheckedChange={toggleBackup}
@@ -109,9 +109,9 @@ export function SettingsUI() {
             <CardContent className="space-y-4">
               <CardDescription>
                 {isBackupEnabled
-                // Enabled
+                  // Enabled
                   ? `Autosave is enabled. Backups will be created daily every 5:00 PM. `
-                // Disabled 
+                  // Disabled 
                   : `Backup settings are currently disabled. Turn on to enable "automatic save" feature.`}
               </CardDescription>
               <Separator />
@@ -121,7 +121,7 @@ export function SettingsUI() {
                   className="w-full flex items-center justify-center gap-2 py-2"
                   variant="outline"
                 >
-                  <Save className="h-5 w-5" />
+                  <Icons.save className="h-5 w-5" />
                   Manual Backup
                 </Button>
               </div>
@@ -132,24 +132,3 @@ export function SettingsUI() {
     </div>
   )
 }
-
-{/* <Card className="shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Bell className="h-6 w-6 text-primary" />
-                <CardTitle className="text-xl">{t("notificationTitle", "Notifications")}</CardTitle>
-              </div>
-              <Switch
-                id="notification-toggle"
-                checked={isNotificationsEnabled}
-                onCheckedChange={setIsNotificationsEnabled}
-              />
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                {isNotificationsEnabled
-                  ? t("notificationsDescription", "You will receive important updates and alerts.")
-                  : t("notificationsDisabled", "Notifications are currently disabled.")}
-              </CardDescription>
-            </CardContent>
-          </Card> */}

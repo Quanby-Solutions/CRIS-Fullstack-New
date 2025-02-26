@@ -35,7 +35,7 @@ export function DataTableRowActions({
       onUpdateRequest?.(updatedRequest)
       toast.success(`Request status updated to ${status}`)
     } catch (error) {
-      console.error('Error updating request status:', error)
+      // console.error('Error updating request status:', error)
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

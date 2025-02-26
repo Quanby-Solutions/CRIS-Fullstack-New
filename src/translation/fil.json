@@ -237,16 +237,6 @@
     "export": "I-export"
   },
   "datatable": {
-    "selected_rows": " {{selected}} ng {{total}} na mga hilera ang napili.",
-    "no_rows_selected": "Walang napiling hilera.",
-    "rows_per_page": "Mga hilera bawat pahina",
-    "page_info": "Pahina {{current}} ng {{total}}",
-    "go_to_first_page": "Pumunta sa unang pahina",
-    "go_to_previous_page": "Pumunta sa nakaraang pahina",
-    "go_to_next_page": "Pumunta sa susunod na pahina",
-    "go_to_last_page": "Pumunta sa huling pahina"
-  },
-  "dataTable": {
     "user": "User",
     "contact": "Kontak",
     "role": "Tungkulin",
@@ -270,7 +260,9 @@
     "go_to_first_page": "Pumunta sa unang pahina",
     "go_to_previous_page": "Pumunta sa nakaraang pahina",
     "go_to_next_page": "Pumunta sa susunod na pahina",
-    "go_to_last_page": "Pumunta sa huling pahina"
+    "go_to_last_page": "Pumunta sa huling pahina",
+    "known_user": "Kilala",
+    "anonymous": "Hindi Kilala"
   },
   "formSelection": {
     "issueCertificate": "Mag-isyu ng Sertipiko",
@@ -332,7 +324,6 @@
     "resetDateRange": "I-reset",
     "sortNewestToOldest": "Pinakabago hanggang Pinakaluma",
     "sortOldestToNewest": "Pinakaluma hanggang Pinakabago"
-
   },
   "feedbacks": {
     "emptyError": "Hindi pwedeng walang puna.",
@@ -433,9 +424,8 @@
   "death_reports": "Kamatayan",
   "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit.",
 
-
-  "Submit:":"Isubmit",  
-  "Submit...":"Isina-Submiting...",
+  "Submit:": "Isubmit",
+  "Submit...": "Isina-Submiting...",
   "Update the details for the role.": "I-update ang mga detalye para sa tungkulin.",
   "Update": "I-Edit",
   "Role updated successfully": "Matagumpay na na-edit ang tungkulin",

@@ -1,59 +1,51 @@
-'use client';
-import * as React from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+'use client'
 
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
+import LocationSelector from '../shared-components/location-selector'
 
+import { cn } from '@/lib/utils'
+import { FC, useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema'
 
 interface AffidavitForDelayedMarriageRegistrationProps {
-    className?: string;
+    className?: string
 }
 
-export const AffidavitForDelayedMarriageRegistration: React.FC<
+export const AffidavitForDelayedMarriageRegistration: FC<
     AffidavitForDelayedMarriageRegistrationProps
 > = ({ className }) => {
-    const { control, watch, setValue } = useFormContext<MarriageCertificateFormValues>();
-    const [affiant, setAffiant] = React.useState(false);
-    const [execution, setExecution] = React.useState(false);
-    const [isDelayed, setIsDelayed] = React.useState(false);
+    const { control, watch, setValue } = useFormContext<MarriageCertificateFormValues>()
+    const [affiant, setAffiant] = useState(false)
+    const [execution, setExecution] = useState(false)
+    const [isDelayed, setIsDelayed] = useState(false)
 
-    const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = React.useState(false);
-    const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = React.useState(false);
+    const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = useState(false)
+    const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = useState(false)
 
-    const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' });
-    const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' });
+    const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' })
+    const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' })
 
     // Handle switch toggle
     const handleDelayedToggle = (checked: boolean) => {
-        setIsDelayed(checked);
+        setIsDelayed(checked)
         if (!checked) {
             // Clear all affidavit fields when toggled off
-            setValue('affidavitForDelayed', undefined);
+            setValue('affidavitForDelayed', undefined)
         }
-    };
+    }
     // Watch specific form fields for dynamic updates
-    //   const marriageLicenseNumber = watch('marriageLicenseDetails.number');
-    //   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued');
-    //   const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued');
-    //   const marriageArticleNumber = watch('marriageArticle.article');
+    //   const marriageLicenseNumber = watch('marriageLicenseDetails.number')
+    //   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued')
+    //   const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued')
+    //   const marriageArticleNumber = watch('marriageArticle.article')
 
     return (
         <Card className={cn('border dark:border-border', className)}>
@@ -530,7 +522,7 @@ export const AffidavitForDelayedMarriageRegistration: React.FC<
                                                         {...field}
                                                         value={field.value || ''}
                                                         className='h-10'
-                                                        placeholder='Enter officer&apos;s name'
+                                                        placeholder='Enter officer&aposs name'
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -1079,7 +1071,7 @@ export const AffidavitForDelayedMarriageRegistration: React.FC<
                 </CardContent>
             )}
         </Card>
-    );
-};
+    )
+}
 
-export default AffidavitForDelayedMarriageRegistration;
+export default AffidavitForDelayedMarriageRegistration

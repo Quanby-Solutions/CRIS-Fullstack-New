@@ -177,7 +177,7 @@ export function FileUploadDialog({
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
             <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-4">
                 <DialogHeader className="p-4 border-b">
-                    <DialogTitle>Upload Document</DialogTitle>
+                    <DialogTitle>Upload the Scanned Copy of the Certificate</DialogTitle>
                     <DialogDescription>
                         Drag & drop a file, or click to select. Supported formats: JPEG, PNG, PDF (max 10MB).
                     </DialogDescription>

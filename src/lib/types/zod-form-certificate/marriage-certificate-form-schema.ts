@@ -196,7 +196,7 @@ export const marriageCertificateSchema = z.object({
   husbandConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
-    residence: z.string()
+    residence: locationSchema
   }),
   husbandParents: z.object({
     fatherName: nameSchema,
@@ -218,7 +218,7 @@ export const marriageCertificateSchema = z.object({
   wifeConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
-    residence: z.string()
+    residence: locationSchema
   }),
   wifeParents: z.object({
     fatherName: nameSchema,
