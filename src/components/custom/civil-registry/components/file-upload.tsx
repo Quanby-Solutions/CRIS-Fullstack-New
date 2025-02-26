@@ -22,7 +22,7 @@ interface FileUploadDialogProps {
     formId: string
     formType: FormType
     registryNumber: string
-    bookNumber: string       // added prop
+    bookNumber: string
     pageNumber: string
 }
 
@@ -33,8 +33,8 @@ export function FileUploadDialog({
     formId,
     formType,
     registryNumber,
-    bookNumber,          // destructured added prop
-    pageNumber,          // destructured added prop
+    bookNumber,
+    pageNumber,
 }: FileUploadDialogProps) {
     const { data: session } = useSession()
     const { createDocument } = useCreateDocument()
@@ -68,7 +68,11 @@ export function FileUploadDialog({
         }
     }, [file])
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
+        if (fileRejections.length > 0) {
+            toast.warning("File size exceeds the maximum allowed limit of 10MB")
+            return
+        }
         const selectedFile = acceptedFiles[0]
         if (selectedFile) {
             setFile(selectedFile)
@@ -173,7 +177,7 @@ export function FileUploadDialog({
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
             <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-4">
                 <DialogHeader className="p-4 border-b">
-                    <DialogTitle>Upload Document</DialogTitle>
+                    <DialogTitle>Upload the Scanned Copy of the Certificate</DialogTitle>
                     <DialogDescription>
                         Drag & drop a file, or click to select. Supported formats: JPEG, PNG, PDF (max 10MB).
                     </DialogDescription>

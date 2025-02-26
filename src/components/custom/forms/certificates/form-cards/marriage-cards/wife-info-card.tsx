@@ -290,7 +290,7 @@ const WifeInfoCard: React.FC = () => {
             name='wifeResidence'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Residence</FormLabel>
+                <FormLabel>Street</FormLabel>
                 <FormControl>
                   <Input
                     type='text'

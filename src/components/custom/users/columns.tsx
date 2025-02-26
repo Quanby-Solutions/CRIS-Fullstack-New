@@ -133,13 +133,18 @@ export const useCreateColumns = (
                                         {t("dataTable.allPermissions")}
                                     </h4>
                                 </div>
-                                <div className="space-y-1">
-                                    {Array.from(permissions).map((permission) => (
+                                {/* Permissions list container with scrolling and multi-column layout */}
+                                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
+                                    {Array.from(permissions).map((permission: string) => (
                                         <div
                                             key={permission}
                                             className="text-sm px-2 py-1 rounded-md bg-secondary/50"
                                         >
-                                            {permission.replace(/_/g, " ").toString().toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                                            {permission
+                                                .replace(/_/g, " ")
+                                                .toString()
+                                                .toLowerCase()
+                                                .replace(/^\w/, (c: string) => c.toUpperCase())}
                                         </div>
                                     ))}
                                 </div>

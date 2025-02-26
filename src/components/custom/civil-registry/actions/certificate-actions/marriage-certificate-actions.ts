@@ -176,7 +176,7 @@ export async function submitMarriageCertificateForm(
                         ...formData.husbandConsentPerson,
                         name: formData.husbandConsentPerson.name,
                         relationship: formData.husbandConsentPerson.relationship,
-                        residence: formData.husbandConsentPerson.residence,
+                        residence: formData.husbandConsentPerson.residence as Prisma.JsonObject,
                       } as Prisma.JsonObject,
                   
                       // Wife Information
@@ -203,7 +203,7 @@ export async function submitMarriageCertificateForm(
                         ...formData.wifeConsentPerson,
                         name: formData.wifeConsentPerson.name,
                         relationship: formData.wifeConsentPerson.relationship,
-                        residence: formData.wifeConsentPerson.residence,
+                        residence: formData.wifeConsentPerson.residence as Prisma.JsonObject,
                       } as Prisma.JsonObject,
                   
                       // Contract Party

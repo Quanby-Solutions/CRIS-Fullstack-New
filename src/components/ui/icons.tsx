@@ -88,6 +88,11 @@ import {
     Pencil,
     Archive,
     Book,
+    Palette,
+    Lock,
+    BellIcon,
+    Circle,
+    CircleDot,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -212,6 +217,11 @@ export const Icons = {
     archive: Archive,
     gear: Settings,
     book: Book,
+    palette: Palette,
+    lock: Lock,
+    bellIcon: BellIcon,
+    cirle: Circle,
+    circleDot: CircleDot,
 } as const
 
 export type IconsType = typeof Icons

@@ -54,7 +54,7 @@ export const ReportsDashboard = () => {
                         onValueChange={(value) => setSelectedReport(value as ReportKey)}
                         className="w-full"
                     >
-                        <TabsList className="grid w-full max-w-[700px] p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
+                        <TabsList className="grid w-full p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
                             {reports.map((report) => (
                                 <TabsTrigger key={report.key} value={report.key} className="p-1 px-4">
                                     {t(report.labelKey)}
@@ -62,7 +62,7 @@ export const ReportsDashboard = () => {
                             ))}
                         </TabsList>
                         {reports.map((report) => (
-                            <TabsContent key={report.key} value={report.key} className="w-full max-w-[1000px]">
+                            <TabsContent key={report.key} value={report.key} className="w-full">
                                 <div className="w-full">{renderReport()}</div>
                             </TabsContent>
                         ))}
