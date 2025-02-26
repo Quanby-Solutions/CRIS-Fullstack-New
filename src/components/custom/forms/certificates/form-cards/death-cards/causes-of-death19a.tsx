@@ -24,8 +24,6 @@ const CausesOfDeath19aCard: React.FC = () => {
         </p>
       </CardHeader>
       <CardContent className='space-y-6'>
-
-
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           {/* Main Disease/Condition */}
           <FormField
@@ -35,7 +33,11 @@ const CausesOfDeath19aCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Main Disease/Condition</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='Enter main disease/condition' />
+                  <Input
+                    {...field}
+                    value={field.value ?? ''}
+                    placeholder='Enter main disease/condition'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -51,6 +53,7 @@ const CausesOfDeath19aCard: React.FC = () => {
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value ?? ''}
                     placeholder='Enter other diseases/conditions (optional)'
                   />
                 </FormControl>
@@ -58,7 +61,6 @@ const CausesOfDeath19aCard: React.FC = () => {
               </FormItem>
             )}
           />
-
           {/* Main Maternal Disease */}
           <FormField
             control={control}
@@ -69,6 +71,7 @@ const CausesOfDeath19aCard: React.FC = () => {
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value ?? ''}
                     placeholder='Enter main maternal disease (if applicable)'
                   />
                 </FormControl>
@@ -76,7 +79,6 @@ const CausesOfDeath19aCard: React.FC = () => {
               </FormItem>
             )}
           />
-
           {/* Other Maternal Disease */}
           <FormField
             control={control}
@@ -87,6 +89,7 @@ const CausesOfDeath19aCard: React.FC = () => {
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value ?? ''}
                     placeholder='Enter other maternal disease (if applicable)'
                   />
                 </FormControl>
@@ -94,7 +97,6 @@ const CausesOfDeath19aCard: React.FC = () => {
               </FormItem>
             )}
           />
-
           {/* Other Relevant Circumstances */}
           <FormField
             control={control}
@@ -105,6 +107,7 @@ const CausesOfDeath19aCard: React.FC = () => {
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value ?? ''}
                     placeholder='Enter any other relevant circumstances'
                   />
                 </FormControl>

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   FormControl,
@@ -6,18 +6,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useLocationSelector } from '@/hooks/use-location-selector'
-import { LocationSelectorProps } from '@/lib/types/location-selector'
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { useFormContext, Controller } from 'react-hook-form'
+} from '@/components/ui/select';
+import { useLocationSelector } from '@/hooks/use-location-selector';
+import { LocationSelectorProps } from '@/lib/types/location-selector';
+import React, { useEffect, useState } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({
   provinceFieldName = 'province',
@@ -44,8 +44,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     getValues,
     setError,
     clearErrors,
-    formState: { errors }
-  } = useFormContext()
+    formState: { errors, isSubmitted },
+  } = useFormContext();
 
   const {
     selectedProvince,
@@ -68,47 +68,55 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     onMunicipalityChange,
     onBarangayChange,
     trigger,
-  })
+  });
 
   // State to track initial values and loading status
-  const [initialMunicipalityValue] = useState(getValues(municipalityFieldName) || '')
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false)
+  const [initialMunicipalityValue] = useState(
+    getValues(municipalityFieldName) || ''
+  );
+  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
   // Effect to handle initial loading for edit scenarios
   useEffect(() => {
-    // If there's an initial municipality value and municipalities are loaded
     if (
       initialMunicipalityValue &&
       municipalities.length > 0 &&
       !isInitialLoadComplete
     ) {
-      // Find the matching municipality
       const matchingMunicipality = municipalities.find(
         (mun) =>
           mun.displayName === initialMunicipalityValue ||
-          mun.displayName.toLowerCase() === initialMunicipalityValue.toLowerCase()
-      )
+          mun.displayName.toLowerCase() ===
+            initialMunicipalityValue.toLowerCase()
+      );
 
       if (matchingMunicipality) {
-        // Trigger municipality change with the matched municipality
-        handleMunicipalityChange(matchingMunicipality.id)
-
-        // Mark initial load as complete
-        setIsInitialLoadComplete(true)
+        handleMunicipalityChange(matchingMunicipality.id);
+        setIsInitialLoadComplete(true);
       }
     }
   }, [
     initialMunicipalityValue,
     municipalities,
     isInitialLoadComplete,
-    handleMunicipalityChange
-  ])
+    handleMunicipalityChange,
+  ]);
 
   // Styling classes for select triggers.
   const selectTriggerClasses =
-    'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'
+    'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
 
-  const isMunicipalityDisabled = !selectedProvince
+  const isMunicipalityDisabled = !selectedProvince;
+
+  // Prevent the FormLabel from turning red by using a custom wrapper component
+  const CustomFormLabel: React.FC<{
+    children: React.ReactNode;
+    className?: string;
+  }> = ({ children, className }) => (
+    <FormLabel className={className} style={{ color: 'inherit' }}>
+      {children}
+    </FormLabel>
+  );
 
   return (
     <>
@@ -118,22 +126,24 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         name={provinceFieldName}
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
-            <FormLabel className={formLabelClassName}>
+            <CustomFormLabel className={formLabelClassName}>
               {isNCRMode ? 'Region' : provinceLabel}
-            </FormLabel>
+            </CustomFormLabel>
             <FormControl>
               <Select
                 value={selectedProvince}
                 onValueChange={(value: string) => {
-                  field.onChange(value)
-                  handleProvinceChange(value)
-                  trigger(provinceFieldName)
+                  field.onChange(value);
+                  handleProvinceChange(value);
+                  trigger(provinceFieldName);
                 }}
                 disabled={isNCRMode}
               >
                 <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue
-                    placeholder={isNCRMode ? 'Metro Manila' : provincePlaceholder}
+                    placeholder={
+                      isNCRMode ? 'Metro Manila' : provincePlaceholder
+                    }
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -145,7 +155,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{fieldState.error?.message}</FormMessage>
+            {/* Show error message only when the form is submitted with errors */}
+            {isSubmitted && fieldState.error && (
+              <FormMessage>{fieldState.error.message}</FormMessage>
+            )}
           </FormItem>
         )}
       />
@@ -158,32 +171,28 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           validate: {
             required: (value) => {
               // Skip validation if field is disabled or no province selected
-              if (isMunicipalityDisabled || !selectedProvince) return true
-
+              if (isMunicipalityDisabled || !selectedProvince) return true;
               // Require a value only when province is selected
-              return !!value || 'City/Municipality is required'
-            }
-          }
+              return !!value || 'City/Municipality is required';
+            },
+          },
         }}
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
-            <FormLabel className={formLabelClassName}>{municipalityLabel}</FormLabel>
+            <CustomFormLabel className={formLabelClassName}>
+              {municipalityLabel}
+            </CustomFormLabel>
             <FormControl>
               <Select
                 value={selectedMunicipality}
                 onValueChange={(value: string) => {
-                  // Find the full municipality details
-                  const selectedMun = municipalities.find(m => m.id === value)
-
+                  const selectedMun = municipalities.find(
+                    (m) => m.id === value
+                  );
                   if (selectedMun) {
-                    // Set the value using Controller's onChange
-                    field.onChange(selectedMun.displayName)
-
-                    // Update selected municipality
-                    handleMunicipalityChange(value)
-
-                    // Clear any previous errors
-                    clearErrors(municipalityFieldName)
+                    field.onChange(selectedMun.displayName);
+                    handleMunicipalityChange(value);
+                    clearErrors(municipalityFieldName);
                   }
                 }}
                 disabled={isMunicipalityDisabled}
@@ -200,10 +209,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {/* Show error message only if a province is selected and field is not disabled */}
-            <FormMessage>
-              {!isMunicipalityDisabled && selectedProvince ? fieldState.error?.message : ''}
-            </FormMessage>
+            {/* Show error message only when the form is submitted with errors and province is selected */}
+            {isSubmitted && selectedProvince && fieldState.error && (
+              <FormMessage>{fieldState.error.message}</FormMessage>
+            )}
           </FormItem>
         )}
       />
@@ -215,18 +224,23 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           name={barangayFieldName}
           render={({ field, fieldState }) => (
             <FormItem className={formItemClassName}>
-              <FormLabel className={formLabelClassName}>{barangayLabel}</FormLabel>
+              <CustomFormLabel className={formLabelClassName}>
+                {barangayLabel}
+              </CustomFormLabel>
               <FormControl>
                 <Select
                   value={selectedBarangay}
                   onValueChange={(value: string) => {
-                    field.onChange(value)
-                    handleBarangayChange(value)
-                    trigger(barangayFieldName)
+                    field.onChange(value);
+                    handleBarangayChange(value);
+                    trigger(barangayFieldName);
                   }}
                   disabled={!selectedMunicipality}
                 >
-                  <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
+                  <SelectTrigger
+                    ref={field.ref}
+                    className={selectTriggerClasses}
+                  >
                     <SelectValue placeholder={barangayPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
@@ -238,13 +252,16 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormMessage>{fieldState.error?.message}</FormMessage>
+              {/* Show error message only when the form is submitted with errors */}
+              {isSubmitted && fieldState.error && (
+                <FormMessage>{fieldState.error.message}</FormMessage>
+              )}
             </FormItem>
           )}
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default LocationSelector
+export default LocationSelector;
