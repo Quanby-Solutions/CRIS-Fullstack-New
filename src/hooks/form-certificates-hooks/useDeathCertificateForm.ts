@@ -1,4 +1,4 @@
-// useDeathCertificateForm.ts
+// useDeathCertificateForm.ts - Updated with fresh, empty form defaults
 
 import { submitDeathCertificateForm } from '@/components/custom/civil-registry/actions/certificate-actions/death-certificate-actions';
 import {
@@ -22,91 +22,106 @@ export function useDeathCertificateForm({
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
+      // Basic Information - Empty to be filled by user
       registryNumber: '',
       province: '',
       cityMunicipality: '',
-      // Deceased Information
+
+      // Deceased Information - Empty to be filled by user
       name: {
-        first: 'John',
-        middle: 'Michael',
-        last: 'Doe',
+        first: '',
+        middle: '',
+        last: '',
       },
-      sex: 'Male',
-      dateOfDeath: new Date('2022-01-01'),
-      timeOfDeath: new Date('2022-01-01T12:00:00'),
-      dateOfBirth: new Date('2022-01-01'),
+      sex: undefined, // Will trigger validation as required
+      dateOfDeath: undefined, // Will trigger validation as required
+      timeOfDeath: undefined, // Will trigger validation as required
+      dateOfBirth: undefined, // Will trigger validation as required
       ageAtDeath: {
-        years: '0',
-        months: '0',
-        days: '1',
-        hours: '0',
+        years: '',
+        months: '',
+        days: '',
+        hours: '',
       },
       placeOfDeath: {
-        houseNo: '123',
-        st: 'Main St',
-        barangay: 'Barangay 1',
-        cityMunicipality: 'Sample City',
-        province: 'Sample Province',
-        country: 'Sample Country',
+        hospitalInstitution: '',
+        houseNo: '',
+        st: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
       },
-      civilStatus: 'Single',
-      religion: 'Religion',
-      citizenship: 'Country',
+
+      civilStatus: undefined,
+      religion: '',
+      citizenship: '',
       residence: {
-        houseNo: '123',
-        st: 'Main St',
-        barangay: 'Barangay 1',
-        cityMunicipality: 'Sample City',
-        province: 'Sample Province',
-        country: 'Sample Country',
+        houseNo: '',
+        st: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
       },
-      occupation: 'Engineer',
+      occupation: '',
+
+      // Birth Information (only relevant for infant deaths)
+      birthInformation: {
+        ageOfMother: '',
+        methodOfDelivery: 'Normal spontaneous vertex',
+        lengthOfPregnancy: undefined,
+        typeOfBirth: 'Single',
+        birthOrder: undefined,
+      },
+
       // Parent Information
       parents: {
         fatherName: {
-          first: 'Robert',
-          middle: 'James',
-          last: 'Doe',
+          first: '',
+          middle: '',
+          last: '',
         },
         motherName: {
-          first: 'Jane',
-          middle: 'Alice',
-          last: 'Doe',
+          first: '',
+          middle: '',
+          last: '',
         },
       },
+
       // Causes of Death 19b (8 days and over)
       causesOfDeath19b: {
         immediate: {
-          cause: 'Acute myocardial infarction',
-          interval: 'Within hours',
+          cause: '',
+          interval: '',
         },
         antecedent: {
-          cause: 'Coronary artery disease',
-          interval: 'Several days',
+          cause: '',
+          interval: '',
         },
         underlying: {
-          cause: 'Atherosclerosis',
-          interval: 'Chronic',
+          cause: '',
+          interval: '',
         },
-        otherSignificantConditions: 'None',
+        otherSignificantConditions: '',
       },
+
       // Medical Certificate
       medicalCertificate: {
-        // Use the standard (non-infant) branch
+        // Use the standard (non-infant) branch by default
         causesOfDeath: {
           immediate: {
-            cause: 'Acute myocardial infarction',
-            interval: 'Within hours',
+            cause: '',
+            interval: '',
           },
           antecedent: {
-            cause: 'Coronary artery disease',
-            interval: 'Several days',
+            cause: '',
+            interval: '',
           },
           underlying: {
-            cause: 'Atherosclerosis',
-            interval: 'Chronic',
+            cause: '',
+            interval: '',
           },
-          otherSignificantConditions: 'None',
+          otherSignificantConditions: '',
         },
         maternalCondition: {
           pregnantNotInLabor: false,
@@ -120,158 +135,118 @@ export function useDeathCertificateForm({
           placeOfOccurrence: '',
         },
         attendant: {
-          type: 'Private physician',
+          type: undefined, // Will trigger validation as required
           othersSpecify: '',
-          duration: {
-            from: new Date('2022-01-01T10:00:00'),
-            to: new Date('2022-01-01T11:00:00'),
-          },
-          certification: {
-            time: new Date('2022-01-01T12:00:00'),
-            signature: 'base64-attendant-certification', // placeholder base64 string
-            name: 'Dr. Attendant',
-            title: 'Physician',
-            address: {
-              houseNo: '321',
-              st: 'Secondary St',
-              barangay: 'Barangay 2',
-              cityMunicipality: 'Sample City',
-              province: 'Sample Province',
-              country: 'Sample Country',
-            },
-            date: new Date('2022-01-01'),
-          },
+          duration: undefined, // Will be required if attendant type is not "None"
+          certification: undefined, // Will be required based on attendant type
         },
         autopsy: false,
       },
+
       // Certification of Death
       certificationOfDeath: {
         hasAttended: false,
-        signature: 'base64-certification-signature', // placeholder base64 string
-        nameInPrint: 'Health Officer',
-        titleOfPosition: 'Doctor',
+        signature: '', // Will need to be populated with signature base64 or File
+        nameInPrint: '',
+        titleOfPosition: '',
         address: {
-          houseNo: '123',
-          st: 'Main St',
-          barangay: 'Barangay 1',
-          cityMunicipality: 'Sample City',
-          province: 'Sample Province',
-          country: 'Sample Country',
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
         },
-        date: new Date('2022-01-01'),
-        healthOfficerSignature: 'base64-health-officer-signature', // placeholder
-        healthOfficerNameInPrint: 'Health Officer',
+        date: undefined, // Will trigger validation as required
+        healthOfficerSignature: '', // Will need to be populated
+        healthOfficerNameInPrint: '',
       },
+
       // Review
       reviewedBy: {
-        signature: 'base64-review-signature', // placeholder
-        date: new Date('2022-01-01'),
+        signature: '', // Will need to be populated
+        date: undefined, // Will trigger validation as required
       },
-      // Certificates (optional)
+
+      // Optional Certificates - undefined by default
       postmortemCertificate: undefined,
       embalmerCertification: undefined,
-      // Delayed Registration (optional)
-      delayedRegistration: {
-        affiant: {
-          name: 'Affiant Name',
-          civilStatus: 'Single',
-          residenceAddress: 'Affiant Address',
-          age: '30',
-          signature: 'base64-affidavit-signature', // placeholder
-        },
-        deceased: {
-          name: 'Deceased Name',
-          dateOfDeath: '2022-01-01',
-          placeOfDeath: 'Sample City',
-          burialInfo: {
-            date: '2022-01-02',
-            place: 'Cemetery',
-            method: 'Buried',
-          },
-        },
-        attendance: {
-          wasAttended: true,
-          attendedBy: 'Doctor',
-        },
-        causeOfDeath: 'Cause of Death',
-        reasonForDelay: 'Reason for delay',
-        affidavitDate: new Date('2022-01-01'),
-        affidavitDatePlace: 'Place of Affidavit',
-        adminOfficer: {
-          signature: 'base64-admin-signature', // placeholder
-          position: 'Officer',
-        },
-        ctcInfo: {
-          number: '1234',
-          issuedOn: '2022-01-01',
-          issuedAt: 'Office',
-        },
-      },
+      delayedRegistration: undefined,
+
       // Disposal Information
-      corpseDisposal: 'Buried',
+      corpseDisposal: '',
       burialPermit: {
-        number: '12345',
-        dateIssued: new Date('2022-01-01'),
+        number: '',
+        dateIssued: undefined, // Will trigger validation as required
       },
-      transferPermit: undefined,
+      transferPermit: undefined, // Optional unless burial location differs from death location
       cemeteryOrCrematory: {
-        name: 'Cemetery Name',
+        name: '',
         address: {
-          houseNo: '456',
-          st: 'Cemetery St',
-          barangay: 'Barangay 2',
-          cityMunicipality: 'Sample City',
-          province: 'Sample Province',
-          country: 'Sample Country',
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
         },
       },
+
       // Informant
       informant: {
-        signature: 'base64-informant-signature', // placeholder
-        nameInPrint: 'Informant Name',
-        relationshipToDeceased: 'Relation',
+        signature: '', // Will need to be populated
+        nameInPrint: '',
+        relationshipToDeceased: '',
         address: {
-          houseNo: '789',
-          st: 'Street',
-          barangay: 'Barangay 3',
-          cityMunicipality: 'Sample City',
-          province: 'Sample Province',
-          country: 'Sample Country',
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
         },
-        date: new Date('2022-01-01'),
+        date: undefined, // Will trigger validation as required
       },
+
       // Processing Information
       preparedBy: {
-        signature: 'base64-prepared-signature', // placeholder
-        nameInPrint: 'Admin User',
-        titleOrPosition: 'Registrar',
-        date: new Date('2022-01-01'),
+        signature: '', // Will need to be populated
+        nameInPrint: '',
+        titleOrPosition: '',
+        date: undefined, // Will trigger validation as required
       },
       receivedBy: {
-        signature: 'base64-received-signature', // placeholder
-        nameInPrint: 'Office Staff',
-        titleOrPosition: 'Receiver',
-        date: new Date('2022-01-01'),
+        signature: '', // Will need to be populated
+        nameInPrint: '',
+        titleOrPosition: '',
+        date: undefined, // Will trigger validation as required
       },
       registeredByOffice: {
-        signature: 'base64-registered-signature', // placeholder
-        nameInPrint: 'Registrar Office',
-        titleOrPosition: 'Registrar',
-        date: new Date('2022-01-01'),
+        signature: '', // Will need to be populated
+        nameInPrint: '',
+        titleOrPosition: '',
+        date: undefined, // Will trigger validation as required
       },
-      remarks: 'No remarks',
-      // Pagination
+
+      // Additional fields
+      remarks: '',
+
+      // Pagination - Optional
       pagination: {
-        pageNumber: '1',
-        bookNumber: '1',
+        pageNumber: '',
+        bookNumber: '',
       },
     },
   });
 
   const onSubmit = async (data: DeathCertificateFormValues) => {
     try {
-      // Convert all signature fields to Base64 if they're File objects
+      console.log(
+        'Attempting to submit form with data:',
+        JSON.stringify(data, null, 2)
+      );
 
+      // Convert all signature fields to Base64 if they're File objects
       if (
         data.medicalCertificate?.attendant?.certification?.signature instanceof
         File
@@ -282,26 +257,73 @@ export function useDeathCertificateForm({
           );
       }
 
+      if (data.certificationOfDeath.signature instanceof File) {
+        data.certificationOfDeath.signature = await fileToBase64(
+          data.certificationOfDeath.signature
+        );
+      }
+
+      if (data.certificationOfDeath.healthOfficerSignature instanceof File) {
+        data.certificationOfDeath.healthOfficerSignature = await fileToBase64(
+          data.certificationOfDeath.healthOfficerSignature
+        );
+      }
+
+      if (data.reviewedBy.signature instanceof File) {
+        data.reviewedBy.signature = await fileToBase64(
+          data.reviewedBy.signature
+        );
+      }
+
       if (data.informant.signature instanceof File) {
         data.informant.signature = await fileToBase64(data.informant.signature);
       }
+
       if (data.preparedBy.signature instanceof File) {
         data.preparedBy.signature = await fileToBase64(
           data.preparedBy.signature
         );
       }
+
       if (data.receivedBy.signature instanceof File) {
         data.receivedBy.signature = await fileToBase64(
           data.receivedBy.signature
         );
       }
+
       if (data.registeredByOffice.signature instanceof File) {
         data.registeredByOffice.signature = await fileToBase64(
           data.registeredByOffice.signature
         );
       }
 
+      // Handle optional certificate signatures
+      if (data.postmortemCertificate?.signature instanceof File) {
+        data.postmortemCertificate.signature = await fileToBase64(
+          data.postmortemCertificate.signature
+        );
+      }
+
+      if (data.embalmerCertification?.signature instanceof File) {
+        data.embalmerCertification.signature = await fileToBase64(
+          data.embalmerCertification.signature
+        );
+      }
+
+      if (data.delayedRegistration?.affiant?.signature instanceof File) {
+        data.delayedRegistration.affiant.signature = await fileToBase64(
+          data.delayedRegistration.affiant.signature
+        );
+      }
+
+      if (data.delayedRegistration?.adminOfficer?.signature instanceof File) {
+        data.delayedRegistration.adminOfficer.signature = await fileToBase64(
+          data.delayedRegistration.adminOfficer.signature
+        );
+      }
+
       const result = await submitDeathCertificateForm(data);
+      console.log('API submission result:', result);
 
       if ('data' in result) {
         console.log('Submission successful:', result);
@@ -318,15 +340,39 @@ export function useDeathCertificateForm({
       }
       formMethods.reset();
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Form submission error details:', error);
       toast.error('An unexpected error occurred while submitting the form');
     }
   };
 
   const handleError = (errors: any) => {
-    console.log('Form Validation Errors:', JSON.stringify(errors, null, 2));
+    console.log('Form Validation Errors Object:', errors);
+
+    // Log detailed errors for easier debugging
+    console.log('Detailed Validation Errors:');
+    const logNestedErrors = (obj: any, path: string = '') => {
+      if (!obj) return;
+
+      if (typeof obj === 'object') {
+        if (obj.message) {
+          console.log(`${path}: ${obj.message}`);
+        }
+
+        Object.keys(obj).forEach((key) => {
+          logNestedErrors(obj[key], path ? `${path}.${key}` : key);
+        });
+      }
+    };
+
+    logNestedErrors(errors);
+
+    // Also log as JSON for comprehensive view
+    console.log(
+      'All validation errors as JSON:',
+      JSON.stringify(errors, null, 2)
+    );
+
     toast.error('Please check form for errors');
   };
-
   return { formMethods, onSubmit, handleError };
 }

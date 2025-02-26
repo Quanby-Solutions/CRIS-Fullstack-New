@@ -28,11 +28,14 @@ import {
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { differenceInDays } from 'date-fns';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const DeceasedInformationCard: React.FC = () => {
   const { control, setValue } = useFormContext<DeathCertificateFormValues>();
+  const [ncrMode, setNcrMode] = useState(false);
 
   // Watch fields for overall business logic
   const dateOfBirth = useWatch({ control, name: 'dateOfBirth' });
@@ -148,7 +151,10 @@ const DeceasedInformationCard: React.FC = () => {
                       value={field.value || ''}
                     >
                       <FormControl>
-                        <SelectTrigger ref={field.ref} className='h-10'>
+                        <SelectTrigger
+                          ref={field.ref}
+                          className='h-10 px-3 text-base md:text-sm'
+                        >
                           <SelectValue placeholder='Select sex' />
                         </SelectTrigger>
                       </FormControl>
@@ -363,6 +369,131 @@ const DeceasedInformationCard: React.FC = () => {
                 )}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className='pb-3'>
+            <CardTitle className='text-sm font-semibold'>
+              Place of Death
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Hospital/Institution */}
+            <FormField
+              control={control}
+              name='placeOfDeath.hospitalInstitution'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hospital / Institution</FormLabel>
+                  <FormControl>
+                    <Input
+                      className='h-10'
+                      placeholder='Enter the name of the hospital or institution'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* House No. and Street */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
+              <FormField
+                control={control}
+                name='placeOfDeath.houseNo'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>House No.</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter house number'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='placeOfDeath.st'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter street'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Location Selector for Province, City/Municipality, and Barangay */}
+            <div className='mt-4'>
+              <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+              <LocationSelector
+                provinceFieldName='placeOfDeath.province'
+                municipalityFieldName='placeOfDeath.cityMunicipality'
+                barangayFieldName='placeOfDeath.barangay'
+                provinceLabel='Province'
+                municipalityLabel='City/Municipality'
+                barangayLabel='Barangay'
+                provincePlaceholder='Select province'
+                municipalityPlaceholder='Select city/municipality'
+                barangayPlaceholder='Select barangay'
+                isNCRMode={ncrMode}
+                showBarangay={true}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className='pb-3'>
+            <CardTitle className='text-sm font-semibold'>
+              Civil Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={control}
+              name='civilStatus'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Civil Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || ''}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        ref={field.ref}
+                        className='h-10 px-3 text-base md:text-sm'
+                      >
+                        <SelectValue placeholder='Select civil status' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value='Single'>Single</SelectItem>
+                      <SelectItem value='Married'>Married</SelectItem>
+                      <SelectItem value='Widow'>Widow</SelectItem>
+                      <SelectItem value='Widower'>Widower</SelectItem>
+                      <SelectItem value='Annulled'>Annulled</SelectItem>
+                      <SelectItem value='Divorced'>Divorced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
