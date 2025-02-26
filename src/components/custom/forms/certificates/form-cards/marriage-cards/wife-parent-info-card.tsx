@@ -12,10 +12,13 @@ import { Input } from '@/components/ui/input';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 ;
 import { useFormContext } from 'react-hook-form';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import { useState } from 'react';
+import LocationSelector from '../shared-components/location-selector';
 
 const WifeParentsInfoCard: React.FC = () => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
-
+  const [ncrMode, setNcrMode] = useState(false);
   return (
     <Card className='border dark:border-border'>
       <CardHeader>
@@ -194,7 +197,10 @@ const WifeParentsInfoCard: React.FC = () => {
         <div className='col-span-full py-12'>
           <h3 className='font-bold '>Name of person Wali who gave consent or advise</h3>
         </div>
-
+        <NCRModeSwitch
+          isNCRMode={ncrMode}
+          setIsNCRMode={setNcrMode}
+        />
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           <FormField
             control={control}
@@ -267,8 +273,7 @@ const WifeParentsInfoCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Relationship</FormLabel>
                 <FormControl>
-                  <Input
-                    type='text'
+                  <Input type='text'
                     className='h-10'
                     placeholder='Enter relationship'
                     {...field}
@@ -280,21 +285,43 @@ const WifeParentsInfoCard: React.FC = () => {
             )}
           />
 
+          <LocationSelector
+            provinceFieldName='wifeConsentPerson.residence.province'
+            municipalityFieldName='wifeConsentPerson.residence.cityMunicipality'
+            barangayFieldName='wifeConsentPerson.residence.barangay'
+            provinceLabel='Province'
+            municipalityLabel='City/Municipality'
+            barangayLabel='Barangay'
+            isNCRMode={ncrMode}
+            showBarangay={true}
+            provincePlaceholder='Select province'
+            municipalityPlaceholder='Select city/municipality'
+            barangayPlaceholder='Select barangay'
+          />
           <FormField
             control={control}
-            name='wifeConsentPerson.residence'
+            name='wifeConsentPerson.residence.street'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Residence</FormLabel>
+                <FormLabel>Street</FormLabel>
                 <FormControl>
-                  <Input
-                    type='text'
-                    className='h-10'
-                    placeholder='House No., St., Barangay, City/Municipality, Province, Country'
-                    {...field}
-                    value={field.value ?? ''}
-
-                  />
+                  <Input type='text' className='h-10' placeholder='Enter complete address' {...field}
+                    value={field.value ?? ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Redundant na su name so s apreview is get nalang si name of officer or fillout ini auto matic */}
+          <FormField
+            control={control}
+            name='wifeConsentPerson.residence.country'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input type='text' className='h-10' placeholder='Enter complete address' {...field}
+                    value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
