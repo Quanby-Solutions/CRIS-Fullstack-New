@@ -31,6 +31,48 @@ interface EditCivilRegistryFormDialogProps {
     editType: 'BIRTH' | 'DEATH' | 'MARRIAGE'
 }
 
+interface ChildName {
+    first: string
+    middle: string
+    last: string
+}
+
+interface motherName {
+    first: string
+    middle: string
+    last: string
+}
+
+interface FatherName {
+    first: string
+    middle: string
+    last: string
+}
+
+interface PlaceOfBirth {
+    province: string
+    cityMunicipality: string
+    hospital: string
+}
+
+interface MotherResidence {
+    houseNo: string
+    street: string
+    barangay: string
+    cityMunicipality: string
+    province: string
+    country: string
+}
+
+interface FatherResidence {
+    houseNo: string
+    street: string
+    barangay: string
+    cityMunicipality: string
+    province: string
+    country: string
+}
+
 export function EditCivilRegistryFormDialog({
     form,
     open,
@@ -40,15 +82,139 @@ export function EditCivilRegistryFormDialog({
 }: EditCivilRegistryFormDialogProps) {
     const { t } = useTranslation()
 
-    // Convert the BaseRegistryFormWithRelations to BirthCertificateFormValues
+    // Helper function to safely parse dates
+    const parseDateSafely = (dateValue: Date | null): Date => {
+        if (!dateValue) return new Date()
+        return dateValue
+    }
+
+    // Convert BaseRegistryFormWithRelations to BirthCertificateFormValues with proper type guarding
     const mapToBirthCertificateValues = (form: BaseRegistryFormWithRelations): Partial<BirthCertificateFormValues> => {
-        // Parse dates safely
-        const parseDateSafely = (dateString: Date | null): Date => {
-            if (!dateString) return new Date()
-            return dateString
+        console.log("form.cityMunicipality-> ", form.cityMunicipality)
+
+        // Extract and guard childName
+        const rawChildName = form.birthCertificateForm?.childName
+        let childName: ChildName = { first: '', middle: '', last: '' }
+        if (
+            rawChildName &&
+            typeof rawChildName === 'object' &&
+            !Array.isArray(rawChildName) &&
+            'first' in rawChildName &&
+            'middle' in rawChildName &&
+            'last' in rawChildName
+        ) {
+            childName = rawChildName as unknown as ChildName
         }
 
-        console.log("form.cityMunicipality-> ", form.cityMunicipality)
+        // Extract and guard motherName
+        const rawMotherName = form.birthCertificateForm?.motherMaidenName
+        let motherName: motherName = { first: '', middle: '', last: '' }
+        if (
+            rawMotherName &&
+            typeof rawMotherName === 'object' &&
+            !Array.isArray(rawMotherName) &&
+            'first' in rawMotherName &&
+            'middle' in rawMotherName &&
+            'last' in rawMotherName
+        ) {
+            motherName = rawMotherName as unknown as motherName
+        }
+
+        // Extract and guard fatherName
+        const rawFatherName = form.birthCertificateForm?.fatherName
+        let fatherName: FatherName = { first: '', middle: '', last: '' }
+        if (
+            rawFatherName &&
+            typeof rawFatherName === 'object' &&
+            !Array.isArray(rawFatherName) &&
+            'first' in rawFatherName &&
+            'middle' in rawFatherName &&
+            'last' in rawFatherName
+        ) {
+            fatherName = rawFatherName as unknown as FatherName
+        }
+
+        // Extract and guard placeOfBirth
+        const rawPlaceOfBirth = form.birthCertificateForm?.placeOfBirth
+        let placeOfBirth: PlaceOfBirth = { province: '', cityMunicipality: '', hospital: '' }
+        if (
+            rawPlaceOfBirth &&
+            typeof rawPlaceOfBirth === 'object' &&
+            !Array.isArray(rawPlaceOfBirth) &&
+            'province' in rawPlaceOfBirth &&
+            'cityMunicipality' in rawPlaceOfBirth &&
+            'hospital' in rawPlaceOfBirth
+        ) {
+            placeOfBirth = rawPlaceOfBirth as unknown as PlaceOfBirth
+        }
+
+        // For the sex field, if the value is not "Male" or "Female", default to "Male"
+        const rawSex = form.birthCertificateForm?.sex
+        const sex: "Male" | "Female" =
+            rawSex === "Male" || rawSex === "Female" ? rawSex : "Male"
+
+        // For dateOfBirth, convert to a Date if provided; otherwise, default to new Date()
+        const rawDateOfBirth = form.birthCertificateForm?.dateOfBirth
+        const dateOfBirth: Date =
+            rawDateOfBirth ? new Date(rawDateOfBirth) : new Date()
+
+        const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth
+        const typeOfBirth: "Single" | "Twin" | "Triplet" | "Others" =
+            rawTypeOfBirth === "Single" ||
+            rawTypeOfBirth === "Twin" ||
+            rawTypeOfBirth === "Triplet" ||
+            rawTypeOfBirth === "Others"
+                ? rawTypeOfBirth
+                : "Single"
+
+        // Convert weightAtBirth to string if it's a number.
+        const rawWeightAtBirth = form.birthCertificateForm?.weightAtBirth
+        const weightAtBirth: string =
+            typeof rawWeightAtBirth === "number"
+                ? rawWeightAtBirth.toString()
+                : rawWeightAtBirth || ''
+
+        // Handle motherResidence correctly using rawMotherResidence
+        const rawMotherResidence = form.birthCertificateForm?.motherResidence
+        let motherResidence: MotherResidence = { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
+        if (
+            rawMotherResidence &&
+            typeof rawMotherResidence === 'object' &&
+            !Array.isArray(rawMotherResidence) &&
+            'houseNo' in rawMotherResidence &&
+            'street' in rawMotherResidence &&
+            'barangay' in rawMotherResidence &&
+            'cityMunicipality' in rawMotherResidence &&
+            'province' in rawMotherResidence &&
+            'country' in rawMotherResidence
+        ) {
+            motherResidence = rawMotherResidence as unknown as MotherResidence
+        }
+
+        // Handle fatherResidence similarly
+        const rawFatherResidence = form.birthCertificateForm?.fatherResidence
+        let fatherResidence: FatherResidence = { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
+        if (
+            rawFatherResidence &&
+            typeof rawFatherResidence === 'object' &&
+            !Array.isArray(rawFatherResidence) &&
+            'houseNo' in rawFatherResidence &&
+            'street' in rawFatherResidence &&
+            'barangay' in rawFatherResidence &&
+            'cityMunicipality' in rawFatherResidence &&
+            'province' in rawFatherResidence &&
+            'country' in rawFatherResidence
+        ) {
+            fatherResidence = rawFatherResidence as unknown as FatherResidence
+        }
+
+        // Validate multipleBirthOrder against allowed literals.
+        const validBirthOrders = ["First", "Second", "Third"] as const
+        const rawMultipleBirthOrder = form.birthCertificateForm?.multipleBirthOrder
+        const multipleBirthOrder: "First" | "Second" | "Third" | undefined =
+            validBirthOrders.includes(rawMultipleBirthOrder as any)
+                ? rawMultipleBirthOrder as "First" | "Second" | "Third"
+                : undefined
 
         return {
             registryNumber: form.registryNumber || '',
@@ -60,65 +226,62 @@ export function EditCivilRegistryFormDialog({
             },
             remarks: form.remarks || '',
 
-            // Child information - default values
+            // Child information
             childInfo: {
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                sex: 'Male',
-                dateOfBirth: new Date(),
-                placeOfBirth: {
-                    hospital: '',
-                    cityMunicipality: '',
-                    province: '',
-                },
-                typeOfBirth: 'Single',
-                birthOrder: '1',
-                weightAtBirth: '3.5',
+                firstName: childName.first,
+                middleName: childName.middle,
+                lastName: childName.last,
+                sex,
+                dateOfBirth,
+                placeOfBirth,
+                typeOfBirth,
+                multipleBirthOrder,
+                birthOrder: form.birthCertificateForm?.birthOrder || '',
+                weightAtBirth,
             },
 
-            // Mother information - default values
+            // Mother information
             motherInfo: {
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                citizenship: '',
-                religion: '',
-                occupation: '',
-                age: '30',
-                totalChildrenBornAlive: '1',
-                childrenStillLiving: '1',
-                childrenNowDead: '0',
+                firstName: motherName.first,
+                middleName: motherName.middle,
+                lastName: motherName.last,
+                citizenship: form.birthCertificateForm?.motherCitizenship || '',
+                religion: form.birthCertificateForm?.motherReligion || '',
+                occupation: form.birthCertificateForm?.motherOccupation || '',
+                age: String(form.birthCertificateForm?.motherAge || ''),
+                totalChildrenBornAlive: String(form.birthCertificateForm?.totalChildrenBornAlive || ''),
+                childrenStillLiving: String(form.birthCertificateForm?.childrenStillLiving || ''),
+                childrenNowDead: String(form.birthCertificateForm?.childrenNowDead || ''),
                 residence: {
-                    houseNo: '',
-                    st: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: '',
+                    houseNo: motherResidence.houseNo || '',
+                    st: motherResidence.street || '',
+                    barangay: motherResidence.barangay || '',
+                    cityMunicipality: motherResidence.cityMunicipality || '',
+                    province: motherResidence.province || '',
+                    country: motherResidence.country || '',
                 },
             },
 
-            // Father information - default values
+            // Father information
             fatherInfo: {
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                citizenship: '',
-                religion: '',
-                occupation: '',
-                age: '32',
+                firstName: fatherName.first,
+                middleName: fatherName.middle,
+                lastName: fatherName.last,
+                citizenship: form.birthCertificateForm?.fatherCitizenship || '',
+                religion: form.birthCertificateForm?.fatherReligion || '',
+                occupation: form.birthCertificateForm?.fatherOccupation || '',
+                age: String(form.birthCertificateForm?.fatherAge || ''),
                 residence: {
-                    houseNo: '',
-                    st: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: '',
+                    houseNo: fatherResidence.houseNo || '',
+                    st: fatherResidence.street || '',
+                    barangay: fatherResidence.barangay || '',
+                    cityMunicipality: fatherResidence.cityMunicipality || '',
+                    province: fatherResidence.province || '',
+                    country: fatherResidence.country || '',
                 },
             },
 
-            // Parent marriage information - default values
+            // Parent marriage information
             parentMarriage: {
                 date: new Date(),
                 place: {
@@ -131,7 +294,7 @@ export function EditCivilRegistryFormDialog({
                 },
             },
 
-            // Attendant information - default values
+            // Attendant information
             attendant: {
                 type: 'Physician',
                 certification: {
@@ -151,7 +314,7 @@ export function EditCivilRegistryFormDialog({
                 },
             },
 
-            // Informant information - default values
+            // Informant information
             informant: {
                 signature: '',
                 name: '',
@@ -192,8 +355,6 @@ export function EditCivilRegistryFormDialog({
                 titleOrPosition: '',
                 date: parseDateSafely(form.registeredByDate),
             },
-
-            // Affidavit information
             hasAffidavitOfPaternity: false,
             affidavitOfPaternityDetails: null,
             isDelayedRegistration: false,
@@ -203,12 +364,10 @@ export function EditCivilRegistryFormDialog({
 
     const initialData = mapToBirthCertificateValues(form)
 
-    const handleEditSubmit = async (
-        data: BirthCertificateFormValues
-    ): Promise<void> => {
+    const handleEditSubmit = async (data: BirthCertificateFormValues): Promise<void> => {
         try {
             const preparedByValue = {
-                name: data.preparedBy.nameInPrint
+                name: data.preparedBy.nameInPrint,
             }
 
             const updatedForm: BaseRegistryFormWithRelations = {
@@ -238,9 +397,7 @@ export function EditCivilRegistryFormDialog({
     }
 
     const { formMethods, handleError } = useBirthCertificateForm({
-        onOpenChange: () => {
-            // Handle any side effects on open change if necessary
-        },
+        onOpenChange: () => { },
         defaultValues: initialData,
     })
 
@@ -269,10 +426,7 @@ export function EditCivilRegistryFormDialog({
             case 'BIRTH':
                 return (
                     <FormProvider {...formMethods}>
-                        <form
-                            onSubmit={formMethods.handleSubmit(handleFormSubmit, handleError)}
-                            className="space-y-6"
-                        >
+                        <form onSubmit={formMethods.handleSubmit(handleFormSubmit, handleError)} className="space-y-6">
                             <div className="h-full flex flex-col">
                                 <DialogHeader>
                                     <DialogTitle className="text-2xl font-bold text-center py-4">
@@ -293,16 +447,8 @@ export function EditCivilRegistryFormDialog({
                                                 <CertificationOfInformantCard />
                                                 <PreparedByCard />
                                                 <ReceivedByCard />
-                                                <RegisteredAtOfficeCard
-                                                    fieldPrefix="registeredByOffice"
-                                                    cardTitle="Registered at the Office of Civil Registrar"
-                                                />
-                                                <RemarksCard
-                                                    fieldName="remarks"
-                                                    cardTitle="Birth Certificate Remarks"
-                                                    label="Additional Remarks"
-                                                    placeholder="Enter any additional remarks or annotations"
-                                                />
+                                                <RegisteredAtOfficeCard fieldPrefix="registeredByOffice" cardTitle="Registered at the Office of Civil Registrar" />
+                                                <RemarksCard fieldName="remarks" cardTitle="Birth Certificate Remarks" label="Additional Remarks" placeholder="Enter any additional remarks or annotations" />
                                                 <AffidavitOfPaternityForm />
                                                 <DelayedRegistrationForm />
                                             </div>
@@ -311,14 +457,7 @@ export function EditCivilRegistryFormDialog({
                                 </div>
                             </div>
                             <DialogFooter className="absolute bottom-2 right-2 gap-2 flex items-center">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent"
-                                    onClick={() => {
-                                        handleCancel()
-                                    }}
-                                >
+                                <Button type="button" variant="outline" className="py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent" onClick={handleCancel}>
                                     Cancel
                                 </Button>
                                 <Button type="submit" variant="default" className="py-2 w-32">

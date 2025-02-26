@@ -45,7 +45,7 @@ const formSchema = z.object({
   pageNumber: z.string().min(1, 'Page number is required'),
   bookNumber: z.string().min(1, 'Book number is required'),
   dateOfRegistration: z.string().min(1, 'Registration date is required'),
-  status: z.enum(['PENDING', 'VERIFIED', 'REJECTED', 'EXPIRED']),
+  status: z.nativeEnum(DocumentStatus),
   remarks: z.string().optional(),
   lcroNotations: z.string().optional(),
 });
