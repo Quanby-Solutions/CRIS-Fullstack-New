@@ -1,7 +1,6 @@
 'use client'
 
 import {
-    ColumnDef,
     ColumnFiltersState,
     SortingState,
     VisibilityState,
@@ -32,12 +31,12 @@ import { useTranslation } from 'react-i18next'
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
-import { columns } from './columns'
+import { useColumns } from './columns'
 import React, { useEffect, useState } from 'react'
 import Lottie from 'lottie-react'
 import certificateAnimation from '@lottie/blue.json'
 
-type FeedbackValue = string | number | boolean | Date | null | undefined
+// type FeedbackValue = string | number | boolean | Date | null | undefined
 
 interface DataTableProps<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }> {
     data: TData[]
@@ -56,6 +55,7 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
     const [shake, setShake] = useState(false)
+    const columns = useColumns()
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -73,11 +73,11 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
             }
             return true
         })
-    }, [canViewDetails])
+    }, [canViewDetails, columns])
 
     const table = useReactTable({
         data,
-        columns: filteredColumns as ColumnDef<TData, FeedbackValue>[],
+        columns: filteredColumns,
         state: {
             sorting,
             columnVisibility,
@@ -141,9 +141,8 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
                                                 <Lottie animationData={certificateAnimation} loop autoplay className="w-full h-full" />
                                             </div>
                                             <p
-                                                className={`text-lg font-semibold transition-transform ${
-                                                    shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
-                                                }`}
+                                                className={`text-lg font-semibold transition-transform ${shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
+                                                    }`}
                                             >
                                                 {t('No results found')}
                                             </p>

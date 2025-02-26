@@ -2,10 +2,10 @@
 
 import { toast } from "sonner"
 import { useForm } from "react-hook-form"
-import { useState, useEffect } from "react"
 import { useRoles } from "@/hooks/use-roles"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useState, useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createSignUpSchema, SignUpForm } from "@/lib/validation"
 import { PasswordInput } from "@/components/custom/general/password-input"
@@ -29,13 +29,12 @@ export const SignUpFormComponent = ({ onSuccess }: SignUpFormProps) => {
     const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
     const { roles, loading: rolesLoading, error: rolesError } = useRoles()
 
-    // Compute allowedRoles even if still loading (it might be empty initially)
-    const allowedRoles = roles?.map((role) => role.name) || []
+    const allowedRoles = useMemo(() => {
+        return roles?.map((role) => role.name) || []
+    }, [roles])
 
-    // Define schema using allowedRoles (if allowedRoles is empty, handle it in your schema or defaults)
     const signUpSchema = createSignUpSchema(allowedRoles)
 
-    // Always call useForm
     const form = useForm<SignUpForm>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
