@@ -3,11 +3,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import { DocumentStatus } from '@prisma/client'
 
 // Zod schema for form update validation
 const formUpdateSchema = z.object({
     // Optional fields that can be updated
-    status: z.enum(['PENDING', 'VERIFIED', 'LATE_REGISTRATION', 'READY_FOR_RELEASE', 'RELEASED']).optional(),
+      status: z.nativeEnum(DocumentStatus).optional(),
     documentId: z.string().uuid().optional(),
     remarks: z.string().optional().nullable(),
 
