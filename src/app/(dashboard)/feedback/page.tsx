@@ -68,15 +68,15 @@ export default async function FeedbackPage() {
           { label: 'Feedback', href: '/feedback', active: true },
         ]}
       />
-  
-        <ScrollArea className="max-h-[calc(100vh-4rem)]">
-      <div className="flex-1 p-4 space-y-4">
 
-        <Suspense fallback={<FeedbackTableSkeleton />}>
-          <DataTable data={feedback} selection={false} />
-          <FeedbackHeader feedback={feedback} />
-        </Suspense>
-      </div>
+      <ScrollArea className="max-h-[calc(100vh-4rem)]">
+        <div className="flex-1 p-4 space-y-4">
+
+          <Suspense fallback={<FeedbackTableSkeleton />}>
+            <DataTable data={feedback} selection={false} />
+            <FeedbackHeader feedback={feedback} />
+          </Suspense>
+        </div>
       </ScrollArea>
     </div>
   )

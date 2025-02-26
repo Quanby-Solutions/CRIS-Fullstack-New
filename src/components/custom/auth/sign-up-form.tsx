@@ -57,7 +57,9 @@ export const SignUpFormComponent = ({ onSuccess }: SignUpFormProps) => {
         setIsLoading(true)
         const data = await handleSignUp(values)
         if (data.success) {
-            toast.success("Signed up successfully")
+            toast.success("Signed up successfully", {
+                "description": "You are now signed in.",
+            })
             const signInValues = {
                 email: values.email,
                 password: values.password,
