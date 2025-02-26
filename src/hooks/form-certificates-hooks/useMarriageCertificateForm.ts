@@ -71,7 +71,14 @@ export function useMarriageCertificateForm({
                     last: 'Santos'
                 },
                 relationship: 'Father',
-                residence: '27 Sampaguita Street, Brgy. San Roque, Tabaco City, Albay'
+                residence: {
+                    houseNo: '142',
+                    street: 'Rizal Avenue',
+                    barangay: 'San Isidro',
+                    cityMunicipality: 'City of Legazpi',
+                    province: 'Albay',
+                    country: 'Philippines'
+                }
             },
             husbandParents: {
                 fatherName: {
@@ -116,7 +123,14 @@ export function useMarriageCertificateForm({
                     last: 'Fernandez'
                 },
                 relationship: 'Mother',
-                residence: '103 Maharlika Highway, Brgy. Binanuahan, Legazpi City, Albay',
+                residence: {
+                    houseNo: '78',
+                    street: 'Mabini Street',
+                    barangay: 'Rizal',
+                    cityMunicipality: 'Legazpi City',
+                    province: 'Albay',
+                    country: 'Philippines'
+                }
             },
             wifeParents: {
                 fatherName: {
