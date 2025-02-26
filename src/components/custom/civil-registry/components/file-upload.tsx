@@ -22,7 +22,7 @@ interface FileUploadDialogProps {
     formId: string
     formType: FormType
     registryNumber: string
-    bookNumber: string       // added prop
+    bookNumber: string
     pageNumber: string
 }
 
@@ -33,8 +33,8 @@ export function FileUploadDialog({
     formId,
     formType,
     registryNumber,
-    bookNumber,          // destructured added prop
-    pageNumber,          // destructured added prop
+    bookNumber,
+    pageNumber,
 }: FileUploadDialogProps) {
     const { data: session } = useSession()
     const { createDocument } = useCreateDocument()
@@ -68,7 +68,11 @@ export function FileUploadDialog({
         }
     }, [file])
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
+        if (fileRejections.length > 0) {
+            toast.warning("File size exceeds the maximum allowed limit of 10MB")
+            return
+        }
         const selectedFile = acceptedFiles[0]
         if (selectedFile) {
             setFile(selectedFile)
