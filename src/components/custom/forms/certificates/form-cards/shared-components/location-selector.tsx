@@ -70,36 +70,69 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     trigger,
   });
 
-  // State to track initial values and loading status
+  // State to track initial municipality value and loading status
   const [initialMunicipalityValue] = useState(
     getValues(municipalityFieldName) || ''
   );
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+  const [isInitialMunicipalityLoadComplete, setIsInitialMunicipalityLoadComplete] =
+    useState(false);
 
-  // Effect to handle initial loading for edit scenarios
+  // Effect to handle initial loading for municipality in edit scenarios
   useEffect(() => {
     if (
       initialMunicipalityValue &&
       municipalities.length > 0 &&
-      !isInitialLoadComplete
+      !isInitialMunicipalityLoadComplete
     ) {
       const matchingMunicipality = municipalities.find(
         (mun) =>
-          mun.displayName === initialMunicipalityValue ||
-          mun.displayName.toLowerCase() ===
-            initialMunicipalityValue.toLowerCase()
+          mun.displayName.toLowerCase() === initialMunicipalityValue.toLowerCase()
       );
 
       if (matchingMunicipality) {
         handleMunicipalityChange(matchingMunicipality.id);
-        setIsInitialLoadComplete(true);
+        setIsInitialMunicipalityLoadComplete(true);
       }
     }
   }, [
     initialMunicipalityValue,
     municipalities,
-    isInitialLoadComplete,
+    isInitialMunicipalityLoadComplete,
     handleMunicipalityChange,
+  ]);
+
+  // NEW: State to track initial barangay value and loading status
+  const [initialBarangayValue] = useState(
+    getValues(barangayFieldName) || ''
+  );
+  const [isInitialBarangayLoadComplete, setIsInitialBarangayLoadComplete] =
+    useState(false);
+
+  // NEW: Effect to handle initial loading for barangay in edit scenarios
+  useEffect(() => {
+    if (
+      initialBarangayValue &&
+      barangays.length > 0 &&
+      !isInitialBarangayLoadComplete
+    ) {
+      const matchingBarangay = barangays.find(
+        (bar) =>
+          bar.name.toLowerCase() === initialBarangayValue.toLowerCase()
+      );
+
+      if (matchingBarangay) {
+        // If your state or hook expects an ID, you might call:
+        // handleBarangayChange(matchingBarangay.id);
+        // If it expects the name, use matchingBarangay.name
+        handleBarangayChange(matchingBarangay.name);
+        setIsInitialBarangayLoadComplete(true);
+      }
+    }
+  }, [
+    initialBarangayValue,
+    barangays,
+    isInitialBarangayLoadComplete,
+    handleBarangayChange,
   ]);
 
   // Styling classes for select triggers.
@@ -141,9 +174,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               >
                 <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue
-                    placeholder={
-                      isNCRMode ? 'Metro Manila' : provincePlaceholder
-                    }
+                    placeholder={isNCRMode ? 'Metro Manila' : provincePlaceholder}
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -155,7 +186,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {/* Show error message only when the form is submitted with errors */}
             {isSubmitted && fieldState.error && (
               <FormMessage>{fieldState.error.message}</FormMessage>
             )}
@@ -170,9 +200,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         rules={{
           validate: {
             required: (value) => {
-              // Skip validation if field is disabled or no province selected
               if (isMunicipalityDisabled || !selectedProvince) return true;
-              // Require a value only when province is selected
               return !!value || 'City/Municipality is required';
             },
           },
@@ -209,7 +237,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {/* Show error message only when the form is submitted with errors and province is selected */}
             {isSubmitted && selectedProvince && fieldState.error && (
               <FormMessage>{fieldState.error.message}</FormMessage>
             )}
@@ -237,10 +264,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   }}
                   disabled={!selectedMunicipality}
                 >
-                  <SelectTrigger
-                    ref={field.ref}
-                    className={selectTriggerClasses}
-                  >
+                  <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                     <SelectValue placeholder={barangayPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
@@ -252,7 +276,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   </SelectContent>
                 </Select>
               </FormControl>
-              {/* Show error message only when the form is submitted with errors */}
               {isSubmitted && fieldState.error && (
                 <FormMessage>{fieldState.error.message}</FormMessage>
               )}

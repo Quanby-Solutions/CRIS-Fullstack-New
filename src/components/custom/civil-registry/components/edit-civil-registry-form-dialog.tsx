@@ -50,8 +50,12 @@ interface FatherName {
 }
 
 interface PlaceOfBirth {
-    province: string
+    houseNo: string
+    street: string
+    barangay: string
     cityMunicipality: string
+    province: string
+    country: string
     hospital: string
 }
 
@@ -73,6 +77,20 @@ interface FatherResidence {
     country: string
 }
 
+interface MarriagePlace {
+    houseNo: string
+    street: string
+    barangay: string
+    cityMunicipality: string
+    province: string
+    country: string
+}
+
+interface ParentMarriage {
+    date: Date
+    place: MarriagePlace
+}
+
 export function EditCivilRegistryFormDialog({
     form,
     open,
@@ -88,11 +106,11 @@ export function EditCivilRegistryFormDialog({
         return dateValue
     }
 
-    // Convert BaseRegistryFormWithRelations to BirthCertificateFormValues with proper type guarding
+    // Map the form data to the certificate values with proper type guarding.
     const mapToBirthCertificateValues = (form: BaseRegistryFormWithRelations): Partial<BirthCertificateFormValues> => {
         console.log("form.cityMunicipality-> ", form.cityMunicipality)
 
-        // Extract and guard childName
+        // Child name
         const rawChildName = form.birthCertificateForm?.childName
         let childName: ChildName = { first: '', middle: '', last: '' }
         if (
@@ -106,7 +124,7 @@ export function EditCivilRegistryFormDialog({
             childName = rawChildName as unknown as ChildName
         }
 
-        // Extract and guard motherName
+        // Mother name
         const rawMotherName = form.birthCertificateForm?.motherMaidenName
         let motherName: motherName = { first: '', middle: '', last: '' }
         if (
@@ -120,7 +138,7 @@ export function EditCivilRegistryFormDialog({
             motherName = rawMotherName as unknown as motherName
         }
 
-        // Extract and guard fatherName
+        // Father name
         const rawFatherName = form.birthCertificateForm?.fatherName
         let fatherName: FatherName = { first: '', middle: '', last: '' }
         if (
@@ -134,30 +152,43 @@ export function EditCivilRegistryFormDialog({
             fatherName = rawFatherName as unknown as FatherName
         }
 
-        // Extract and guard placeOfBirth
+        // Place of Birth
         const rawPlaceOfBirth = form.birthCertificateForm?.placeOfBirth
-        let placeOfBirth: PlaceOfBirth = { province: '', cityMunicipality: '', hospital: '' }
+        let placeOfBirth: PlaceOfBirth = { 
+            houseNo: '', 
+            street: '', 
+            barangay: '', 
+            cityMunicipality: '', 
+            province: '', 
+            country: '', 
+            hospital: '' 
+        }
         if (
             rawPlaceOfBirth &&
             typeof rawPlaceOfBirth === 'object' &&
             !Array.isArray(rawPlaceOfBirth) &&
-            'province' in rawPlaceOfBirth &&
+            'houseNo' in rawPlaceOfBirth &&
+            'street' in rawPlaceOfBirth &&
+            'barangay' in rawPlaceOfBirth &&
             'cityMunicipality' in rawPlaceOfBirth &&
+            'province' in rawPlaceOfBirth &&
+            'country' in rawPlaceOfBirth &&
             'hospital' in rawPlaceOfBirth
         ) {
             placeOfBirth = rawPlaceOfBirth as unknown as PlaceOfBirth
         }
-
-        // For the sex field, if the value is not "Male" or "Female", default to "Male"
+        
+        // Sex
         const rawSex = form.birthCertificateForm?.sex
         const sex: "Male" | "Female" =
             rawSex === "Male" || rawSex === "Female" ? rawSex : "Male"
 
-        // For dateOfBirth, convert to a Date if provided; otherwise, default to new Date()
+        // Date of birth
         const rawDateOfBirth = form.birthCertificateForm?.dateOfBirth
         const dateOfBirth: Date =
             rawDateOfBirth ? new Date(rawDateOfBirth) : new Date()
 
+        // Type of birth
         const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth
         const typeOfBirth: "Single" | "Twin" | "Triplet" | "Others" =
             rawTypeOfBirth === "Single" ||
@@ -167,14 +198,14 @@ export function EditCivilRegistryFormDialog({
                 ? rawTypeOfBirth
                 : "Single"
 
-        // Convert weightAtBirth to string if it's a number.
+        // Weight at birth
         const rawWeightAtBirth = form.birthCertificateForm?.weightAtBirth
         const weightAtBirth: string =
             typeof rawWeightAtBirth === "number"
                 ? rawWeightAtBirth.toString()
                 : rawWeightAtBirth || ''
 
-        // Handle motherResidence correctly using rawMotherResidence
+        // Mother residence
         const rawMotherResidence = form.birthCertificateForm?.motherResidence
         let motherResidence: MotherResidence = { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
         if (
@@ -191,7 +222,7 @@ export function EditCivilRegistryFormDialog({
             motherResidence = rawMotherResidence as unknown as MotherResidence
         }
 
-        // Handle fatherResidence similarly
+        // Father residence
         const rawFatherResidence = form.birthCertificateForm?.fatherResidence
         let fatherResidence: FatherResidence = { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
         if (
@@ -208,6 +239,27 @@ export function EditCivilRegistryFormDialog({
             fatherResidence = rawFatherResidence as unknown as FatherResidence
         }
 
+        // Override mother and father residence with placeOfBirth values if a complete address is provided.
+        if (
+            placeOfBirth.houseNo &&
+            placeOfBirth.street &&
+            placeOfBirth.barangay &&
+            placeOfBirth.cityMunicipality &&
+            placeOfBirth.province &&
+            placeOfBirth.country
+        ) {
+            const newResidence = {
+                houseNo: placeOfBirth.houseNo,
+                street: placeOfBirth.street,
+                barangay: placeOfBirth.barangay,
+                cityMunicipality: placeOfBirth.cityMunicipality,
+                province: placeOfBirth.province,
+                country: placeOfBirth.country,
+            }
+            motherResidence = newResidence
+            fatherResidence = newResidence
+        }
+
         // Validate multipleBirthOrder against allowed literals.
         const validBirthOrders = ["First", "Second", "Third"] as const
         const rawMultipleBirthOrder = form.birthCertificateForm?.multipleBirthOrder
@@ -215,6 +267,41 @@ export function EditCivilRegistryFormDialog({
             validBirthOrders.includes(rawMultipleBirthOrder as any)
                 ? rawMultipleBirthOrder as "First" | "Second" | "Third"
                 : undefined
+
+        // Parent marriage extraction.
+        const rawParentMarriage = form.birthCertificateForm?.parentMarriage
+        let parentMarriage: ParentMarriage = { 
+            date: new Date(), 
+            place: { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
+        }
+        if (
+            rawParentMarriage &&
+            typeof rawParentMarriage === 'object' &&
+            !Array.isArray(rawParentMarriage) &&
+            'date' in rawParentMarriage &&
+            'place' in rawParentMarriage
+        ) {
+            const pm = rawParentMarriage as any
+            const pmDate = pm.date ? new Date(pm.date) : new Date()
+            let pmPlace: MarriagePlace = { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
+            const rawPMPlace = pm.place
+            if (
+                rawPMPlace &&
+                typeof rawPMPlace === 'object' &&
+                !Array.isArray(rawPMPlace) &&
+                'houseNo' in rawPMPlace &&
+                'street' in rawPMPlace &&
+                'barangay' in rawPMPlace &&
+                'cityMunicipality' in rawPMPlace &&
+                'province' in rawPMPlace &&
+                'country' in rawPMPlace
+            ) {
+                pmPlace = rawPMPlace as unknown as MarriagePlace
+            }
+            parentMarriage = { date: pmDate, place: pmPlace }
+        }
+
+        console.log(form.birthCertificateForm?.fatherResidence)
 
         return {
             registryNumber: form.registryNumber || '',
@@ -282,17 +369,7 @@ export function EditCivilRegistryFormDialog({
             },
 
             // Parent marriage information
-            parentMarriage: {
-                date: new Date(),
-                place: {
-                    houseNo: '',
-                    st: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: '',
-                },
-            },
+            parentMarriage: parentMarriage,
 
             // Attendant information
             attendant: {
@@ -313,7 +390,7 @@ export function EditCivilRegistryFormDialog({
                     date: new Date(),
                 },
             },
-
+            
             // Informant information
             informant: {
                 signature: '',
@@ -366,10 +443,7 @@ export function EditCivilRegistryFormDialog({
 
     const handleEditSubmit = async (data: BirthCertificateFormValues): Promise<void> => {
         try {
-            const preparedByValue = {
-                name: data.preparedBy.nameInPrint,
-            }
-
+            const preparedByValue = { name: data.preparedBy.nameInPrint }
             const updatedForm: BaseRegistryFormWithRelations = {
                 ...form,
                 registryNumber: data.registryNumber,
