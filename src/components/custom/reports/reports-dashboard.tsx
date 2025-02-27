@@ -54,7 +54,7 @@ export const ReportsDashboard = () => {
                         onValueChange={(value) => setSelectedReport(value as ReportKey)}
                         className="w-full"
                     >
-                        <TabsList className="grid w-full p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
+                        <TabsList className="grid w-full p-1 grid-cols-2 lg:grid-cols-4 mb-6 max-h-10">
                             {reports.map((report) => (
                                 <TabsTrigger key={report.key} value={report.key} className="p-1 px-4">
                                     {t(report.labelKey)}
