@@ -1,34 +1,44 @@
-// src/hooks/notification-actions.ts
-'use client';
+'use client'
 
-import { MarkAsReadInput, Notification } from '@/types/notification';
-import { useCallback, useEffect, useState } from 'react';
+import { Notification } from '@prisma/client'
+import { useCallback, useEffect, useState } from 'react'
+
+export interface MarkAsReadInput {
+  id: string
+  read: boolean
+}
 
 export function useNotificationActions(userId: string) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch unread notifications
   const fetchNotifications = useCallback(async () => {
-    setIsLoading(true);
+    if (!userId) {
+      setNotifications([])
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
     try {
-      const response = await fetch(`/api/notifications?userId=${userId}`);
+      const response = await fetch(`/api/notifications?userId=${userId}`)
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch notifications');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch notifications')
       }
-      const data = await response.json();
-      setNotifications(data);
+      const data = await response.json()
+      setNotifications(data)
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to fetch notifications'
-      );
-      console.error(err);
+      )
+      console.error(err)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [userId]);
+  }, [userId])
 
   // Mark a notification as read with optimistic updates
   const markAsRead = async (input: MarkAsReadInput) => {
@@ -37,10 +47,10 @@ export function useNotificationActions(userId: string) {
       setNotifications((prevNotifications) =>
         prevNotifications.map((notification) =>
           notification.id === input.id
-            ? { ...notification, read: input.read }
+            ? { ...notification, read: input.read, readAt: input.read ? new Date() : null }
             : notification
         )
-      );
+      )
 
       // Make the API call
       const response = await fetch(`/api/notifications/${input.id}`, {
@@ -49,38 +59,40 @@ export function useNotificationActions(userId: string) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ read: input.read }),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json()
         // If the API call fails, revert the optimistic update
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) =>
             notification.id === input.id
-              ? { ...notification, read: !input.read }
+              ? { ...notification, read: !input.read, readAt: !input.read ? new Date() : null }
               : notification
           )
-        );
+        )
         throw new Error(
           errorData.error || 'Failed to mark notification as read'
-        );
+        )
       }
 
       // No need to refetch here since we've already updated the local state
+      return response.json()
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : 'Failed to mark notification as read'
-      );
-      console.error(err);
+      )
+      console.error(err)
+      throw err
     }
-  };
+  }
 
   // Fetch notifications on mount
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    fetchNotifications()
+  }, [fetchNotifications])
 
   return {
     notifications,
@@ -88,5 +100,5 @@ export function useNotificationActions(userId: string) {
     error,
     markAsRead,
     fetchNotifications,
-  };
+  }
 }

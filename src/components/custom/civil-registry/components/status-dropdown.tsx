@@ -1,15 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DocumentStatus } from '@prisma/client'
+import { DocumentStatus, Permission } from '@prisma/client'
 import { updateFormStatus } from '@/hooks/update-status-action'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
 import clsx from 'clsx'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Permission } from '@prisma/client'
-import { notifyUsersWithPermission } from '@/hooks/users-action'
+import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useNotifications } from '@/contexts/notification-context' // Import the notification context
 
 export const statusVariants: Record<
   DocumentStatus,
@@ -61,38 +63,82 @@ export default function StatusSelect({
   currentStatus,
   onStatusChange,
 }: StatusSelectProps) {
+  const router = useRouter()
+  const { fetchNotifications } = useNotifications() // Get fetchNotifications from the context
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<DocumentStatus>(currentStatus)
   const [pendingStatus, setPendingStatus] = useState<DocumentStatus | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  // Update local state if props change (e.g., from a parent component refresh)
+  useEffect(() => {
+    if (currentStatus !== status && !loading) {
+      setStatus(currentStatus)
+    }
+  }, [currentStatus, loading, status])
+
   const handleConfirm = async () => {
     if (!pendingStatus) return
     setDialogOpen(false)
     setLoading(true)
+
     try {
-      setStatus(pendingStatus)
+      // Update local state immediately for optimistic UI
+      const newStatus = pendingStatus
+      setStatus(newStatus)
 
-      await updateFormStatus(formId, pendingStatus)
-      console.log(pendingStatus,   formId,
-        registryNumber,
-        bookNumber,
-        pageNumber,)
-      // Notify users with DOCUMENT_READ permission
-      const documentRead = Permission.DOCUMENT_READ
-      const title = ` Form Certificate Status Updated to ${pendingStatus}`
-      const message = `Form certificate with the (Book: ${bookNumber}, Page: ${pageNumber}, Registry Number: ${registryNumber} and FormType: ${formType}) has been updated to ${pendingStatus}`
-      notifyUsersWithPermission(documentRead, title, message)
+      // Update the form status in the database
+      await updateFormStatus(formId, newStatus)
 
+      // Create notification message content
+      const statusLabel = statusVariants[newStatus].label
+      const title = `Form Certificate Status Updated to ${statusLabel}`
+      const message = `Form certificate with (Book: ${bookNumber}, Page: ${pageNumber}, Registry Number: ${registryNumber}, Form Type: ${formType}) has been updated to ${statusLabel}.`
+
+      // Send notifications to users with DOCUMENT_READ permission
+      await notifyUsersWithPermission(Permission.DOCUMENT_READ, title, message)
+
+      // Client-side notification refresh
+      try {
+        // Call broadcast API to update all clients
+        await fetch('/api/notifications/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceUpdate: true }),
+        })
+
+        // Manually refresh notifications in the current client
+        await fetchNotifications()
+
+        // Force refresh client-side data
+        router.refresh()
+      } catch (broadcastError) {
+        console.error('Failed to broadcast notification update:', broadcastError)
+      }
+
+      // Show success message
       toast.success('Status updated successfully')
-      onStatusChange?.(pendingStatus)
+
+      // Notify parent component if callback provided
+      onStatusChange?.(newStatus)
     } catch (error: unknown) {
-      console.error(error)
+      console.error('Error updating status:', error)
       toast.error('Failed to update status')
+      // Revert to the original status on error
       setStatus(currentStatus)
     } finally {
       setLoading(false)
       setPendingStatus(null)
+
+      // Final router refresh to ensure everything is up to date
+      setTimeout(() => {
+        router.refresh()
+      }, 500)
+
+      // Refresh notifications one more time after a delay
+      setTimeout(() => {
+        fetchNotifications()
+      }, 1000)
     }
   }
 
@@ -106,16 +152,27 @@ export default function StatusSelect({
       <Select
         value={status}
         onValueChange={(newStatus) => {
-          if (newStatus === status) return
+          if (newStatus === status || loading) return
           setPendingStatus(newStatus as DocumentStatus)
           setDialogOpen(true)
         }}
+        disabled={loading}
       >
         <SelectTrigger
-          disabled={loading}
-          className={clsx('w-[180px] rounded-md border shadow-sm px-4 py-2', statusVariants[status].bgColor)}
+          className={clsx(
+            'w-[180px] rounded-md border shadow-sm px-4 py-2',
+            statusVariants[status].bgColor,
+            loading && 'opacity-70 cursor-not-allowed'
+          )}
         >
-          <SelectValue placeholder="Select status" />
+          {loading ? (
+            <div className="flex items-center justify-center w-full">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <span>Updating...</span>
+            </div>
+          ) : (
+            <SelectValue placeholder="Select status" />
+          )}
         </SelectTrigger>
         <SelectContent>
           {Object.entries(statusVariants).map(([statusKey, statusInfo]) => (
@@ -126,7 +183,9 @@ export default function StatusSelect({
         </SelectContent>
       </Select>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => {
+        if (!loading) setDialogOpen(open);
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Status Change</DialogTitle>
@@ -140,8 +199,18 @@ export default function StatusSelect({
               <Button variant="secondary" onClick={handleCancel} disabled={loading}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleConfirm} disabled={loading}>
-                Confirm
+              <Button
+                variant="destructive"
+                onClick={handleConfirm}
+                disabled={loading}
+                className="min-w-[100px]"
+              >
+                {loading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Processing...
+                  </span>
+                ) : 'Confirm'}
               </Button>
             </div>
           </DialogFooter>

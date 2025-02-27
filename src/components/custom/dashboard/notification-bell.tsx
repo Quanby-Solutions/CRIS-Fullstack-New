@@ -4,32 +4,20 @@ import { Icons } from '@/components/ui/icons'
 import { useCallback, useState } from 'react'
 import { formatDateTime } from '@/utils/date'
 import { useTranslation } from 'react-i18next'
+import { Notification } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useNotificationActions } from '@/hooks/notification-actions'
+import { useNotifications } from '@/contexts/notification-context'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
-type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS'
-
-interface Notification {
-  id: string
-  userId: string | null
-  type: NotificationType
-  title: string
-  message: string
-  read: boolean
-  createdAt: Date | string
-  readAt: Date | string | null
-}
-
-export function NotificationBell({ userId }: { userId: string }) {
-  const { notifications, isLoading, error, markAsRead } = useNotificationActions(userId)
+export function NotificationBell() {
+  const { t } = useTranslation()
+  const { notifications, unreadCount, isLoading, error, markAsRead } = useNotifications()
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const { t } = useTranslation()
 
   const handleNotificationClick = useCallback(
     async (notification: Notification) => {
@@ -38,10 +26,10 @@ export function NotificationBell({ userId }: { userId: string }) {
 
       if (!notification.read) {
         try {
-          // Update server state without awaiting
+          // Mark as read - we don't need to await this since we have optimistic updates
           markAsRead({ id: notification.id, read: true }).catch((error) => {
             console.error('Failed to mark notification as read:', error)
-          })
+          });
         } catch (error) {
           console.error('Failed to handle notification click:', error)
         }
@@ -49,8 +37,6 @@ export function NotificationBell({ userId }: { userId: string }) {
     },
     [markAsRead]
   )
-
-  const unreadCount = notifications.filter((n) => !n.read).length
 
   const formatDate = (dateInput: Date | string) => {
     try {
@@ -90,7 +76,7 @@ export function NotificationBell({ userId }: { userId: string }) {
                   <Icons.bellIcon className='h-[1.2rem] w-[1.2rem]' />
                   {unreadCount > 0 && (
                     <span className='absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium flex items-center justify-center'>
-                      {unreadCount}
+                      {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
                   <span className='sr-only'>{t('notifications')}</span>
@@ -128,21 +114,14 @@ export function NotificationBell({ userId }: { userId: string }) {
                 .map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-2 hover:bg-accent cursor-pointer flex gap-2 items-start ${notification.read ? 'opacity-70' : ''
-                      }`}
+                    className='p-2 hover:bg-accent cursor-pointer flex gap-2 items-start'
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <div className='mt-1.5'>
-                      {notification.read ? (
-                        <Icons.cirle className='h-2 w-2 text-muted-foreground' />
-                      ) : (
-                        <Icons.circleDot className='h-2 w-2 text-blue-500' />
-                      )}
+                      <Icons.circleDot className='h-2 w-2 text-blue-500' />
                     </div>
                     <div className='flex-1'>
-                      <div
-                        className={`text-sm ${notification.read ? 'font-normal' : 'font-medium'}`}
-                      >
+                      <div className='text-sm font-medium'>
                         {notification.title}
                       </div>
                       <div className='text-xs text-muted-foreground line-clamp-2'>
@@ -163,12 +142,12 @@ export function NotificationBell({ userId }: { userId: string }) {
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
             <div className="flex items-start gap-4 max-w-[540px]">
-              <Icons.bellIcon size={24} />
+              <Icons.bellIcon className="h-6 w-6" />
               <DialogTitle>{selectedNotification?.title}</DialogTitle>
             </div>
           </DialogHeader>
           <div className="grid py-4">
-            {selectedNotification?.createdAt && (
+            {selectedNotification?.type && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <span className="col-span-3 text-sm">{t(selectedNotification.type)}</span>
               </div>
@@ -178,8 +157,8 @@ export function NotificationBell({ userId }: { userId: string }) {
                 {selectedNotification?.createdAt ? formatDate(selectedNotification.createdAt) : ""}
               </span>
             </div>
-            <ScrollArea className="w-full rounded-md border p-4">
-              <pre className="text-sm whitespace-pre-wrap">{selectedNotification?.message}</pre>
+            <ScrollArea className="w-full rounded-md border p-4 max-h-[300px]">
+              <pre className="text-sm whitespace-pre-wrap break-words">{selectedNotification?.message}</pre>
             </ScrollArea>
           </div>
         </DialogContent>
