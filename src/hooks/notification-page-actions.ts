@@ -1,8 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { MarkAsReadInput } from './notification-actions'
 import { Notification, NotificationStatus } from '@prisma/client'
+
+type MarkAsReadInput = {
+  id: string
+  read: boolean
+}
 
 type MarkAsStatusInput = {
   id: string
@@ -48,6 +52,7 @@ export function useNotificationPageActions(userId: string) {
   // Mark a notification as read with optimistic updates
   const markAsRead = async (input: MarkAsReadInput) => {
     try {
+      // Optimistic update
       setNotifications((prevNotifications) =>
         prevNotifications.map((notification) =>
           notification.id === input.id ? { ...notification, read: input.read } : notification
@@ -63,7 +68,7 @@ export function useNotificationPageActions(userId: string) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        // Revert optimistic update if API call fails
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) =>
             notification.id === input.id
@@ -71,6 +76,7 @@ export function useNotificationPageActions(userId: string) {
               : notification
           )
         )
+        const errorData = await response.json()
         throw new Error(errorData.error || 'Failed to mark notification as read')
       }
     } catch (err) {
@@ -82,53 +88,96 @@ export function useNotificationPageActions(userId: string) {
   // Update the notification status (archive or favorite)
   const updateNotificationStatus = async (input: MarkAsStatusInput) => {
     try {
-      const statusArray: NotificationStatus[] = Array.isArray(input.status) ? input.status : [input.status];
+      // Find the original notification to save its state for potential rollback
+      const originalNotification = notifications.find(n => n.id === input.id)
+      if (!originalNotification) {
+        throw new Error(`Notification with ID ${input.id} not found`)
+      }
 
+      const originalStatus = [...originalNotification.status] // Create a copy of the original status
+
+      // Make sure we're working with a proper array of NotificationStatus
+      const statusArray = Array.isArray(input.status) ? input.status : [input.status]
+
+      // Optimistic update
       setNotifications((prevNotifications) =>
         prevNotifications.map((notification) =>
           notification.id === input.id ? { ...notification, status: statusArray } : notification
         )
-      );
+      )
 
-      const response = await fetch(`/api/notifications/page/${input.id}`, {
+      // Make the API call to the correct endpoint
+      const response = await fetch(`/api/notifications/${input.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: statusArray }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to update notification status');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update notification status');
-      console.error(err);
-    }
-  };
+        // Revert the optimistic update if the API call fails
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((notification) =>
+            notification.id === input.id ? { ...notification, status: originalStatus } : notification
+          )
+        )
 
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update notification status')
+      }
+
+      // If successful, update with the response data
+      const updatedNotification = await response.json()
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notification.id === input.id ? { ...notification, ...updatedNotification } : notification
+        )
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update notification status')
+      console.error(err)
+    }
+  }
+
+  // Toggle archive status for a notification
   const archiveNotification = (id: string) => {
     const notification = notifications.find((notif) => notif.id === id)
     if (!notification) return
 
-    if (notification.status.includes('archive' as NotificationStatus)) {
-      const updatedStatus = notification.status.filter(status => status !== 'archive') as NotificationStatus[]
-      updateNotificationStatus({ id, status: updatedStatus })
+    // Create a properly typed status array
+    const currentStatus = notification.status as unknown as NotificationStatus[]
+    let updatedStatus: NotificationStatus[]
+
+    if (currentStatus.includes(NotificationStatus.archive)) {
+      // Remove archive status if it exists
+      updatedStatus = currentStatus.filter(status => status !== NotificationStatus.archive)
     } else {
-      const updatedStatus = [...notification.status, 'archive' as NotificationStatus]
-      updateNotificationStatus({ id, status: updatedStatus })
+      // Add archive status if it doesn't exist
+      updatedStatus = [...currentStatus, NotificationStatus.archive]
     }
+
+    // Call updateNotificationStatus with the new status array
+    updateNotificationStatus({ id, status: updatedStatus })
   }
 
+  // Toggle favorite status for a notification
   const favoriteNotification = (id: string) => {
     const notification = notifications.find((notif) => notif.id === id)
     if (!notification) return
 
-    if (notification.status.includes('favorite' as NotificationStatus)) {
-      const updatedStatus = notification.status.filter(status => status !== 'favorite') as NotificationStatus[]
-      updateNotificationStatus({ id, status: updatedStatus })
+    // Create a properly typed status array
+    const currentStatus = notification.status as unknown as NotificationStatus[]
+    let updatedStatus: NotificationStatus[]
+
+    if (currentStatus.includes(NotificationStatus.favorite)) {
+      // Remove favorite status if it exists
+      updatedStatus = currentStatus.filter(status => status !== NotificationStatus.favorite)
     } else {
-      const updatedStatus = [...notification.status, 'favorite' as NotificationStatus]
-      updateNotificationStatus({ id, status: updatedStatus })
+      // Add favorite status if it doesn't exist
+      updatedStatus = [...currentStatus, NotificationStatus.favorite]
     }
+
+    // Call updateNotificationStatus with the new status array
+    updateNotificationStatus({ id, status: updatedStatus })
   }
 
   // Fetch notifications on mount

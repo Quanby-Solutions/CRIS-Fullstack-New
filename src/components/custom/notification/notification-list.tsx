@@ -131,7 +131,7 @@ export function NotificationList() {
       return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
     })
 
-  // "All" now includes every notification from filteredNotifications.
+  // 'All' now includes every notification from filteredNotifications.
   const allNotifications = filteredNotifications
 
   // Other tabs can still use additional filters.
