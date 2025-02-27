@@ -14,7 +14,8 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
-  DialogHeader, DialogTitle
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog'
 import {
   DropdownMenu,
@@ -60,6 +61,8 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
       toast.success('Role deleted successfully!')
       setConfirmDeleteOpen(false)
+      // Here you would typically trigger a refresh of the data table
+      // This depends on how you're managing state in the parent component
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete role')
     } finally {
@@ -105,12 +108,15 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
       {/* View Details Dialog */}
       <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-        <DialogContent>
-          <RoleDetailsDialog role={role} onCloseAction={() => setViewDetailsOpen(false)} />
-        </DialogContent>
+        <RoleDetailsDialog
+          role={role}
+          onCloseAction={() => setViewDetailsOpen(false)}
+          isOpen={viewDetailsOpen}
+          onOpenChangeAction={async (open) => setViewDetailsOpen(open)}
+        />
       </Dialog>
 
-      {/* Edit Role Dialog – rendered directly without extra wrapping */}
+      {/* Edit Role Dialog */}
       {isEditOpen && (
         <UpdateRoleDialog
           isOpen={isEditOpen}
@@ -123,13 +129,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
               })
-              if (!response.ok) throw new Error('Failed to update role')
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to update role')
+              }
+
+              toast.success('Role updated successfully!')
+              // Here you would typically trigger a refresh of the data table
               return await response.json()
             } catch (error) {
-              console.error('Error updating role:', error)
-              return {
-                error: error instanceof Error ? error.message : 'Failed to update role',
-              }
+              const errorMessage = error instanceof Error ? error.message : 'Failed to update role'
+              toast.error(errorMessage)
+              return { error: errorMessage }
             }
           }}
         />

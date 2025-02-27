@@ -3,12 +3,11 @@ type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS';
 export interface Notification {
   status: string[];
   id: string;
-  userId: string;
-  type: NotificationType;
+  userId: string | null;
+  type: 'EMAIL' | 'SYSTEM' | 'SMS';
   readonly title: string;
   message: string;
   read: boolean;
   createdAt: Date | string;
   readAt: Date | string | null;
 }
-
