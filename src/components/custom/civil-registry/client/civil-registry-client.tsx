@@ -1,4 +1,4 @@
-// src/app/(dashboard)/civil-registry/civil-registry-client.tsx -- to use like this
+// src/app/(dashboard)/civil-registry/civil-registry-client.tsx
 'use client'
 
 import useSWR from 'swr'

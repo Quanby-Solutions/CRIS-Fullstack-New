@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { DataTablePagination } from '@/components/custom/table/data-table-pagination';
-import { CardContent } from '@/components/ui/card';
+import { DataTablePagination } from '@/components/custom/table/data-table-pagination'
+import { CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -23,37 +23,36 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { useTranslation } from 'react-i18next';
-import { DataTableToolbar } from './data-table-toolbar';
+} from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
+import { DataTableToolbar } from './data-table-toolbar'
 
-// Import your Lottie animation JSON
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
 interface DataTableProps {
-  columns: ColumnDef<BaseRegistryFormWithRelations>[];
-  data: BaseRegistryFormWithRelations[];
-  searchKey?: string;
-  selection?: boolean;
+  columns: ColumnDef<BaseRegistryFormWithRelations>[]
+  data: BaseRegistryFormWithRelations[]
+  searchKey?: string
+  selection?: boolean
 }
 
 export function DataTable({ columns, data, selection = true }: DataTableProps) {
-  const { t } = useTranslation();
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [shake, setShake] = useState(false);
+  const { t } = useTranslation()
+  const [rowSelection, setRowSelection] = useState({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [shake, setShake] = useState(false)
 
   // Toggle the shake effect every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setShake((prev) => !prev);
-    }, 3000);
+      setShake((prev) => !prev)
+    }, 3000)
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   const table = useReactTable({
     data,
@@ -75,7 +74,7 @@ export function DataTable({ columns, data, selection = true }: DataTableProps) {
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  });
+  })
 
   return (
     <div className='space-y-4'>
@@ -90,9 +89,9 @@ export function DataTable({ columns, data, selection = true }: DataTableProps) {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -127,9 +126,8 @@ export function DataTable({ columns, data, selection = true }: DataTableProps) {
                         {/* <Lottie animationData={certificateAnimation} loop autoplay className="w-full h-full" /> */}
                       </div>
                       <p
-                        className={`text-lg font-semibold transition-transform ${
-                          shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
-                        }`}
+                        className={`text-lg font-semibold transition-transform ${shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
+                          }`}
                       >
                         {t('No results found')}
                       </p>
@@ -148,5 +146,5 @@ export function DataTable({ columns, data, selection = true }: DataTableProps) {
       </div>
       <DataTablePagination table={table} showSelected={selection} />
     </div>
-  );
+  )
 }

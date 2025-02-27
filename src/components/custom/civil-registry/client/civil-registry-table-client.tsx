@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { DataTable } from '@/components/custom/civil-registry/data-table'
 import { createColumns } from '@/components/custom/civil-registry/columns'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { useTranslation } from 'react-i18next'
 
 interface CivilRegistryDataTableClientProps {
     forms: BaseRegistryFormWithRelations[]
@@ -13,6 +14,7 @@ interface CivilRegistryDataTableClientProps {
 
 export function CivilRegistryDataTableClient({ forms: initialForms }: CivilRegistryDataTableClientProps) {
     const { data: session, status } = useSession()
+    const { t } = useTranslation()
     const [forms, setForms] = useState<BaseRegistryFormWithRelations[]>([])
 
     useEffect(() => {
@@ -33,7 +35,7 @@ export function CivilRegistryDataTableClient({ forms: initialForms }: CivilRegis
         setForms(prev => prev.filter(form => form.id !== deletedFormId))
     }
 
-    const columns = createColumns(session, handleFormUpdate, handleFormDelete)
+    const columns = createColumns(session, handleFormUpdate, handleFormDelete, t)
 
     return <DataTable data={forms} columns={columns} selection={false} />
 }
