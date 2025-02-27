@@ -797,11 +797,11 @@ enum Permission {
 }
 
 enum AttendantType {
-  PHYSICIAN
-  NURSE
-  MIDWIFE
-  HILOT
-  OTHERS
+  Physician
+  Nurse
+  Midwife
+  Hilot
+  Others
 }
 
 enum CauseOfDeathType {
