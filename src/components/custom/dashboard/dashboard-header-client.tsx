@@ -1,3 +1,4 @@
+// src\components\custom\dashboard\dashboard-header-client.tsx
 "use client"
 
 import { Fragment } from "react"
@@ -100,7 +101,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                         <FullscreenToggle />
                         <ThemeChange />
                     </div>
-                    {user && <NotificationBell userId={user.id} />}
+                    {user && <NotificationBell />}
                     <UserHeaderNav user={user} />
                 </div>
             </div>

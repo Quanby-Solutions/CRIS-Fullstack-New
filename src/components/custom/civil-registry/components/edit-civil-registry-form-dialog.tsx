@@ -6,22 +6,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import type { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
 import { toast } from 'sonner'
 import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { FormProvider } from 'react-hook-form'
-import { FormType } from '@prisma/client'
-import { PaginationInputs } from '../../forms/certificates/form-cards/shared-components/pagination-inputs'
-import { PreparedByCard, ReceivedByCard, RegisteredAtOfficeCard } from '../../forms/certificates/form-cards/shared-components/processing-details-cards'
-import RemarksCard from '../../forms/certificates/form-cards/shared-components/remarks-card'
-import ChildInformationCard from '../../forms/certificates/form-cards/birth-cards/child-information-card'
-import FatherInformationCard from '../../forms/certificates/form-cards/birth-cards/father-information-card'
-import MarriageInformationCard from '../../forms/certificates/form-cards/birth-cards/marriage-parents-card'
-import MotherInformationCard from '../../forms/certificates/form-cards/birth-cards/mother-information-card'
-import AttendantInformationCard from '../../forms/certificates/form-cards/birth-cards/attendant-information'
-import AffidavitOfPaternityForm from '../../forms/certificates/form-cards/birth-cards/affidavit-of-paternity'
-import CertificationOfInformantCard from '../../forms/certificates/form-cards/birth-cards/certification-of-informant'
-import DelayedRegistrationForm from '../../forms/certificates/form-cards/birth-cards/affidavit-for-delayed-registration'
-import RegistryInformationCard from '../../forms/certificates/form-cards/shared-components/registry-information-card'
+
+import { EditBirthCivilRegistryFormInline } from './edit-form-provider/BirthFormProvider'
+
 
 interface EditCivilRegistryFormDialogProps {
     form: BaseRegistryFormWithRelations
@@ -108,7 +95,6 @@ export function EditCivilRegistryFormDialog({
 
     // Map the form data to the certificate values with proper type guarding.
     const mapToBirthCertificateValues = (form: BaseRegistryFormWithRelations): Partial<BirthCertificateFormValues> => {
-        console.log("form.cityMunicipality-> ", form.cityMunicipality)
 
         // Child name
         const rawChildName = form.birthCertificateForm?.childName
@@ -154,14 +140,14 @@ export function EditCivilRegistryFormDialog({
 
         // Place of Birth
         const rawPlaceOfBirth = form.birthCertificateForm?.placeOfBirth
-        let placeOfBirth: PlaceOfBirth = { 
-            houseNo: '', 
-            street: '', 
-            barangay: '', 
-            cityMunicipality: '', 
-            province: '', 
-            country: '', 
-            hospital: '' 
+        let placeOfBirth: PlaceOfBirth = {
+            houseNo: '',
+            street: '',
+            barangay: '',
+            cityMunicipality: '',
+            province: '',
+            country: '',
+            hospital: ''
         }
         if (
             rawPlaceOfBirth &&
@@ -177,7 +163,7 @@ export function EditCivilRegistryFormDialog({
         ) {
             placeOfBirth = rawPlaceOfBirth as unknown as PlaceOfBirth
         }
-        
+
         // Sex
         const rawSex = form.birthCertificateForm?.sex
         const sex: "Male" | "Female" =
@@ -192,9 +178,9 @@ export function EditCivilRegistryFormDialog({
         const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth
         const typeOfBirth: "Single" | "Twin" | "Triplet" | "Others" =
             rawTypeOfBirth === "Single" ||
-            rawTypeOfBirth === "Twin" ||
-            rawTypeOfBirth === "Triplet" ||
-            rawTypeOfBirth === "Others"
+                rawTypeOfBirth === "Twin" ||
+                rawTypeOfBirth === "Triplet" ||
+                rawTypeOfBirth === "Others"
                 ? rawTypeOfBirth
                 : "Single"
 
@@ -270,8 +256,8 @@ export function EditCivilRegistryFormDialog({
 
         // Parent marriage extraction.
         const rawParentMarriage = form.birthCertificateForm?.parentMarriage
-        let parentMarriage: ParentMarriage = { 
-            date: new Date(), 
+        let parentMarriage: ParentMarriage = {
+            date: new Date(),
             place: { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
         }
         if (
@@ -301,7 +287,6 @@ export function EditCivilRegistryFormDialog({
             parentMarriage = { date: pmDate, place: pmPlace }
         }
 
-        console.log(form.birthCertificateForm?.fatherResidence)
 
         return {
             registryNumber: form.registryNumber || '',
@@ -390,7 +375,7 @@ export function EditCivilRegistryFormDialog({
                     date: new Date(),
                 },
             },
-            
+
             // Informant information
             informant: {
                 signature: '',
@@ -499,47 +484,14 @@ export function EditCivilRegistryFormDialog({
         switch (editType) {
             case 'BIRTH':
                 return (
-                    <FormProvider {...formMethods}>
-                        <form onSubmit={formMethods.handleSubmit(handleFormSubmit, handleError)} className="space-y-6">
-                            <div className="h-full flex flex-col">
-                                <DialogHeader>
-                                    <DialogTitle className="text-2xl font-bold text-center py-4">
-                                        {t('Edit Certificate of Live Birth')}
-                                    </DialogTitle>
-                                </DialogHeader>
-                                <div className="flex flex-1 overflow-hidden">
-                                    <div className="w-full">
-                                        <ScrollArea className="h-[calc(95vh-120px)]">
-                                            <div className="p-6 space-y-4">
-                                                <PaginationInputs />
-                                                <RegistryInformationCard formType={FormType.BIRTH} />
-                                                <ChildInformationCard />
-                                                <MotherInformationCard />
-                                                <FatherInformationCard />
-                                                <MarriageInformationCard />
-                                                <AttendantInformationCard />
-                                                <CertificationOfInformantCard />
-                                                <PreparedByCard />
-                                                <ReceivedByCard />
-                                                <RegisteredAtOfficeCard fieldPrefix="registeredByOffice" cardTitle="Registered at the Office of Civil Registrar" />
-                                                <RemarksCard fieldName="remarks" cardTitle="Birth Certificate Remarks" label="Additional Remarks" placeholder="Enter any additional remarks or annotations" />
-                                                <AffidavitOfPaternityForm />
-                                                <DelayedRegistrationForm />
-                                            </div>
-                                        </ScrollArea>
-                                    </div>
-                                </div>
-                            </div>
-                            <DialogFooter className="absolute bottom-2 right-2 gap-2 flex items-center">
-                                <Button type="button" variant="outline" className="py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent" onClick={handleCancel}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit" variant="default" className="py-2 w-32">
-                                    Update
-                                </Button>
-                            </DialogFooter>
-                        </form>
-                    </FormProvider>
+                    <EditBirthCivilRegistryFormInline
+                        form={form}
+                        onSaveAction={async (updatedForm: BaseRegistryFormWithRelations) => {
+                            toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
+                            return Promise.resolve()
+                        }}
+                        editType={form.formType}
+                    />
                 )
             case 'DEATH':
                 return (
@@ -566,6 +518,7 @@ export function EditCivilRegistryFormDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
+            <DialogTitle></DialogTitle>
             <DialogContent className="max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-4">
                 {renderForm()}
             </DialogContent>

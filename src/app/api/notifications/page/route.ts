@@ -1,4 +1,4 @@
-// src/app/api/notifications/route.ts
+// src\app\api\notifications\page\route.ts
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId")
 
     if (!userId) {
-        console.error("User ID is required") // Debugging
+        console.error("User ID is required")
         return NextResponse.json({ error: "User ID is required" }, { status: 400 })
     }
 
