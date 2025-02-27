@@ -93,6 +93,7 @@ import {
     BellIcon,
     Circle,
     CircleDot,
+    Users,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -222,6 +223,7 @@ export const Icons = {
     bellIcon: BellIcon,
     cirle: Circle,
     circleDot: CircleDot,
+    users: Users,
 } as const
 
 export type IconsType = typeof Icons
