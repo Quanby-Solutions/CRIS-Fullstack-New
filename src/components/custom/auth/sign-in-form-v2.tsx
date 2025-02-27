@@ -123,7 +123,7 @@ export const SignInFormComponent = () => {
           disabled={isLoading}
           className="bg-gradient-to-br relative group/btn from-blue-600 dark:from-[var(--blueColor)] dark:to-[var(--blueColor)] to-blue-800 block dark:bg-[var(--blueColor)] w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--blueColor)_inset,0px_-1px_0px_0px_var(--blueColor)_inset]"
         >
-          {isLoading ? "Signing In..." : "Sign In"} &rarr
+          {isLoading ? "Signing In..." : "Sign In"} &rarr;
           <BottomGradient />
         </button>
       </form>
