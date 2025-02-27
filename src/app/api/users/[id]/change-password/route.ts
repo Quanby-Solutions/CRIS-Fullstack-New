@@ -1,3 +1,4 @@
+// app\api\users\[id]\change-password\route.ts
 import { hash } from 'bcryptjs'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -12,7 +13,7 @@ export async function PUT(request: Request, context: { params: { id: string } })
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const { id: userId } = context.params
+        const { id: userId } = await context.params
         const { newPassword, confirmNewPassword } = await request.json()
 
         console.log('Updating password for userId:', userId)
@@ -56,11 +57,26 @@ export async function PUT(request: Request, context: { params: { id: string } })
         }
 
         const hashedNewPassword = await hash(newPassword, 10)
+        const now = new Date()
 
+        // Update the account with both the new password and updated timestamp
         await prisma.account.update({
             where: { id: userAccount.id },
-            data: { password: hashedNewPassword },
+            data: {
+                password: hashedNewPassword,
+                updatedAt: now
+            },
         })
+
+        // Also update the user's updatedAt timestamp
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                updatedAt: now
+            }
+        })
+
+        console.log('Password updated successfully')
 
         return NextResponse.json({
             success: true,
