@@ -10,10 +10,11 @@ import { z } from "zod"
 import { useSubmitCertifiedCopyRequest, SubmitCertifiedCopyRequestParams } from "@/hooks/use-submit-certified"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action"
-import { DeathCertificateForm } from "@prisma/client"
+import { DeathCertificateForm, Permission } from "@prisma/client"
 import { NameObject } from "@/lib/types/json"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
+import { notifyUsersWithPermission } from "@/hooks/users-action"
 
 // Helper function to format a NameObject into a full name string.
 const formatName = (name: NameObject | undefined): string => {
@@ -228,6 +229,10 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
     try {
       await submitRequest(submissionData)
       toast.success("Request submitted successfully")
+            const documentRead = Permission.DOCUMENT_READ
+              const Title = `New CTC has been created for "${formData?.formType} Certificate"`
+              const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
+              notifyUsersWithPermission(documentRead, Title, message);
       resetForm()
     } catch (err) {
       toast.error("Failed to submit request")

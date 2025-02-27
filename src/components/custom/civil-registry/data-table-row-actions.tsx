@@ -265,11 +265,13 @@ export function DataTableRowActions({
           form={form}
           open={editDialogOpen}
           onOpenChangeAction={setEditDialogOpen}
-          onSave={(updatedForm) => {
+          onSaveAction={async (updatedForm) => {
             toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
             onUpdateForm?.(updatedForm)
             setEditDialogOpen(false)
+            return Promise.resolve()
           }}
+          editType={form.formType}
         />
       )}
 
@@ -293,6 +295,8 @@ export function DataTableRowActions({
           formId={form.id}
           formType={form.formType}
           registryNumber={form.registryNumber}
+          bookNumber={form.bookNumber}
+          pageNumber={form.pageNumber}
           onUploadSuccess={handleAttachmentsRefresh}
         />
       )}

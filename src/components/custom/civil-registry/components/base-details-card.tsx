@@ -13,7 +13,6 @@ import { FormType, Permission, Attachment, DocumentStatus, AttachmentType } from
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
-
 import StatusSelect from './status-dropdown'
 
 interface BaseDetailsCardProps {
@@ -21,6 +20,9 @@ interface BaseDetailsCardProps {
     onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
 }
 
+/**
+ * Map form types to display labels.
+ */
 const formTypeLabels: Record<FormType, string> = {
     MARRIAGE: 'Marriage (Form 97)',
     BIRTH: 'Birth (Form 102)',
@@ -77,13 +79,14 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
         .map(att => ({
             ...att,
             certifiedCopies: att.certifiedCopies ?? []
-        }));
+        }))
 
     // Ensure every attachment has a certifiedCopies array (default to empty if missing).
     const attachmentsWithCTC = attachments.map((att) => ({
         ...att,
         certifiedCopies: att.certifiedCopies ?? [],
     }))
+
     /**
      * Callback for when an attachment has been deleted.
      */
@@ -94,21 +97,21 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 ...doc.document,
                 attachments: doc.document.attachments.filter(att => att.id !== deletedId)
             }
-        }));
+        }))
 
         const updatedForm = {
             ...formData,
             documents: updatedDocuments as typeof formData.documents
-        };
+        }
 
         // Update local state for immediate UI feedback
-        setCurrentForm(updatedForm);
+        setCurrentForm(updatedForm)
 
         // Call parent update if available
         if (onUpdateAction) {
-            onUpdateAction(updatedForm);
+            onUpdateAction(updatedForm)
         }
-    }, [formData, onUpdateAction]);
+    }, [formData, onUpdateAction])
 
     /**
      * Handle upload success - called when a file is successfully uploaded
@@ -118,7 +121,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
         const attachmentType = formData.formType === 'MARRIAGE' ? 'MARRIAGE_CERTIFICATE' :
             formData.formType === 'BIRTH' ? 'BIRTH_CERTIFICATE' :
                 formData.formType === 'DEATH' ? 'DEATH_CERTIFICATE' :
-                    'CERTIFIED_TRUE_COPY_REQUEST'; // Default case if needed
+                    'CERTIFIED_TRUE_COPY_REQUEST' // Default case if needed
 
         // Create a new attachment from the uploaded file data
         const newAttachment = {
@@ -127,7 +130,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
             type: attachmentType as AttachmentType,
             fileName: fileData.fileName, // Use the actual file name
             uploadedAt: new Date(),
-        };
+        }
 
         // Create the new document object
         const newDocument = {
@@ -144,24 +147,24 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 version: 1,
                 isLatest: true,
             },
-        };
+        }
 
         const updatedForm = {
             ...formData,
             documents: [...formData.documents, newDocument] as typeof formData.documents,
-        };
+        }
 
         // Update local state for immediate UI feedback
-        setCurrentForm(updatedForm);
+        setCurrentForm(updatedForm)
 
         // Call parent update if available
         if (onUpdateAction) {
-            onUpdateAction(updatedForm);
+            onUpdateAction(updatedForm)
         }
 
         // Display success message
-        toast.success(t('Document uploaded successfully'));
-    }, [formData, t, onUpdateAction]);
+        toast.success(t('Document uploaded successfully'))
+    }, [formData, t, onUpdateAction])
 
     return (
         <Card className="border shadow-sm">
@@ -188,11 +191,15 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         <div>
                             <StatusSelect
                                 formId={formData.id}
+                                registryNumber={formData.registryNumber ?? 'N/A'}
+                                bookNumber={formData.bookNumber ?? 'N/A'}
+                                pageNumber={formData.pageNumber ?? 'N/A'}
+                                formType={formData.formType ?? 'N/A'}
                                 currentStatus={formData.status as DocumentStatus}
                                 onStatusChange={(newStatus) => {
-                                    const updatedForm = { ...formData, status: newStatus };
-                                    setCurrentForm(updatedForm);
-                                    onUpdateAction?.(updatedForm);
+                                    const updatedForm = { ...formData, status: newStatus }
+                                    setCurrentForm(updatedForm)
+                                    onUpdateAction?.(updatedForm)
                                 }}
                             />
                         </div>
@@ -241,6 +248,8 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     onUploadSuccess={handleUploadSuccess}
                     formId={formData.id}
                     formType={formData.formType}
+                    bookNumber={formData.bookNumber}
+                    pageNumber={formData.pageNumber}
                     registryNumber={formData.registryNumber}
                 />
             )}
@@ -250,13 +259,15 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     form={formData}
                     open={editDialogOpen}
                     onOpenChangeAction={setEditDialogOpen}
-                    onSave={(updatedForm) => {
+                    onSaveAction={async (updatedForm) => {
                         toast.success(`${t('Form updated successfully')} ${updatedForm.id}!`)
-                        setCurrentForm(updatedForm);
+                        setCurrentForm(updatedForm)
                         onUpdateAction?.(updatedForm)
                         setEditDialogOpen(false)
                     }}
+                    editType={formData.formType}
                 />
+
             )}
         </Card>
     )

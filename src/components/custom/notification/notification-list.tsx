@@ -74,7 +74,7 @@ export function NotificationList({ userId }: { userId: string }) {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">{t('notificationList.title')}</h2>
           {filteredNotifications.filter((n) => !n.read).length > 0 && (
-            <div className="bg-primary text-primary-foreground text-sm px-2 py-1 rounded-full">
+            <div className="bg-red-700 text-primary-foreground text-sm px-2 py-1 rounded-full">
               {filteredNotifications.filter((n) => !n.read).length} {t('notificationList.unread')}
             </div>
           )}
@@ -140,20 +140,20 @@ export function NotificationList({ userId }: { userId: string }) {
               </div>
             </PopoverContent>
           </Popover>
-          <button
+          <Button
             onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="flex items-center border p-2 rounded"
+            variant="outline"  
           >
             {sortOrder === 'desc'
               ? t('notificationList.sortNewestToOldest') || 'Newest to Oldest'
               : t('notificationList.sortOldestToNewest') || 'Oldest to Newest'}
-          </button>
+          </Button>
         </div>
       </div>
       </div>
 
       <Tabs defaultValue="all" className="p-4">
-        <TabsList className="grid w-full h-9 grid-cols-4 mb-4">
+        <TabsList className="grid w-full h-10 grid-cols-4 mb-4">
           <TabsTrigger value="all">
             {t('notificationList.all')} (
             {filteredNotifications.filter((n) => !n.status.includes('archive')).length})

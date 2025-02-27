@@ -13,11 +13,13 @@ import {
   BirthCertificateForm,
   DeathCertificateForm,
   MarriageCertificateForm,
+  Permission,
 } from "@prisma/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import { NameObject, PlaceOfBirthObject } from "@/lib/types/json"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
+import { notifyUsersWithPermission } from "@/hooks/users-action"
 
 // Zod schema for validation
 const schema = z.object({
@@ -193,6 +195,15 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
     try {
       await submitRequest(requestData)
       toast.success("Request submitted successfully")
+
+
+
+      const documentRead = Permission.DOCUMENT_READ
+        const Title = `New CTC has been created for "${formData?.formType}"`
+        const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+
+        
       resetForm()
       onAttachmentUpdated()
       onClose?.()

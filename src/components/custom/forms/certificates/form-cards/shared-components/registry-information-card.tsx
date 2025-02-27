@@ -30,30 +30,36 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   formType,
   title = 'Registry Information',
 }) => {
-  const { control, setValue, setError, clearErrors } = useFormContext();
-  const [registryNumber, setRegistryNumber] = useState('');
+  const { control, setValue, setError, clearErrors, getValues } =
+    useFormContext();
+
+  // Initialize local state from RHF default value.
+  const initialRegistryNumber = getValues('registryNumber') || '';
+  const [registryNumber, setRegistryNumber] = useState(initialRegistryNumber);
   const [debouncedRegistryNumber] = useDebounce(registryNumber, 500);
   const [isChecking, setIsChecking] = useState(false);
   const [validationResult, setValidationResult] = useState<{
     exists: boolean | null;
     error: string | null;
   }>({ exists: null, error: null });
-  const [isAnimating, setIsAnimating] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
-
   const [ncrMode, setNcrMode] = useState(false);
 
-  // Set same min and max lengths for all form types.
   const minLength = 6;
   const maxLength = 20;
+
+  const generateRegistryNumber = () => {
+    const year = new Date().getFullYear();
+    return `${year}-${Math.floor(Math.random() * 1000000)}`;
+  };
 
   const validateRegistryNumber = useCallback(
     (value: string): string => {
       if (!value) return '';
 
-      const formatRegex = /^\d{4}-\d+$/; // Format validation
+      const formatRegex = /^\d{4}-\d+$/;
       if (!value.match(formatRegex)) {
-        if (value.length < minLength) return ''; // Wait for more characters
+        if (value.length < minLength) return '';
         return 'Registry number must be in format: YYYY-numbers (e.g., 2024-1)';
       }
 
@@ -72,7 +78,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     async (value: string) => {
       try {
         setIsChecking(true);
-
         const response = await fetch('/api/check-registry-number', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -105,7 +110,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         setIsChecking(false);
       }
     },
-    [setError, clearErrors, formType]
+    [setError, clearErrors, formType, setValue]
   );
 
   useEffect(() => {
@@ -129,9 +134,8 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const handleRegistryNumberChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    // Removed the early return so user input always works
     let value = event.target.value.replace(/[^\d-]/g, '');
-
-    // Automatically insert hyphen if not present.
     if (value.length >= 4 && !value.includes('-')) {
       value = value.slice(0, 4) + '-' + value.slice(4);
     }
@@ -157,18 +161,18 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   };
 
   const handleGenerateRegistryNumber = () => {
-    // Generate a simple registry number based on current date (e.g., 2025-123456)
-    const year = new Date().getFullYear();
-    const generatedNumber = `${year}-${Math.floor(Math.random() * 1000000)}`;
+    // Removed the early return so the generate button always works
+    const generatedNumber = generateRegistryNumber();
     setRegistryNumber(generatedNumber);
     setValue('registryNumber', generatedNumber);
     clearErrors('registryNumber');
-
-    // Trigger the animation by updating the key prop
     setAnimationKey((prevKey) => prevKey + 1);
   };
 
   const getValidationIcon = () => {
+    // Use the current registryNumber instead of initialRegistryNumber for UX feedback
+    if (!registryNumber) return null;
+
     if (isChecking) {
       return <Loader2 className='h-4 w-4 animate-spin text-yellow-500' />;
     }
@@ -193,10 +197,10 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        
         <Card>
           <CardContent className='p-6'>
-          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
@@ -205,7 +209,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                   <FormItem>
                     <FormLabel>Registry Number</FormLabel>
                     <div className='relative flex items-center'>
-                      {/* Button for generating registry number */}
                       <Button
                         type='button'
                         onClick={handleGenerateRegistryNumber}
@@ -216,9 +219,9 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                         <motion.div
                           key={animationKey}
                           variants={refreshIconVariants}
-                          initial="initial"
-                          animate="animate"
-                          whileTap="whileTap"
+                          initial='initial'
+                          animate='animate'
+                          whileTap='whileTap'
                         >
                           <Icons.refresh className='h-3 w-3' />
                         </motion.div>
@@ -227,11 +230,11 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                         <Input
                           className='h-10 pl-14'
                           placeholder={placeholder}
-                          {...field}
                           onChange={handleRegistryNumberChange}
-                          value={field.value || ''}
+                          value={registryNumber}
                           maxLength={maxLength}
                           inputMode='numeric'
+                          disabled={false}
                         />
                       </FormControl>
                       <div className='absolute right-2 top-[10px]'>
@@ -246,13 +249,14 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                 )}
               />
 
+              {/* The LocationSelector now ensures that province is required before municipality */}
               <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
             </div>
           </CardContent>
         </Card>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
 export default RegistryInformationCard;

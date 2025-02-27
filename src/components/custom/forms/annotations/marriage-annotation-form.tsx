@@ -22,6 +22,8 @@ import {
   marriageAnnotationSchema,
 } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
 
 export interface MarriageAnnotationFormProps {
   open: boolean
@@ -201,6 +203,12 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
       const response = await createMarriageAnnotation(data, certifiedCopyId)
       if (response.success) {
         toast.success('Marriage annotation created successfully')
+
+        const documentRead = Permission.DOCUMENT_READ
+        const Title = "New Annotation for Marriage Certificate"
+        const message = `New Annotation for Marriage Certificate with the details (Book: ${formData?.bookNumber}
+                         Page: ${formData?.pageNumber}, Form Type: ${formData?.formType}) has been Created.`;
+        notifyUsersWithPermission(documentRead, Title, message);
         onOpenChange(false)
         reset()
       } else {

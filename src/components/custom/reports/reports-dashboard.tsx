@@ -6,16 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { BirthReport } from "./birth-report"
 import { DeathReport } from "./death-report"
+import { useTranslation } from "react-i18next"
 import { DocumentReport } from "./document-report"
 import { MarriageReport } from "./marriage-report"
-import { UserActivityReport } from "./user-activity-report"
-import { useTranslation } from "react-i18next"
+// import { UserActivityReport } from "./user-activity-report"
 
 export type ReportKey = "document" | "user-activity" | "marriage" | "birth" | "death"
 
 const reports: { key: ReportKey; labelKey: string }[] = [
     { key: "document", labelKey: "document_requests" },
-    { key: "user-activity", labelKey: "user_activity" },
+    // { key: "user-activity", labelKey: "user_activity" },
     { key: "marriage", labelKey: "marriage_reports" },
     { key: "birth", labelKey: "birth_reports" },
     { key: "death", labelKey: "death_reports" },
@@ -29,8 +29,8 @@ export const ReportsDashboard = () => {
         switch (selectedReport) {
             case "document":
                 return <DocumentReport />
-            case "user-activity":
-                return <UserActivityReport />
+            // case "user-activity":
+            //     return <UserActivityReport />
             case "marriage":
                 return <MarriageReport />
             case "birth":
@@ -54,7 +54,7 @@ export const ReportsDashboard = () => {
                         onValueChange={(value) => setSelectedReport(value as ReportKey)}
                         className="w-full"
                     >
-                        <TabsList className="grid w-full max-w-[700px] p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
+                        <TabsList className="grid w-full p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
                             {reports.map((report) => (
                                 <TabsTrigger key={report.key} value={report.key} className="p-1 px-4">
                                     {t(report.labelKey)}
@@ -62,7 +62,7 @@ export const ReportsDashboard = () => {
                             ))}
                         </TabsList>
                         {reports.map((report) => (
-                            <TabsContent key={report.key} value={report.key} className="w-full max-w-[1000px]">
+                            <TabsContent key={report.key} value={report.key} className="w-full">
                                 <div className="w-full">{renderReport()}</div>
                             </TabsContent>
                         ))}
