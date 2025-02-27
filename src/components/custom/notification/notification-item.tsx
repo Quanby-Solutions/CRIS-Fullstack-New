@@ -1,8 +1,8 @@
-import { Star, Mail, Bell, MessageCircle, Archive } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Notification } from '@/lib/types/notification'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
+import { Notification, NotificationStatus } from "@prisma/client"
+import { Star, Mail, Bell, MessageCircle, Archive } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface NotificationItemProps {
   notification: Notification
@@ -19,12 +19,15 @@ export function NotificationItem({ notification, onClick, onArchive, onFavorite 
     SMS: MessageCircle,
   }
 
+  // Type safety for notification status
+  const status = notification.status as unknown as NotificationStatus[]
+
   // Get the appropriate icon based on the notification type
-  const Icon = icons[notification.type]
+  const Icon = icons[notification.type as keyof typeof icons] || Bell
 
   // Determine if the notification is archived or favorite
-  const isArchived = notification.status.includes('archive')
-  const isFavorite = notification.status.includes('favorite')
+  const isArchived = status.includes(NotificationStatus.archive)
+  const isFavorite = status.includes(NotificationStatus.favorite)
   const isUnread = !notification.read
 
   const handleArchiveClick = (e: React.MouseEvent) => {
@@ -84,9 +87,12 @@ export function NotificationItem({ notification, onClick, onArchive, onFavorite 
                 "text-sm leading-tight truncate",
                 isUnread && "font-medium"
               )}>
-                {notification.message}
+                {notification.title}
               </p>
             </div>
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {notification.message}
+            </p>
             <p className="text-xs text-muted-foreground">
               {formatNotificationDate(notification.createdAt)}
             </p>

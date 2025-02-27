@@ -1,18 +1,18 @@
-// src/types/notification.ts
-import { Notification as PrismaNotification } from "@prisma/client";
+// // src/types/notification.ts
+// import { Notification as PrismaNotification } from "@prisma/client"
 
-export type Notification = PrismaNotification & {
-    route?: string;
-};
+// export type Notification = PrismaNotification & {
+//     route?: string
+// }
 
-export type MarkAsReadInput = {
-    id: string;
-    read: boolean;
-};
+// export type MarkAsReadInput = {
+//     id: string
+//     read: boolean
+// }
 
-export type NotificationStatus = string[];
+// export type NotificationStatus = string[]
 
-export type MarkAsStatusInput = {
-    id: string;
-    status: NotificationStatus;
-};
+// export type MarkAsStatusInput = {
+//     id: string
+//     status: NotificationStatus
+// }

@@ -1,29 +1,25 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Notification } from "@/lib/types/notification";
-import { Mail, Bell, MessageCircle, Calendar, XCircle, Star, Archive } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
+import { Notification, NotificationStatus } from "@prisma/client"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { useNotifications } from "@/contexts/notification-context"
+import { Mail, Bell, MessageCircle, Calendar, Star, Archive } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 interface NotificationModalProps {
-  notification: Notification | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onArchive?: (id: string) => void;
-  onFavorite?: (id: string) => void;
+  notification: Notification | null
+  isOpen: boolean
+  onClose: () => void
 }
 
-export function NotificationModal({
-  notification,
-  isOpen,
-  onClose,
-  onArchive,
-  onFavorite
-}: NotificationModalProps) {
-  // If there's no notification, don't render the modal
-  if (!notification) return null;
+export function NotificationModal({ notification, isOpen, onClose }: NotificationModalProps) {
+  // Get archive and favorite functions from the context
+  const { archiveNotification, favoriteNotification } = useNotifications()
 
-  const date = new Date(notification.createdAt);
+  // If there's no notification, don't render the modal
+  if (!notification) return null
+
+  const date = new Date(notification.createdAt)
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -31,36 +27,35 @@ export function NotificationModal({
     hour: 'numeric',
     minute: '2-digit',
     hour12: true
-  }).format(date);
+  }).format(date)
 
   // Map notification types to corresponding icons
   const icons = {
     EMAIL: Mail,
     SYSTEM: Bell,
     SMS: MessageCircle,
-  };
+  }
 
   // Get the appropriate icon based on the notification type
-  const Icon = icons[notification.type] || Bell;
+  const Icon = icons[notification.type as keyof typeof icons] || Bell
+
+  // Type casting for notification status
+  const status = notification.status as unknown as NotificationStatus[]
 
   // Check notification status
-  const isArchived = notification.status?.includes('archive');
-  const isFavorite = notification.status?.includes('favorite');
+  const isArchived = status.includes(NotificationStatus.archive)
+  const isFavorite = status.includes(NotificationStatus.favorite)
 
   const handleArchive = () => {
-    if (onArchive && notification.id) {
-      onArchive(notification.id);
-    }
-  };
+    archiveNotification(notification.id)
+  }
 
   const handleFavorite = () => {
-    if (onFavorite && notification.id) {
-      onFavorite(notification.id);
-    }
-  };
+    favoriteNotification(notification.id)
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
         <div className="bg-muted/30 px-6 py-4 border-b">
           <DialogHeader className="mb-2">
@@ -100,32 +95,31 @@ export function NotificationModal({
 
         <DialogFooter className="px-6 py-4 border-t bg-muted/30 flex-row justify-between">
           <div className="flex items-center gap-2">
-            {onArchive && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={handleArchive}
-              >
-                <Archive className="h-4 w-4" />
-                {isArchived ? "Unarchive" : "Archive"}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={handleArchive}
+            >
+              <Archive className={cn(
+                "h-4 w-4",
+                isArchived && "text-primary"
+              )} />
+              {isArchived ? "Unarchive" : "Archive"}
+            </Button>
 
-            {onFavorite && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={handleFavorite}
-              >
-                <Star className={cn(
-                  "h-4 w-4",
-                  isFavorite && "text-yellow-500 fill-yellow-500"
-                )} />
-                {isFavorite ? "Unfavorite" : "Favorite"}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={handleFavorite}
+            >
+              <Star className={cn(
+                "h-4 w-4",
+                isFavorite && "text-yellow-500 fill-yellow-500"
+              )} />
+              {isFavorite ? "Unfavorite" : "Favorite"}
+            </Button>
           </div>
 
           <Button variant="default" size="sm" onClick={onClose}>
@@ -134,5 +128,5 @@ export function NotificationModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
