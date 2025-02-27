@@ -5,6 +5,7 @@ import { UsersClientPage, UsersTableSkeleton } from '@/components/custom/users/c
 
 import { PageProps } from '@/lib/types/page'
 import { Breadcrumb } from '@/types/dashboard'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 const breadcrumbs: Breadcrumb[] = [
   { label: 'Dashboard', href: '/dashboard', active: false },
@@ -13,12 +14,18 @@ const breadcrumbs: Breadcrumb[] = [
 
 const UsersPage: FC<PageProps> = () => {
   return (
-    <div>
-      <DashboardHeader breadcrumbs={breadcrumbs} />
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <Suspense fallback={<UsersTableSkeleton />}>
-          <UsersClientPage />
-        </Suspense>
+    <div className='flex flex-col h-screen'>
+      <div className='flex-none'>
+        <DashboardHeader breadcrumbs={breadcrumbs} />
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4">
+            <Suspense fallback={<UsersTableSkeleton />}>
+              <UsersClientPage />
+            </Suspense>
+          </div>
+        </ScrollArea>
       </div>
     </div>
   )

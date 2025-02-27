@@ -1,4 +1,3 @@
-// src/app/(dashboard)/civil-registry/page.tsx -- make it like this
 import { Suspense, type FC } from 'react'
 import { PageProps } from '@/lib/types/page'
 import { Breadcrumb } from '@/types/dashboard'
@@ -13,16 +12,20 @@ const breadcrumbs: Breadcrumb[] = [
 
 const CivilRegistryPage: FC<PageProps> = () => {
   return (
-    <div>
-      <DashboardHeader breadcrumbs={breadcrumbs} />
-      
-      <ScrollArea className='h-[85dvh]'>
-        <div className="flex flex-col gap-4 p-4">
-        <Suspense fallback={<CivilRegistryTableSkeleton />}>  
-          <CivilRegistryClientPage />
-        </Suspense>
-        </div>
-      </ScrollArea>
+    <div className="flex flex-col h-screen">
+      <div className="flex-none">
+        <DashboardHeader breadcrumbs={breadcrumbs} />
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4">
+            <Suspense fallback={<CivilRegistryTableSkeleton />}>
+              <CivilRegistryClientPage />
+            </Suspense>
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   )
 }

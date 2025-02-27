@@ -32,7 +32,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
     }
 
     return (
-        <header className="relative z-20 flex h-16 shrink-0 items-center px-4 justify-between mx-4 rounded-lg shadow-sm border bg-popover">
+        <header className="relative z-20 flex h-[8dvh] shrink-0 items-center px-4 justify-between mx-4 rounded-lg shadow-sm border bg-popover">
             {/* Development Mode Indicator */}
             {isDevelopment && (
                 <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-2 py-1 rounded-br-lg shadow-md">

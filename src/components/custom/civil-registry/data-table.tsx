@@ -77,7 +77,7 @@ export function DataTable({ columns, data, selection = true }: DataTableProps) {
   })
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4 h-full'>
       <DataTableToolbar table={table} />
       <div className='rounded-md border bg-popover shadow-md'>
         <Table>
