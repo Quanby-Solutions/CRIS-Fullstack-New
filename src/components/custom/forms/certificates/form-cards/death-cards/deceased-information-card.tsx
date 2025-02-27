@@ -463,6 +463,12 @@ const DeceasedInformationCard: React.FC = () => {
                             max={45}
                             className='h-10'
                             placeholder='Enter weeks'
+                            value={field.value ?? ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              // Convert the input value to a number if possible, otherwise set it to an empty string
+                              field.onChange(val === '' ? '' : Number(val));
+                            }}
                           />
                         </FormControl>
                         <FormDescription>

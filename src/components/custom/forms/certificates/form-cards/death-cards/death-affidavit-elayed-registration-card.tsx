@@ -28,18 +28,21 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Affidavit for Delayed Registration of Death</CardTitle>
-        <p className='text-sm text-muted-foreground'>
-          Fill out this section only if the registration of death is delayed.
-        </p>
-      </CardHeader>
-      <CardContent className='space-y-6'>
-        {/* Toggle for Delayed Registration */}
-        <div className='flex items-center space-x-3'>
+      <CardHeader className='flex flex-row justify-between items-start '>
+        <div className=''>
+          <CardTitle>Affidavit for Delayed Registration of Death</CardTitle>
+          <p className='text-sm text-muted-foreground '>
+            Fill out this section only if the registration of death is delayed.
+          </p>
+        </div>
+        <div className='flex items-start space-x-3'>
           <FormLabel className='mb-0'>Delayed Registration?</FormLabel>
           <Switch checked={isDelayed} onCheckedChange={setIsDelayed} />
         </div>
+      </CardHeader>
+      <CardContent className='space-y-6'>
+        {/* Toggle for Delayed Registration */}
+
 
         {isDelayed && (
           <>
@@ -144,7 +147,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   name='delayedRegistration.deceased.burialInfo.date'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Burial/Cremation Date</FormLabel>
                       <FormControl>
                         <DatePickerField
                           field={{
@@ -211,7 +213,10 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   </FormItem>
                 )}
               />
-              {watch('delayedRegistration.attendance.wasAttended') && (
+             
+            </div>
+            <div className='grid md:grid-cols-3 grid-cols-1 gap-4'>
+            {watch('delayedRegistration.attendance.wasAttended') && (
                 <FormField
                   control={control}
                   name='delayedRegistration.attendance.attendedBy'
@@ -229,10 +234,8 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   )}
                 />
               )}
-            </div>
-
             {/* Cause of Death & Reason for Delay */}
-            <div className='space-y-4'>
+            
               <FormField
                 control={control}
                 name='delayedRegistration.causeOfDeath'
@@ -267,13 +270,13 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
             {/* Affidavit Date / Place */}
             <div className='space-y-4'>
               <h3 className='text-lg font-semibold'>Affidavit Date / Place</h3>
-              <div className='flex flex-col space-y-2'>
+              <div className='grid md:grid-cols-2 grid-cols-1 gap-4'>
                 <FormField
                   control={control}
                   name='delayedRegistration.affidavitDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Select Affidavit Date</FormLabel>
+                
                       <FormControl>
                         <DatePickerField
                           field={{

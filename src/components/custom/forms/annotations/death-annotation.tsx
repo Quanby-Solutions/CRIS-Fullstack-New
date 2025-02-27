@@ -1,3 +1,5 @@
+'use client'
+
 import { toast } from 'sonner'
 import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
@@ -21,14 +23,34 @@ import {
 import {
   DeathAnnotationFormValues,
   DeathAnnotationFormSchema,
-  ExtendedDeathAnnotationFormProps,
 } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
+
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
+
+export interface DeathAnnotationFormProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
+}
+
+export interface ExtendedDeathAnnotationFormProps extends DeathAnnotationFormProps {
+  formData: BaseRegistryFormWithRelations
+  certifiedCopyId: string
+}
+
+const formatDateForInput = (date: Date | string) => {
+  const d = new Date(date)
+  return d.toISOString().split('T')[0]
+}
 
 const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
   open,
   onOpenChange,
   onCancel,
   formData,
+  certifiedCopyId,
 }) => {
   const isCanceling = useRef(false)
 
@@ -39,7 +61,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     registryNumber: '',
     pageNumber: '',
     bookNumber: '',
-    dateOfRegistration: new Date(),
+    dateOfRegistration: '',
     preparedByName: '',
     verifiedByName: '',
     nameOfDeceased: '',
@@ -47,7 +69,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     age: 0,
     civilStatus: '',
     citizenship: '',
-    dateOfDeath: new Date(),
+    dateOfDeath: '',
     placeOfDeath: '',
     causeOfDeath: '',
     issuedTo: '',
@@ -56,7 +78,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     verifiedByPosition: '',
     remarks: '',
     orNumber: '',
-    datePaid: undefined,
+    datePaid: '',
   }
 
   const {
@@ -76,11 +98,16 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
       setValue('pageNumber', formData.pageNumber)
       setValue('bookNumber', formData.bookNumber)
       setValue('registryNumber', formData.registryNumber)
-      setValue('dateOfRegistration', formData.dateOfRegistration || '')
+      // Format dateOfRegistration from formData (if it exists)
+      setValue(
+        'dateOfRegistration',
+        formData.dateOfRegistration ? formatDateForInput(formData.dateOfRegistration) : ''
+      )
 
       // Death certificate specific data
       const deathForm = formData.deathCertificateForm
       if (deathForm) {
+        // If deceasedName is an object, join first/middle/last
         if (deathForm.deceasedName && typeof deathForm.deceasedName === 'object') {
           const { first, middle, last } = deathForm.deceasedName as {
             first?: string
@@ -93,8 +120,13 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
         setValue('sex', deathForm.sex || '')
         setValue('civilStatus', deathForm.civilStatus || '')
         setValue('citizenship', deathForm.citizenship || '')
-        setValue('dateOfDeath', deathForm.dateOfDeath || '')
+        // Format dateOfDeath from formData
+        setValue(
+          'dateOfDeath',
+          deathForm.dateOfDeath ? formatDateForInput(deathForm.dateOfDeath) : ''
+        )
 
+        // Calculate age if dateOfBirth and dateOfDeath are available
         if (deathForm.dateOfBirth && deathForm.dateOfDeath) {
           const birthDate = new Date(deathForm.dateOfBirth)
           const deathDate = new Date(deathForm.dateOfDeath)
@@ -104,6 +136,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
           setValue('age', age)
         }
 
+        // Format placeOfDeath if it's an object
         if (typeof deathForm.placeOfDeath === 'object' && deathForm.placeOfDeath) {
           const place = deathForm.placeOfDeath as PlaceStructure
           const placeOfDeath = [place.hospital, place.barangay, place.cityMunicipality, place.province]
@@ -113,12 +146,12 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
         }
 
         if (
-          deathForm.causesOfDeath &&
-          typeof deathForm.causesOfDeath === 'object' &&
-          deathForm.causesOfDeath !== null &&
-          'immediate' in deathForm.causesOfDeath
+          deathForm.causesOfDeath19b &&
+          typeof deathForm.causesOfDeath19b === 'object' &&
+          deathForm.causesOfDeath19b !== null &&
+          'immediate' in deathForm.causesOfDeath19b
         ) {
-          setValue('causeOfDeath', String(deathForm.causesOfDeath.immediate || ''))
+          setValue('causeOfDeath', String(deathForm.causesOfDeath19b.immediate || ''))
         }
       }
 
@@ -139,11 +172,18 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
       isCanceling.current = false
       return
     }
-
     try {
-      const response = await createDeathAnnotation(data)
+      // Pass the certifiedCopyId (attachment) to your create hook
+      const response = await createDeathAnnotation(data, certifiedCopyId)
       if (response.success) {
         toast.success('Death annotation created successfully')
+
+        const documentRead = Permission.DOCUMENT_READ
+        const Title = "New Annotation for Death Certificate"
+        const message = `New Annotation for Death Certificate with the details (Book: ${formData?.bookNumber}
+                 Page: ${formData?.pageNumber}, Form Type: ${formData?.formType}) has been Created.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+        
         onOpenChange(false)
         reset()
       } else {
@@ -162,7 +202,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     reset()
   }
 
-  // Split the dynamic fields array into two halves
+  // Split dynamic fields into two halves (if you’re using a dynamic fields array)
   const midPoint = Math.ceil(DeathAnnotationFormFields.length / 2)
   const firstHalf = DeathAnnotationFormFields.slice(0, midPoint)
   const secondHalf = DeathAnnotationFormFields.slice(midPoint)
@@ -183,7 +223,6 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                 <div className="relative border-b pb-4">
                   <div className="flex gap-2 items-center">
                     <h2 className="text-xl font-medium">TO WHOM IT MAY CONCERN:</h2>
-                    {/* You may add an icon here if desired */}
                   </div>
                   <p className="absolute top-0 right-0 text-sm text-muted-foreground">
                     {formatDateTime(new Date())}
@@ -216,7 +255,11 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                       <div key={index} className="space-y-2">
                         <Label className="font-medium">{field.label}</Label>
                         <Input
-                          type={field.type}
+                          type={
+                            field.name === 'dateOfRegistration' || field.name === 'dateOfDeath'
+                              ? 'date'
+                              : field.type
+                          }
                           {...register(field.name as keyof DeathAnnotationFormValues)}
                           className="w-full"
                         />
@@ -233,7 +276,11 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                       <div key={index} className="space-y-2">
                         <Label className="font-medium">{field.label}</Label>
                         <Input
-                          type={field.type}
+                          type={
+                            field.name === 'dateOfRegistration' || field.name === 'dateOfDeath'
+                              ? 'date'
+                              : field.type
+                          }
                           {...register(field.name as keyof DeathAnnotationFormValues)}
                           className="w-full"
                         />
@@ -279,9 +326,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                       {...register('preparedByName')}
                     />
                     {errors.preparedByName && (
-                      <span className="text-destructive text-sm">
-                        {errors.preparedByName.message}
-                      </span>
+                      <span className="text-destructive text-sm">{errors.preparedByName.message}</span>
                     )}
                     <Input
                       className="text-center"
@@ -289,9 +334,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                       {...register('preparedByPosition')}
                     />
                     {errors.preparedByPosition && (
-                      <span className="text-destructive text-sm">
-                        {errors.preparedByPosition.message}
-                      </span>
+                      <span className="text-destructive text-sm">{errors.preparedByPosition.message}</span>
                     )}
                   </div>
                   <div className="space-y-4">
@@ -302,9 +345,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                       {...register('verifiedByName')}
                     />
                     {errors.verifiedByName && (
-                      <span className="text-destructive text-sm">
-                        {errors.verifiedByName.message}
-                      </span>
+                      <span className="text-destructive text-sm">{errors.verifiedByName.message}</span>
                     )}
                     <Input
                       className="text-center"
@@ -312,9 +353,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                       {...register('verifiedByPosition')}
                     />
                     {errors.verifiedByPosition && (
-                      <span className="text-destructive text-sm">
-                        {errors.verifiedByPosition.message}
-                      </span>
+                      <span className="text-destructive text-sm">{errors.verifiedByPosition.message}</span>
                     )}
                   </div>
                   <div className="flex flex-col items-center justify-end">

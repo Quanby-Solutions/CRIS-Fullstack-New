@@ -30,7 +30,7 @@ const CertificationOfDeathCard: React.FC = () => {
       <CardHeader className='pb-3'>
         <CardTitle>Certification of Death</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
+      <CardContent className='space-y-6'>
         {/* Has Attended Switch */}
         <FormField
           control={control}
@@ -51,7 +51,7 @@ const CertificationOfDeathCard: React.FC = () => {
         />
 
         {/* Death Time */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField
             control={control}
             name='timeOfDeath'
@@ -60,6 +60,7 @@ const CertificationOfDeathCard: React.FC = () => {
                 <FormLabel>Time of Death</FormLabel>
                 <FormControl>
                   <TimePicker
+                    
                     value={field.value ?? null}
                     onChange={(value) => field.onChange(value)}
                     ref={field.ref}
@@ -69,10 +70,6 @@ const CertificationOfDeathCard: React.FC = () => {
               </FormItem>
             )}
           />
-        </div>
-
-        {/* Certification Signature and Name */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={control}
             name='certificationOfDeath.signature'
@@ -116,27 +113,27 @@ const CertificationOfDeathCard: React.FC = () => {
           />
         </div>
 
+        {/* Certification Signature and Name */}
         {/* Title or Position */}
-        <FormField
-          control={control}
-          name='certificationOfDeath.titleOfPosition'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title or Position</FormLabel>
-              <FormControl>
-                <Input
-                  className='h-10'
-                  placeholder='Enter title or position'
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Health Officer Details */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <FormField
+            control={control}
+            name='certificationOfDeath.titleOfPosition'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title or Position</FormLabel>
+                <FormControl>
+                  <Input
+                    className='h-10'
+                    placeholder='Enter title or position'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={control}
             name='certificationOfDeath.healthOfficerSignature'
@@ -187,28 +184,24 @@ const CertificationOfDeathCard: React.FC = () => {
           />
         </div>
 
+
         {/* NCR Mode Switch */}
-        <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
-
-        {/* Address Section */}
-        <div className='space-y-4'>
-          {/* Location Selector for Province, City/Municipality, and Barangay */}
-          <LocationSelector
-            provinceFieldName='certificationOfDeath.address.province'
-            municipalityFieldName='certificationOfDeath.address.cityMunicipality'
-            barangayFieldName='certificationOfDeath.address.barangay'
-            provinceLabel='Province'
-            municipalityLabel='City/Municipality'
-            barangayLabel='Barangay'
-            isNCRMode={isNCRMode}
-            showBarangay={true}
-            provincePlaceholder='Select province'
-            municipalityPlaceholder='Select city/municipality'
-            barangayPlaceholder='Select barangay'
-          />
-
-          {/* Additional Address Details */}
+        <div>
+          <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <LocationSelector
+              provinceFieldName='certificationOfDeath.address.province'
+              municipalityFieldName='certificationOfDeath.address.cityMunicipality'
+              barangayFieldName='certificationOfDeath.address.barangay'
+              provinceLabel='Province'
+              municipalityLabel='City/Municipality'
+              barangayLabel='Barangay'
+              isNCRMode={isNCRMode}
+              showBarangay={true}
+              provincePlaceholder='Select province'
+              municipalityPlaceholder='Select city/municipality'
+              barangayPlaceholder='Select barangay'
+            />
             <FormField
               control={control}
               name='certificationOfDeath.address.houseNo'
@@ -252,26 +245,24 @@ const CertificationOfDeathCard: React.FC = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={control}
+              name='certificationOfDeath.date'
+              render={({ field }) => (
+                <FormItem>
+                  <DatePickerField
+                    field={{
+                      value: field.value ?? '',
+                      onChange: field.onChange,
+                    }}
+                    label='Certification Date'
+                    placeholder='Select certification date'
+                  />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
-
-        {/* Certification Date */}
-        <FormField
-          control={control}
-          name='certificationOfDeath.date'
-          render={({ field }) => (
-            <FormItem>
-              <DatePickerField
-                field={{
-                  value: field.value ?? '',
-                  onChange: field.onChange,
-                }}
-                label='Certification Date'
-                placeholder='Select certification date'
-              />
-            </FormItem>
-          )}
-        />
       </CardContent>
     </Card>
   );

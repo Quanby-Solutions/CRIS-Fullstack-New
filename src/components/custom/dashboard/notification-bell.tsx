@@ -1,14 +1,14 @@
 'use client'
 
-import { formatDateTime } from '@/utils/date'
+import { Icons } from '@/components/ui/icons'
 import { useCallback, useState } from 'react'
+import { formatDateTime } from '@/utils/date'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { BellIcon, Circle, CircleDot, X } from 'lucide-react'
 import { useNotificationActions } from '@/hooks/notification-actions'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS'
@@ -87,7 +87,7 @@ export function NotificationBell({ userId }: { userId: string }) {
                   size='icon'
                   className='h-9 w-9 relative'
                 >
-                  <BellIcon className='h-[1.2rem] w-[1.2rem]' />
+                  <Icons.bellIcon className='h-[1.2rem] w-[1.2rem]' />
                   {unreadCount > 0 && (
                     <span className='absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium flex items-center justify-center'>
                       {unreadCount}
@@ -134,9 +134,9 @@ export function NotificationBell({ userId }: { userId: string }) {
                   >
                     <div className='mt-1.5'>
                       {notification.read ? (
-                        <Circle className='h-2 w-2 text-muted-foreground' />
+                        <Icons.cirle className='h-2 w-2 text-muted-foreground' />
                       ) : (
-                        <CircleDot className='h-2 w-2 text-blue-500' />
+                        <Icons.circleDot className='h-2 w-2 text-blue-500' />
                       )}
                     </div>
                     <div className='flex-1'>
@@ -163,7 +163,7 @@ export function NotificationBell({ userId }: { userId: string }) {
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
             <div className="flex items-start gap-4 max-w-[540px]">
-              <BellIcon size={24} />
+              <Icons.bellIcon size={24} />
               <DialogTitle>{selectedNotification?.title}</DialogTitle>
             </div>
           </DialogHeader>

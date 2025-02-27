@@ -1,39 +1,40 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useEffect, useRef, } from 'react'
+import { Button } from '@/components/ui/button'
+import { CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
-import { createBirthAnnotation } from '@/hooks/form-annotations-actions';
-import { BirthAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { createBirthAnnotation } from '@/hooks/form-annotations-actions'
+import { BirthAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields'
 import {
   BirthAnnotationFormSchema,
   BirthAnnotationFormValues,
   BirthAnnotationFormProps,
-} from '@/lib/types/zod-form-annotations/birth-annotation-form-schema';
+} from '@/lib/types/zod-form-annotations/birth-annotation-form-schema'
 import {
   MarriagePlaceStructure,
   NameStructure,
   ParentMarriageStructure,
   PlaceStructure,
-} from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces';
-import { formatDateTime } from '@/utils/date';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Save } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { AttachmentWithCertifiedCopies } from '../../civil-registry/components/attachment-table';
+} from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces'
+import { formatDateTime } from '@/utils/date'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2, Save } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { Permission } from '@prisma/client'
+import { notifyUsersWithPermission } from '@/hooks/users-action'
 
 export interface ExtendedBirthAnnotationFormProps extends BirthAnnotationFormProps {
-  formData?: BaseRegistryFormWithRelations;
-  certifiedCopyId: string;
+  formData?: BaseRegistryFormWithRelations
+  certifiedCopyId: string
 }
 
 const BirthAnnotationForm = ({
@@ -43,7 +44,7 @@ const BirthAnnotationForm = ({
   formData,
   certifiedCopyId,
 }: ExtendedBirthAnnotationFormProps) => {
-  const isCanceling = useRef(false);
+  const isCanceling = useRef(false)
 
   const {
     register,
@@ -76,18 +77,18 @@ const BirthAnnotationForm = ({
       verifiedBy: '',
       verifiedByPosition: '',
     },
-  });
+  })
 
   // Form population effect
   useEffect(() => {
     if (formData) {
       try {
-        const birthForm = formData.birthCertificateForm;
+        const birthForm = formData.birthCertificateForm
         if (birthForm) {
           // Basic registration info
-          setValue('pageNumber', formData.pageNumber);
-          setValue('bookNumber', formData.bookNumber);
-          setValue('registryNumber', formData.registryNumber);
+          setValue('pageNumber', formData.pageNumber)
+          setValue('bookNumber', formData.bookNumber)
+          setValue('registryNumber', formData.registryNumber)
 
           // Format and set registration date
           if (formData.dateOfRegistration) {
@@ -98,28 +99,28 @@ const BirthAnnotationForm = ({
                 dayFormat: 'numeric',
                 yearFormat: 'numeric',
               }
-            );
-            setValue('dateOfRegistration', formattedRegistrationDate);
+            )
+            setValue('dateOfRegistration', formattedRegistrationDate)
           }
 
           // Child's information
-          const childName = birthForm.childName as NameStructure;
+          const childName = birthForm.childName as NameStructure
           if (childName) {
             setValue(
               'childFirstName',
               childName.first || childName.firstName || ''
-            );
+            )
             setValue(
               'childMiddleName',
               childName.middle || childName.middleName || ''
-            );
+            )
             setValue(
               'childLastName',
               childName.last || childName.lastName || ''
-            );
+            )
           }
 
-          setValue('sex', birthForm.sex || '');
+          setValue('sex', birthForm.sex || '')
 
           // Handle date of birth
           if (birthForm.dateOfBirth) {
@@ -127,12 +128,12 @@ const BirthAnnotationForm = ({
               monthFormat: 'numeric',
               dayFormat: 'numeric',
               yearFormat: 'numeric',
-            });
-            setValue('dateOfBirth', formattedBirthDate);
+            })
+            setValue('dateOfBirth', formattedBirthDate)
           }
 
           // Place of birth
-          const placeOfBirth = birthForm.placeOfBirth as PlaceStructure;
+          const placeOfBirth = birthForm.placeOfBirth as PlaceStructure
           if (placeOfBirth) {
             const place =
               typeof placeOfBirth === 'string'
@@ -144,45 +145,45 @@ const BirthAnnotationForm = ({
                   placeOfBirth?.province,
                 ]
                   .filter(Boolean)
-                  .join(', ');
-            setValue('placeOfBirth', place);
+                  .join(', ')
+            setValue('placeOfBirth', place)
           }
 
           // Parents' information
-          const motherName = birthForm.motherMaidenName as NameStructure;
+          const motherName = birthForm.motherMaidenName as NameStructure
           if (motherName) {
             const motherFullName = [
               motherName.first || motherName.firstName,
               motherName.last || motherName.lastName,
             ]
               .filter(Boolean)
-              .join(' ');
-            setValue('motherName', motherFullName);
+              .join(' ')
+            setValue('motherName', motherFullName)
           }
-          setValue('motherCitizenship', birthForm.motherCitizenship || '');
+          setValue('motherCitizenship', birthForm.motherCitizenship || '')
 
-          const fatherName = birthForm.fatherName as NameStructure;
+          const fatherName = birthForm.fatherName as NameStructure
           if (fatherName) {
             const fatherFullName = [
               fatherName.first || fatherName.firstName,
               fatherName.last || fatherName.lastName,
             ]
               .filter(Boolean)
-              .join(' ');
-            setValue('fatherName', fatherFullName);
+              .join(' ')
+            setValue('fatherName', fatherFullName)
           }
-          setValue('fatherCitizenship', birthForm.fatherCitizenship || '');
+          setValue('fatherCitizenship', birthForm.fatherCitizenship || '')
 
           // Marriage information
           const parentMarriage =
-            birthForm.parentMarriage as ParentMarriageStructure;
+            birthForm.parentMarriage as ParentMarriageStructure
           if (parentMarriage?.date) {
             const formattedMarriageDate = formatDateTime(parentMarriage.date, {
               monthFormat: 'numeric',
               dayFormat: 'numeric',
               yearFormat: 'numeric',
-            });
-            setValue('parentsMarriageDate', formattedMarriageDate);
+            })
+            setValue('parentsMarriageDate', formattedMarriageDate)
           }
 
           if (parentMarriage?.place) {
@@ -196,60 +197,67 @@ const BirthAnnotationForm = ({
                   (parentMarriage.place as MarriagePlaceStructure)?.province,
                 ]
                   .filter(Boolean)
-                  .join(', ');
-            setValue('parentsMarriagePlace', marriagePlace);
+                  .join(', ')
+            setValue('parentsMarriagePlace', marriagePlace)
           }
 
           // Form processing information and remarks
           if (formData.remarks !== null && formData.remarks !== undefined) {
-            setValue('remarks', formData.remarks);
+            setValue('remarks', formData.remarks)
           }
 
           if (formData.preparedBy) {
-            setValue('preparedBy', formData.preparedBy.name || '');
-            setValue('preparedByPosition', formData.receivedByPosition || '');
+            setValue('preparedBy', formData.preparedBy.name || '')
+            setValue('preparedByPosition', formData.receivedByPosition || '')
           }
 
           if (formData.verifiedBy) {
-            setValue('verifiedBy', formData.verifiedBy.name || '');
-            setValue('verifiedByPosition', formData.registeredByPosition || '');
+            setValue('verifiedBy', formData.verifiedBy.name || '')
+            setValue('verifiedByPosition', formData.registeredByPosition || '')
           }
         }
       } catch (error) {
-        console.error('Error populating form:', error);
+        console.error('Error populating form:', error)
       }
     }
-  }, [formData, setValue]);
+  }, [formData, setValue])
 
   const onSubmit = async (data: BirthAnnotationFormValues) => {
     try {
       if (!certifiedCopyId) {
-        toast.error('No certified copy ID provided');
-        return;
+        toast.error('No certified copy ID provided')
+        return
       }
 
-      console.log('Submitting form with data:', data);
-      console.log('Using certifiedCopyId:', certifiedCopyId);
+      console.log('Submitting form with data:', data)
+      console.log('Using certifiedCopyId:', certifiedCopyId)
 
-      const response = await createBirthAnnotation(data, certifiedCopyId);
+      const response = await createBirthAnnotation(data, certifiedCopyId)
 
       if (response.success) {
-        toast.success('Birth annotation created successfully');
-        onOpenChange(false);
-        reset();
+        toast.success('Birth annotation created successfully')
+
+        const documentRead = Permission.DOCUMENT_READ
+        const Title = "New Annotation for Birth Certificate"
+        const message = `New Annotation for Birth Certificate with the details (Book: ${formData?.bookNumber}
+         Page: ${formData?.pageNumber}, Form Type: ${formData?.formType}) has been Created.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+
+        onOpenChange(false)
+        reset()
       } else {
-        toast.error(response.error || 'Failed to create birth annotation');
+        toast.error(response.error || 'Failed to create birth annotation')
       }
     } catch (error) {
-      console.error('Error in form submission:', error);
-      toast.error('An error occurred while creating the annotation');
+      console.error('Error in form submission:', error)
+      toast.error('An error occurred while creating the annotation')
     }
-  };
+  }
 
   const handleCancel = () => {
-    isCanceling.current = true;
-    onCancel();
-  };
+    isCanceling.current = true
+    onCancel()
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -381,7 +389,7 @@ const BirthAnnotationForm = ({
         </form>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default BirthAnnotationForm;
+export default BirthAnnotationForm

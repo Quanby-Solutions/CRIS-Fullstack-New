@@ -4,6 +4,7 @@ import {
   cityMunicipalitySchema,
   createDateFieldSchema,
   nameSchema,
+  paginationSchema,
   parentInfoSchema,
   processingDetailsSchema,
   provinceSchema,
@@ -63,7 +64,7 @@ const deceasedInformationSchema = z.object({
       .string()
       .default('Normal spontaneous vertex')
       .optional(),
-    lengthOfPregnancy: z.number().min(0).max(45).optional(),
+    lengthOfPregnancy: z.number().optional(),
     typeOfBirth: z
       .enum(['Single', 'Twin', 'Triplet'])
       .default('Single')
@@ -153,6 +154,22 @@ const medicalCertificateSchema = z.object({
           to: createDateFieldSchema({
             requiredError: 'End date is required',
             futureError: 'End date cannot be in the future',
+          }),
+        })
+        .optional(),
+      certification: z
+        .object({
+          time: createDateFieldSchema({
+            requiredError: 'Certification time is required',
+            futureError: 'Certification time cannot be in the future',
+          }),
+          signature: signatureSchema,
+          name: z.string().nonempty('Attendant name is required'),
+          title: z.string().nonempty('Attendant title is required'),
+          address: residenceSchema,
+          date: createDateFieldSchema({
+            requiredError: 'Certification date is required',
+            futureError: 'Certification date cannot be in the future',
           }),
         })
         .optional(),
@@ -404,6 +421,7 @@ export const deathCertificateFormSchema = z
 
     // Additional Remarks
     remarks: remarksAnnotationsSchema,
+    pagination: paginationSchema.optional(),
 
     // Also include corpseDisposal in the main schema (if not already)
     corpseDisposal: z.string().nonempty('Corpse disposal method is required'),

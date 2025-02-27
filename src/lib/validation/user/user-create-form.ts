@@ -1,10 +1,13 @@
-import * as z from 'zod'
+import * as z from 'zod';
 
 export const userCreateFormSchema = z.object({
     username: z.string().min(3).max(50).optional(),
     name: z.string().min(2).max(100),
     email: z.string().email(),
-    password: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/),
+    password: z.string().min(8).regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
+        "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (!@#$%^&*), and be at least 8 characters long."
+    ),
     confirmPassword: z.string(),
     roleId: z.string().min(1, "Role is required"),
     dateOfBirth: z.string().optional(),
@@ -21,6 +24,6 @@ export const userCreateFormSchema = z.object({
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-})
+});
 
-export type UserCreateFormValues = z.infer<typeof userCreateFormSchema>
+export type UserCreateFormValues = z.infer<typeof userCreateFormSchema>;

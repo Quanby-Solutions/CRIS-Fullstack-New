@@ -3,6 +3,8 @@
   "dashboard_description": "This dashboard provides a summary of the charts and metrics. For more detailed reports or to generate custom reports, navigate to the",
   "reports_section": "Reports section",
   "No forms have been added yet": "No forms have been added yet",
+  "late_registration": "Late registration",
+  "ready_for_release": "Ready for release",
   "metrics": {
     "total_registrations": "Total Registrations",
     "birth_certificates": "Birth Certificates",
@@ -251,17 +253,9 @@
     "go_to_first_page": "Go to first page",
     "go_to_previous_page": "Go to previous page",
     "go_to_next_page": "Go to next page",
-    "go_to_last_page": "Go to last page"
-  },
-  "datatable": {
-    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
-    "no_rows_selected": "No rows selected.",
-    "rows_per_page": "Rows per page",
-    "page_info": "Page {{current}} of {{total}}",
-    "go_to_first_page": "Go to first page",
-    "go_to_previous_page": "Go to previous page",
-    "go_to_next_page": "Go to next page",
-    "go_to_last_page": "Go to last page"
+    "go_to_last_page": "Go to last page",
+    "known_user": "Known User",
+    "anonymous": "Anonymous"
   },
   "formSelection": {
     "issueCertificate": "Issue Certificate",
@@ -299,10 +293,16 @@
   "loggingOut": "Logging out...",
   "signInToSubmitFeedback": "Please sign in to submit feedback.",
   "areYouSureToLogout": "Are you sure you want to log out?",
+  "marriage_registration_trends": "Marriage Registration Trends",
+  "marriage_registrations_over_time": "Marriage Registrations Over Time",
+  "from_last_month": "from last month",
+  "last_6_months_data": "Last 6 months data",
   "logOut": "Log Out",
   "notificationList": {
     "title": "List Notification",
-    "unread": "unread",
+    "unread": "Unread",
+    "unreadTab": "Unread",
+    "noUnread": "No Unread Notification",
     "searchPlaceholder": "Search...",
     "all": "All",
     "archive": "Archive",
@@ -310,7 +310,13 @@
     "loading": "Loading...",
     "noNotifications": "No notifications",
     "noArchived": "No archived notifications",
-    "noFavorite": "No favorite notifications"
+    "noFavorite": "No favorite notifications",
+    "dateRange": "Date Range",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "resetDateRange": "Reset",
+    "sortNewestToOldest": "Newest to Oldest",
+    "sortOldestToNewest": "Oldest to Newest"
   },
   "feedbacks": {
     "emptyError": "Feedback cannot be empty.",
@@ -413,5 +419,15 @@
   "marriage_reports": "Marriage Reports",
   "birth_reports": "Birth Reports",
   "death_reports": "Death Reports",
-  "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use."
+  "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use.",
+
+  "Submit:": "Submit",
+  "Submit...": "Submiting...",
+  "Update Role": "Edit Role",
+  "Update the details for the role.": "Edit the details for the role.",
+  "Updating...": "Editing...",
+  "Update": "Edit",
+  "Role updated successfully": "Role updated successfully",
+  "Unknown error occurred": "Unknown error occurred",
+  "Failed to update role:": "Failed to Edit role:"
 }

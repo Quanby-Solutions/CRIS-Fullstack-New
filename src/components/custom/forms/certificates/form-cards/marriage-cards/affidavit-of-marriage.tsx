@@ -239,7 +239,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                     <div className='space-y-4'>
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.b.a.agreement'
+                            name='affidavitOfSolemnizingOfficer.b.a'
                             render={({ field }) => (
                                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                                     <FormControl>
@@ -258,7 +258,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                         />
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.b.b.agreement'
+                            name='affidavitOfSolemnizingOfficer.b.b'
                             render={({ field }) => (
                                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                                     <FormControl>
@@ -277,7 +277,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                         />
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.b.c.agreement'
+                            name='affidavitOfSolemnizingOfficer.b.c'
                             render={({ field }) => (
                                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                                     <FormControl>
@@ -296,7 +296,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                         />
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.b.d.agreement'
+                            name='affidavitOfSolemnizingOfficer.b.d'
                             render={({ field }) => (
                                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                                     <FormControl>
@@ -314,7 +314,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                         />
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.b.e.agreement'
+                            name='affidavitOfSolemnizingOfficer.b.e'
                             render={({ field }) => (
                                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                                     <FormControl>

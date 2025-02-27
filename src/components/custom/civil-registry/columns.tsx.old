@@ -1,0 +1,533 @@
+'use client'
+
+import { format } from 'date-fns'
+import { Session } from 'next-auth'
+import { TFunction } from 'i18next'
+import { DateRange } from 'react-day-picker'
+import { Badge } from '@/components/ui/badge'
+import { ColumnDef } from '@tanstack/react-table'
+import { DocumentStatus, FormType } from '@prisma/client'
+import { DataTableRowActions } from './data-table-row-actions'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
+import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown'
+
+// Memoized date formatting to avoid recreation
+const safeFormatDate = (date: string | Date | null | undefined, dateFormat = 'PP') => {
+  if (!date) return 'N/A'
+  const d = new Date(date)
+  return isNaN(d.getTime()) ? 'N/A' : format(d, dateFormat)
+}
+
+// Form type styling map - defined outside to avoid recreation
+const formTypeVariants: Record<
+  FormType,
+  { label: string; variant: 'default' | 'secondary' | 'destructive'; className: string }
+> = {
+  MARRIAGE: {
+    label: 'Marriage',
+    variant: 'destructive',
+    className: 'bg-blue-500/30 dark:bg-blue-500/50 dark:text-accent-foreground text-blue-500 hover:bg-blue-500/30'
+  },
+  BIRTH: {
+    label: 'Birth',
+    variant: 'secondary',
+    className: 'bg-green-500/30 dark:bg-green-500/50 text-green-500 dark:text-accent-foreground hover:bg-green-500/30'
+  },
+  DEATH: {
+    label: 'Death',
+    variant: 'default',
+    className: 'bg-muted text-accent-foreground hover:bg-muted'
+  },
+}
+
+// Type for parsed form details
+type FormDetails = {
+  firstName?: string
+  middleName?: string
+  lastName?: string
+  sex?: string
+  dateOfBirth?: string
+  dateOfDeath?: string
+  husbandFirstName?: string
+  husbandLastName?: string
+  wifeFirstName?: string
+  wifeLastName?: string
+  dateOfMarriage?: string
+}
+
+// Type for registry details
+type RegistryDetails = {
+  registryNumber: string
+  pageNumber: string
+  bookNumber: string
+}
+
+export const createColumns = (
+  session: Session | null,
+  t: TFunction,
+  onUpdateForm?: (updatedForm: BaseRegistryFormWithRelations) => void,
+  onDeleteForm?: (id: string) => void
+): ColumnDef<BaseRegistryFormWithRelations>[] => {
+  // Memoize expensive parsing functions to improve performance
+  const parseRegistryDetails = (row: BaseRegistryFormWithRelations): RegistryDetails => ({
+    registryNumber: row.registryNumber || 'N/A',
+    pageNumber: row.pageNumber || 'N/A',
+    bookNumber: row.bookNumber || 'N/A',
+  })
+
+  const parseFormDetails = (row: BaseRegistryFormWithRelations): FormDetails => {
+    if (!row.formType) return {};
+
+    try {
+      let details: FormDetails = {};
+
+      if (row.formType === 'BIRTH' && row.birthCertificateForm) {
+        const childName = typeof row.birthCertificateForm.childName === 'string'
+          ? JSON.parse(row.birthCertificateForm.childName)
+          : row.birthCertificateForm.childName || {}
+
+        details = {
+          firstName: childName.firstName || '',
+          middleName: childName.middleName || '',
+          lastName: childName.lastName || '',
+          sex: row.birthCertificateForm.sex || '',
+          dateOfBirth: safeFormatDate(row.birthCertificateForm.dateOfBirth),
+        };
+      } else if (row.formType === 'DEATH' && row.deathCertificateForm) {
+        const deceasedName = typeof row.deathCertificateForm.deceasedName === 'string'
+          ? JSON.parse(row.deathCertificateForm.deceasedName)
+          : row.deathCertificateForm.deceasedName || {}
+
+        details = {
+          firstName: deceasedName.first || '',
+          middleName: deceasedName.middle || '',
+          lastName: deceasedName.last || '',
+          sex: row.deathCertificateForm.sex || '',
+          dateOfDeath: safeFormatDate(row.deathCertificateForm.dateOfDeath),
+        };
+      } else if (row.formType === 'MARRIAGE' && row.marriageCertificateForm) {
+        details = {
+          husbandFirstName: row.marriageCertificateForm.husbandFirstName || '',
+          husbandLastName: row.marriageCertificateForm.husbandLastName || '',
+          wifeFirstName: row.marriageCertificateForm.wifeFirstName || '',
+          wifeLastName: row.marriageCertificateForm.wifeLastName || '',
+          dateOfMarriage: safeFormatDate(row.marriageCertificateForm.dateOfMarriage),
+        };
+      }
+
+      return details;
+    } catch (e) {
+      console.error("Error processing form details:", e);
+      return {};
+    }
+  }
+
+  return [
+    {
+      accessorKey: 'formType',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('formType')} />
+      ),
+      cell: ({ row }) => {
+        const formType = row.getValue('formType') as FormType
+        const formTypeInfo = formTypeVariants[formType]
+        return (
+          <Badge
+            variant={formTypeInfo.variant}
+            className={`font-medium ${formTypeInfo.className}`}
+          >
+            {t(formTypeInfo.label.toLowerCase())}
+          </Badge>
+        )
+      },
+      filterFn: (row, id, value) => value.includes(row.getValue(id)),
+    },
+    {
+      accessorFn: (row) => JSON.stringify(parseRegistryDetails(row)),
+      id: 'registryDetails',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('registryDetails')} />
+      ),
+      cell: ({ row }) => {
+        const details = JSON.parse(row.getValue('registryDetails')) as RegistryDetails
+        return (
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{t('registry')}:</span>
+              <span className="text-sm text-muted-foreground">
+                {details.registryNumber}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{t('page')}:</span>
+              <span className="text-sm text-muted-foreground">
+                {details.pageNumber}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{t('book')}:</span>
+              <span className="text-sm text-muted-foreground">
+                {details.bookNumber}
+              </span>
+            </div>
+          </div>
+        )
+      },
+      filterFn: (row, id, value) => {
+        if (!value) return true
+        try {
+          const details = JSON.parse(row.getValue(id)) as RegistryDetails
+
+          // Handle filtering for pageNumber and bookNumber
+          if (
+            typeof value === 'object' &&
+            'pageNumber' in value &&
+            'bookNumber' in value
+          ) {
+            const { pageNumber, bookNumber } = value
+            const matchesPage = pageNumber
+              ? details.pageNumber.toLowerCase().includes(pageNumber.toLowerCase())
+              : true
+            const matchesBook = bookNumber
+              ? details.bookNumber.toLowerCase().includes(bookNumber.toLowerCase())
+              : true
+            return matchesPage && matchesBook
+          }
+        } catch (e) {
+          console.error("Error parsing registry details:", e);
+        }
+        return true
+      },
+    },
+    {
+      accessorFn: (row) => {
+        try {
+          return JSON.stringify(parseFormDetails(row));
+        } catch (e) {
+          console.error("Error processing form details:", e);
+          return '{}';
+        }
+      },
+      id: 'details',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('details')} />
+      ),
+      cell: ({ row }) => {
+        try {
+          const details = JSON.parse(row.getValue('details') || '{}') as FormDetails
+
+          return (
+            <div className="space-y-2">
+              {(details.firstName || details.middleName || details.lastName) && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('name')}:</span>
+                  <span>{`${details.firstName || ''} ${details.middleName || ''} ${details.lastName || ''}`}</span>
+                </div>
+              )}
+              {details.sex && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('sex')}:</span>
+                  <span>{details.sex}</span>
+                </div>
+              )}
+              {details.dateOfBirth && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('dateOfBirth')}:</span>
+                  <span>{details.dateOfBirth}</span>
+                </div>
+              )}
+              {details.dateOfDeath && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('dateOfDeath')}:</span>
+                  <span>{details.dateOfDeath}</span>
+                </div>
+              )}
+              {(details.husbandFirstName || details.husbandLastName) && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('husband')}:</span>
+                  <span>{`${details.husbandFirstName || ''} ${details.husbandLastName || ''}`}</span>
+                </div>
+              )}
+              {(details.wifeFirstName || details.wifeLastName) && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('wife')}:</span>
+                  <span>{`${details.wifeFirstName || ''} ${details.wifeLastName || ''}`}</span>
+                </div>
+              )}
+              {details.dateOfMarriage && (
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{t('dateOfMarriage')}:</span>
+                  <span>{details.dateOfMarriage}</span>
+                </div>
+              )}
+            </div>
+          )
+        } catch (e) {
+          console.error("Error rendering details:", e);
+          return <div>Error displaying details</div>;
+        }
+      },
+      filterFn: (row, id, value) => {
+        if (!Array.isArray(value)) return true
+
+        try {
+          const detailsStr = row.getValue(id) as string;
+          if (!detailsStr) return true;
+
+          const details = JSON.parse(detailsStr) as FormDetails
+
+          const [firstNameSearch, middleNameSearch, lastNameSearch] = value as [
+            string,
+            string,
+            string
+          ]
+
+          if (!firstNameSearch && !middleNameSearch && !lastNameSearch) {
+            return true
+          }
+
+          if (details.firstName || details.middleName || details.lastName) {
+            const firstMatch =
+              !firstNameSearch ||
+              (details.firstName?.toLowerCase() || '').includes(firstNameSearch.toLowerCase())
+            const middleMatch =
+              !middleNameSearch ||
+              (details.middleName?.toLowerCase() || '').includes(middleNameSearch.toLowerCase())
+            const lastMatch =
+              !lastNameSearch ||
+              (details.lastName?.toLowerCase() || '').includes(lastNameSearch.toLowerCase())
+            return firstMatch && middleMatch && lastMatch
+          }
+
+          const husbandFirstMatch =
+            !firstNameSearch ||
+            (details.husbandFirstName?.toLowerCase() || '').includes(firstNameSearch.toLowerCase())
+          const husbandLastMatch =
+            !lastNameSearch ||
+            (details.husbandLastName?.toLowerCase() || '').includes(lastNameSearch.toLowerCase())
+          const wifeFirstMatch =
+            !firstNameSearch ||
+            (details.wifeFirstName?.toLowerCase() || '').includes(firstNameSearch.toLowerCase())
+          const wifeLastMatch =
+            !lastNameSearch ||
+            (details.wifeLastName?.toLowerCase() || '').includes(lastNameSearch.toLowerCase())
+
+          return (husbandFirstMatch && husbandLastMatch) || (wifeFirstMatch && wifeLastMatch)
+        } catch (error) {
+          console.error("Error filtering details:", error)
+          return true
+        }
+      },
+    },
+    {
+      accessorFn: (row) => `${row.province || 'N/A'}, ${row.cityMunicipality || 'N/A'}`,
+      id: 'location',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('location')} />
+      ),
+      cell: ({ row }) => {
+        const location = row.getValue('location') as string
+        const [province, city] = location.split(', ')
+        return (
+          <div className="flex flex-col space-y-1">
+            <span className="font-medium">{province}</span>
+            <span className="text-sm text-muted-foreground">{city}</span>
+          </div>
+        )
+      },
+      filterFn: (row, id, value: string[]) => {
+        if (!value?.length) return true
+        const location = row.getValue(id) as string
+        return value.some((val) => location.toLowerCase().includes(val.toLowerCase()))
+      },
+    },
+    {
+      id: 'preparedBy',
+      accessorFn: (row) => row.preparedBy?.name || 'N/A',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('preparedBy')} />
+      ),
+      cell: ({ row }) => (
+        <div className="flex flex-col space-y-1">
+          <span className="font-medium">{row.getValue('preparedBy')}</span>
+        </div>
+      ),
+      filterFn: (row, id, value: string[]) => {
+        if (!value?.length) return true
+        const name = row.getValue(id) as string
+        return value.includes(name)
+      },
+    },
+    {
+      id: 'verifiedBy',
+      accessorFn: (row) => row.verifiedBy?.name || 'N/A',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('verifiedBy')} />
+      ),
+      cell: ({ row }) => (
+        <div className="flex flex-col space-y-1">
+          <span className="font-medium">{row.getValue('verifiedBy')}</span>
+        </div>
+      ),
+      filterFn: (row, id, value: string[]) => {
+        if (!value?.length) return true
+        const name = row.getValue(id) as string
+        return value.includes(name)
+      },
+    },
+    {
+      accessorFn: (row) => {
+        const receivedBy = `${row.receivedBy || ''} ${row.receivedByPosition || ''}`.trim() || 'N/A'
+        const receivedDate = row.receivedByDate ? safeFormatDate(row.receivedByDate) : 'N/A'
+        return `${receivedBy} - ${receivedDate}`
+      },
+      id: 'received',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('received')} />
+      ),
+      cell: ({ row }) => {
+        const received = row.getValue('received') as string
+        const [by, date] = received.split(' - ')
+        return (
+          <div className="flex flex-col space-y-1">
+            <span className="font-medium">{by}</span>
+            <span className="text-sm text-muted-foreground">{date}</span>
+          </div>
+        )
+      },
+      filterFn: (row, id, value: string[]) => {
+        if (!value?.length) return true
+        const received = row.getValue(id) as string
+        return value.some((val) => received.toLowerCase().includes(val.toLowerCase()))
+      },
+    },
+    {
+      accessorFn: (row) => {
+        const text = `${row.registeredBy || ''} ${row.registeredByPosition || ''}`.trim()
+        return text || 'N/A'
+      },
+      id: 'registeredBy',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('registeredBy')} />
+      ),
+      cell: ({ row }) => {
+        const registeredBy = row.getValue('registeredBy') as string
+        if (registeredBy === 'N/A') return <span>N/A</span>
+
+        const parts = registeredBy.split(' ')
+        const name = parts[0]
+        const rest = parts.slice(1).join(' ')
+
+        return (
+          <div className="flex flex-col space-y-1">
+            <span className="font-medium">{name}</span>
+            {rest && <span className="text-sm text-muted-foreground">{rest}</span>}
+          </div>
+        )
+      },
+      filterFn: (row, id, value: string[]) => {
+        if (!value?.length) return true
+        const registeredBy = row.getValue(id) as string
+        return value.some((val) => registeredBy.toLowerCase().includes(val.toLowerCase()))
+      },
+    },
+    {
+      id: 'year',
+      accessorFn: (row) => {
+        try {
+          const date = row.dateOfRegistration || row.createdAt
+          if (!date) return 'N/A'
+          return new Date(date).getFullYear().toString()
+        } catch (e) {
+          console.error("Error getting year:", e)
+          return 'N/A'
+        }
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('year')} />
+      ),
+      cell: ({ row }) => <span>{row.getValue('year')}</span>,
+      filterFn: (row, id, value: string[]) => {
+        if (!value?.length) return true
+        const year = row.getValue(id) as string
+        return value.includes(year)
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('status')} />
+      ),
+      cell: ({ row }) => {
+        const status = row.getValue('status') as DocumentStatus
+        return (
+          <StatusDropdown
+            formId={row.original.id}
+            registryNumber={row.original.registryNumber ?? 'N/A'}
+            bookNumber={row.original.bookNumber ?? 'N/A'}
+            pageNumber={row.original.pageNumber ?? 'N/A'}
+            formType={row.original.formType ?? 'N/A'}
+            currentStatus={status}
+            onStatusChange={(newStatus) => {
+              row.original.status = newStatus
+            }}
+          />
+        )
+      },
+      filterFn: (row, id, value) => value.includes(row.getValue(id)),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('createdAt')} />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue('createdAt') as string | Date
+        return <span>{safeFormatDate(createdAt, 'PPP')}</span>
+      },
+      filterFn: (row, id, filterValue) => {
+        try {
+          if (typeof filterValue === 'object' && 'from' in filterValue) {
+            if (!filterValue) return true
+            const rowDate = new Date(row.getValue(id))
+            const range = filterValue as DateRange
+            if (!range.from) return true
+            const start = new Date(range.from)
+            start.setHours(0, 0, 0, 0)
+            if (!range.to) {
+              return rowDate >= start
+            }
+            const end = new Date(range.to)
+            end.setHours(23, 59, 59, 999)
+            return rowDate >= start && rowDate <= end
+          }
+          if (Array.isArray(filterValue)) {
+            if (!filterValue.length) return true
+            const date = new Date(row.getValue(id))
+            const year = date.getFullYear().toString()
+            return filterValue.includes(year)
+          }
+        } catch (e) {
+          console.error("Error filtering by date:", e)
+        }
+        return true
+      },
+    },
+    {
+      id: 'actions',
+      enableSorting: false,
+      enableHiding: false,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('Actions')} />
+      ),
+      cell: ({ row }) => (
+        <DataTableRowActions
+          row={row}
+          onUpdateForm={onUpdateForm}
+          onDeleteForm={onDeleteForm}
+        />
+      ),
+    },
+  ]
+}

@@ -1,25 +1,12 @@
 //src\lib\types\zod-form-annotations\marriage-annotation-form-schema.ts
 import { z } from 'zod'
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-
-export interface MarriageAnnotationFormProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onCancel: () => void
-}
-
-export interface ExtendedMarriageAnnotationFormProps extends MarriageAnnotationFormProps {
-  formData: BaseRegistryFormWithRelations
-}
 
 export const marriageAnnotationSchema = z.object({
   // Base Form Fields (matching civilRegistryFormBase)
   pageNumber: z.string().min(1, 'Page number is required'),
   bookNumber: z.string().min(1, 'Book number is required'),
   registryNumber: z.string().min(1, 'Registry number is required'),
-  dateOfRegistration: z.date({
-    required_error: 'Registration date is required',
-  }),
+  dateOfRegistration: z.string().min(1, 'Date of registration is required'),
   issuedTo: z.string().min(1, 'Issued to is required'),
   purpose: z.string().min(1, 'Purpose is required'),
 
@@ -36,7 +23,7 @@ export const marriageAnnotationSchema = z.object({
   // Payment Information
   amountPaid: z.number().min(0, 'Amount paid must be a positive number'),
   orNumber: z.string().optional(),
-  datePaid: z.date().optional(),
+  datePaid: z.string().min(1, 'Date paid is required').optional(),
 
   // Marriage Form Specific Fields
   husbandName: z.string().min(1, "Husband's name is required"),
@@ -55,9 +42,7 @@ export const marriageAnnotationSchema = z.object({
   wifeMother: z.string().min(1, "Wife's mother's name is required"),
   wifeFather: z.string().min(1, "Wife's father's name is required"),
 
-  dateOfMarriage: z.date({
-    required_error: 'Marriage date is required',
-  }),
+  dateOfMarriage: z.string().min(1, 'Marriage date is required'),
   placeOfMarriage: z.string().min(1, 'Place of marriage is required'),
 })
 

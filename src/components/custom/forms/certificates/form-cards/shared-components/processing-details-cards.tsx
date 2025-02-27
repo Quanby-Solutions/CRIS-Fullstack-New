@@ -50,7 +50,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>);
   const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>;
   const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
-
+  
   useEffect(() => {
     const selectedStaff = staff.find((s) => s.name === selectedName);
     if (selectedStaff) {
@@ -67,37 +67,55 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        {showSignature && (
-          <FormField
-            control={control}
-            name={signatureFieldName}
-            render={({ field, formState: { errors } }) => (
-              <FormItem>
-                <FormLabel>Signature</FormLabel>
-                <FormControl>
-                  <SignatureUploader
-                    name={signatureFieldName}
-                    label='Signature'
-                    onChange={(file: File) => {
-                      // Type assertion to tell TS that file is a valid File for this field
-                      setValue(
-                        signatureFieldName,
-                        file as PathValue<T, Path<T>>,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        }
-                      );
-                    }}
-                  />
-                </FormControl>
-                <FormMessage>
-                  {errors?.[field.name]?.message as string}
-                </FormMessage>
-              </FormItem>
-            )}
-          />
-        )}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          {showSignature && (
+            <FormField
+              control={control}
+              name={signatureFieldName}
+              render={({ field, formState: { errors } }) => (
+                <FormItem>
+                  <FormLabel>Signature</FormLabel>
+                  <FormControl>
+                    <SignatureUploader
+                      name={signatureFieldName}
+                      label='Signature'
+                      onChange={(file: File) => {
+                        // Type assertion to tell TS that file is a valid File for this field
+                        setValue(
+                          signatureFieldName,
+                          file as PathValue<T, Path<T>>,
+                          {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }
+                        );
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {errors?.[field.name]?.message as string}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+          )}
+          {!hideDate && (
+            <FormField
+              control={control}
+              name={`${fieldPrefix}.date` as Path<T>}
+              render={({ field }) => (
+                <DatePickerField
+                  field={{
+                    value: field.value || null,
+                    onChange: field.onChange,
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+              )}
+            />
+          )}
+        </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {showNameInPrint && (
@@ -158,22 +176,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
           )}
         </div>
 
-        {!hideDate && (
-          <FormField
-            control={control}
-            name={`${fieldPrefix}.date` as Path<T>}
-            render={({ field }) => (
-              <DatePickerField
-                field={{
-                  value: field.value || null,
-                  onChange: field.onChange,
-                }}
-                label='Date'
-                placeholder='Select date'
-              />
-            )}
-          />
-        )}
+
       </CardContent>
     </Card>
   );

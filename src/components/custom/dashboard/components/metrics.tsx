@@ -25,22 +25,22 @@ const METRIC_ITEMS: MetricItem[] = [
   {
     model: "baseRegistryForm",
     titleKey: "metrics.total_registrations",
-    icon: <Icons.user className="h-4 w-4 text-muted-foreground" />
+    icon: <Icons.user className="h-4 w-4" />
   },
   {
     model: "birthCertificateForm",
     titleKey: "metrics.birth_certificates",
-    icon: <Icons.cake className="h-4 w-4 text-muted-foreground" />
+    icon: <Icons.cake className="h-4 w-4" />
   },
   {
     model: "deathCertificateForm",
     titleKey: "metrics.death_certificates",
-    icon: <Icons.notebookText className="h-4 w-4 text-muted-foreground" />
+    icon: <Icons.notebookText className="h-4" />
   },
   {
     model: "marriageCertificateForm",
     titleKey: "metrics.marriage_certificates",
-    icon: <Icons.gem className="h-4 w-4 text-muted-foreground" />
+    icon: <Icons.gem className="h-4 w-4" />
   },
 ]
 
@@ -136,7 +136,7 @@ export default function MetricsDashboard({
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t(metric.titleKey)}</CardTitle>
-            <CardDescription className="text-white"> {metric.icon}</CardDescription>
+            <CardDescription className={`${selectedMetric === metric.titleKey ? "text-white" : "text-muted-foreground"}`}> {metric.icon}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metric.currentCount.toLocaleString()}</div>

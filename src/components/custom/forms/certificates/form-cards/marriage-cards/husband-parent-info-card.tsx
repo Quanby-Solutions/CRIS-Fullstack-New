@@ -10,24 +10,28 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import React, { useState } from 'react';
 
 ;
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const HusbandParentsInfoCard: React.FC = () => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
-
+  const [ncrMode, setNcrMode] = useState(false);
   return (
     <Card className='border dark:border-border'>
       <CardHeader>
         <CardTitle>Husband&apos;s Parents Information</CardTitle>
       </CardHeader>
       <CardContent className='p-6 space-y-4'>
+
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           {/* Father's First Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.father.first'
+            name='husbandParents.fatherName.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s First Name</FormLabel>
@@ -46,7 +50,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Father's Middle Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.father.middle'
+            name='husbandParents.fatherName.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s Middle Name</FormLabel>
@@ -65,7 +69,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Father's Last Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.father.last'
+            name='husbandParents.fatherName.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s Last Name</FormLabel>
@@ -87,7 +91,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Maiden Mother's First Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.mother.first'
+            name='husbandParents.motherName.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s First Name</FormLabel>
@@ -106,7 +110,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Maiden Mother's Middle Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.mother.middle'
+            name='husbandParents.motherName.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s Middle Name</FormLabel>
@@ -125,7 +129,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Maiden Mother's last Name */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.mother.last'
+            name='husbandParents.motherName.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s (Maiden) Name</FormLabel>
@@ -142,11 +146,11 @@ const HusbandParentsInfoCard: React.FC = () => {
             )}
           />
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           {/* Father's Citizenship */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.fatherCitizenship'
+            name='husbandParents.fatherCitizenship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Father&apos;s Citizenship</FormLabel>
@@ -165,7 +169,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Mother's Citizenship */}
           <FormField
             control={control}
-            name='husbandInfo.husbandParents.motherCitizenship'
+            name='husbandParents.motherCitizenship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mother&apos;s Citizenship</FormLabel>
@@ -187,11 +191,15 @@ const HusbandParentsInfoCard: React.FC = () => {
         <div className='col-span-full py-12'>
           <h3 className='font-bold '>Name of person Wali who gave consent or advise</h3>
         </div>
+        <NCRModeSwitch
+          isNCRMode={ncrMode}
+          setIsNCRMode={setNcrMode}
+        />
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.first'
+            name='husbandConsentPerson.name.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Adviser (First Name)</FormLabel>
@@ -209,7 +217,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.middle'
+            name='husbandConsentPerson.name.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Adviser (Middle Name)</FormLabel>
@@ -227,7 +235,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.last'
+            name='husbandConsentPerson.name.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Adviser (Last Name)</FormLabel>
@@ -252,7 +260,7 @@ const HusbandParentsInfoCard: React.FC = () => {
           {/* Parents Relationship */}
           <FormField
             control={control}
-            name='husbandInfo.husbandConsentPerson.relationship'
+            name='husbandConsentPerson.relationship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Relationship</FormLabel>
@@ -268,26 +276,49 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
-          <div className='col-span-2'>
-            <FormField
-              control={control}
-              name='husbandInfo.husbandConsentPerson.residence'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Residence</FormLabel>
-                  <FormControl>
-                    <Input type='text'
-                      className='h-10'
-                      placeholder='House No., St., Barangay, City/Municipality, Province, Country'
-                      {...field}
-                      value={field.value ?? ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+
+          <LocationSelector
+            provinceFieldName='husbandConsentPerson.residence.province'
+            municipalityFieldName='husbandConsentPerson.residence.cityMunicipality'
+            barangayFieldName='husbandConsentPerson.residence.barangay'
+            provinceLabel='Province'
+            municipalityLabel='City/Municipality'
+            barangayLabel='Barangay'
+            isNCRMode={ncrMode}
+            showBarangay={true}
+            provincePlaceholder='Select province'
+            municipalityPlaceholder='Select city/municipality'
+            barangayPlaceholder='Select barangay'
+          />
+          <FormField
+            control={control}
+            name='husbandConsentPerson.residence.street'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Street</FormLabel>
+                <FormControl>
+                  <Input type='text' className='h-10' placeholder='Enter complete address' {...field}
+                    value={field.value ?? ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Redundant na su name so s apreview is get nalang si name of officer or fillout ini auto matic */}
+          <FormField
+            control={control}
+            name='husbandConsentPerson.residence.country'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input type='text' className='h-10' placeholder='Enter complete address' {...field}
+                    value={field.value ?? ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
       </CardContent>

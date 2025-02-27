@@ -22,6 +22,7 @@ import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
 import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
 import { WitnessesCard } from './form-cards/marriage-cards/witnesses-section-card';
 import {
+  PreparedByCard,
   ReceivedByCard,
   RegisteredAtOfficeCard,
 } from './form-cards/shared-components/processing-details-cards';
@@ -29,8 +30,6 @@ import RegistryInformationCard from './form-cards/shared-components/registry-inf
 import RemarksCard from './form-cards/shared-components/remarks-card';
 import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
 import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
-import { PDFViewer } from '@react-pdf/renderer';
-import MarriageCertificatePDF from './preview/marriage-certificate/marriage-certificate-pdf';
 
 export default function MarriageCertificateForm({
   open,
@@ -43,7 +42,7 @@ export default function MarriageCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0' >
+      <DialogContent className='max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0' >
         <Form {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
@@ -58,7 +57,7 @@ export default function MarriageCertificateForm({
 
               <div className='flex flex-1 overflow-hidden'>
                 {/* Left Side - Form */}
-                <div className='w-1/2 border-r'>
+                <div className='w-full '>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
                       <RegistryInformationCard
@@ -73,10 +72,11 @@ export default function MarriageCertificateForm({
                       <ContractingPartiesCertificationCard />
                       <SolemnizingOfficerCertification />
                       <WitnessesCard />
+                      <PreparedByCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard
-                        fieldPrefix='registeredAtCivilRegistrar'
-                        cardTitle='Registered At Office'
+                        fieldPrefix='registeredByOffice'
+                        cardTitle='Registered at the Office of Civil Registrar'
                       />
                       <RemarksCard />
                       <AffidavitOfSolemnizingOfficer />
@@ -99,7 +99,7 @@ export default function MarriageCertificateForm({
                 </div>
 
                 {/* Right Side - Preview */}
-                <div className='w-1/2'>
+                {/* <div className='w-1/2'>
                   <div className='h-[calc(95vh-120px)]'>
                     <PDFViewer width='100%' height='100%'>
                       <MarriageCertificatePDF
@@ -107,7 +107,7 @@ export default function MarriageCertificateForm({
                       />
                     </PDFViewer>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>

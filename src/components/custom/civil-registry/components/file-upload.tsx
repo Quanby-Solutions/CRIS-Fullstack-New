@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { FormType } from "@prisma/client"
+import { FormType, Permission } from "@prisma/client"
 import { redirect } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useDropzone } from "react-dropzone"
@@ -13,14 +13,17 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 import Image from "next/image"
 import useCreateDocument from "@/hooks/use-create-document"
+import { notifyUsersWithPermission } from "@/hooks/users-action"
 
 interface FileUploadDialogProps {
     open: boolean
     onOpenChangeAction: (open: boolean) => void
-    onUploadSuccess?: (fileData: { url: string; id: string; attachmentId: string }) => void
+    onUploadSuccess?: (fileData: { url: string; id: string; attachmentId: string; fileName: string }) => void
     formId: string
     formType: FormType
     registryNumber: string
+    bookNumber: string
+    pageNumber: string
 }
 
 export function FileUploadDialog({
@@ -30,6 +33,8 @@ export function FileUploadDialog({
     formId,
     formType,
     registryNumber,
+    bookNumber,
+    pageNumber,
 }: FileUploadDialogProps) {
     const { data: session } = useSession()
     const { createDocument } = useCreateDocument()
@@ -44,6 +49,15 @@ export function FileUploadDialog({
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
+    // Reset state when dialog opens/closes
+    useEffect(() => {
+        if (!open) {
+            // Clear file and preview when the dialog closes
+            setFile(null)
+            setPreviewUrl(null)
+        }
+    }, [open])
+
     useEffect(() => {
         if (file) {
             const url = URL.createObjectURL(file)
@@ -54,7 +68,11 @@ export function FileUploadDialog({
         }
     }, [file])
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
+        if (fileRejections.length > 0) {
+            toast.warning("File size exceeds the maximum allowed limit of 10MB")
+            return
+        }
         const selectedFile = acceptedFiles[0]
         if (selectedFile) {
             setFile(selectedFile)
@@ -107,23 +125,12 @@ export function FileUploadDialog({
                 throw new Error("File upload failed: Missing file URL in response")
             }
 
-            console.log('Creating document with data:', {
-                userId,
-                formId,
-                formType,
-                registryNumber,
-                fileUrl,
-                fileName: file.name,
-                fileSize: file.size,
-                mimeType: file.type,
-                type:
-                    formType === 'BIRTH'
-                        ? 'BIRTH_CERTIFICATE'
-                        : formType === 'DEATH'
-                            ? 'DEATH_CERTIFICATE'
-                            : 'MARRIAGE_CERTIFICATE',
-                title: `${formType} Document - ${registryNumber}`,
-            })
+            const documentType =
+                formType === 'BIRTH'
+                    ? 'BIRTH_CERTIFICATE'
+                    : formType === 'DEATH'
+                        ? 'DEATH_CERTIFICATE'
+                        : 'MARRIAGE_CERTIFICATE'
 
             const { document, attachment } = await createDocument({
                 userId,
@@ -134,18 +141,30 @@ export function FileUploadDialog({
                 fileName: file.name,
                 fileSize: file.size,
                 mimeType: file.type,
-                type:
-                    formType === 'BIRTH'
-                        ? 'BIRTH_CERTIFICATE'
-                        : formType === 'DEATH'
-                            ? 'DEATH_CERTIFICATE'
-                            : 'MARRIAGE_CERTIFICATE',
+                type: documentType,
                 title: `${formType} Document - ${registryNumber}`,
             })
 
             toast.success('File uploaded successfully!')
-            onUploadSuccess?.({ url: fileUrl, id: document.id, attachmentId: attachment.id })
+
+            // Call onUploadSuccess to update the parent component with new data
+            if (onUploadSuccess) {
+                onUploadSuccess({
+                    url: fileUrl,
+                    id: document.id,
+                    attachmentId: attachment.id,
+                    fileName: file.name
+                })
+            }
+
+            // Close the dialog
             onOpenChangeAction(false)
+
+            const documentRead = Permission.DOCUMENT_READ
+            const title = `New Attachment for "${formType} Certificate" has been uploaded.`
+            const message = `New Attachment for (Book ${bookNumber}, Page ${pageNumber}, Registry Number ${registryNumber}) has been uploaded.`
+            notifyUsersWithPermission(documentRead, title, message)
+
         } catch (error) {
             console.error("Upload process error:", error)
             toast.error(error instanceof Error ? error.message : "Failed to upload file")
@@ -158,7 +177,7 @@ export function FileUploadDialog({
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
             <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-4">
                 <DialogHeader className="p-4 border-b">
-                    <DialogTitle>Upload Document</DialogTitle>
+                    <DialogTitle>Upload the Scanned Copy of the Certificate</DialogTitle>
                     <DialogDescription>
                         Drag & drop a file, or click to select. Supported formats: JPEG, PNG, PDF (max 10MB).
                     </DialogDescription>

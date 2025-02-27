@@ -1,28 +1,29 @@
-'use client'
+'use client';
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
-import TimePicker from '@/components/custom/time/time-picker'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+import TimePicker from '@/components/custom/time/time-picker';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
-import React, { useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import React, { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
-import LocationSelector from '../shared-components/location-selector'
-import NCRModeSwitch from '../shared-components/ncr-mode-switch'
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const AttendantInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>()
-  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false)
-  const [showOtherInput, setShowOtherInput] = useState(false)
+  const { control, setValue } = useFormContext<BirthCertificateFormValues>();
+  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
+  const [showOtherInput, setShowOtherInput] = useState(false);
 
   return (
     <Card>
@@ -44,8 +45,8 @@ const AttendantInformationCard: React.FC = () => {
                   <FormControl>
                     <RadioGroup
                       onValueChange={(value) => {
-                        setShowOtherInput(value === 'Others')
-                        field.onChange(value)
+                        setShowOtherInput(value === 'Others');
+                        field.onChange(value);
                       }}
                       value={field.value}
                       className='grid grid-cols-2 md:grid-cols-5 gap-4'
@@ -93,7 +94,7 @@ const AttendantInformationCard: React.FC = () => {
               setIsNCRMode={setAttendantAddressNcrMode}
             />
             <div className='space-y-4'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 {/* Time of Birth */}
                 <FormField
                   control={control}
@@ -152,17 +153,28 @@ const AttendantInformationCard: React.FC = () => {
                 <FormField
                   control={control}
                   name='attendant.certification.signature'
-                  render={({ field }) => (
+                  render={({ field, formState: { errors } }) => (
                     <FormItem>
                       <FormLabel>Signature</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder='Enter signature'
-                          {...field}
-                          className='h-10'
+                        <SignatureUploader
+                          name='attendant.certification.signature'
+                          label='Upload Signature'
+                          onChange={(file: File) => {
+                            setValue(
+                              'attendant.certification.signature',
+                              file,
+                              {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              }
+                            );
+                          }}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>
+                        {errors?.attendant?.certification?.signature?.message}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />
@@ -259,7 +271,7 @@ const AttendantInformationCard: React.FC = () => {
         </Card>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default AttendantInformationCard
+export default AttendantInformationCard;

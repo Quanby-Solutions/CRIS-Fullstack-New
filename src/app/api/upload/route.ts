@@ -14,12 +14,12 @@ export const POST = async (req: Request) => {
         }
 
         // Log file details for debugging
-        console.log('File received:', {
-            name: (file as File).name,
-            size: (file as File).size,
-            type: (file as File).type,
-            referenceNumber
-        })
+        // console.log('File received:', {
+        //     name: (file as File).name,
+        //     size: (file as File).size,
+        //     type: (file as File).type,
+        //     referenceNumber
+        // })
 
         const buffer = Buffer.from(await (file as File).arrayBuffer())
 

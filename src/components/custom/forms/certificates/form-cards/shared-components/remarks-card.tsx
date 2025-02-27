@@ -36,6 +36,7 @@ const RemarksCard = <T extends FieldValues = FieldValues>({
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         <FormField
           control={control}
           name={fieldName}
@@ -53,6 +54,7 @@ const RemarksCard = <T extends FieldValues = FieldValues>({
             </FormItem>
           )}
         />
+        </div>
       </CardContent>
     </Card>
   )

@@ -2,7 +2,6 @@
 
 import { format } from 'date-fns'
 import { Role, Permission } from '@prisma/client'
-import { useTranslation } from 'react-i18next'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
@@ -10,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Shield } from 'lucide-react'
 import { t } from 'i18next'
-
 
 type RoleRow = Role & {
     permissions: Permission[]
@@ -27,10 +25,9 @@ export const columns: ColumnDef<RoleRow>[] = [
     },
     {
         accessorKey: 'description',
-        header: ({ column }) => {
-            const { t } = useTranslation()
-            return <DataTableColumnHeader column={column} title={t('Description')} />
-        },
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title={t('Description')} />
+        ),
         cell: ({ row }) => {
             const description = row.getValue('description') as string
             return <div className="text-sm text-muted-foreground">{description || 'No description'}</div>
@@ -38,10 +35,9 @@ export const columns: ColumnDef<RoleRow>[] = [
     },
     {
         accessorKey: 'permissions',
-        header: ({ column }) => {
-            const { t } = useTranslation()
-            return <DataTableColumnHeader column={column} title={t('Permissions')} />
-        },
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title={t('Permissions')} />
+        ),
         cell: ({ row }) => {
             const permissions = new Set(row.getValue('permissions') as Permission[])
             return (
@@ -76,10 +72,9 @@ export const columns: ColumnDef<RoleRow>[] = [
     },
     {
         accessorKey: 'createdAt',
-        header: ({ column }) => {
-            const { t } = useTranslation()
-            return <DataTableColumnHeader column={column} title={t('Created At')} />
-        },
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title={t('Created At')} />
+        ),
         cell: ({ row }) => {
             const createdAt = row.getValue('createdAt') as Date
             return (
@@ -91,10 +86,9 @@ export const columns: ColumnDef<RoleRow>[] = [
     },
     {
         accessorKey: 'updatedAt',
-        header: ({ column }) => {
-            const { t } = useTranslation()
-            return <DataTableColumnHeader column={column} title={t('Last Updated')} />
-        },
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title={t('Last Updated')} />
+        ),
         cell: ({ row }) => {
             const updatedAt = row.getValue('updatedAt') as Date
             return (
@@ -106,10 +100,9 @@ export const columns: ColumnDef<RoleRow>[] = [
     },
     {
         id: 'actions',
-        header: ({ column }) => {
-            const { t } = useTranslation()
-            return <DataTableColumnHeader column={column} title={t('Actions')} />
-        },
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title={t('Actions')} />
+        ),
         cell: ({ row }) => <DataTableRowActions row={row} />,
     },
 ]

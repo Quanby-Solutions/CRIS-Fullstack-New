@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -10,43 +10,30 @@ import { SubmitCertifiedCopyRequestParams, useSubmitCertifiedCopyRequest } from 
 import { toast } from "sonner"
 import { z } from "zod"
 import {
-  BirthCertificateForm as BirthCertificateFormCTC,
+  BirthCertificateForm,
   DeathCertificateForm,
   MarriageCertificateForm,
+  Permission,
 } from "@prisma/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import { NameObject, PlaceOfBirthObject } from "@/lib/types/json"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
+import { notifyUsersWithPermission } from "@/hooks/users-action"
 
-// Update the Zod schema to match
+// Zod schema for validation
 const schema = z.object({
-  // Required fields
   address: z.string().min(1, "Address is required"),
   purpose: z.string().min(1, "Purpose is required"),
   relationship: z.string().min(1, "Relationship to owner is required"),
   requesterName: z.string().min(1, "Requester name is required"),
-
-  // Optional fields
-  feesPaid: z.string().optional(),
-  orNo: z.string().optional(),
-  signature: z.string().optional(),
-  lcrNo: z.string().optional(),
-  bookNo: z.string().optional(),
-  pageNo: z.string().optional(),
-  searchedBy: z.string().optional(),
-  contactNo: z.string().optional(),
-  datePaid: z.string().optional(),
-  whenRegistered: z.string().optional(),
-
-  // Form control fields
   copies: z.number().min(1, "At least one copy is required"),
   isCertified: z.boolean().refine((val) => val === true, "You must certify the information"),
 })
 
 interface BirthCertificateFormProps {
   formData?: BaseRegistryFormWithRelations & {
-    birthCertificateForm?: BirthCertificateFormCTC | null
+    birthCertificateForm?: BirthCertificateForm | null
     deathCertificateForm?: DeathCertificateForm | null
     marriageCertificateForm?: MarriageCertificateForm | null
   }
@@ -54,9 +41,17 @@ interface BirthCertificateFormProps {
   onClose?: () => void
   onOpenChange: (open: boolean) => void
   attachment: AttachmentWithCertifiedCopies | null
+  onAttachmentUpdated: () => void
 }
 
-const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, open, onOpenChange, onClose, attachment }) => {
+const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
+  formData,
+  open,
+  onOpenChange,
+  onClose,
+  attachment,
+  onAttachmentUpdated
+}) => {
   const [isRegisteredLate, setIsRegisteredLate] = useState(false)
   const [isCertified, setIsCertified] = useState(false)
   const [isFormValid, setIsFormValid] = useState(false)
@@ -84,7 +79,6 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
   })
 
   const resetForm = () => {
-    // Reset form state
     setFormState({
       required: {
         requesterName: "",
@@ -104,33 +98,13 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
         datePaid: "",
         signature: ""
       }
-    });
-
-    // Reset other state
-    setIsCertified(false);
-    setIsRegisteredLate(false);
-
-    // Reset the HTML form
-    const form = document.querySelector('form');
-    if (form) {
-      form.reset();
-
-      // Reset all input values explicitly
-      const inputs = form.querySelectorAll('input');
-      inputs.forEach(input => {
-        if (input.type === 'number' && input.name === 'copies') {
-          input.value = '1';
-        } else {
-          input.value = '';
-        }
-      });
-    }
-  };
+    })
+    setIsCertified(false)
+    setIsRegisteredLate(false)
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    // Check if the field is in required or optional object
+    const { name, value } = e.target
     if (name in formState.required) {
       setFormState(prev => ({
         ...prev,
@@ -138,7 +112,7 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
           ...prev.required,
           [name]: value.trim()
         }
-      }));
+      }))
     } else {
       setFormState(prev => ({
         ...prev,
@@ -146,77 +120,64 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
           ...prev.optional,
           [name]: value
         }
-      }));
+      }))
     }
-  };
+  }
 
-  // Add this useEffect for debugging
-  useEffect(() => {
-    console.log('Form State:', formState);
-    console.log('Required fields filled:', Object.values(formState.required).every(value => value !== ""));
-    console.log('Is Certified:', isCertified);
-    console.log('Is Form Valid:', isFormValid);
-  }, [formState, isCertified, isFormValid]);
-
-  // Update form validation useEffect
-  useEffect(() => {
-    const requiredFieldsFilled = Object.values(formState.required).every(value => value !== "");
-    setIsFormValid(requiredFieldsFilled && isCertified);
-  }, [formState.required, isCertified]);
+  const submittedRef = useRef(false)
 
   useEffect(() => {
-    if (successMessage) {
-      toast.success(successMessage);
-      resetForm();
-      // Close the dialog after a short delay to allow the toast to be visible
+    const requiredFieldsFilled = Object.values(formState.required).every(value => value !== "")
+    setIsFormValid(requiredFieldsFilled && isCertified)
+  }, [formState.required, isCertified])
+
+  useEffect(() => {
+    if (successMessage && !submittedRef.current) {
+      toast.success(successMessage)
+      resetForm()
+      onAttachmentUpdated()
+      submittedRef.current = true // Flag that the form is successfully submitted
       setTimeout(() => {
-        onClose?.();
-      }, 500);
+        onClose?.()
+      }, 500)
     }
-  }, [successMessage, onClose]);
+  }, [successMessage, onClose])
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      toast.error(error)
     }
-  }, [error]);
+  }, [error])
 
-  // Then modify your handleSubmit function to remove the success/error checks
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
     if (!isCertified) {
-      toast.error("Please certify that the information is true");
-      return;
+      toast.error("Please certify that the information is true")
+      return
     }
 
-    const formEntries = new FormData(event.currentTarget);
-    const formObj = Object.fromEntries(formEntries.entries());
-
-    // Convert copies to number before validation
+    const formEntries = new FormData(event.currentTarget)
+    const formObj = Object.fromEntries(formEntries.entries())
     const validationObj = {
       ...formObj,
       copies: parseInt(formObj.copies as string, 10),
       isCertified
-    };
+    }
 
-    // Zod validation
-    const result = schema.safeParse(validationObj);
+    const result = schema.safeParse(validationObj)
 
     if (!result.success) {
-      toast.error(`Please fill in all required fields: ${result.error.errors.map(e => e.message).join(", ")}`);
-      return;
+      toast.error(`Please fill in all required fields: ${result.error.errors.map(e => e.message).join(", ")}`)
+      return
     }
 
     const requestData: SubmitCertifiedCopyRequestParams = {
-      // Required fields
       address: formObj.address.toString(),
       purpose: formObj.purpose.toString(),
       relationship: formObj.relationship.toString(),
       requesterName: formObj.requesterName.toString(),
       isRegisteredLate,
-
-      // Optional fields with proper mapping
       feesPaid: formObj.feesPaid ? formObj.feesPaid.toString() : undefined,
       orNo: formObj.orNo?.toString(),
       signature: formObj.signature?.toString(),
@@ -228,18 +189,29 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
       date: formObj.datePaid ? formObj.datePaid.toString() : undefined,
       whenRegistered: isRegisteredLate ? formObj.whenRegistered?.toString() : undefined,
       attachmentId: attachment?.id ?? '',
-    };
-    try {
-      await submitRequest(requestData);
-      toast.success("Request submitted successfully");
-      resetForm();
-      onClose?.();
-    } catch (error) {
-      toast.error("Failed to submit request");
+      copies: parseInt(formState.required.copies, 10)
     }
-  };
 
-  // Type-safe data extraction
+    try {
+      await submitRequest(requestData)
+      toast.success("Request submitted successfully")
+
+
+
+      const documentRead = Permission.DOCUMENT_READ
+        const Title = `New CTC has been created for "${formData?.formType}"`
+        const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
+        notifyUsersWithPermission(documentRead, Title, message);
+
+        
+      resetForm()
+      onAttachmentUpdated()
+      onClose?.()
+    } catch (error) {
+      toast.error("Failed to submit request")
+    }
+  }
+
   const childName = formData?.birthCertificateForm?.childName as NameObject | undefined
   const placeOfBirth = formData?.birthCertificateForm?.placeOfBirth as PlaceOfBirthObject | undefined
   const motherMaidenName = formData?.birthCertificateForm?.motherMaidenName as NameObject | undefined
@@ -260,7 +232,7 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[90vw] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle></DialogTitle>
+          <DialogTitle>Birth Certificate Request Form</DialogTitle>
         </DialogHeader>
         <div className="w-full">
           <div className="container mx-auto p-4 max-w-4xl">
@@ -511,11 +483,7 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
               </section>
 
               <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  variant="default"
-                  disabled={isLoading || !isFormValid}
-                >
+                <Button type="submit" variant="default" disabled={isLoading || !isFormValid}>
                   {isLoading ? "Submitting..." : "Submit Request"}
                 </Button>
               </div>
@@ -524,8 +492,7 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
         </div>
       </DialogContent>
     </Dialog>
-
   )
 }
 
-export default BirthCertificateForm
+export default BirthCertificateFormCTC

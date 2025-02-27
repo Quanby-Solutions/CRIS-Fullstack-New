@@ -56,49 +56,7 @@ export const ContractingPartiesCertification: React.FC<
           </div>
 
           {/* Signatures Section */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            {/* Husband's Signature */}
-            {/* <FormField
-              control={control}
-              name='husbandContractParty.contractingParties.signature'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='text-foreground'>
-                    Signature of Husband
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className='h-10'
-                      placeholder='Digital signature or fingerprint'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
-            {/* Wife's Signature */}
-            {/* <FormField
-              control={control}
-              name='wifeContractParty.contractingParties.signature'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='text-foreground'>
-                    Signature of Wife
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className='h-10'
-                      placeholder='Digital signature or fingerprint'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             {/* Date of Marriage */}
             <FormField
               control={control}

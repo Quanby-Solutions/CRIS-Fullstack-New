@@ -86,7 +86,7 @@ export function DataTableRowActions({
       if (result.success) {
         const updatedUser = { ...user, emailVerified: false }
         onUpdateUser?.(updatedUser)
-        toast.success(result.message)
+        toast.warning(result.message)
       } else {
         toast.error(result.message)
       }

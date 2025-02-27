@@ -1,13 +1,24 @@
-import { Document, BaseRegistryForm, DocumentStatus, FormType } from '@prisma/client'
+import { Document, DocumentStatus, FormType } from '@prisma/client'
 
 export type GroupByOption = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+
+/**
+ * Custom interface for BaseRegistryForm with an added documentId field
+ * This is necessary because in the DB schema, documentId is accessed through the join table
+ */
+export interface BaseRegistryFormWithDocumentId {
+    id: string
+    formType: FormType
+    createdAt: Date
+    documentId: string
+}
 
 /**
  * Represents a Document along with its attached BaseRegistryForm records,
  * using only the selected fields.
  */
 export type DocumentWithBaseRegistryForm = Document & {
-    BaseRegistryForm: Pick<BaseRegistryForm, 'id' | 'formType' | 'documentId' | 'createdAt'>[]
+    BaseRegistryForm: BaseRegistryFormWithDocumentId[]
 }
 
 /**
@@ -85,15 +96,17 @@ export interface ReportDataItem {
  *
  * For each document:
  * 1. Filter for valid base forms (ones with a documentId and createdAt).
- * 2. Use the earliest base form’s createdAt as the registration date.
+ * 2. Use the earliest base form's createdAt as the registration date.
  * 3. Compute processing time as (document.createdAt - registration date) in days.
- * 4. Update classification counts for each valid base form.
+ * 4. Update classification counts for each valid base form, ensuring each form is counted only once.
  */
 export const groupDocumentsByPeriod = (
     documents: DocumentWithBaseRegistryForm[],
     groupBy: GroupByOption
 ): Record<string, DocumentGroup> => {
     const groups: Record<string, DocumentGroup> = {}
+    // Track processed form IDs to avoid double-counting
+    const processedFormIds = new Set<string>()
 
     documents.forEach((doc) => {
         // Filter base forms that are linked and have a valid createdAt.
@@ -134,8 +147,14 @@ export const groupDocumentsByPeriod = (
         group.totalProcessingTime += processingTime
         group.countForAvg++
 
-        // Update classification counts for each valid base form.
+        // Update classification counts for each valid base form, ensuring each form is counted only once
         validForms.forEach((form) => {
+            // Skip if we've already processed this form
+            if (processedFormIds.has(form.id)) return
+
+            // Mark this form as processed
+            processedFormIds.add(form.id)
+
             if (form.formType === FormType.MARRIAGE) {
                 group.marriageCount++
             } else if (form.formType === FormType.BIRTH) {
@@ -249,7 +268,8 @@ export const zeroFillMultipleYears = (
 }
 
 /**
- * Count global registration totals by iterating over each document’s base registry forms.
+ * Count global registration totals by iterating over each document's base registry forms.
+ * This function ensures each form is counted only once by tracking form IDs.
  */
 export const countGlobalRegistrations = (
     documents: DocumentWithBaseRegistryForm[]
@@ -257,18 +277,31 @@ export const countGlobalRegistrations = (
     let totalMarriageCount = 0
     let totalBirthCount = 0
     let totalDeathCount = 0
+
+    // Track processed form IDs to avoid double-counting
+    const processedFormIds = new Set<string>()
+
     documents.forEach((doc) => {
         doc.BaseRegistryForm.forEach((form) => {
-            if (form.documentId) {
-                if (form.formType === FormType.MARRIAGE) {
-                    totalMarriageCount++
-                } else if (form.formType === FormType.BIRTH) {
-                    totalBirthCount++
-                } else if (form.formType === FormType.DEATH) {
-                    totalDeathCount++
-                }
+            // Skip if we've already counted this form
+            if (!form.documentId || processedFormIds.has(form.id)) return
+
+            // Mark this form as processed
+            processedFormIds.add(form.id)
+
+            if (form.formType === FormType.MARRIAGE) {
+                totalMarriageCount++
+            } else if (form.formType === FormType.BIRTH) {
+                totalBirthCount++
+            } else if (form.formType === FormType.DEATH) {
+                totalDeathCount++
             }
         })
     })
-    return { marriage: totalMarriageCount, birth: totalBirthCount, death: totalDeathCount }
+
+    return {
+        marriage: totalMarriageCount,
+        birth: totalBirthCount,
+        death: totalDeathCount
+    }
 }

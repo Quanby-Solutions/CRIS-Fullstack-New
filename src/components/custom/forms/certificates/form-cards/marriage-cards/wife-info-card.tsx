@@ -28,7 +28,7 @@ const WifeInfoCard: React.FC = () => {
   const [ncrMode, setncrMode] = useState(false);
 
   // Auto-calculate and set age when birthdate changes
-  const birthDate = useWatch({ control, name: 'wifeInfo.birth' });
+  const birthDate = useWatch({ control, name: 'wifeBirth' });
 
   useEffect(() => {
     if (birthDate) {
@@ -46,7 +46,7 @@ const WifeInfoCard: React.FC = () => {
         age -= 1; // Subtract 1 year if the birthday hasn't occurred yet this year
       }
 
-      setValue('wifeInfo.age', age.toString()); // Update the age field
+      setValue('wifeAge', age); // Update the age field
     }
   }, [birthDate, setValue]);
 
@@ -60,7 +60,7 @@ const WifeInfoCard: React.FC = () => {
           {/* First Name */}
           <FormField
             control={control}
-            name='wifeInfo.name.first'
+            name='wifeName.first'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>First Name</FormLabel>
@@ -80,7 +80,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Middle Name */}
           <FormField
             control={control}
-            name='wifeInfo.name.middle'
+            name='wifeName.middle'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Middle Name</FormLabel>
@@ -100,7 +100,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Last Name */}
           <FormField
             control={control}
-            name='wifeInfo.name.last'
+            name='wifeName.last'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
@@ -123,13 +123,13 @@ const WifeInfoCard: React.FC = () => {
           {/* Sex */}
           <FormField
             control={control}
-            name='wifeInfo.sex'
+            name='wifeSex'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sex</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value || 'female'}
+                  defaultValue={field.value || 'Female'}
                 >
                   <FormControl>
                     <SelectTrigger className='h-10'>
@@ -137,8 +137,8 @@ const WifeInfoCard: React.FC = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value='female'>Female</SelectItem>
-                    <SelectItem value='male'>Male</SelectItem>
+                    <SelectItem value='Female'>Female</SelectItem>
+                    <SelectItem value='Male'>Male</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -148,7 +148,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Date of Birth */}
           <FormField
             control={control}
-            name='wifeInfo.birth'
+            name='wifeBirth'
             render={({ field }) => (
               <DatePickerField field={{
                 onChange: field.onChange,
@@ -161,7 +161,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Age - Auto-filled */}
           <FormField
             control={control}
-            name='wifeInfo.age'
+            name='wifeAge'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Age</FormLabel>
@@ -182,7 +182,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Citizenship */}
           <FormField
             control={control}
-            name='wifeInfo.citizenship'
+            name='wifeCitizenship'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Citizenship</FormLabel>
@@ -203,7 +203,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Religion */}
           <FormField
             control={control}
-            name='wifeInfo.religion'
+            name='wifeReligion'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Religion/Religious Sect</FormLabel>
@@ -223,7 +223,7 @@ const WifeInfoCard: React.FC = () => {
           {/* Civil Status */}
           <FormField
             control={control}
-            name='wifeInfo.civilStatus'
+            name='wifeCivilStatus'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Civil Status</FormLabel>
@@ -237,9 +237,9 @@ const WifeInfoCard: React.FC = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value='single'>Single</SelectItem>
-                    <SelectItem value='widowed'>Widowed</SelectItem>
-                    <SelectItem value='divorced'>Divorced</SelectItem>
+                    <SelectItem value='Single'>Single</SelectItem>
+                    <SelectItem value='Widowed'>Widowed</SelectItem>
+                    <SelectItem value='Divorced'>Divorced</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -255,9 +255,9 @@ const WifeInfoCard: React.FC = () => {
 
           {/* Place of Birth */}
           <LocationSelector
-            provinceFieldName='husbandInfo.placeOfBirth.province'
-            municipalityFieldName='husbandInfo.placeOfBirth.cityMunicipality'
-            barangayFieldName='husbandInfo.placeOfBirth.barangay'
+            provinceFieldName='husbandPlaceOfBirth.province'
+            municipalityFieldName='husbandPlaceOfBirth.cityMunicipality'
+            barangayFieldName='husbandPlaceOfBirth.barangay'
             provinceLabel='Province'
             municipalityLabel='City/Municipality'
             barangayLabel='Barangay'
@@ -269,7 +269,7 @@ const WifeInfoCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='husbandInfo.placeOfBirth.country'
+            name='husbandPlaceOfBirth.country'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country</FormLabel>
@@ -284,12 +284,13 @@ const WifeInfoCard: React.FC = () => {
             )}
           />
           {/* Residence */}
+
           <FormField
             control={control}
-            name='wifeInfo.residence'
+            name='wifeResidence'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Residence</FormLabel>
+                <FormLabel>Street</FormLabel>
                 <FormControl>
                   <Input
                     type='text'
@@ -303,6 +304,7 @@ const WifeInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+
         </div>
 
       </CardContent>

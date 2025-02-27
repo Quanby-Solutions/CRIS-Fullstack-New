@@ -215,14 +215,14 @@ export const DocumentReport = () => {
 
     return (
         <Card className="p-4">
-            <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <CardTitle>Document Request & Processing Report</CardTitle>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Overview of civil registry document requests and processing times.
                     </p>
                     {classificationSummary && (
-                        <div className="mt-1 text-sm">
+                        <div className="mt-1 text-sm text-muted-foreground pt-2">
                             Classification Summary:&nbsp;
                             <span>Marriage: {classificationSummary.marriage}</span>,&nbsp;
                             <span>Birth: {classificationSummary.birth}</span>,&nbsp;

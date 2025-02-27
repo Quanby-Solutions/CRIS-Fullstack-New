@@ -68,7 +68,6 @@ export const POST = async (req: Request) => {
         return NextResponse.json({ success: true, data: attachment }, { status: 201 })
 
     } catch (error) {
-        console.error('Server error:', error)
         return NextResponse.json({
             error: 'Failed to create attachment record',
             details: error instanceof Error ? error.message : 'Unknown error'

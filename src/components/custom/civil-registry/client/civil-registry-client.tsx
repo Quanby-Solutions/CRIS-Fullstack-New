@@ -2,15 +2,13 @@
 'use client'
 
 import useSWR from 'swr'
-import { type FC } from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { CivilRegistryDataTableClient } from './users-table-client'
 
-interface CivilRegistryResponse {
-    forms: BaseRegistryFormWithRelations[]
-}
+import { type FC } from 'react'
+
+import { Skeleton } from '@/components/ui/skeleton'
+import { CivilRegistryDataTableClient } from './civil-registry-table-client'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const fetcher = async (url: string): Promise<BaseRegistryFormWithRelations[]> => {
     const res = await fetch(url)
