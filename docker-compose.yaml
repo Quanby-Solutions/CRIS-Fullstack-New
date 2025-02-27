@@ -43,8 +43,10 @@ services:
     image: nginx:latest
     restart: always
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./ssl:/etc/nginx/ssl # Mount the SSL certificates
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl/cris-legazpi.pem:/etc/nginx/ssl/cris-legazpi.pem:ro
+      - ./ssl/cris-legazpi-key.pem:/etc/nginx/ssl/cris-legazpi-key.pem:ro
+      - ./ssl/lgu-legazpi-ca.pem:/etc/nginx/ssl/lgu-legazpi-ca.pem:ro
     ports:
       - "80:80"
       - "443:443" # Expose the HTTPS port
