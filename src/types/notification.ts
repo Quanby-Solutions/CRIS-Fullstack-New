@@ -14,5 +14,5 @@ export type NotificationStatus = string[];
 
 export type MarkAsStatusInput = {
     id: string;
-    status: NotificationStatus; 
+    status: NotificationStatus;
 };
