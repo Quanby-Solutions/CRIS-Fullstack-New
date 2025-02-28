@@ -45,19 +45,9 @@ export const createDateFieldSchema = (options?: {
     z
       .date({ required_error: requiredError })
       .refine((d) => d <= new Date(), { message: futureError })
-      .optional() // Make the schema accept undefined
-      .superRefine((val, ctx) => {
-        // Only show validation error during form submission
-        if (val === undefined) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: requiredError,
-          });
-        }
-      })
+      .optional() // This makes the schema accept undefined values
   );
 };
-
 // ─────────────────────────────────────────────────────────────────────────────
 // PROCESSING DETAILS: "Prepared By", "Received By", "Registered By"
 // Each has Signature, Name in Print, Title/Position, and Date

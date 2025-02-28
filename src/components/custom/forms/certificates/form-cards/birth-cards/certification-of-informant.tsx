@@ -18,9 +18,9 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import SignatureUploader from '../shared-components/signature-uploader';
 
 const CertificationOfInformantCard: React.FC = () => {
-  const { control, setValue, watch } = useFormContext<BirthCertificateFormValues>();
+  const { control, setValue, watch } =
+    useFormContext<BirthCertificateFormValues>();
   const [ncrMode, setncrMode] = useState(false);
-
 
   const province = watch('informant.address.province');
 
@@ -28,7 +28,11 @@ const CertificationOfInformantCard: React.FC = () => {
   const getProvinceString = (provinceValue: any): string => {
     if (typeof provinceValue === 'string') {
       return provinceValue;
-    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+    } else if (
+      provinceValue &&
+      typeof provinceValue === 'object' &&
+      provinceValue.label
+    ) {
       return provinceValue.label;
     }
     return '';
@@ -40,7 +44,6 @@ const CertificationOfInformantCard: React.FC = () => {
     const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
     setncrMode(shouldBeNCR);
   }, []);
-
 
   return (
     <Card>
@@ -69,7 +72,8 @@ const CertificationOfInformantCard: React.FC = () => {
                     />
                   </FormControl>
                   <FormMessage>
-                    {errors.informant?.signature?.message}
+                    {errors.informant?.signature?.message &&
+                      String(errors.informant.signature.message)}
                   </FormMessage>
                 </FormItem>
               )}
@@ -82,7 +86,7 @@ const CertificationOfInformantCard: React.FC = () => {
               render={({ field }) => (
                 <DatePickerField
                   field={{
-                    value: field.value,
+                    value: field.value!,
                     onChange: field.onChange,
                   }}
                   label='Date'

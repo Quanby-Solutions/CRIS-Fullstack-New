@@ -218,7 +218,11 @@ const affidavitOfPaternitySchema = z.object({
     signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
   }),
-  dateSworn: z.string().min(1, 'Date sworn is required'),
+  dateSworn: createDateFieldSchema({
+    requiredError: 'Date sworn is required',
+    futureError: 'Date cannot be in the future',
+  }),
+
   adminOfficer: z.object({
     signature: signatureSchema,
     name: z.string().min(1, 'Officer name is required'),
@@ -227,7 +231,11 @@ const affidavitOfPaternitySchema = z.object({
   }),
   ctcInfo: z.object({
     number: z.string().min(1, 'CTC number is required'),
-    dateIssued: z.string().min(1, 'Date issued is required'),
+    dateIssued: createDateFieldSchema({
+      requiredError: 'Date issued is required',
+      futureError: 'Date cannot be in the future',
+    }),
+
     placeIssued: z.string().min(1, 'Place issued is required'),
   }),
 });
@@ -242,7 +250,10 @@ const delayedRegistrationAffidavitSchema = z.object({
   }),
   registrationType: z.enum(['SELF', 'OTHER']),
   reasonForDelay: z.string().min(1, 'Reason for delay is required'),
-  dateSworn: z.string().min(1, 'Date sworn is required'),
+  dateSworn: createDateFieldSchema({
+    requiredError: 'Date sworn is required',
+    futureError: 'Date cannot be in the future',
+  }),
   adminOfficer: z.object({
     signature: signatureSchema,
     name: z.string().min(1, 'Officer name is required'),
@@ -250,7 +261,10 @@ const delayedRegistrationAffidavitSchema = z.object({
   }),
   ctcInfo: z.object({
     number: z.string().min(1, 'CTC number is required'),
-    dateIssued: z.string().min(1, 'Date issued is required'),
+    dateIssued: createDateFieldSchema({
+      requiredError: 'Date issued is required',
+      futureError: 'Date cannot be in the future',
+    }),
     placeIssued: z.string().min(1, 'Place issued is required'),
   }),
   parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']).optional(),

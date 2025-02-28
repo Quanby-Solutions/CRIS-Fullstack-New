@@ -191,7 +191,7 @@ const ChildInformationCard: React.FC = () => {
               render={({ field }) => (
                 <DatePickerField
                   field={{
-                    value: field.value,
+                    value: field.value!,
                     onChange: field.onChange,
                   }}
                   label='Date'

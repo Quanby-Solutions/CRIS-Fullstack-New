@@ -21,9 +21,8 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import SignatureUploader from '../shared-components/signature-uploader';
 
 const AttendantInformationCard: React.FC = () => {
-
-
-  const { control, setValue, watch } = useFormContext<BirthCertificateFormValues>();
+  const { control, setValue, watch } =
+    useFormContext<BirthCertificateFormValues>();
   const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
   const [showOtherInput, setShowOtherInput] = useState(false);
 
@@ -32,7 +31,11 @@ const AttendantInformationCard: React.FC = () => {
   const getProvinceString = (provinceValue: any): string => {
     if (typeof provinceValue === 'string') {
       return provinceValue;
-    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+    } else if (
+      provinceValue &&
+      typeof provinceValue === 'object' &&
+      provinceValue.label
+    ) {
       return provinceValue.label;
     }
     return '';
@@ -43,7 +46,6 @@ const AttendantInformationCard: React.FC = () => {
     const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
     setAttendantAddressNcrMode(shouldBeNCR);
   }, []);
-
 
   return (
     <Card>
@@ -157,7 +159,7 @@ const AttendantInformationCard: React.FC = () => {
                   render={({ field }) => (
                     <DatePickerField
                       field={{
-                        value: field.value,
+                        value: field.value!,
                         onChange: field.onChange,
                       }}
                       label='Certification Date'
@@ -209,7 +211,10 @@ const AttendantInformationCard: React.FC = () => {
                         />
                       </FormControl>
                       <FormMessage>
-                        {errors?.attendant?.certification?.signature?.message}
+                        {errors?.attendant?.certification?.signature?.message &&
+                          String(
+                            errors.attendant.certification.signature.message
+                          )}
                       </FormMessage>
                     </FormItem>
                   )}
