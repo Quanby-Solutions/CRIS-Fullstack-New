@@ -76,7 +76,7 @@ interface FatherResidence {
 
 interface MarriagePlace {
   houseNo: string
-  street: string
+  st: string
   barangay: string
   cityMunicipality: string
   province: string
@@ -254,120 +254,141 @@ export function EditBirthCivilRegistryFormInline({
         ? rawMultipleBirthOrder as "First" | "Second" | "Third"
         : undefined
 
-    // Parent marriage extraction.
-    const rawParentMarriage = form.birthCertificateForm?.parentMarriage
-    let parentMarriage: ParentMarriage = { 
-      date: new Date(), 
-      place: { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
-    }
-    if (
-      rawParentMarriage &&
-      typeof rawParentMarriage === 'object' &&
-      !Array.isArray(rawParentMarriage) &&
-      'date' in rawParentMarriage &&
-      'place' in rawParentMarriage
-    ) {
-      const pm = rawParentMarriage as any
-      const pmDate = pm.date ? new Date(pm.date) : new Date()
-      let pmPlace: MarriagePlace = { houseNo: '', street: '', barangay: '', cityMunicipality: '', province: '', country: '' }
-      const rawPMPlace = pm.place
-      if (
-        rawPMPlace &&
-        typeof rawPMPlace === 'object' &&
-        !Array.isArray(rawPMPlace) &&
-        'houseNo' in rawPMPlace &&
-        'street' in rawPMPlace &&
-        'barangay' in rawPMPlace &&
-        'cityMunicipality' in rawPMPlace &&
-        'province' in rawPMPlace &&
-        'country' in rawPMPlace
-      ) {
-        pmPlace = rawPMPlace as unknown as MarriagePlace
-      }
-      parentMarriage = { date: pmDate, place: pmPlace }
+   // Extract raw parent marriage data
+const rawParentMarriage = form.birthCertificateForm?.parentMarriage
+
+// Default structure for parentMarriage
+let parentMarriage: ParentMarriage = { 
+  date: new Date(), 
+  place: { houseNo: '', st: '', barangay: '', cityMunicipality: '', province: '', country: '' }
+}
+
+// Validate and transform rawParentMarriage
+if (
+  rawParentMarriage &&
+  typeof rawParentMarriage === 'object' &&
+  !Array.isArray(rawParentMarriage) &&
+  'date' in rawParentMarriage &&
+  'place' in rawParentMarriage
+) {
+  const pm = rawParentMarriage as any
+  const pmDate = pm.date ? new Date(pm.date) : new Date()
+  const rawPMPlace = pm.place
+
+  if (
+    rawPMPlace &&
+    typeof rawPMPlace === 'object' &&
+    !Array.isArray(rawPMPlace)
+  ) {
+    // Ensure all properties exist, using fallback values if necessary
+    const pmPlace: MarriagePlace = {
+      houseNo: rawPMPlace.houseNo ?? '',
+      st: rawPMPlace.st ?? '', // Mapping "st" to "street"
+      barangay: rawPMPlace.barangay ?? '',
+      cityMunicipality: rawPMPlace.cityMunicipality ?? '',
+      province: rawPMPlace.province ?? '',
+      country: rawPMPlace.country ?? ''
     }
 
+    parentMarriage = { date: pmDate, place: pmPlace }
+    
+  }
+
+
+}
+
+
+
     // Attendant extraction
-    const rawAttendant = form.birthCertificateForm?.attendant
-    let attendant: {
-      type: "Others" | "Physician" | "Nurse" | "Midwife" | "Hilot"
-      certification: {
-        date: Date
-        time: Date
-        signature: string | File
-        name: string
-        title: string
-        address: {
-          houseNo: string
-          st: string
-          barangay: string
-          cityMunicipality: string
-          province: string
-          country: string
-        }
-      }
-    } = {
-      type: "Hilot",
-      certification: {
-        date: parentMarriage.date,
-        time: parentMarriage.date,
-        signature: "",
-        name: "",
-        title: "MD",
-        address: {
-          houseNo: "",
-          st: "",
-          barangay: "",
-          cityMunicipality: "",
-          province: "",
-          country: "",
-        },
-      },
+    // Attendant extraction
+const rawAttendant = form.birthCertificateForm?.attendant
+
+// Default structure
+let attendant: {
+  type: "Others" | "Physician" | "Nurse" | "Midwife" | "Hilot"
+  certification: {
+    date: Date
+    time: Date
+    signature: string | File
+    name: string
+    title: string
+    address: {
+      houseNo: string
+      st: string
+      barangay: string
+      cityMunicipality: string
+      province: string
+      country: string
     }
-    if (
-      rawAttendant &&
-      typeof rawAttendant === 'object' &&
-      !Array.isArray(rawAttendant) &&
-      'date' in rawAttendant &&
-      'name' in rawAttendant &&
-      'type' in rawAttendant &&
-      'title' in rawAttendant &&
-      'address' in rawAttendant &&
-      'signature' in rawAttendant
-    ) {
-      const raw = rawAttendant as any
-      let addrObj = {
-        houseNo: "",
-        st: "",
-        barangay: "",
-        cityMunicipality: "",
-        province: "",
-        country: "",
-      }
-      if (typeof raw.address === "object") {
-        addrObj = raw.address
-      } else if (typeof raw.address === "string") {
-        addrObj = {
-          houseNo: raw.address,
-          st: raw.address,
-          barangay: "",
-          cityMunicipality: "",
-          province: "",
-          country: "",
-        }
-      }
-      attendant = {
-        type: raw.type,
-        certification: {
-          date: new Date(raw.date),
-          time: new Date(raw.date),
-          signature: raw.signature,
-          name: raw.name,
-          title: raw.title,
-          address: addrObj,
-        },
-      }
+  }
+} = {
+  type: "Hilot",
+  certification: {
+    date: parentMarriage.date,
+    time: parentMarriage.date,
+    signature: "",
+    name: "",
+    title: "MD",
+    address: {
+      houseNo: "",
+      st: "",
+      barangay: "",
+      cityMunicipality: "",
+      province: "",
+      country: "",
+    },
+  },
+}
+
+// Validate and transform rawAttendant if it exists
+if (
+  rawAttendant &&
+  typeof rawAttendant === "object" &&
+  !Array.isArray(rawAttendant) &&
+  typeof rawAttendant.certification === "object" &&
+  rawAttendant.certification !== null
+) {
+  const raw = rawAttendant as any
+  const cert = raw.certification
+
+  // Validate and parse address
+  let addrObj = {
+    houseNo: "",
+    st: "",
+    barangay: "",
+    cityMunicipality: "",
+    province: "",
+    country: "",
+  }
+
+  if (typeof cert.address === "object" && cert.address !== null) {
+    addrObj = {
+      houseNo: cert.address.houseNo ?? "",
+      st: cert.address.st ?? "",
+      barangay: cert.address.barangay ?? "",
+      cityMunicipality: cert.address.cityMunicipality ?? "",
+      province: cert.address.province ?? "",
+      country: cert.address.country ?? "",
     }
+  }
+
+  // Parse dates correctly
+  const parsedDate = cert.date ? new Date(cert.date) : new Date()
+  const parsedTime = cert.time ? new Date(cert.time) : new Date()
+
+  // Assign values to the attendant object
+  attendant = {
+    type: raw.type as "Others" | "Physician" | "Nurse" | "Midwife" | "Hilot",
+    certification: {
+      date: parsedDate,
+      time: parsedTime,
+      signature: cert.signature ?? "",
+      name: cert.name ?? "",
+      title: cert.title ?? "",
+      address: addrObj,
+    },
+  }
+}
 
     // Informant extraction.
     const rawInformant = form.birthCertificateForm?.informant

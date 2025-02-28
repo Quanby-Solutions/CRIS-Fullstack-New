@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
@@ -18,8 +18,30 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 import ReligionSelector from '../shared-components/religion-selector'
 
 const FatherInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>()
+  const { control, watch } = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
+
+  // Watch the father's province for residence
+  const province = watch('fatherInfo.residence.province')
+
+  // Helper: extract province string if it comes as an object
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label
+    }
+    return ''
+  }
+
+  // Update ncrMode based on the province value
+  useEffect(() => {
+    const provinceString = getProvinceString(province)
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+    if (shouldBeNCR !== ncrMode) {
+      setNcrMode(shouldBeNCR)
+    }
+  }, [])
 
   return (
     <Card>
@@ -146,7 +168,7 @@ const FatherInformationCard: React.FC = () => {
                 )}
               />
 
-<FormField
+              <FormField
                 control={control}
                 name='fatherInfo.age'
                 render={({ field }) => (
@@ -172,7 +194,6 @@ const FatherInformationCard: React.FC = () => {
                 )}
               />
             </div>
-
           </CardContent>
         </Card>
 
@@ -186,7 +207,7 @@ const FatherInformationCard: React.FC = () => {
           <CardContent className='space-y-4'>
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            <LocationSelector
+              <LocationSelector
                 provinceFieldName='fatherInfo.residence.province'
                 municipalityFieldName='fatherInfo.residence.cityMunicipality'
                 barangayFieldName='fatherInfo.residence.barangay'
