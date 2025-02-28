@@ -2,7 +2,6 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { citizenshipSchema } from '@/lib/types/zod-form-certificate/form-certificates-shared-schema';
 import {
     marriageCertificateSchema,
     MarriageCertificateFormValues,
@@ -10,9 +9,8 @@ import {
 import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { InputJsonValue } from '@prisma/client/runtime/library';
-import { last } from 'lodash';
 import { revalidatePath } from 'next/cache';
-import { date, z } from 'zod';
+import { z } from 'zod';
 
 export async function submitMarriageCertificateForm(
     formData: MarriageCertificateFormValues

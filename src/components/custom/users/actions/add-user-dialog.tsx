@@ -2,7 +2,7 @@
 
 import { toast } from 'sonner'
 import { useState, useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FieldErrors } from 'react-hook-form'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -106,13 +106,13 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
   const isValid = form.formState.isValid
   const isDirty = form.formState.isDirty
 
-  // Reset form when dialog closes
+  // Reset form when dialog closes or role changes
   useEffect(() => {
     if (role) {
       form.reset({
         ...defaultValues,
         roleId: role,
-      });
+      })
     }
   }, [role, form])
 
@@ -201,7 +201,7 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
     setOpen(false)
   }
 
-  const onError = (errors: any) => {
+  const onError = (errors: FieldErrors<UserCreateFormValues>) => {
     console.error('Form validation errors:', errors)
     toast.error('Please fix all validation errors before submitting')
   }
@@ -327,18 +327,16 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || undefined}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none"
-                          disabled>Select role</SelectItem>
+                        <SelectItem value="none" disabled>
+                          Select role
+                        </SelectItem>
                         {!rolesLoading && !rolesError && roles.map((role) => (
                           <SelectItem
                             key={role.id}
@@ -529,10 +527,7 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  form.reset()
-                  setOpen(false)
-                }}
+                onClick={handleCancel}
                 disabled={isLoading}
               >
                 Cancel

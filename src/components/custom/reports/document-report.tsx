@@ -38,6 +38,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import { ApiResponse, ReportDataItem } from "@/types/report"
+import { ReportSkeleton } from "./component/report-skeleton"
 
 
 export type GroupByOption = "daily" | "weekly" | "monthly" | "quarterly" | "yearly"
@@ -176,7 +177,7 @@ export const DocumentReport = () => {
         )
     }
     if (!data) {
-        return <div className="p-4 text-center">Loading document report...</div>
+        return <ReportSkeleton />
     }
 
     const reportData: ReportDataItem[] = Array.isArray(data?.data) ? data.data : []
