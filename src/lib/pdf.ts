@@ -52,6 +52,73 @@ type CertifiedCopyData = CertifiedCopy & {
     }
 }
 
+/**
+ * Creates a 3-column signature block in the PDF
+ */
+const createSignatureBlock = (
+  doc: jsPDF,
+  data: {
+    preparedByName: string;
+    preparedByPosition: string;
+    verifiedByName: string;
+    verifiedByPosition: string;
+    civilRegistrar: string;
+    civilRegistrarPosition: string;
+  },
+  startY: number,
+  leftMargin: number = 25,
+  lineHeight: number = 8
+): number => {
+  const pageWidth = doc.internal.pageSize.width;
+  const contentWidth = pageWidth - (leftMargin * 2);
+  const colWidth = contentWidth / 3;
+  
+  let y = startY;
+  
+  // Calculate column positions
+  const col1X = leftMargin;
+  const col2X = leftMargin + colWidth;
+  const col3X = leftMargin + (colWidth * 2);
+  
+  // Save current font settings
+  const currentFontStyle = doc.getFont().fontStyle;
+  
+  // Add column headers
+  doc.setFont("helvetica", "bold");
+  doc.text("Prepared by:", col1X, y);
+  doc.text("Verified by:", col2X, y);
+  doc.text("Civil Registrar:", col3X, y);
+  
+  y += lineHeight;
+  
+  // Add names
+  doc.setFont("helvetica", "normal");
+  doc.text(data.preparedByName, col1X, y);
+  doc.text(data.verifiedByName, col2X, y);
+  doc.text(data.civilRegistrar, col3X, y);
+  
+  y += lineHeight;
+  
+  // Add positions
+  doc.text(data.preparedByPosition, col1X, y);
+  doc.text(data.verifiedByPosition, col2X, y);
+  doc.text(data.civilRegistrarPosition, col3X, y);
+  
+  // Add signature lines
+  y += lineHeight * 2;
+  const lineWidth = colWidth - 10;
+  
+  doc.line(col1X, y, col1X + lineWidth, y);
+  doc.line(col2X, y, col2X + lineWidth, y);
+  doc.line(col3X, y, col3X + lineWidth, y);
+  
+  // Restore original font settings
+  doc.setFont("helvetica", currentFontStyle);
+  
+  // Return the new Y position
+  return y + lineHeight;
+};
+
 export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Buffer> {
     try {
         const doc = new jsPDF({
@@ -68,9 +135,9 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             day: 'numeric',
             year: 'numeric'
         })
-        doc.text("Republic of the Philippines", doc.internal.pageSize.width / 2, 20, { align: "center" })
-        doc.text("CITY CIVIL REGISTRY", doc.internal.pageSize.width / 2, 30, { align: "center" })
-        doc.text(currentDate, doc.internal.pageSize.width / 2, 40, { align: "center" })
+        doc.text("Republic of the Philippines", doc.internal.pageSize.width / 2, 10, { align: "center" })
+        doc.text("CITY CIVIL REGISTRY", doc.internal.pageSize.width / 2, 20, { align: "center" })
+        doc.text(currentDate, doc.internal.pageSize.width / 2, 30, { align: "center" })
 
         doc.setFont("helvetica", "normal")
         doc.setFontSize(11)
@@ -79,22 +146,13 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
 
         let y = 70
         const leftMargin = 25
-        const lineHeight = 10
-        const labelWidth = 60
-        const valueWidth = 120
-        const underlineOffset = 1
+        const lineHeight = 8
+        const labelWidth = 70
+        const valueWidth = 100
+        const underlineOffset = 1.5
 
-        const underlineText = (label: string, value: string | number | null | undefined) => {
-            doc.text(label, leftMargin, y)
-            const labelWidth = doc.getTextWidth(label + ' ')
-            if (value !== undefined && value !== null && value !== 'N/A' && value !== '₱0.00') {
-                const valueStr = value.toString()
-                doc.text(valueStr, leftMargin + labelWidth, y)
-                doc.line(leftMargin + labelWidth, y + 1, leftMargin + labelWidth + doc.getTextWidth(valueStr), y + 1)
-            } else {
-                doc.line(leftMargin + labelWidth, y + 1, leftMargin + labelWidth + 40, y + 1)
-            }
-            y += lineHeight
+        const spaceY = (space: number) => {
+            y += space
         }
 
         const concat = (label: string, value: string, label2: string, value2: string) => {
@@ -126,28 +184,9 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             y += lineHeight + 1 // Move to the next line
         }
 
-
-
-
-        const partialUnderlineText = (prefix: string, value: string | number | null | undefined, suffix: string) => {
-            doc.text(prefix, leftMargin, y)
-            const prefixWidth = doc.getTextWidth(prefix + ' ')
-            if (value !== undefined && value !== null) {
-                const valueStr = value.toString()
-                doc.text(valueStr, leftMargin + prefixWidth, y)
-                doc.line(leftMargin + prefixWidth, y + 1, leftMargin + prefixWidth + doc.getTextWidth(valueStr), y + 1)
-                const valueWidth = doc.getTextWidth(valueStr + ' ')
-                doc.text(suffix, leftMargin + prefixWidth + valueWidth, y)
-            } else {
-                doc.line(leftMargin + prefixWidth, y + 1, leftMargin + prefixWidth + 40, y + 1)
-                doc.text(suffix, leftMargin + prefixWidth + 42, y)
-            }
-            y += lineHeight
-        }
-
         // Helper function for field rendering
-        const renderField = (label: string, value: any) => {
-            doc.text(label, leftMargin, y)
+        const renderField = (label?: string, value?: any) => {
+            doc.text(label || '', leftMargin, y)
             doc.text(":", leftMargin + labelWidth - 5, y)
             const valueX = leftMargin + labelWidth + 5
             if (value) {
@@ -160,8 +199,8 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             y += lineHeight
         }
 
-        const underlinePageBookText = (prefix: string, page: string | number | null | undefined, book: string | number | null | undefined, suffix: string) => {
-            doc.text(prefix, leftMargin, y)
+        const underlinePageBookText = (prefix?: string, page?: string | number | null | undefined, book?: string | number | null | undefined, suffix?: string) => {
+            doc.text(prefix || '', leftMargin, y)
             let currentX = leftMargin + doc.getTextWidth(prefix + ' ')
 
             const pageStr = page !== null && page !== undefined ? page.toString() : ''
@@ -169,22 +208,21 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             doc.line(currentX, y + 1, currentX + (pageStr ? doc.getTextWidth(pageStr) : 40), y + 1)
             currentX += doc.getTextWidth(pageStr + ' ')
 
-            doc.text('book number', currentX, y)
-            currentX += doc.getTextWidth('book number ')
-
             const bookStr = book !== null && book !== undefined ? book.toString() : ''
             doc.text(bookStr, currentX, y)
             doc.line(currentX, y + 1, currentX + (bookStr ? doc.getTextWidth(bookStr) : 40), y + 1)
 
             currentX += doc.getTextWidth(bookStr)
-            doc.text(suffix, currentX, y)
+            doc.text(suffix || '', currentX, y)
             y += lineHeight
         }
 
         if (data.form) {
             // Update type checks to use specificForm
             if (data.form.formType === 'FORM_1A' && data.form.specificForm && 'nameOfChild' in data.form.specificForm) {
-                underlinePageBookText('We certify that the following birth appears in our Register of Births on page ', data.pageNo, data.bookNo, ':')
+                underlinePageBookText('We certify that the following birth appears in our Register of Births on, page: ', data.pageNo)
+                underlinePageBookText('book number: ', data.bookNo)
+                spaceY(10)
 
                 renderField("Registry Number:", data.lcrNo)
                 renderField("Date of Registration:", data.form.specificForm.dateOfBirth.toLocaleDateString())
@@ -237,7 +275,6 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
                     ["Mother:", data.form.specificForm.husbandMother || '', data.form.specificForm.wifeMother || '']
                 ]
 
-                // [Rest of the marriage section remains the same]
                 marriageFields.forEach(([label, husbandValue, wifeValue]) => {
                     doc.text(label, leftMargin, y)
                     const husbandWidth = doc.getTextWidth(husbandValue)
@@ -265,30 +302,29 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             }
 
             // Example usage
+            spaceY(10)
             concat("This certification is issued to ", data.requesterName, " upon his/her request for ", data.purpose)
 
-            y += lineHeight + 1
-            doc.text("Prepared by:", leftMargin, y)
-            doc.text("Verified by:", doc.internal.pageSize.width / 2, y)
+            // Add spacing before signature block
+            y += lineHeight + 10;
 
-            y += lineHeight + 1
-            doc.setFont("helvetica", "bold")
-            doc.text(data.form.preparedByName, leftMargin, y)
-            doc.text(data.form.verifiedByName, doc.internal.pageSize.width / 2, y)
+            // Use the signature block function
+            y = createSignatureBlock(
+                doc,
+                {
+                    preparedByName: data.form.preparedByName,
+                    preparedByPosition: data.form.preparedByPosition,
+                    verifiedByName: data.form.verifiedByName,
+                    verifiedByPosition: data.form.verifiedByPosition,
+                    civilRegistrar: data.form.civilRegistrar,
+                    civilRegistrarPosition: data.form.civilRegistrarPosition,
+                },
+                y,
+                leftMargin
+            );
 
-            y += lineHeight
-            doc.setFont("helvetica", "normal")
-            doc.text(data.form.preparedByPosition, leftMargin, y)
-            doc.text(data.form.verifiedByPosition, doc.internal.pageSize.width / 2, y)
-
-            y += lineHeight + 1
-            doc.setFont("helvetica", "bold")
-            doc.text(data.form.civilRegistrar, doc.internal.pageSize.width / 2, y, { align: "center" })
-            y += lineHeight + 1
-            doc.setFont("helvetica", "normal")
-            doc.text(data.form.civilRegistrarPosition, doc.internal.pageSize.width / 2, y, { align: "center" })
-
-            y += lineHeight + 1
+            // this is the footer
+            y += lineHeight + 5;
             renderField("Amount Paid:", data.amountPaid && data.amountPaid > 0 ? `₱${data.amountPaid.toFixed(2)}` : undefined)
             renderField("O.R. Number:", data.orNumber || undefined)
             renderField("Date Paid:", data.datePaid?.toLocaleDateString() || undefined)
