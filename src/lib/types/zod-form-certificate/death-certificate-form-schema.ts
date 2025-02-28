@@ -23,24 +23,43 @@ const deceasedInformationSchema = z.object({
   sex: z
     .preprocess(
       (val) => (val === '' ? undefined : val),
-      z.enum(['Male', 'Female']).optional()
+      z.union([z.enum(['Male', 'Female']), z.undefined()])
     )
-    .refine((val) => val !== undefined, {
-      message: 'Sex is required',
+    .superRefine((val, ctx) => {
+      if (val === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Sex is required',
+        });
+      }
     }),
   dateOfDeath: createDateFieldSchema({
     requiredError: 'Date of death is required',
     futureError: 'Date of death cannot be in the future',
   }),
-  timeOfDeath: z.preprocess((val) => {
-    if (typeof val === 'string' && val.trim() !== '') {
-      const [hours, minutes] = val.split(':');
-      const date = new Date();
-      date.setHours(Number(hours), Number(minutes), 0, 0);
-      return date;
-    }
-    return val;
-  }, z.date({ required_error: 'Time of death is required' })),
+  timeOfDeath: z.preprocess(
+    (val) => {
+      if (val == null || val === '') return undefined; // Handle empty values
+      if (typeof val === 'string' && val.trim() !== '') {
+        const [hours, minutes] = val.split(':');
+        const date = new Date();
+        date.setHours(Number(hours), Number(minutes), 0, 0);
+        return date;
+      }
+      return val;
+    },
+    z
+      .date({ required_error: 'Time of death is required' })
+      .optional() // Make the schema accept undefined
+      .superRefine((val, ctx) => {
+        if (val === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Time of death is required',
+          });
+        }
+      })
+  ),
   dateOfBirth: createDateFieldSchema({
     requiredError: 'Date of birth is required',
     futureError: 'Date of birth cannot be in the future',
@@ -59,8 +78,13 @@ const deceasedInformationSchema = z.object({
         .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
         .optional()
     )
-    .refine((val) => val !== undefined, {
-      message: 'Civil status is required',
+    .superRefine((val, ctx) => {
+      if (val === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Civil status is required',
+        });
+      }
     }),
 
   religion: religionSchema,
@@ -152,8 +176,13 @@ const medicalCertificateSchema = z.object({
             ])
             .optional()
         )
-        .refine((val) => val !== undefined, {
-          message: 'Please select an attendant type',
+        .superRefine((val, ctx) => {
+          if (val === undefined) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Please select an attendant type',
+            });
+          }
         }),
       othersSpecify: z.string().optional(),
       duration: z
@@ -193,7 +222,7 @@ const medicalCertificateSchema = z.object({
           path: ['othersSpecify'],
         });
       }
-      if (data.type !== 'None') {
+      if (data.type !== 'None' && data.type !== undefined) {
         if (!data.duration || !data.duration.from || !data.duration.to) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
