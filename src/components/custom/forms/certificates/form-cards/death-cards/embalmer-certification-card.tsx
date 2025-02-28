@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const EmbalmerCertificationCard: React.FC = () => {
   const { control, watch } = useFormContext<DeathCertificateFormValues>();
@@ -52,7 +53,10 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Sign here' />
+                <SignatureUploader
+                  name='embalmerCertification.signature'
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

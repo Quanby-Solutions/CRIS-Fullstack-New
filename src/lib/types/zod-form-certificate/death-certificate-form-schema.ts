@@ -6,6 +6,7 @@ import {
   nameSchema,
   paginationSchema,
   parentInfoSchema,
+  placeOfDeathSchema,
   processingDetailsSchema,
   provinceSchema,
   registryNumberSchema,
@@ -50,8 +51,18 @@ const deceasedInformationSchema = z.object({
     days: z.string().optional(),
     hours: z.string().optional(),
   }),
-  placeOfDeath: residenceSchema,
-  civilStatus: z.string().nonempty('Civil status is required'),
+  placeOfDeath: placeOfDeathSchema,
+  civilStatus: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z
+        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
+        .optional()
+    )
+    .refine((val) => val !== undefined, {
+      message: 'Civil status is required',
+    }),
+
   religion: religionSchema,
   citizenship: citizenshipSchema,
   residence: residenceSchema,
@@ -263,7 +274,6 @@ const embalmerCertificationSchema = z
   .optional();
 
 // delayedRegistrationSchema with updates for the affidavit
-// Replace your previous delayedRegistrationSchema with:
 const delayedRegistrationSchema = z
   .object({
     affiant: z.object({
