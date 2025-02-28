@@ -3,8 +3,8 @@
 import { Session } from 'next-auth'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import type { Feedback } from '@prisma/client'
-import { ColumnDef, Row } from '@tanstack/react-table'
+import type { Feedback, User } from '@prisma/client'
+import { ColumnDef } from '@tanstack/react-table'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
@@ -100,8 +100,7 @@ export const useCreateFeedbackColumns = (
             enableSorting: false,
             enableHiding: false,
             cell: ({ row }) => {
-                // Hide actions if this feedback was submitted by the current session user
-                if (session?.user?.email === (row.getValue('user') as any)?.email) {
+                if (session?.user?.email === (row.getValue('user') as User)?.email) {
                     return null
                 }
                 return (

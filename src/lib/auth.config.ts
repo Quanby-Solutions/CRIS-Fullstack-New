@@ -1,3 +1,4 @@
+// src/lib/auth.config.ts
 import { prisma } from '@/lib/prisma'
 import { signInSchema } from '@/lib/validation'
 import type { Permission, Account } from '@prisma/client'
@@ -12,7 +13,10 @@ export const authConfig: NextAuthConfig = {
       async authorize(credentials) {
         try {
           const parsedCredentials = signInSchema.safeParse(credentials)
-          if (!parsedCredentials.success) return null
+          if (!parsedCredentials.success) {
+            console.log('Credential validation failed');
+            return null;
+          }
 
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string },
@@ -29,17 +33,39 @@ export const authConfig: NextAuthConfig = {
                 }
               }
             }
-          }) as (UserWithRoleAndProfile & { accounts: Account[] }) | null
+          }) as (UserWithRoleAndProfile & { accounts: Account[] }) | null;
 
-          if (!user?.accounts?.[0]?.password || !user.emailVerified) {
-            return null
+          console.log('User found:', !!user);
+
+          if (!user) {
+            console.log('No user found');
+            return null;
           }
 
+          if (!user.accounts?.[0]?.password) {
+            console.log('No account with password found');
+            return null;
+          }
+
+          if (!user.emailVerified) {
+            console.log('Email not verified');
+            return null;
+          }
+
+          // Log parts of the credentials for debugging
+          console.log('Email being used for login:', credentials.email);
+          console.log('Password length being used for login:',
+            credentials.password ? (credentials.password as string).length : 0);
+
+          // Add additional debugging for the password comparison
           const isPasswordValid = await compare(
             credentials.password as string,
             user.accounts[0].password
-          )
-          if (!isPasswordValid) return null
+          );
+
+          console.log('Password valid:', isPasswordValid);
+
+          if (!isPasswordValid) return null;
 
           const permissions = new Set<Permission>()
           user.roles.forEach((userRole) => {
@@ -64,8 +90,8 @@ export const authConfig: NextAuthConfig = {
             permissions: Array.from(permissions)
           }
         } catch (error) {
-          console.error('Auth error:', error)
-          return null
+          console.error('Detailed auth error:', error);
+          return null;
         }
       },
     }),

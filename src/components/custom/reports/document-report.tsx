@@ -381,37 +381,43 @@ export const DocumentReport = () => {
                     </div>
                 ) : (
                     <>
+
                         <div className="overflow-x-auto">
-                            <Table className="min-w-full">
+                            <Table className="min-w-full table-fixed">
                                 <TableHeader className="bg-muted">
                                     <TableRow>
-                                        <TableHead>Period</TableHead>
-                                        <TableHead className="text-right">Total Documents</TableHead>
-                                        <TableHead className="text-right">Processed</TableHead>
-                                        <TableHead className="text-right">Pending</TableHead>
-                                        <TableHead className="text-right">Avg. Processing Time</TableHead>
-                                        <TableHead className="text-right">Marriage</TableHead>
-                                        <TableHead className="text-right">Birth</TableHead>
-                                        <TableHead className="text-right">Death</TableHead>
+                                        <TableHead className="bg-muted">Period</TableHead>
+                                        <TableHead className="bg-muted text-right">Total Documents</TableHead>
+                                        <TableHead className="bg-muted text-right">Processed</TableHead>
+                                        <TableHead className="bg-muted text-right">Pending</TableHead>
+                                        <TableHead className="bg-muted text-right">Avg. Processing Time</TableHead>
+                                        <TableHead className="bg-muted text-right">Marriage</TableHead>
+                                        <TableHead className="bg-muted text-right">Birth</TableHead>
+                                        <TableHead className="bg-muted text-right">Death</TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody>
-                                    {reportData.map((item: ReportDataItem) => (
-                                        <TableRow key={item.period}>
-                                            <TableCell>{item.period}</TableCell>
-                                            <TableCell className="text-right">{item.totalDocuments}</TableCell>
-                                            <TableCell className="text-right">{item.processedDocuments}</TableCell>
-                                            <TableCell className="text-right">{item.pendingDocuments}</TableCell>
-                                            <TableCell className="text-right">{item.averageProcessingTime}</TableCell>
-                                            <TableCell className="text-right">{item.marriageCount}</TableCell>
-                                            <TableCell className="text-right">{item.birthCount}</TableCell>
-                                            <TableCell className="text-right">{item.deathCount}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
                             </Table>
-                        </div>
 
+                            <div className="relative overflow-y-auto max-h-[40dvh]">
+                                <Table className="min-w-full table-fixed">
+                                    <TableBody>
+                                        {reportData.map((item: ReportDataItem) => (
+                                            <TableRow key={item.period}>
+                                                <TableCell>{item.period}</TableCell>
+                                                <TableCell className="text-right">{item.totalDocuments}</TableCell>
+                                                <TableCell className="text-right">{item.processedDocuments}</TableCell>
+                                                <TableCell className="text-right">{item.pendingDocuments}</TableCell>
+                                                <TableCell className="text-right">{item.averageProcessingTime}</TableCell>
+                                                <TableCell className="text-right">{item.marriageCount}</TableCell>
+                                                <TableCell className="text-right">{item.birthCount}</TableCell>
+                                                <TableCell className="text-right">{item.deathCount}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                        </div>
                         {totalPages > 1 && (
                             <div className="mt-4 flex justify-center">
                                 <Pagination>

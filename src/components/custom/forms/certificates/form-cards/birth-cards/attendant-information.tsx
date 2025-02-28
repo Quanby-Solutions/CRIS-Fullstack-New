@@ -66,6 +66,22 @@ const AttendantInformationCard: React.FC = () => {
                           </FormItem>
                         )
                       )}
+
+                      {/* {['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'].map(
+                        (type) => (
+                          <FormItem
+                            key={type}
+                            className='flex items-center space-x-3 space-y-0'
+                          >
+                            <FormControl>
+                              <RadioGroupItem value={type} />
+                            </FormControl>
+                            <FormLabel className='font-normal'>
+                              {type}
+                            </FormLabel>
+                          </FormItem>
+                        )
+                      )} */}
                     </RadioGroup>
                   </FormControl>
                   {showOtherInput && (

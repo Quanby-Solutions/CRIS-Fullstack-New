@@ -261,19 +261,23 @@ export function DataTableRowActions({
 
       {/* Dialogs */}
       {canEdit && (
-        <EditCivilRegistryFormDialog
-          form={form}
-          open={editDialogOpen}
-          onOpenChangeAction={setEditDialogOpen}
-          onSaveAction={async (updatedForm) => {
-            toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
-            onUpdateForm?.(updatedForm)
-            setEditDialogOpen(false)
-            return Promise.resolve()
-          }}
-          editType={form.formType}
-        />
-      )}
+  <>
+    <EditCivilRegistryFormDialog
+      form={form}
+      open={editDialogOpen}
+      onOpenChangeAction={setEditDialogOpen}
+      onSaveAction={async (updatedForm) => {
+        toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
+        onUpdateForm?.(updatedForm)
+        setEditDialogOpen(false)
+        return Promise.resolve()
+      }}
+      editType={form.formType}
+    />
+    
+  </>
+)}
+
 
       {canDelete && (
         <DeleteConfirmationDialog

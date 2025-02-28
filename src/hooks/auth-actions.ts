@@ -28,12 +28,15 @@ export async function handleCredentialsSignin({
             role: true,
           },
         },
+        accounts: true,
       },
     });
 
+    console.log('User found:', !!user);
+
     // Deny access if the user is not found or if all assigned roles have the name "User"
-    // (meaning regular users are not allowed to sign in).
     if (!user || user.roles.every((ur) => ur.role?.name === 'User')) {
+      console.log('Access denied due to user not found or role restrictions');
       return {
         success: false,
         message: 'Access denied. Regular users are not allowed to log in.',
@@ -42,18 +45,31 @@ export async function handleCredentialsSignin({
 
     // If the account is deactivated (for example, not verified), return a custom error.
     if (!user.emailVerified) {
+      console.log('Account not verified');
       return {
         success: false,
         message: 'Account disabled. Contact admin.',
       };
     }
 
+    // Check if account exists with a valid password
+    if (!user.accounts?.[0]?.password) {
+      console.log('No valid account found');
+      return {
+        success: false,
+        message: 'Invalid credentials. Please try again.',
+      };
+    }
+
     // Attempt sign in using NextAuth's signIn function.
+    console.log('Attempting sign in with credentials');
     const result = await signIn('credentials', {
       email,
       password,
-      redirect: false,
-    });
+      redirect: false
+    }); // Fixed: removed the extra curly brace
+
+    console.log('Sign in result:', result);
 
     if (result?.error) {
       return {
@@ -67,7 +83,7 @@ export async function handleCredentialsSignin({
       redirectTo: '/dashboard',
     };
   } catch (error) {
-    console.error('Signin error:', error);
+    console.error('Signin error detail:', error);
 
     if (error instanceof AuthError) {
       return {

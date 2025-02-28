@@ -1,5 +1,7 @@
+// src\app\(dashboard)\notifications\page.tsx
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { NotificationList } from '@/components/custom/notification/notification-list'
 
@@ -21,16 +23,24 @@ export default async function ProfilePage() {
     }
 
     return (
-        <>
-            <DashboardHeader
-                breadcrumbs={[
-                    { label: 'Dashboard', href: '/dashboard', active: false },
-                    { label: 'Notifications', href: '/notifications', active: true },
-                ]}
-            />
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <NotificationList userId={userId} />
+
+        <div className="flex flex-col h-screen">
+            <div className="flex-none">
+                <DashboardHeader
+                    breadcrumbs={[
+                        { label: 'Dashboard', href: '/dashboard', active: false },
+                        { label: 'Notifications', href: '/notifications', active: true },
+                    ]}
+                />
             </div>
-        </>
+
+            <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                    <div className="p-4">
+                        <NotificationList />
+                    </div>
+                </ScrollArea>
+            </div>
+        </div>
     )
 }

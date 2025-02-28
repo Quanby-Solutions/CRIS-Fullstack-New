@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ProfileSection } from '@/components/custom/users/components/edit-user-dialog/profile-section'
 import { PasswordSection } from '@/components/custom/users/components/edit-user-dialog/password-section'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -13,6 +13,13 @@ interface EditUserDialogProps {
 
 export function EditUserDialog({ user, open, onOpenChangeAction, onSave }: EditUserDialogProps) {
   const [showPasswordForm, setShowPasswordForm] = useState(false)
+
+  // Reset password form view when dialog opens for a different user
+  useEffect(() => {
+    if (open) {
+      setShowPasswordForm(false)
+    }
+  }, [open, user.id])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>

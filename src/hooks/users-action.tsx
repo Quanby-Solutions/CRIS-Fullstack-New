@@ -1,6 +1,7 @@
 // src/hooks/users-action.tsx
 'use server'
 
+import { headers } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { hash, compare } from 'bcryptjs'
@@ -8,8 +9,32 @@ import { revalidatePath } from 'next/cache'
 import { UserWithRoleAndProfile } from '@/types/user'
 import { changePasswordSchema } from '@/lib/validation/auth/change-password'
 import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
-import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared'
 import { AttachmentType, DocumentStatus, NotificationType, Permission } from '@prisma/client'
+
+/**
+ * Gets the base URL for API calls
+ */
+async function getBaseUrl() {
+  // First try the environment variable
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (envUrl) return envUrl
+
+  // Hard-code the URL if needed for development
+  return 'http://localhost:3000'
+
+  // Headers approach can cause issues in server components depending on the context
+  // Commented out to avoid potential issues
+  /*
+  try {
+    const headersList = headers()
+    const host = headersList.get('host') || 'localhost:3000'
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    return `${protocol}://${host}`
+  } catch (e) {
+    return 'http://localhost:3000'
+  }
+  */
+}
 
 /**
  * Sends a notification to a single user.
@@ -21,15 +46,36 @@ async function notify(
   tx?: typeof prisma
 ) {
   const db = tx || prisma
-  return db.notification.create({
+  const notification = await db.notification.create({
     data: {
       userId,
       userName: 'System',
       type: NotificationType.SYSTEM,
       title,
       message,
+      status: [],
     },
   })
+
+  // If we have a valid userId, trigger an SSE update
+  if (userId) {
+    try {
+      const baseUrl = await getBaseUrl()
+      await fetch(`${baseUrl}/api/notifications/broadcast`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // No need to specify userId since broadcast handles all clients
+      }).catch(error => {
+        console.error('Failed to broadcast notification update:', error)
+      })
+    } catch (error) {
+      console.error('Failed to trigger notification update:', error)
+    }
+  }
+
+  return notification
 }
 
 /**
@@ -57,7 +103,8 @@ export async function notifyUsersWithPermission(
     },
     select: { id: true },
   })
-  return Promise.all(
+
+  const notifications = await Promise.all(
     users.map((user) =>
       db.notification.create({
         data: {
@@ -66,10 +113,34 @@ export async function notifyUsersWithPermission(
           type: NotificationType.SYSTEM,
           title,
           message,
+          status: [],
         },
       })
     )
   )
+
+  // Just broadcast once to update all clients
+  try {
+    const baseUrl = await getBaseUrl()
+
+    // Make a direct call to broadcast
+    await fetch(`${baseUrl}/api/notifications/broadcast`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ forceUpdate: true }),
+    }).catch(error => {
+      console.error('Failed to broadcast notification update:', error)
+    })
+
+    // Revalidate the path to ensure UI updates
+    revalidatePath('/api/notifications')
+  } catch (error) {
+    console.error('Failed to broadcast notification update:', error)
+  }
+
+  return notifications
 }
 
 // ===================================================
