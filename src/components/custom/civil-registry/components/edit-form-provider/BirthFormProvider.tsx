@@ -345,7 +345,7 @@ export function EditBirthCivilRegistryFormInline({
       date: new Date(),
       place: {
         houseNo: '',
-        street: '',
+        st: '',
         barangay: '',
         cityMunicipality: '',
         province: '',
@@ -363,7 +363,7 @@ export function EditBirthCivilRegistryFormInline({
       const pmDate = pm.date ? new Date(pm.date) : new Date();
       let pmPlace: MarriagePlace = {
         houseNo: '',
-        street: '',
+        st: '',
         barangay: '',
         cityMunicipality: '',
         province: '',
@@ -385,21 +385,6 @@ export function EditBirthCivilRegistryFormInline({
       }
       parentMarriage = { date: pmDate, place: pmPlace };
     }
-    // Extract raw parent marriage data
-    const rawParentMarriage = form.birthCertificateForm?.parentMarriage;
-
-    // Default structure for parentMarriage
-    let parentMarriage: ParentMarriage = {
-      date: new Date(),
-      place: {
-        houseNo: '',
-        st: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: '',
-      },
-    };
 
     // Validate and transform rawParentMarriage
     if (
@@ -726,11 +711,11 @@ export function EditBirthCivilRegistryFormInline({
         bookNumber: data.pagination?.bookNumber || form.bookNumber,
         remarks: data.remarks || null,
         preparedBy: preparedByValue,
-        preparedByDate: data.preparedBy.date,
+        preparedByDate: data.preparedBy.date || null,
         receivedBy: data.receivedBy.nameInPrint || null,
-        receivedByDate: data.receivedBy.date,
+        receivedByDate: data.receivedBy.date || null,
         registeredBy: data.registeredByOffice.nameInPrint || null,
-        registeredByDate: data.registeredByOffice.date,
+        registeredByDate: data.registeredByOffice.date || null,
         updatedAt: new Date(),
       };
 
