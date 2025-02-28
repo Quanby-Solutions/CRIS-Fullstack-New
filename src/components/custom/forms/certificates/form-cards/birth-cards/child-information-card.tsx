@@ -18,14 +18,34 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import LocationSelector from '../shared-components/location-selector'
 import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 const ChildInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>()
+  const { control, watch } = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
+
+  // Watch the province value
+  const province = watch('childInfo.placeOfBirth.province')
+
+  // Helper: Extract the province string
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label
+    }
+    return ''
+  }
+
+
+  useEffect(() => {
+    const provinceString = getProvinceString(province)
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+    setNcrMode(shouldBeNCR)
+  }, []) 
 
   return (
     <Card>

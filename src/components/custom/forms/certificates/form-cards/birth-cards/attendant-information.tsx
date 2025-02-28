@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import LocationSelector from '../shared-components/location-selector';
@@ -21,9 +21,29 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import SignatureUploader from '../shared-components/signature-uploader';
 
 const AttendantInformationCard: React.FC = () => {
-  const { control, setValue } = useFormContext<BirthCertificateFormValues>();
+
+
+  const { control, setValue, watch } = useFormContext<BirthCertificateFormValues>();
   const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
   const [showOtherInput, setShowOtherInput] = useState(false);
+
+  const province = watch('attendant.certification.address.province');
+
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue;
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label;
+    }
+    return '';
+  };
+
+  useEffect(() => {
+    const provinceString = getProvinceString(province);
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
+    setAttendantAddressNcrMode(shouldBeNCR);
+  }, []);
+
 
   return (
     <Card>
