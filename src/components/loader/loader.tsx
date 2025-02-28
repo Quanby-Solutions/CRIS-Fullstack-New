@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import Lottie from "lottie-react"
+import check from "@lottie/loading.json"
 
 export interface LoaderProps {
   size?: "sm" | "md" | "lg"
@@ -18,15 +20,15 @@ export function Loader({ size = "md", variant = "spinner", className }: LoaderPr
 
   // Default spinner
   return (
-    <motion.div
-      className={cn("border-4 border-primary/30 border-t-primary rounded-full", sizeClasses[size], className)}
-      animate={{ rotate: 360 }}
-      transition={{
-        duration: 1,
-        repeat: Number.POSITIVE_INFINITY,
-        ease: "linear",
-      }}
-    />
+    <div className=" flex justify-center items-center">
+      <Lottie
+        animationData={check}
+        loop={true}
+        autoPlay={true}
+        className="w-72 h-w-72"
+      />
+    </div>
+
   )
 }
 
