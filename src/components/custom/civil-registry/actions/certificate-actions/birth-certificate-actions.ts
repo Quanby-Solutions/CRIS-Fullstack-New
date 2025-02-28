@@ -2,6 +2,7 @@
 'use server';
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import { isFileLike } from '@/lib/utils/file-helper';
 import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -79,39 +80,37 @@ export async function submitBirthCertificateForm(
           },
         });
 
-        await tx.user.updateMany({
-          where: {
-            id: {
-              in: [preparedByUser.id, receivedByUser.id, registeredByUser.id],
+        // For prepared by
+        if (isFileLike(formData.preparedBy.signature)) {
+          await tx.user.update({
+            where: { id: preparedByUser.id },
+            data: {
+              eSignature: await fileToBase64(formData.preparedBy.signature),
             },
-          },
-          data: {
-            eSignature:
-              formData.preparedBy.signature instanceof File
-                ? await fileToBase64(formData.preparedBy.signature)
-                : formData.preparedBy.signature, // If it's already base64, leave it unchanged
-          },
-        });
+          });
+        }
 
-        await tx.user.update({
-          where: { id: receivedByUser.id },
-          data: {
-            eSignature:
-              formData.receivedBy.signature instanceof File
-                ? await fileToBase64(formData.receivedBy.signature)
-                : formData.receivedBy.signature,
-          },
-        });
+        // For received by
+        if (isFileLike(formData.receivedBy.signature)) {
+          await tx.user.update({
+            where: { id: receivedByUser.id },
+            data: {
+              eSignature: await fileToBase64(formData.receivedBy.signature),
+            },
+          });
+        }
 
-        await tx.user.update({
-          where: { id: registeredByUser.id },
-          data: {
-            eSignature:
-              formData.registeredByOffice.signature instanceof File
-                ? await fileToBase64(formData.registeredByOffice.signature)
-                : formData.registeredByOffice.signature,
-          },
-        });
+        // For registered by
+        if (isFileLike(formData.registeredByOffice.signature)) {
+          await tx.user.update({
+            where: { id: registeredByUser.id },
+            data: {
+              eSignature: await fileToBase64(
+                formData.registeredByOffice.signature
+              ),
+            },
+          });
+        }
 
         // Helper function to convert Date to ISO string for JSON
         const dateToJSON = (date: Date) => date.toISOString();
@@ -126,7 +125,7 @@ export async function submitBirthCertificateForm(
               last: formData.childInfo.lastName,
             } as Prisma.JsonObject,
             sex: formData.childInfo.sex,
-            dateOfBirth: formData.childInfo.dateOfBirth,
+            dateOfBirth: formData.childInfo.dateOfBirth!,
             placeOfBirth: formData.childInfo.placeOfBirth as Prisma.JsonObject,
             typeOfBirth: formData.childInfo.typeOfBirth,
             multipleBirthOrder: formData.childInfo.multipleBirthOrder || '',
@@ -184,16 +183,16 @@ export async function submitBirthCertificateForm(
               certification: {
                 ...formData.attendant.certification,
                 time: dateToJSON(formData.attendant.certification.time),
-                date: dateToJSON(formData.attendant.certification.date),
+                date: dateToJSON(formData.attendant.certification.date!),
               },
             } as unknown as Prisma.JsonObject,
             informant: {
               ...formData.informant,
-              date: dateToJSON(formData.informant.date),
+              date: dateToJSON(formData.informant.date!),
             } as unknown as Prisma.JsonObject,
             preparer: {
               ...formData.preparedBy,
-              date: dateToJSON(formData.preparedBy.date),
+              date: dateToJSON(formData.preparedBy.date!),
             } as unknown as Prisma.JsonObject,
             hasAffidavitOfPaternity: formData.hasAffidavitOfPaternity,
             affidavitOfPaternityDetails:

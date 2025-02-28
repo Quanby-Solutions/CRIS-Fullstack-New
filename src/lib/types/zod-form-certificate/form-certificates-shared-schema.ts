@@ -62,16 +62,26 @@ export const createDateFieldSchema = (options?: {
 // PROCESSING DETAILS: "Prepared By", "Received By", "Registered By"
 // Each has Signature, Name in Print, Title/Position, and Date
 // ─────────────────────────────────────────────────────────────────────────────
-
 export const signatureSchema = z.union([
-  z
-    .instanceof(File, { message: 'A signature file is required' })
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: 'File size must be less than 5MB',
-    })
-    .refine((file) => file.type.startsWith('image/'), {
-      message: 'File must be an image (e.g., PNG, JPEG)',
-    }),
+  z.custom<File | string | any>(
+    (val) => {
+      // Check if we're in browser and it's a File
+      if (
+        typeof window !== 'undefined' &&
+        typeof File !== 'undefined' &&
+        val instanceof File
+      ) {
+        return true;
+      }
+      // On server, accept something that resembles file-like object
+      if (val && typeof val === 'object' && 'size' in val && 'type' in val) {
+        return true;
+      }
+      // Also accept string (for base64)
+      return typeof val === 'string' && val.length > 0;
+    },
+    { message: 'Invalid signature format' }
+  ),
   z.string().min(1, 'A signature is required'),
 ]);
 
