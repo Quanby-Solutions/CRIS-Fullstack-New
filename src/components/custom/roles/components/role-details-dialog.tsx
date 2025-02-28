@@ -25,8 +25,7 @@ interface RoleDetailsDialogProps {
     onOpenChangeAction: (open: boolean) => void
 }
 
-export function RoleDetailsDialog({ role, onCloseAction, isOpen, onOpenChangeAction }: RoleDetailsDialogProps) {
-    // Group permissions by the prefix (before the underscore)
+export function RoleDetailsDialog({ role, onCloseAction }: RoleDetailsDialogProps) {
     const groupedPermissions = role.permissions.reduce<Record<string, string[]>>((acc, perm) => {
         const [group] = perm.split('_')
         if (!acc[group]) acc[group] = []
@@ -134,7 +133,7 @@ export function RoleDetailsDialog({ role, onCloseAction, isOpen, onOpenChangeAct
                                         ))
                                     ) : (
                                         <div className="py-2 text-center text-sm text-muted-foreground">
-                                            No permissions found matching "{permissionSearch}"
+                                            No permissions found matching &quot;{permissionSearch}&quot;
                                         </div>
                                     )}
                                 </div>
@@ -188,7 +187,7 @@ export function RoleDetailsDialog({ role, onCloseAction, isOpen, onOpenChangeAct
                                         </div>
                                     ) : (
                                         <div className="py-4 text-center text-sm text-muted-foreground">
-                                            No users found matching "{userSearch}"
+                                            No users found matching &quot;{userSearch}&quot;
                                         </div>
                                     )}
 

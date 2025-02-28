@@ -51,10 +51,10 @@ export async function POST(request: Request) {
         })
 
         return NextResponse.json({ success: true, role: newRole }, { status: 201 })
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error creating role:', error)
         return NextResponse.json(
-            { success: false, error: error?.message || 'Failed to create role' },
+            { success: false, error: error instanceof Error ? error.message : 'Failed to create role' },
             { status: 400 }
         )
     }
@@ -73,7 +73,7 @@ export async function GET() {
         })
 
         return NextResponse.json({ success: true, roles }, { status: 200 })
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error fetching roles:', error)
         return NextResponse.json(
             { success: false, error: 'Failed to fetch roles' },

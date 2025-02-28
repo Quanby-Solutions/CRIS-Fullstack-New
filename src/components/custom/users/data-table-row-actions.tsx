@@ -37,6 +37,12 @@ export function DataTableRowActions({
   onUpdateUser,
   onDeleteUser,
 }: DataTableRowActionsProps) {
+  // Add defensive check at the beginning of the component
+  if (!row || !row.original || !row.original.id) {
+    console.error('Invalid row data provided to DataTableRowActions');
+    return null;
+  }
+
   const user = row.original
 
   const { roles, loading: rolesLoading, error: rolesError } = useRoles()
@@ -141,6 +147,14 @@ export function DataTableRowActions({
     setShowEditDialog(false)
   }
 
+  // Add null checks for the roles property
+  const userHasRole = (roleId: string) => {
+    if (!user.roles || !Array.isArray(user.roles)) {
+      return false;
+    }
+    return user.roles.some(r => r && r.role && r.role.id === roleId);
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -179,7 +193,7 @@ export function DataTableRowActions({
                     {rolesError}
                   </DropdownMenuItem>
                 ) : (
-                  roles.map((roleItem) => (
+                  Array.isArray(roles) && roles.map((roleItem) => (
                     <DropdownMenuItem
                       key={roleItem.id}
                       onClick={() => {
@@ -188,7 +202,7 @@ export function DataTableRowActions({
                       }}
                     >
                       {roleItem.name}
-                      {user.roles.some(r => r.role.id === roleItem.id) && (
+                      {userHasRole(roleItem.id) && (
                         <Icons.check className="ml-auto h-4 w-4" />
                       )}
                     </DropdownMenuItem>
