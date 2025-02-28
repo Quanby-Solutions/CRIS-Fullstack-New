@@ -1,7 +1,6 @@
 // src/hooks/users-action.tsx
 'use server'
 
-import { headers } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { hash, compare } from 'bcryptjs'

@@ -81,33 +81,9 @@ export default function MarriageCertificateForm({
                       <RemarksCard />
                       <AffidavitOfSolemnizingOfficer />
                       <AffidavitForDelayedMarriageRegistration />
-
-
-                      {/* <ConfirmationDialog
-                    open={showAlert}
-                    onOpenChange={setShowAlert}
-                    onConfirm={confirmSubmit}
-                    isSubmitting={isSubmitting}
-                    formType='MARRIAGE'
-                    title='Duplicate Record Detected'
-                    description='A similar marriage record already exists. Do you want to proceed with saving this record?'
-                    confirmButtonText='Proceed'
-                    cancelButtonText='Cancel'
-                  /> */}
                     </div>
                   </ScrollArea>
                 </div>
-
-                {/* Right Side - Preview */}
-                {/* <div className='w-1/2'>
-                  <div className='h-[calc(95vh-120px)]'>
-                    <PDFViewer width='100%' height='100%'>
-                      <MarriageCertificatePDF
-                        data={formMethods.watch()} // Pass the current form data directly to the PDF preview
-                      />
-                    </PDFViewer>
-                  </div>
-                </div> */}
               </div>
             </div>
             <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>

@@ -1,15 +1,16 @@
 'use client'
 
-import { useCallback } from 'react'
-import { Cross2Icon } from '@radix-ui/react-icons'
-import { Table } from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Icons } from '@/components/ui/icons'
 import { Feedback } from '@prisma/client'
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
+import { Table } from '@tanstack/react-table'
+import { Icons } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { Cross2Icon } from '@radix-ui/react-icons'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { useTranslation } from 'react-i18next'
 
 interface DataTableToolbarProps<TData extends Feedback> {
     table: Table<TData>
@@ -24,6 +25,9 @@ export function DataTableToolbar<TData extends Feedback>({
     table,
 }: DataTableToolbarProps<TData>) {
     const { t } = useTranslation()
+
+    const router = useRouter()
+    const [isRefreshing, setIsRefreshing] = useState(false)
 
     const isFiltered = table.getState().columnFilters.length > 0
     const feedbackColumn = table.getColumn('feedback')
@@ -58,6 +62,14 @@ export function DataTableToolbar<TData extends Feedback>({
         link.href = URL.createObjectURL(blob)
         link.download = 'feedback_export.csv'
         link.click()
+    }
+
+    const handleRefresh = () => {
+        setIsRefreshing(true)
+        router.refresh()
+        setTimeout(() => {
+            setIsRefreshing(false)
+        }, 1000)
     }
 
     return (
@@ -101,12 +113,17 @@ export function DataTableToolbar<TData extends Feedback>({
                         onClick={handleExport}
                     >
                         <Icons.download className="mr-2 h-4 w-4" />
-                        {t('Export')} {/* Translated Export text */}
+                        {t('Export')}
                     </Button>
 
                     <DataTableViewOptions table={table} />
 
-                    
+                    <Button variant="outline" onClick={handleRefresh}>
+                        <Icons.refresh
+                            className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                        />
+                    </Button>
+
                 </div>
             </div>
         </div>

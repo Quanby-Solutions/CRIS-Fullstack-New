@@ -174,3 +174,15 @@ export const paginationSchema = z.object({
       { message: 'Book number must be a valid positive number' }
     ),
 });
+
+export const placeOfDeathSchema = z.object({
+  // Name of Hospital/Clinic/Institution
+  hospitalInstitution: z.string().optional(),
+
+  // Address fields
+  houseNo: z.string().optional(),
+  st: z.string().optional(),
+  barangay: z.string().optional(),
+  cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
+  province: provinceSchema, // Reuse shared province schema
+});

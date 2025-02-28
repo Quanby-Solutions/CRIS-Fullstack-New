@@ -2,17 +2,22 @@
 
 import { toast } from 'sonner'
 import { Permission } from '@prisma/client'
+import { useRoles } from '@/hooks/use-roles'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { CheckedState } from '@radix-ui/react-checkbox'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useState, useTransition, useMemo } from 'react'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { useRoles } from '@/hooks/use-roles'
+
+interface CreateRoleResult {
+    error?: string
+    data?: unknown
+}
 
 interface CreateRoleDialogProps {
     isOpen: boolean
@@ -21,7 +26,7 @@ interface CreateRoleDialogProps {
         name: string
         description: string
         permissions: Permission[]
-    }) => Promise<{ error?: string; data?: any } | void>
+    }) => Promise<CreateRoleResult | void>
 }
 
 export function CreateRoleDialog({
@@ -59,17 +64,17 @@ export function CreateRoleDialog({
                     toast.error(t('Name is required'))
                     return
                 }
-    
+
                 if (!description.trim()) {
                     toast.error(t('Description is required'))
                     return
                 }
-    
+
                 if (selectedPermissions.length === 0) {
                     toast.error(t('At least one permission is required'))
                     return
                 }
-    
+
                 // Check if role already exists (client-side)
                 const roleExists = roles.some(
                     (role) => role.name.toLowerCase() === name.trim().toLowerCase()
@@ -79,35 +84,42 @@ export function CreateRoleDialog({
                     toast.error(msg)
                     return
                 }
-    
+
                 const requestData = { name, description, permissions: selectedPermissions }
                 console.log('Creating role with data:', requestData)
                 const result = await createRoleAction(requestData)
-    
-                if (result && typeof result === 'object' && 'error' in result && result.error) {
+
+                if (
+                    result &&
+                    typeof result === 'object' &&
+                    'error' in result &&
+                    result.error
+                ) {
                     const detailedError = t(`Failed to create role: ${result.error}`)
                     console.error('Error creating role:', result.error)
                     toast.error(detailedError)
                     return
                 }
-    
+
                 toast.success(t('Role created successfully'))
-    
+
                 // Reset form
                 setName('')
                 setDescription('')
                 setSelectedPermissions([])
-    
+
                 // Close dialog
                 await onOpenChangeAction(false)
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error('Error creating role:', error)
-                const detailedError = error?.message || t('Unknown error occurred')
+                const detailedError =
+                    error && typeof error === 'object' && 'message' in error
+                        ? (error as { message: string }).message
+                        : t('Unknown error occurred')
                 toast.error(t(`Failed to create role: ${detailedError}`))
             }
         })
     }
-    
 
     const handleOpenChange = (open: boolean) => {
         startTransition(async () => {
@@ -142,91 +154,91 @@ export function CreateRoleDialog({
     }
 
     return (
-<Dialog open={isOpen} onOpenChange={handleOpenChange}>
-    <DialogContent className="w-full max-w-full sm:max-w-2xl p-6 sm:p-8">
-        <DialogHeader>
-            <DialogTitle className="text-lg sm:text-2xl font-bold">
-                {t('Create Role')}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-                {t('Enter the details for the new role.')}
-            </DialogDescription>
-        </DialogHeader>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+            <DialogContent className="w-full max-w-full sm:max-w-2xl p-6 sm:p-8">
+                <DialogHeader>
+                    <DialogTitle className="text-lg sm:text-2xl font-bold">
+                        {t('Create Role')}
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground">
+                        {t('Enter the details for the new role.')}
+                    </DialogDescription>
+                </DialogHeader>
 
-        <div className="space-y-6 mt-4">
-            <div>
-                <Label htmlFor="name" className="block mb-1">
-                    {t('Name')}
-                </Label>
-                <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t('Enter role name')}
-                    className="w-full"
-                />
-            </div>
+                <div className="space-y-6 mt-4">
+                    <div>
+                        <Label htmlFor="name" className="block mb-1">
+                            {t('Name')}
+                        </Label>
+                        <Input
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder={t('Enter role name')}
+                            className="w-full"
+                        />
+                    </div>
 
-            <div>
-                <Label htmlFor="description" className="block mb-1">
-                    {t('Description')}
-                </Label>
-                <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder={t('Enter role description')}
-                    className="w-full"
-                    rows={4}            
-                />
-            </div>
+                    <div>
+                        <Label htmlFor="description" className="block mb-1">
+                            {t('Description')}
+                        </Label>
+                        <Textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder={t('Enter role description')}
+                            className="w-full"
+                            rows={4}
+                        />
+                    </div>
 
-            <div>
-                <Label className="block mb-2">{t('Permissions')}</Label>
-                <ScrollArea className="max-h-[30vh] overflow-y-auto border rounded-md">
-                    <div className="space-y-4 p-4">
-                        {Object.entries(permissionGroups).map(([group, permissions]) => (
-                            <div key={group} className="space-y-2">
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox
-                                        id={`group-${group}`}
-                                        checked={getGroupState(permissions)}
-                                        onCheckedChange={(checked) => toggleGroup(permissions, checked)}
-                                    />
-                                    <Label htmlFor={`group-${group}`} className="text-sm font-semibold">
-                                        {t(group)}
-                                    </Label>
-                                </div>
-                                <div className="ml-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                    {permissions.map((permission) => (
-                                        <div key={permission} className="flex items-center space-x-2">
+                    <div>
+                        <Label className="block mb-2">{t('Permissions')}</Label>
+                        <ScrollArea className="max-h-[30vh] overflow-y-auto border rounded-md">
+                            <div className="space-y-4 p-4">
+                                {Object.entries(permissionGroups).map(([group, permissions]) => (
+                                    <div key={group} className="space-y-2">
+                                        <div className="flex items-center space-x-2">
                                             <Checkbox
-                                                id={permission}
-                                                checked={selectedPermissions.includes(permission)}
-                                                onCheckedChange={(checked) => togglePermission(permission, checked)}
+                                                id={`group-${group}`}
+                                                checked={getGroupState(permissions)}
+                                                onCheckedChange={(checked) => toggleGroup(permissions, checked)}
                                             />
-                                            <Label htmlFor={permission} className="text-sm">
-                                                {permission.replace(/_/g, ' ')}
+                                            <Label htmlFor={`group-${group}`} className="text-sm font-semibold">
+                                                {t(group)}
                                             </Label>
                                         </div>
-                                    ))}
-                                </div>
+                                        <div className="ml-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                            {permissions.map((permission) => (
+                                                <div key={permission} className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={permission}
+                                                        checked={selectedPermissions.includes(permission)}
+                                                        onCheckedChange={(checked) => togglePermission(permission, checked)}
+                                                    />
+                                                    <Label htmlFor={permission} className="text-sm">
+                                                        {permission.replace(/_/g, ' ')}
+                                                    </Label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        </ScrollArea>
                     </div>
-                </ScrollArea>
-            </div>
 
-            <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
-                    {t('Cancel')}
-                </Button>
-                <Button onClick={handleCreateAction} disabled={isPending || !name.trim()}>
-                    {isPending ? t('Creating...') : t('Create')}
-                </Button>
-            </div>
-        </div>
-    </DialogContent>
-</Dialog>
+                    <div className="flex justify-end space-x-2">
+                        <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
+                            {t('Cancel')}
+                        </Button>
+                        <Button onClick={handleCreateAction} disabled={isPending || !name.trim()}>
+                            {isPending ? t('Creating...') : t('Create')}
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }

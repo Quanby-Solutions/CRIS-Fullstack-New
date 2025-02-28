@@ -50,11 +50,33 @@ export function DataTableToolbar<TData extends User>({
     [nameColumn]
   )
 
-  const handleExport = () => {
-    if (canExport) {
-      console.log('Export functionality to be implemented')
+  const handleExport = useCallback(() => {
+    const tableData = table.getFilteredRowModel().rows.map((row) => row.original)
+    if (tableData.length === 0) {
+      console.error("No data available to export")
+      return
     }
-  }
+    // Generate CSV headers from the keys of the first row.
+    const headers = Object.keys(tableData[0]).join(",")
+    const rows = tableData
+      .map((row) =>
+        Object.values(row)
+          .map((value) =>
+            `"${value !== undefined && value !== null ? String(value).replace(/"/g, '""') : ""}"`
+          )
+          .join(",")
+      )
+      .join("\n")
+    const csvContent = `${headers}\n${rows}`
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" })
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(blob)
+    link.download = "users_export.csv"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    console.info("Users exported successfully")
+  }, [table])
 
   const handleRefresh = () => {
     setIsRefreshing(true)

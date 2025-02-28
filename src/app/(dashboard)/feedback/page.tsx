@@ -11,15 +11,20 @@ const breadcrumbs: Breadcrumb[] = [
 
 export default function FeedbackPage() {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-screen">
+      <div className="flex-none">
       <DashboardHeader breadcrumbs={breadcrumbs} />
-      <ScrollArea className="max-h-[calc(100vh-4rem)]">
-        <div className="flex-1 p-4 space-y-4">
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4">
           <Suspense fallback={<FeedbackTableSkeleton />}>
             <FeedbackClientPage />
-          </Suspense>
-        </div>
-      </ScrollArea>
+           </Suspense>
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   )
 }

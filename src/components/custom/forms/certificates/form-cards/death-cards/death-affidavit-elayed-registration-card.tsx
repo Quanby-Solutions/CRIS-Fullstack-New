@@ -1,6 +1,5 @@
 'use client';
 
-import { format } from 'date-fns';
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -12,9 +11,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { format } from 'date-fns';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const AffidavitDelayedRegistrationCard: React.FC = () => {
   const { control, setValue, watch } =
@@ -42,7 +43,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
       </CardHeader>
       <CardContent className='space-y-6'>
         {/* Toggle for Delayed Registration */}
-
 
         {isDelayed && (
           <>
@@ -115,7 +115,10 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Affiant Signature</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='Enter signature' />
+                      <SignatureUploader
+                        name='delayedRegistration.affiant.signature'
+                        onChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -213,10 +216,9 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   </FormItem>
                 )}
               />
-             
             </div>
             <div className='grid md:grid-cols-3 grid-cols-1 gap-4'>
-            {watch('delayedRegistration.attendance.wasAttended') && (
+              {watch('delayedRegistration.attendance.wasAttended') && (
                 <FormField
                   control={control}
                   name='delayedRegistration.attendance.attendedBy'
@@ -234,8 +236,8 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   )}
                 />
               )}
-            {/* Cause of Death & Reason for Delay */}
-            
+              {/* Cause of Death & Reason for Delay */}
+
               <FormField
                 control={control}
                 name='delayedRegistration.causeOfDeath'
@@ -276,7 +278,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   name='delayedRegistration.affidavitDate'
                   render={({ field }) => (
                     <FormItem>
-                
                       <FormControl>
                         <DatePickerField
                           field={{
@@ -319,7 +320,10 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Officer Signature</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Enter signature' />
+                        <SignatureUploader
+                          name='delayedRegistration.adminOfficer.signature'
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

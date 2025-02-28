@@ -28,10 +28,6 @@ import { DataTablePagination } from '@/components/custom/table/data-table-pagina
 import { DataTableToolbar } from './data-table-toolbar'
 import { CardContent } from '@/components/ui/card'
 import { useTranslation } from 'react-i18next'
-import { useUser } from '@/context/user-context'
-import { hasPermission } from '@/types/auth'
-import { Permission } from '@prisma/client'
-import { useSession } from 'next-auth/react'
 import Lottie from 'lottie-react'
 import certificateAnimation from '@lottie/blue.json'
 
@@ -40,18 +36,11 @@ export interface DataTableProps<TData extends Feedback & { user: { name: string;
     columns: ColumnDef<TData>[]
     searchKey?: string
     selection?: boolean
-    role?: string
 }
 
-export function DataTable<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }>({
-    data,
-    columns,
-    selection = true,
-    role,
-}: DataTableProps<TData>) {
+export function DataTable<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }>(props: DataTableProps<TData>) {
+    const { data, columns, selection = true } = props
     const { t } = useTranslation()
-    const { permissions } = useUser()
-    const { data: session } = useSession()
     const [rowSelection, setRowSelection] = useState({})
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -62,7 +51,6 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
         const interval = setInterval(() => {
             setShake((prev) => !prev)
         }, 3000)
-
         return () => clearInterval(interval)
     }, [])
 
@@ -137,8 +125,7 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
                                                 />
                                             </div>
                                             <p
-                                                className={`text-lg font-semibold transition-transform ${shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
-                                                    }`}
+                                                className={`text-lg font-semibold transition-transform ${shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''}`}
                                             >
                                                 {t('No results found')}
                                             </p>
