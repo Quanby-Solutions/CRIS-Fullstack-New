@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Loader } from "@/components/loader/loader"
@@ -32,7 +30,7 @@ export function LoadingWrapper({ children }: LoadingWrapperProps) {
   useEffect(
     () => {
       setIsLoading(true)
-      const timer = setTimeout(() => setIsLoading(false), 1000) // Simulate loading delay
+      const timer = setTimeout(() => setIsLoading(false), 1000)
       return () => clearTimeout(timer)
     },
     [

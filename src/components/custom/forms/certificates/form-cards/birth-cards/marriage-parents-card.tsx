@@ -11,14 +11,36 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import LocationSelector from '../shared-components/location-selector'
 import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 export default function MarriageInformationCard() {
-  const { control } = useFormContext<BirthCertificateFormValues>()
+  const { control, watch } = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
+
+  // Watch the province field for marriage place
+  const province = watch('parentMarriage.place.province')
+
+  // Helper function to extract province string if it comes as an object
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label
+    }
+    return ''
+  }
+
+  // Update ncrMode based on the province value
+  useEffect(() => {
+    const provinceString = getProvinceString(province)
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+    if (shouldBeNCR !== ncrMode) {
+      setNcrMode(shouldBeNCR)
+    }
+  }, [])
 
   return (
     <Card className='mb-6'>
@@ -28,9 +50,6 @@ export default function MarriageInformationCard() {
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Marriage Date */}
-
-
         {/* Marriage Place */}
         <Card className='border'>
           <CardHeader>
@@ -82,10 +101,11 @@ export default function MarriageInformationCard() {
                 )}
               />
             </div>
-            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
-            {/* NCR Mode Switch & Location Selector */}
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 
+            {/* NCR Mode Switch & Location Selector */}
+            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <LocationSelector
                 provinceFieldName='parentMarriage.place.province'
                 municipalityFieldName='parentMarriage.place.cityMunicipality'
@@ -113,8 +133,6 @@ export default function MarriageInformationCard() {
                 )}
               />
             </div>
-
-
           </CardContent>
         </Card>
       </CardContent>

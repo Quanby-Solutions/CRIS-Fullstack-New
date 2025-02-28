@@ -1,14 +1,14 @@
-import type React from "react"
+import type { Permission } from "@prisma/client"
+
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import type { Permission } from "@prisma/client"
 import { UserProvider } from "@/context/user-context"
+import { LoadingWrapper } from "@/components/loader/load-wrapper"
 import { AppSidebar } from "@/components/custom/sidebar/app-sidebar"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { NotificationProvider } from "@/contexts/notification-context"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { LanguageProvider } from "@/components/custom/provider/LanguageContext"
 import TranslationProvider from "@/components/custom/provider/translation-provider"
-import { LoadingWrapper } from "@/components/loader/LoadWrapper"
 
 
 type ChildrenProps = {
@@ -35,7 +35,6 @@ export default async function AuthLayout({ children }: ChildrenProps) {
     <LoadingWrapper>
       <TranslationProvider>
         <LanguageProvider>
-
           <SidebarProvider className="theme-container">
             <UserProvider>
               <NotificationProvider userId={session.user.id}>

@@ -11,15 +11,36 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import SignatureUploader from '../shared-components/signature-uploader';
 
 const CertificationOfInformantCard: React.FC = () => {
-  const { control, setValue } = useFormContext<BirthCertificateFormValues>();
+  const { control, setValue, watch } = useFormContext<BirthCertificateFormValues>();
   const [ncrMode, setncrMode] = useState(false);
+
+
+  const province = watch('informant.address.province');
+
+  // Extract province string safely
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue;
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label;
+    }
+    return '';
+  };
+
+  // Update NCR mode based on province
+  useEffect(() => {
+    const provinceString = getProvinceString(province);
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
+    setncrMode(shouldBeNCR);
+  }, []);
+
 
   return (
     <Card>

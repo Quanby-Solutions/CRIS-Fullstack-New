@@ -22,38 +22,55 @@ const MotherInformationCard: React.FC = () => {
     useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
 
-  // Watch the three fields in real time
+  // Watch children counts
   const total = watch('motherInfo.totalChildrenBornAlive')
   const living = watch('motherInfo.childrenStillLiving')
   const dead = watch('motherInfo.childrenNowDead')
 
-  // Run a side effect whenever these three fields change
+  // Watch the mother's province for residence
+  const province = watch('motherInfo.residence.province')
+
+  // Helper: extract province string if it comes as an object
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label
+    }
+    return ''
+  }
+
+  // Validate that total children equals living plus deceased
   useEffect(() => {
-    // If all three fields have some value (non-empty)
     if (total.trim() !== '' && living.trim() !== '' && dead.trim() !== '') {
       const totalNum = Number(total)
       const livingNum = Number(living)
       const deadNum = Number(dead)
-
-      // If they are valid numbers, check the sum
       if (!isNaN(totalNum) && !isNaN(livingNum) && !isNaN(deadNum)) {
         if (totalNum !== livingNum + deadNum) {
-          // Immediately set a manual error on totalChildrenBornAlive
           setError('motherInfo.totalChildrenBornAlive', {
             type: 'manual',
             message:
               'Total children born alive must equal sum of living and deceased children',
           })
         } else {
-          // Clear the error if they now match
           clearErrors('motherInfo.totalChildrenBornAlive')
         }
       }
     } else {
-      // If the user hasn't filled all three fields yet, clear the sum error
       clearErrors('motherInfo.totalChildrenBornAlive')
     }
   }, [total, living, dead, setError, clearErrors])
+
+  // Update ncrMode based on the province value
+  useEffect(() => {
+    const provinceString = getProvinceString(province)
+    const shouldBeNcr = provinceString.trim().toLowerCase() === 'metro manila'
+    if (shouldBeNcr !== ncrMode) {
+      setNcrMode(shouldBeNcr)
+    }
+  }, [])
+  
 
   return (
     <Card>
@@ -79,11 +96,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter first name'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter first name' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -96,11 +109,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Middle Name</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter middle name'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter middle name' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -113,11 +122,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter last name'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter last name' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -143,11 +148,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Citizenship</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter citizenship'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter citizenship' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -172,7 +173,6 @@ const MotherInformationCard: React.FC = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={control}
                 name='motherInfo.occupation'
@@ -180,11 +180,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Occupation</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter occupation'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter occupation' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -197,11 +193,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Age</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter age'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter age' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -227,11 +219,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Total Children Born Alive</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter total'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter total' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -244,11 +232,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Children Still Living</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter number'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter number' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -261,11 +245,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Children Now Dead</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter number'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter number' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -281,9 +261,9 @@ const MotherInformationCard: React.FC = () => {
             <CardTitle className='text-lg font-medium'>Residence</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
+            {/* NCRModeSwitch reflects the updated ncrMode state */}
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-
               <LocationSelector
                 provinceFieldName='motherInfo.residence.province'
                 municipalityFieldName='motherInfo.residence.cityMunicipality'
@@ -304,11 +284,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>House No.</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter house number'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter house number' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -321,11 +297,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Street</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter street'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter street' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -338,11 +310,7 @@ const MotherInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter country'
-                        {...field}
-                      />
+                      <Input className='h-10' placeholder='Enter country' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

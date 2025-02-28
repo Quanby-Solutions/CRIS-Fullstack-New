@@ -1,30 +1,30 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
-import type { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import { toast } from 'sonner';
-import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FormProvider } from 'react-hook-form';
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
+import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm';
+import type { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { FormType } from '@prisma/client';
+import { FormProvider } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import DelayedRegistrationForm from '../../../forms/certificates/form-cards/birth-cards/affidavit-for-delayed-registration';
+import AffidavitOfPaternityForm from '../../../forms/certificates/form-cards/birth-cards/affidavit-of-paternity';
+import AttendantInformationCard from '../../../forms/certificates/form-cards/birth-cards/attendant-information';
+import CertificationOfInformantCard from '../../../forms/certificates/form-cards/birth-cards/certification-of-informant';
+import ChildInformationCard from '../../../forms/certificates/form-cards/birth-cards/child-information-card';
+import FatherInformationCard from '../../../forms/certificates/form-cards/birth-cards/father-information-card';
+import MarriageInformationCard from '../../../forms/certificates/form-cards/birth-cards/marriage-parents-card';
+import MotherInformationCard from '../../../forms/certificates/form-cards/birth-cards/mother-information-card';
 import { PaginationInputs } from '../../../forms/certificates/form-cards/shared-components/pagination-inputs';
 import {
   PreparedByCard,
   ReceivedByCard,
   RegisteredAtOfficeCard,
 } from '../../../forms/certificates/form-cards/shared-components/processing-details-cards';
-import RemarksCard from '../../../forms/certificates/form-cards/shared-components/remarks-card';
-import ChildInformationCard from '../../../forms/certificates/form-cards/birth-cards/child-information-card';
-import FatherInformationCard from '../../../forms/certificates/form-cards/birth-cards/father-information-card';
-import MarriageInformationCard from '../../../forms/certificates/form-cards/birth-cards/marriage-parents-card';
-import MotherInformationCard from '../../../forms/certificates/form-cards/birth-cards/mother-information-card';
-import AttendantInformationCard from '../../../forms/certificates/form-cards/birth-cards/attendant-information';
-import AffidavitOfPaternityForm from '../../../forms/certificates/form-cards/birth-cards/affidavit-of-paternity';
-import CertificationOfInformantCard from '../../../forms/certificates/form-cards/birth-cards/certification-of-informant';
-import DelayedRegistrationForm from '../../../forms/certificates/form-cards/birth-cards/affidavit-for-delayed-registration';
 import RegistryInformationCard from '../../../forms/certificates/form-cards/shared-components/registry-information-card';
+import RemarksCard from '../../../forms/certificates/form-cards/shared-components/remarks-card';
 
 interface EditCivilRegistryFormInlineProps {
   form: BaseRegistryFormWithRelations;
@@ -80,7 +80,7 @@ interface FatherResidence {
 
 interface MarriagePlace {
   houseNo: string;
-  street: string;
+  st: string;
   barangay: string;
   cityMunicipality: string;
   province: string;
@@ -385,9 +385,58 @@ export function EditBirthCivilRegistryFormInline({
       }
       parentMarriage = { date: pmDate, place: pmPlace };
     }
+    // Extract raw parent marriage data
+    const rawParentMarriage = form.birthCertificateForm?.parentMarriage;
+
+    // Default structure for parentMarriage
+    let parentMarriage: ParentMarriage = {
+      date: new Date(),
+      place: {
+        houseNo: '',
+        st: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+      },
+    };
+
+    // Validate and transform rawParentMarriage
+    if (
+      rawParentMarriage &&
+      typeof rawParentMarriage === 'object' &&
+      !Array.isArray(rawParentMarriage) &&
+      'date' in rawParentMarriage &&
+      'place' in rawParentMarriage
+    ) {
+      const pm = rawParentMarriage as any;
+      const pmDate = pm.date ? new Date(pm.date) : new Date();
+      const rawPMPlace = pm.place;
+
+      if (
+        rawPMPlace &&
+        typeof rawPMPlace === 'object' &&
+        !Array.isArray(rawPMPlace)
+      ) {
+        // Ensure all properties exist, using fallback values if necessary
+        const pmPlace: MarriagePlace = {
+          houseNo: rawPMPlace.houseNo ?? '',
+          st: rawPMPlace.st ?? '', // Mapping "st" to "street"
+          barangay: rawPMPlace.barangay ?? '',
+          cityMunicipality: rawPMPlace.cityMunicipality ?? '',
+          province: rawPMPlace.province ?? '',
+          country: rawPMPlace.country ?? '',
+        };
+
+        parentMarriage = { date: pmDate, place: pmPlace };
+      }
+    }
 
     // Attendant extraction
+    // Attendant extraction
     const rawAttendant = form.birthCertificateForm?.attendant;
+
+    // Default structure
     let attendant: {
       type: 'Others' | 'Physician' | 'Nurse' | 'Midwife' | 'Hilot';
       certification: {
@@ -423,18 +472,19 @@ export function EditBirthCivilRegistryFormInline({
         },
       },
     };
+
+    // Validate and transform rawAttendant if it exists
     if (
       rawAttendant &&
       typeof rawAttendant === 'object' &&
       !Array.isArray(rawAttendant) &&
-      'date' in rawAttendant &&
-      'name' in rawAttendant &&
-      'type' in rawAttendant &&
-      'title' in rawAttendant &&
-      'address' in rawAttendant &&
-      'signature' in rawAttendant
+      typeof rawAttendant.certification === 'object' &&
+      rawAttendant.certification !== null
     ) {
       const raw = rawAttendant as any;
+      const cert = raw.certification;
+
+      // Validate and parse address
       let addrObj = {
         houseNo: '',
         st: '',
@@ -443,26 +493,36 @@ export function EditBirthCivilRegistryFormInline({
         province: '',
         country: '',
       };
-      if (typeof raw.address === 'object') {
-        addrObj = raw.address;
-      } else if (typeof raw.address === 'string') {
+
+      if (typeof cert.address === 'object' && cert.address !== null) {
         addrObj = {
-          houseNo: raw.address,
-          st: raw.address,
-          barangay: '',
-          cityMunicipality: '',
-          province: '',
-          country: '',
+          houseNo: cert.address.houseNo ?? '',
+          st: cert.address.st ?? '',
+          barangay: cert.address.barangay ?? '',
+          cityMunicipality: cert.address.cityMunicipality ?? '',
+          province: cert.address.province ?? '',
+          country: cert.address.country ?? '',
         };
       }
+
+      // Parse dates correctly
+      const parsedDate = cert.date ? new Date(cert.date) : new Date();
+      const parsedTime = cert.time ? new Date(cert.time) : new Date();
+
+      // Assign values to the attendant object
       attendant = {
-        type: raw.type,
+        type: raw.type as
+          | 'Others'
+          | 'Physician'
+          | 'Nurse'
+          | 'Midwife'
+          | 'Hilot',
         certification: {
-          date: new Date(raw.date),
-          time: new Date(raw.date),
-          signature: raw.signature,
-          name: raw.name,
-          title: raw.title,
+          date: parsedDate,
+          time: parsedTime,
+          signature: cert.signature ?? '',
+          name: cert.name ?? '',
+          title: cert.title ?? '',
           address: addrObj,
         },
       };
