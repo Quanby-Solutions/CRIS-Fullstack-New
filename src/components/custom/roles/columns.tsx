@@ -1,14 +1,14 @@
 'use client'
 
-import { format } from 'date-fns'
-import { Role, Permission } from '@prisma/client'
-import { ColumnDef } from '@tanstack/react-table'
-import { DataTableRowActions } from './data-table-row-actions'
-import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
-import { Badge } from '@/components/ui/badge'
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
-import { Shield } from 'lucide-react'
 import { t } from 'i18next'
+import { format } from 'date-fns'
+import { Icons } from '@/components/ui/icons'
+import { Badge } from '@/components/ui/badge'
+import { ColumnDef } from '@tanstack/react-table'
+import { Role, Permission } from '@prisma/client'
+import { DataTableRowActions } from './data-table-row-actions'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 
 type RoleRow = Role & {
     permissions: Permission[]
@@ -36,37 +36,57 @@ export const columns: ColumnDef<RoleRow>[] = [
     {
         accessorKey: 'permissions',
         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title={t('Permissions')} />
+            <DataTableColumnHeader column={column} title={t("dataTable.permissions")} />
         ),
         cell: ({ row }) => {
-            const permissions = new Set(row.getValue('permissions') as Permission[])
-            return (
+            const permissions = new Set<Permission>();
+
+            (row.getValue('permissions') as Permission[]).forEach((perm) =>
+                permissions.add(perm)
+            )
+
+            const hasPermissions = permissions.size > 0
+
+            return hasPermissions ? (
                 <Popover>
                     <PopoverTrigger>
-                        <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
-                            <Shield className="w-3 h-3 mr-1" />
-                            {permissions.size} {t('Permissions')}
+                        <Badge
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-secondary/80"
+                        >
+                            <Icons.shield className="w-3 h-3 mr-1" />
+                            {permissions.size} {t("dataTable.permissions")}
                         </Badge>
                     </PopoverTrigger>
                     <PopoverContent className="w-64 p-3">
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 pb-2 border-b">
-                                <Shield className="w-4 h-4 text-muted-foreground" />
-                                <h4 className="font-medium">{t('All Permissions')}</h4>
+                                <Icons.shield className="w-4 h-4 text-muted-foreground" />
+                                <h4 className="font-medium">{t("dataTable.allPermissions")}</h4>
                             </div>
-                            <div className="space-y-1">
-                                {Array.from(permissions).map((permission) => (
+                            {/* Permissions list container with grid layout */}
+                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
+                                {Array.from(permissions).map((permission: string) => (
                                     <div
                                         key={permission}
                                         className="text-sm px-2 py-1 rounded-md bg-secondary/50"
                                     >
-                                        {permission.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                                        {permission
+                                            .replace(/_/g, " ")
+                                            .toString()
+                                            .toLowerCase()
+                                            .replace(/^\w/, (c: string) => c.toUpperCase())}
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </PopoverContent>
                 </Popover>
+            ) : (
+                <Badge variant="secondary" className="opacity-50">
+                    <Icons.shield className="w-3 h-3 mr-1" />
+                    {t("dataTable.noPermissions")}
+                </Badge>
             )
         },
     },

@@ -63,7 +63,7 @@ export async function DELETE(
 
         await prisma.role.delete({ where: { id } })
         return NextResponse.json({ success: true }, { status: 200 })
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error deleting role:", error)
         return NextResponse.json(
             { success: false, error: "Failed to delete role" },
@@ -180,10 +180,11 @@ export async function PUT(
             { success: true, role: updatedRole },
             { status: 200 }
         )
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating role:", error)
+        const message = error instanceof Error ? error.message : "Failed to update role"
         return NextResponse.json(
-            { success: false, error: error?.message || "Failed to update role" },
+            { success: false, error: message },
             { status: 500 }
         )
     }

@@ -1,14 +1,13 @@
-import { string, z } from 'zod';
+import { z } from 'zod'
 import {
   citizenshipSchema,
   cityMunicipalitySchema,
   nameSchema,
   paginationSchema,
   processingDetailsSchema,
-  provinceSchema, // Factory function: provinceSchema(isOptional: boolean)
+  provinceSchema,
   registryNumberSchema,
-  residenceSchema,
-} from './form-certificates-shared-schema';
+} from './form-certificates-shared-schema'
 
 /**
  * Helper schemas for common fields
@@ -20,7 +19,7 @@ const locationSchema = z.object({
   cityMunicipality: z.string(),
   province: z.string().optional(),
   country: z.string().optional(),
-});
+})
 
 //signature
 const signatureSchema = z.object({
@@ -28,7 +27,7 @@ const signatureSchema = z.object({
   name: nameSchema.optional(),
   name2: z.string().optional(),
   position: z.any().optional()
-});
+})
 
 
 
@@ -38,7 +37,7 @@ const residenceSchemas = z.object({
   cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
   province: provinceSchema, // Reuse shared province schema
   country: z.string().nonempty('Country is required').optional(),
-});
+})
 
 
 //*****BACK PAGE ***************************************** //
@@ -130,7 +129,7 @@ const affidavitForDelayedSchema = z.object({
     }),
   }).refine((data) => {
     // Ensure only one agreement is true at a time
-    return data.a.agreement !== data.b.agreement;
+    return data.a.agreement !== data.b.agreement
   }, 'You can only select one option (either a or b)'),
 
   b: z.object({
@@ -235,18 +234,18 @@ export const marriageCertificateSchema = z.object({
   timeOfMarriage: z.preprocess((val) => {
     if (val instanceof Date) {
       // If it's already a Date object, return it directly
-      return val;
+      return val
     }
 
     if (typeof val === 'string' && val.trim() !== '') {
-      const [hours, minutes] = val.split(':');
-      const date = new Date(); // Use current date
-      date.setHours(Number(hours), Number(minutes), 0, 0);
-      return date;
+      const [hours, minutes] = val.split(':')
+      const date = new Date() // Use current date
+      date.setHours(Number(hours), Number(minutes), 0, 0)
+      return date
     }
 
     // If no valid input, return current timestamp
-    return new Date();
+    return new Date()
   }, z.date({ required_error: 'Time of marriage is required' })),
 
   // Witnesses
@@ -311,16 +310,16 @@ export const marriageCertificateSchema = z.object({
   affidavitForDelayed: affidavitForDelayedSchema.optional(),
 
 
-});
+})
 
 // Export the TypeScript type for the form values
 export type MarriageCertificateFormValues = z.infer<
   typeof marriageCertificateSchema
->;
+>
 
 
 export interface MarriageCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
 }

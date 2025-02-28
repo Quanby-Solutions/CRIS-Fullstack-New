@@ -25,7 +25,7 @@ interface UpdateRoleDialogProps {
   updateRoleAction: (
     id: string,
     data: { name: string; description: string; permissions: Permission[] }
-  ) => Promise<{ error?: string; data?: any } | void>
+  ) => Promise<{ error?: string; data?: unknown } | void>
 }
 
 export function UpdateRoleDialog({
@@ -95,9 +95,12 @@ export function UpdateRoleDialog({
         toast.success(t('Role updated successfully'))
         // Close dialog after successful update
         await onOpenChangeAction(false)
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error updating role:', error)
-        const detailedError = error?.message || t('Unknown error occurred')
+        const detailedError =
+          error && typeof error === 'object' && 'message' in error
+            ? (error as { message: string }).message
+            : t('Unknown error occurred')
         toast.error(t(`Failed to update role: ${detailedError}`))
       }
     })

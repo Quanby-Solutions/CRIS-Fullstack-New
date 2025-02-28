@@ -12,6 +12,7 @@ import { Role, Permission } from "@prisma/client"
 import { CreateRoleDialog } from "./components/create-role-dialog"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
+import { useRouter } from "next/navigation"
 
 interface DataTableToolbarProps<TData extends Role> {
     table: Table<TData>
@@ -21,8 +22,9 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
     const { t } = useTranslation()
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-    // Retrieve current user permissions from context.
     const { permissions } = useUser()
+    const router = useRouter()
+    const [isRefreshing, setIsRefreshing] = useState(false)
 
     // Check permissions for creating and exporting roles.
     const canCreate = hasPermission(permissions, Permission.ROLE_CREATE)
@@ -68,8 +70,11 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
         console.info("Roles exported successfully")
     }, [table])
 
-    // Create role action: sends a POST request to create a role.
-    const handleCreateRole = useCallback(async (data: any) => {
+    const handleCreateRole = useCallback(async (data: {
+        name: string
+        description: string
+        permissions: Permission[]
+    }) => {
         try {
             const response = await fetch("/api/roles", {
                 method: "POST",
@@ -81,6 +86,14 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
             console.error("Error creating role:", error)
         }
     }, [])
+
+    const handleRefresh = () => {
+        setIsRefreshing(true)
+        router.refresh()
+        setTimeout(() => {
+            setIsRefreshing(false)
+        }, 1000)
+    }
 
     return (
         <div>
@@ -107,6 +120,12 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
 
                 {/* Right side: Action buttons */}
                 <div className="flex items-center space-x-4">
+                    {canExport && (
+                        <Button variant="outline" className="h-10" onClick={handleExport}>
+                            <Icons.download className="mr-2 h-4 w-4" />
+                            {t("Export")}
+                        </Button>
+                    )}
                     {canCreate && (
                         <Button
                             variant="default"
@@ -115,12 +134,6 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
                         >
                             <Icons.plus className="mr-2 h-4 w-4" />
                             {t("Create Role")}
-                        </Button>
-                    )}
-                    {canExport && (
-                        <Button variant="outline" className="h-10" onClick={handleExport}>
-                            <Icons.download className="mr-2 h-4 w-4" />
-                            {t("Export")}
                         </Button>
                     )}
                     <DataTableViewOptions table={table} />
@@ -132,6 +145,12 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
                     onOpenChangeAction={async (open) => setIsCreateDialogOpen(open)}
                     createRoleAction={handleCreateRole}
                 />
+
+                <Button variant="outline" onClick={handleRefresh}>
+                    <Icons.refresh
+                        className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                    />
+                </Button>
             </div>
         </div>
     )

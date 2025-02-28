@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "linig": "next lint",
     "prisma:seed": "prisma db seed",
     "list-pages": "ts-node -P tsconfig.script.json -r tsconfig-paths/register src/utils/list-all-pages.ts",
     "backup-db": "ts-node src/hooks/backup-database.ts"
