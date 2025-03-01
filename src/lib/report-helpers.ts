@@ -68,10 +68,10 @@ export const getWeekNumber = (date: Date): number => {
  */
 export interface DocumentGroup {
     totalDocuments: number
-    processedDocuments: number
-    pendingDocuments: number
-    totalProcessingTime: number // Sum (in days) of processing times
-    countForAvg: number // Number of documents used for averaging processing time
+    // processedDocuments: number
+    // pendingDocuments: number
+    // totalProcessingTime: number // Sum (in days) of processing times
+    // countForAvg: number // Number of documents used for averaging processing time
     marriageCount: number
     birthCount: number
     deathCount: number
@@ -83,9 +83,9 @@ export interface DocumentGroup {
 export interface ReportDataItem {
     period: string
     totalDocuments: number
-    processedDocuments: number
-    pendingDocuments: number
-    averageProcessingTime: string
+    // processedDocuments: number
+    // pendingDocuments: number
+    // averageProcessingTime: string
     marriageCount: number
     birthCount: number
     deathCount: number
@@ -122,10 +122,10 @@ export const groupDocumentsByPeriod = (
         if (!groups[key]) {
             groups[key] = {
                 totalDocuments: 0,
-                processedDocuments: 0,
-                pendingDocuments: 0,
-                totalProcessingTime: 0,
-                countForAvg: 0,
+                // processedDocuments: 0,
+                // pendingDocuments: 0,
+                // totalProcessingTime: 0,
+                // countForAvg: 0,
                 marriageCount: 0,
                 birthCount: 0,
                 deathCount: 0,
@@ -134,18 +134,18 @@ export const groupDocumentsByPeriod = (
         const group = groups[key]
 
         group.totalDocuments++
-        if (doc.status === DocumentStatus.VERIFIED) {
-            group.processedDocuments++
-        } else if (doc.status === DocumentStatus.PENDING) {
-            group.pendingDocuments++
-        }
+        // if (doc.status === DocumentStatus.VERIFIED) {
+        //     group.processedDocuments++
+        // } else if (doc.status === DocumentStatus.PENDING) {
+        //     group.pendingDocuments++
+        // }
 
         // Compute processing time as difference between document.createdAt and the registration date.
         const processingTime =
             (new Date(doc.createdAt).getTime() - registrationDate.getTime()) /
             (1000 * 60 * 60 * 24)
-        group.totalProcessingTime += processingTime
-        group.countForAvg++
+        // group.totalProcessingTime += processingTime
+        // group.countForAvg++
 
         // Update classification counts for each valid base form, ensuring each form is counted only once
         validForms.forEach((form) => {
@@ -204,10 +204,10 @@ export const zeroFillGroups = (
     return periods.map((period) => {
         const data = groups[period] || {
             totalDocuments: 0,
-            processedDocuments: 0,
-            pendingDocuments: 0,
-            totalProcessingTime: 0,
-            countForAvg: 0,
+            // processedDocuments: 0,
+            // pendingDocuments: 0,
+            // totalProcessingTime: 0,
+            // countForAvg: 0,
             marriageCount: 0,
             birthCount: 0,
             deathCount: 0,
@@ -215,10 +215,10 @@ export const zeroFillGroups = (
         return {
             period,
             totalDocuments: data.totalDocuments,
-            processedDocuments: data.processedDocuments,
-            pendingDocuments: data.pendingDocuments,
-            averageProcessingTime:
-                data.countForAvg > 0 ? `${(data.totalProcessingTime / data.countForAvg).toFixed(1)} days` : '0 days',
+            // processedDocuments: data.processedDocuments,
+            // pendingDocuments: data.pendingDocuments,
+            // averageProcessingTime:
+            //     data.countForAvg > 0 ? `${(data.totalProcessingTime / data.countForAvg).toFixed(1)} days` : '0 days',
             marriageCount: data.marriageCount,
             birthCount: data.birthCount,
             deathCount: data.deathCount,

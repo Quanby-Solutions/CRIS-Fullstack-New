@@ -5,9 +5,11 @@ import {
 } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Permission } from '@prisma/client';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { notifyUsersWithPermission } from '../users-action';
 
 export interface UseDeathCertificateFormProps {
   onOpenChange?: (open: boolean) => void;
@@ -273,6 +275,12 @@ export function useDeathCertificateForm({
           toast.success(
             `Death certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
           );
+
+             const documentRead = Permission.DOCUMENT_READ
+                  const Title = "New uploaded Death Certificate"
+                  const message = `New Death Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
+                  notifyUsersWithPermission(documentRead, Title, message)
+
           onOpenChange?.(false);
         } else if ('error' in result) {
           console.log('Submission error:', result.error);

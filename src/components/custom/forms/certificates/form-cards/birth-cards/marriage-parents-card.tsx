@@ -64,14 +64,14 @@ export default function MarriageInformationCard() {
                 name='parentMarriage.date'
                 render={({ field }) => (
                   <DatePickerField
-                    field={{
-                      value: field.value,
-                      onChange: field.onChange,
-                    }}
-                    label='Marriage Date'
-                    placeholder='Select marriage date'
-                    ref={field.ref}
-                  />
+                  field={{
+                    value: field.value ?? null,
+                    onChange: field.onChange,
+                  }}
+                  label='Marriage Date'
+                  placeholder='Select marriage date'
+                  ref={field.ref}
+                />
                 )}
               />
               <FormField

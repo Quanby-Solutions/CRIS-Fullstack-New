@@ -2,9 +2,11 @@ import { submitMarriageCertificateForm } from '@/components/custom/civil-registr
 import { MarriageCertificateFormValues, marriageCertificateSchema } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Permission } from '@prisma/client';
 import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
+import { notifyUsersWithPermission } from '../users-action';
 
 interface UseMarriageCertificateFormProps {
     onOpenChange?: (open: boolean) => void;

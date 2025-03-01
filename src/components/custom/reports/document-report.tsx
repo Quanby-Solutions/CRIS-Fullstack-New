@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import useSWR from "swr"
+import { useTranslation } from "react-i18next"
 import {
     Select,
     SelectContent,
@@ -40,7 +41,6 @@ import {
 import { ApiResponse, ReportDataItem } from "@/types/report"
 import { ReportSkeleton } from "./component/report-skeleton"
 
-
 export type GroupByOption = "daily" | "weekly" | "monthly" | "quarterly" | "yearly"
 export type DisplayMode = "all" | "hasDocuments"
 export type ClassificationFilter = "all" | "marriage" | "birth" | "death"
@@ -60,6 +60,8 @@ const fetcher = async (url: string): Promise<ApiResponse> => {
 }
 
 export const DocumentReport = () => {
+    const { t, i18n } = useTranslation()
+
     // Pagination state
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [pageSize, setPageSize] = useState<number>(20)
@@ -80,13 +82,13 @@ export const DocumentReport = () => {
     queryParams.append("pageSize", pageSize.toString())
 
     // When a year is selected, include a start and end date filter.
-    if (yearFilter !== "All") {
+    if (yearFilter !== t("documentReport.all")) {
         const year = parseInt(yearFilter)
         if (!isNaN(year)) {
             if (groupBy === "monthly") {
                 // Always include month parameter, even if it's "All"
                 queryParams.append("month", monthFilter)
-                if (monthFilter !== "All") {
+                if (monthFilter !== t("documentReport.all")) {
                     const month = parseInt(monthFilter)
                     if (!isNaN(month)) {
                         const startDate = new Date(year, month - 1, 1)
@@ -123,25 +125,25 @@ export const DocumentReport = () => {
             setAvailableYears(sortedYears.map((year) => year.toString()))
 
             // Reset year filter if the current year is no longer available
-            if (yearFilter !== "All" && !uniqueYears.includes(parseInt(yearFilter))) {
-                setYearFilter("All")
+            if (yearFilter !== t("documentReport.all") && !uniqueYears.includes(parseInt(yearFilter))) {
+                setYearFilter(t("documentReport.all"))
             }
         }
-    }, [data?.meta?.availableYears, yearFilter])
+    }, [data?.meta?.availableYears, yearFilter, t])
 
     // Enhanced filter change handlers
     const handleGroupByChange = (value: GroupByOption) => {
         setGroupBy(value)
-        if (value !== "monthly" && monthFilter !== "All") {
-            setMonthFilter("All")
+        if (value !== "monthly" && monthFilter !== t("documentReport.all")) {
+            setMonthFilter(t("documentReport.all"))
         }
         setCurrentPage(1)
     }
 
     const handleYearChange = (value: string) => {
         setYearFilter(value)
-        if (value === "All") {
-            setMonthFilter("All")
+        if (value === t("documentReport.all")) {
+            setMonthFilter(t("documentReport.all"))
         }
         setCurrentPage(1)
     }
@@ -154,15 +156,15 @@ export const DocumentReport = () => {
     // Check if any filter differs from default
     const filtersChanged =
         groupBy !== defaultGroupBy ||
-        yearFilter !== defaultYearFilter ||
-        monthFilter !== defaultMonthFilter ||
+        yearFilter !== t("documentReport.all") ||
+        monthFilter !== t("documentReport.all") ||
         displayMode !== defaultDisplayMode ||
         classification !== defaultClassification
 
     const resetFilters = () => {
         setGroupBy(defaultGroupBy)
-        setYearFilter(defaultYearFilter)
-        setMonthFilter(defaultMonthFilter)
+        setYearFilter(t("documentReport.all"))
+        setMonthFilter(t("documentReport.all"))
         setDisplayMode(defaultDisplayMode)
         setClassification(defaultClassification)
         setCurrentPage(1)
@@ -172,7 +174,7 @@ export const DocumentReport = () => {
     if (error) {
         return (
             <div className="p-4 text-center text-destructive">
-                Failed to load document report.
+                {t("documentReport.loadError")}
             </div>
         )
     }
@@ -195,13 +197,13 @@ export const DocumentReport = () => {
     // Export data preparation
     const exportData = reportData.map((item: ReportDataItem) => ({
         ...item,
-        averageProcessingTime: item.averageProcessingTime.toString(),
+        // averageProcessingTime: item.averageProcessingTime.toString(),
     })) as Record<string, unknown>[]
 
     const { exportToCSV, exportToExcel, exportToPDF } = useExportDialog(
         exportData,
         () => { },
-        "Document Request Report"
+        t("documentReport.exportTitle")
     )
 
     // Pagination calculations
@@ -218,95 +220,110 @@ export const DocumentReport = () => {
         <Card className="p-4">
             <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <CardTitle>Document Request & Processing Report</CardTitle>
+                    <CardTitle>{t("documentReport.title")}</CardTitle>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Overview of civil registry document requests and processing times.
+                        {t("documentReport.subtitle")}
                     </p>
                     {classificationSummary && (
                         <div className="mt-1 text-sm text-muted-foreground pt-2">
-                            Classification Summary:&nbsp;
-                            <span>Marriage: {classificationSummary.marriage}</span>,&nbsp;
-                            <span>Birth: {classificationSummary.birth}</span>,&nbsp;
-                            <span>Death: {classificationSummary.death}</span>
+                            {t("documentReport.classificationSummary")}:&nbsp;
+                            <span>
+                                {t("documentReport.marriage")}: {classificationSummary.marriage}
+                            </span>,&nbsp;
+                            <span>
+                                {t("documentReport.birth")}: {classificationSummary.birth}
+                            </span>,&nbsp;
+                            <span>
+                                {t("documentReport.death")}: {classificationSummary.death}
+                            </span>
                         </div>
                     )}
                 </div>
                 <div className="flex items-center gap-2">
+                    {/* Language Switcher */}
+                    {/* <Select
+                        value={i18n.language}
+                        onValueChange={(value: string) => i18n.changeLanguage(value)}
+                    >
+                        <SelectTrigger className="w-32">
+                            <SelectValue placeholder={t("documentReport.selectLanguage")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="fil">Tagalog</SelectItem>
+                        </SelectContent>
+                    </Select> */}
                     {filtersChanged && (
                         <Button onClick={resetFilters} variant="outline" size="sm">
-                            Reset Filters
+                            {t("documentReport.resetFilters")}
                         </Button>
                     )}
                     <Button onClick={() => exportToCSV()} variant="outline" size="sm">
-                        Export CSV
+                        {t("documentReport.exportCSV")}
                     </Button>
                     <Button onClick={() => exportToExcel()} variant="outline" size="sm">
-                        Export Excel
+                        {t("documentReport.exportExcel")}
                     </Button>
                     <Button onClick={() => exportToPDF()} variant="outline" size="sm">
-                        Export PDF
+                        {t("documentReport.exportPDF")}
                     </Button>
-                    <Dialog>
+                    {/* <Dialog>
                         <DialogTrigger asChild>
                             <Button variant="outline" size="sm">
-                                Help
+                                {t("documentReport.help")}
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Average Processing Time Formula</DialogTitle>
+                                <DialogTitle>{t("documentReport.helpTitle")}</DialogTitle>
                                 <DialogDescription>
-                                    The average processing time is calculated as the difference (in days)
-                                    between the <strong>earliest Base Registry Form&aposs</strong> creation date
-                                    (the registration time) and the <strong>Document&aposs</strong> creation date
-                                    (the processing time). For documents with multiple forms, the earliest
-                                    Base Registry Form date is used.
+                                    {t("documentReport.helpDescription")}
                                     <br />
                                     <br />
-                                    The formula is:
+                                    {t("documentReport.helpFormulaIntro")}
                                     <br />
-                                    <code>
-                                        Average Time = Σ (Document.createdAt - EarliestBaseRegistryForm.createdAt) / N
-                                    </code>
+                                    <code>{t("documentReport.formula")}</code>
                                     <br />
-                                    where N is the number of documents.
+                                    {t("documentReport.helpFormulaOutro")}
                                 </DialogDescription>
                             </DialogHeader>
                         </DialogContent>
-                    </Dialog>
+                    </Dialog> */}
                 </div>
             </CardHeader>
             <CardContent>
                 <div className="mb-4 flex flex-wrap gap-4">
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium">Group By:</label>
+                        <label className="text-sm font-medium">{t("documentReport.groupBy")}</label>
                         <Select
                             value={groupBy}
                             onValueChange={handleGroupByChange}
                         >
                             <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Select group" />
+                                <SelectValue placeholder={t("documentReport.selectGroupBy")} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="daily">Daily</SelectItem>
-                                <SelectItem value="weekly">Weekly</SelectItem>
-                                <SelectItem value="monthly">Monthly</SelectItem>
-                                <SelectItem value="quarterly">Quarterly</SelectItem>
-                                <SelectItem value="yearly">Yearly</SelectItem>
+                                <SelectItem value="daily">{t("documentReport.daily")}</SelectItem>
+                                <SelectItem value="weekly">{t("documentReport.weekly")}</SelectItem>
+                                <SelectItem value="monthly">{t("documentReport.monthly")}</SelectItem>
+                                <SelectItem value="quarterly">{t("documentReport.quarterly")}</SelectItem>
+                                <SelectItem value="yearly">{t("documentReport.yearly")}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium">Year:</label>
+                        <label className="text-sm font-medium">{t("documentReport.year")}</label>
                         <Select
                             value={yearFilter}
                             onValueChange={handleYearChange}
                         >
                             <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Select year" />
+                                <SelectValue placeholder={t("documentReport.selectYear")} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="All">All</SelectItem>
+                                <SelectItem value={t("documentReport.all")}>
+                                    {t("documentReport.all")}
+                                </SelectItem>
                                 {availableYears.map((year) => (
                                     <SelectItem key={year} value={year}>
                                         {year}
@@ -315,21 +332,23 @@ export const DocumentReport = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    {groupBy === "monthly" && yearFilter !== "All" && (
+                    {groupBy === "monthly" && yearFilter !== t("documentReport.all") && (
                         <div className="flex items-center gap-2">
-                            <label className="text-sm font-medium">Month:</label>
+                            <label className="text-sm font-medium">{t("documentReport.month")}</label>
                             <Select
                                 value={monthFilter}
                                 onValueChange={handleMonthChange}
                             >
                                 <SelectTrigger className="w-32">
-                                    <SelectValue placeholder="Select month" />
+                                    <SelectValue placeholder={t("documentReport.selectMonth")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="All">All</SelectItem>
+                                    <SelectItem value={t("documentReport.all")}>
+                                        {t("documentReport.all")}
+                                    </SelectItem>
                                     {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                                         <SelectItem key={month} value={month.toString()}>
-                                            {new Date(2000, month - 1).toLocaleString("default", { month: "long" })}
+                                            {new Date(2000, month - 1, 1).toLocaleDateString(i18n.language, { month: "long" })}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -337,7 +356,7 @@ export const DocumentReport = () => {
                         </div>
                     )}
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium">Display:</label>
+                        <label className="text-sm font-medium">{t("documentReport.display")}</label>
                         <Select
                             value={displayMode}
                             onValueChange={(value: DisplayMode) => {
@@ -346,16 +365,16 @@ export const DocumentReport = () => {
                             }}
                         >
                             <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Select display mode" />
+                                <SelectValue placeholder={t("documentReport.selectDisplayMode")} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Periods</SelectItem>
-                                <SelectItem value="hasDocuments">Has Documents Only</SelectItem>
+                                <SelectItem value="all">{t("documentReport.allPeriods")}</SelectItem>
+                                <SelectItem value="hasDocuments">{t("documentReport.hasDocumentsOnly")}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium">Classification:</label>
+                        <label className="text-sm font-medium">{t("documentReport.classification")}</label>
                         <Select
                             value={classification}
                             onValueChange={(value: ClassificationFilter) => {
@@ -364,13 +383,13 @@ export const DocumentReport = () => {
                             }}
                         >
                             <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Select classification" />
+                                <SelectValue placeholder={t("documentReport.selectClassification")} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="marriage">Marriage</SelectItem>
-                                <SelectItem value="birth">Birth</SelectItem>
-                                <SelectItem value="death">Death</SelectItem>
+                                <SelectItem value="all">{t("documentReport.all")}</SelectItem>
+                                <SelectItem value="marriage">{t("documentReport.marriage")}</SelectItem>
+                                <SelectItem value="birth">{t("documentReport.birth")}</SelectItem>
+                                <SelectItem value="death">{t("documentReport.death")}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -378,23 +397,22 @@ export const DocumentReport = () => {
 
                 {reportData.length === 0 ? (
                     <div className="p-4 text-center text-muted-foreground">
-                        No documents found matching the selected filters.
+                        {t("documentReport.noDocuments")}
                     </div>
                 ) : (
                     <>
-
                         <div className="overflow-x-auto">
                             <Table className="min-w-full table-fixed">
                                 <TableHeader className="bg-muted">
                                     <TableRow>
-                                        <TableHead className="bg-muted">Period</TableHead>
-                                        <TableHead className="bg-muted text-right">Total Documents</TableHead>
-                                        <TableHead className="bg-muted text-right">Processed</TableHead>
-                                        <TableHead className="bg-muted text-right">Pending</TableHead>
-                                        <TableHead className="bg-muted text-right">Avg. Processing Time</TableHead>
-                                        <TableHead className="bg-muted text-right">Marriage</TableHead>
-                                        <TableHead className="bg-muted text-right">Birth</TableHead>
-                                        <TableHead className="bg-muted text-right">Death</TableHead>
+                                        <TableHead className="bg-muted">{t("documentReport.period")}</TableHead>
+                                        <TableHead className="bg-muted text-right">{t("documentReport.totalDocuments")}</TableHead>
+                                        {/* <TableHead className="bg-muted text-right">{t("documentReport.processed")}</TableHead>
+                                        <TableHead className="bg-muted text-right">{t("documentReport.pending")}</TableHead>
+                                        <TableHead className="bg-muted text-right">{t("documentReport.averageProcessingTime")}</TableHead> */}
+                                        <TableHead className="bg-muted text-right">{t("documentReport.marriage")}</TableHead>
+                                        <TableHead className="bg-muted text-right">{t("documentReport.birth")}</TableHead>
+                                        <TableHead className="bg-muted text-right">{t("documentReport.death")}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                             </Table>
@@ -406,9 +424,9 @@ export const DocumentReport = () => {
                                             <TableRow key={item.period}>
                                                 <TableCell>{item.period}</TableCell>
                                                 <TableCell className="text-right">{item.totalDocuments}</TableCell>
-                                                <TableCell className="text-right">{item.processedDocuments}</TableCell>
+                                                {/* <TableCell className="text-right">{item.processedDocuments}</TableCell>
                                                 <TableCell className="text-right">{item.pendingDocuments}</TableCell>
-                                                <TableCell className="text-right">{item.averageProcessingTime}</TableCell>
+                                                <TableCell className="text-right">{item.averageProcessingTime}</TableCell> */}
                                                 <TableCell className="text-right">{item.marriageCount}</TableCell>
                                                 <TableCell className="text-right">{item.birthCount}</TableCell>
                                                 <TableCell className="text-right">{item.deathCount}</TableCell>
@@ -417,7 +435,6 @@ export const DocumentReport = () => {
                                     </TableBody>
                                 </Table>
                             </div>
-
                         </div>
                         {totalPages > 1 && (
                             <div className="mt-4 flex justify-center">
