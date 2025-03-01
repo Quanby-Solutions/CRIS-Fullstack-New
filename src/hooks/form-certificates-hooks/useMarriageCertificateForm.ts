@@ -543,11 +543,18 @@ export function useMarriageCertificateForm({
                 const result = await submitMarriageCertificateForm(data);
                 console.log('API submission result:', result);
                 if ('data' in result) {
-                    console.log('Submission successful:', result);
                     toast.success(
                         `Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
                     );
+
+                    const documentRead = Permission.DOCUMENT_READ
+                    const Title = "New uploaded Marriage Certificate"
+                    const message = `New Marriage Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
+                    notifyUsersWithPermission(documentRead, Title, message)
+
                     onOpenChange?.(false);
+                    formMethods.reset();
+
                 } else if ('error' in result) {
                     console.log('Submission error:', result.error);
                     const errorMessage = result.error.includes('No user found with name')
