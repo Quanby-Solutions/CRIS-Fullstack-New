@@ -115,7 +115,7 @@ export default function DeathCertificateForm({
                 type='submit'
                 className='py-2 w-32 bg-primary/80 hover:bg-primary'
               >
-                Save
+                Submit
               </Button>
             </DialogFooter>
           </form>
