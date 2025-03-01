@@ -4,7 +4,7 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 import LocationSelector from '../shared-components/location-selector'
 
 import { cn } from '@/lib/utils'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -25,7 +25,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     const { control, watch, setValue } = useFormContext<MarriageCertificateFormValues>()
     const [affiant, setAffiant] = useState(false)
     const [execution, setExecution] = useState(false)
-    const [isDelayed, setIsDelayed] = useState(false)
+    const isDelayed = useWatch({ control, name: 'affidavitForDelayed.delayedRegistration' })
 
     const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = useState(false)
     const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = useState(false)
@@ -33,26 +33,18 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' })
     const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' })
 
-    // Handle switch toggle
-    const handleDelayedToggle = (checked: boolean) => {
-        setIsDelayed(checked)
-        if (!checked) {
-            // Clear all affidavit fields when toggled off
+    // Reset the entire AffidavitForDelayed object
+    useEffect(() => {
+        if (isDelayed === 'No') {
             setValue('affidavitForDelayed', undefined)
         }
-    }
-    // Watch specific form fields for dynamic updates
-    //   const marriageLicenseNumber = watch('marriageLicenseDetails.number')
-    //   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued')
-    //   const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued')
-    //   const marriageArticleNumber = watch('marriageArticle.article')
+    }, [isDelayed, setValue])
 
     return (
         <Card className={cn('border dark:border-border', className)}>
             <CardHeader className='flex flex-col items-start justify-between gap-2'>
                 <CardTitle>Affidavit for Delayed Marriage Registration</CardTitle>
                 <div className="flex items-center space-x-2">
-                    {/* delayedRegistration */}
                     <FormField
                         control={control}
                         name='affidavitForDelayed.delayedRegistration'
@@ -81,9 +73,8 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                         )}
                     />
                 </div>
-                {/* Add switch if delayed registration */}
             </CardHeader>
-            {isDelayed && (
+            {isDelayed === 'Yes' && (
                 <CardContent className='p-6'>
 
                     <div className='space-y-4'>

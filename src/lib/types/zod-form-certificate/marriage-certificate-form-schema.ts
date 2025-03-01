@@ -103,72 +103,72 @@ const affidavitForDelayedSchema = z.object({
 
   a: z.object({
     a: z.object({
-      agreement: z.boolean().default(false),
+      agreement: z.boolean().default(false).optional(),
       nameOfPartner: z.object({
         first: z.string().optional(),
         middle: z.string().optional(), // Middle name can be optional
         last: z.string().optional(),
-      }),
+      }).optional(),
       placeOfMarriage: z.string().min(1, 'Place of marriage is required').optional(),
       dateOfMarriage: z.date().optional(),
-    }),
+    }).optional(),
     b: z.object({
-      agreement: z.boolean().default(false),
+      agreement: z.boolean().default(false).optional(),
       nameOfHusband: z.object({
         first: z.string().optional(),
         middle: z.string().optional(), // Middle name can be optional
         last: z.string().optional(),
-      }),
+      }).optional(),
       nameOfWife: z.object({
         first: z.string().optional(),
         middle: z.string().optional(), // Middle name can be optional
         last: z.string().optional(),
-      }),
+      }).optional(),
       placeOfMarriage: z.string().min(1, 'Place of marriage is required').optional(),
       dateOfMarriage: z.date().optional(),
     }),
   }).refine((data) => {
     // Ensure only one agreement is true at a time
-    return data.a.agreement !== data.b.agreement
+    return data.a?.agreement !== data.b?.agreement
   }, 'You can only select one option (either a or b)'),
 
   b: z.object({
-    solemnizedBy: z.string().min(1, 'Name of officer is required'),
+    solemnizedBy: z.string().min(1, 'Name of officer is required').optional(),
     sector: z.enum([
       'religious-ceremony',
       'civil-ceremony',
       'Muslim-rites',
       'tribal-rites',
-    ]),
+    ]).default('religious-ceremony').optional(),
   }),
   c: z.object({
     a: z.object({
-      licenseNo: z.string().min(1, 'License number is required'),
-      dateIssued: z.date(),
-      placeOfSolemnizedMarriage: z.string().min(1, 'Place of Solemnized marriage'),
-    }),
+      licenseNo: z.string().min(1, 'License number is required').optional(),
+      dateIssued: z.date().optional(),
+      placeOfSolemnizedMarriage: z.string().min(1, 'Place of Solemnized marriage').optional(),
+    }).optional(),
     b: z.object({
       underArticle: z.string().optional()
-    })
+    }).optional()
   }),
   d: z.object({
     husbandCitizenship: citizenshipSchema,
     wifeCitizenship: citizenshipSchema
   }),
-  e: z.string().nonempty('Add valid reason'),
+  e: z.string().nonempty('Add valid reason').optional(),
   f: z.object({
     date: z.date().optional(),
     place: residenceSchemas
-  }),
+  }).optional(),
   dateSworn: z.object({
-    dayOf: z.date(),
+    dayOf: z.date().optional(),
     atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
-      number: z.string().min(1, 'CTC number is required'),
-      dateIssued: z.date(),
-      placeIssued: z.string().min(1, 'Place issued is required'),
-    }),
-  }),
+      number: z.string().min(1, 'CTC number is required').optional(),
+      dateIssued: z.date().optional(),
+      placeIssued: z.string().min(1, 'Place issued is required').optional(),
+    }).optional(),
+  }).optional(),
 })
 
 /**
@@ -191,7 +191,14 @@ export const marriageCertificateSchema = z.object({
   husbandCitizenship: z.string(),
   husbandResidence: z.string(),
   husbandReligion: z.string(),
-  husbandCivilStatus: z.enum(['Single', 'Widowed', 'Divorced']),
+  husbandCivilStatus: z.enum([
+    'Single',
+    'Married',
+    'Widow',
+    'Widower',
+    'Annulled',
+    'Divorced'
+  ]),
   husbandConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -213,7 +220,14 @@ export const marriageCertificateSchema = z.object({
   wifeCitizenship: z.string(),
   wifeResidence: z.string(),
   wifeReligion: z.string(),
-  wifeCivilStatus: z.enum(['Single', 'Widowed', 'Divorced']),
+  wifeCivilStatus: z.enum([
+    'Single',
+    'Married',
+    'Widow',
+    'Widower',
+    'Annulled',
+    'Divorced'
+  ]),
   wifeConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),

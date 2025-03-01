@@ -101,9 +101,9 @@ export default function MarriageCertificateForm({
               >
                 Save
               </Button>
-              <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
+              {/* <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
                 Log Form Data
-              </Button>
+              </Button> */}
 
             </DialogFooter>
           </form>

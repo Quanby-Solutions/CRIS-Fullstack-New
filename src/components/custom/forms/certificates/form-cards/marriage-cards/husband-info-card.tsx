@@ -233,6 +233,9 @@ const HusbandInfoCard: React.FC = () => {
                     <SelectItem value='Single'>Single</SelectItem>
                     <SelectItem value='Widowed'>Widowed</SelectItem>
                     <SelectItem value='Divorced'>Divorced</SelectItem>
+                    <SelectItem value='Married'>Married</SelectItem>
+                    <SelectItem value='Widower'>Widower</SelectItem>
+                    <SelectItem value='Annulled'>Annulled</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

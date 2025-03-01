@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 interface UseMarriageCertificateFormProps {
     onOpenChange?: (open: boolean) => void;
+    defaultValues?: Partial<DeathCertificateFormValues> & { id?: string };
 }
 
 // Helper function to prepare data for Prisma
@@ -30,6 +31,8 @@ const preparePrismaData = (data: any) => {
 };
 
 export function useMarriageCertificateForm({
+
+    defaultValues,
     onOpenChange,
 }: UseMarriageCertificateFormProps = {}) {
 
@@ -39,377 +42,376 @@ export function useMarriageCertificateForm({
         reValidateMode: 'onChange',
         defaultValues: {
             // Registry Information
-            registryNumber: '2025-000123',
-            province: 'Albay',
-            cityMunicipality: 'City of Tabaco',
-
+            registryNumber: '',
+            province: '',
+            cityMunicipality: '',
+    
             // Husband Information
             husbandName: {
-                first: 'Juan Miguel',
-                middle: 'Dela Cruz',
-                last: 'Santos'
+                first: '',
+                middle: '',
+                last: ''
             },
-            husbandAge: 32,
-            husbandBirth: new Date('1993-08-15'),
+            husbandAge: 0,
+            husbandBirth: undefined,
             husbandPlaceOfBirth: {
-                houseNo: '142',
-                street: 'Rizal Avenue',
-                barangay: 'San Isidro',
-                cityMunicipality: 'City of Legazpi',
-                province: 'Albay',
-                country: 'Philippines'
+                houseNo: '',
+                street: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             },
-            husbandSex: 'Male',
-            husbandCitizenship: 'Filipino',
-            husbandResidence: '27 Sampaguita Street, Brgy. San Roque, Tabaco City, Albay',
-            husbandReligion: 'Roman Catholic',
-            husbandCivilStatus: 'Single',
+            husbandSex: undefined,
+            husbandCitizenship: '',
+            husbandResidence: '',
+            husbandReligion: '',
+            husbandCivilStatus: undefined,
             husbandConsentPerson: {
                 name: {
-                    first: 'Roberto',
-                    middle: 'Gonzales',
-                    last: 'Santos'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                relationship: 'Father',
+                relationship: '',
                 residence: {
-                    houseNo: '142',
-                    street: 'Rizal Avenue',
-                    barangay: 'San Isidro',
-                    cityMunicipality: 'City of Legazpi',
-                    province: 'Albay',
-                    country: 'Philippines'
+                    houseNo: '',
+                    street: '',
+                    barangay: '',
+                    cityMunicipality: '',
+                    province: '',
+                    country: ''
                 }
             },
             husbandParents: {
                 fatherName: {
-                    first: 'Roberto',
-                    middle: 'Gonzales',
-                    last: 'Santos'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                fatherCitizenship: 'Filipino',
+                fatherCitizenship: '',
                 motherName: {
-                    first: 'Carmela',
-                    middle: 'Villareal',
-                    last: 'Santos'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                motherCitizenship: 'Filipino'
+                motherCitizenship: ''
             },
-
+    
             // Wife Information
             wifeName: {
-                first: 'Maria Cristina',
-                middle: 'Fernandez',
-                last: 'Reyes'
+                first: '',
+                middle: '',
+                last: ''
             },
-            wifeAge: 29,
-            wifeBirth: new Date('1996-04-23'),
+            wifeAge: 0,
+            wifeBirth: undefined,
             wifePlaceOfBirth: {
-                houseNo: '78',
-                street: 'Mabini Street',
-                barangay: 'Rizal',
-                cityMunicipality: 'Legazpi City',
-                province: 'Albay',
-                country: 'Philippines'
+                houseNo: '',
+                street: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             },
-            wifeSex: 'Female',
-            wifeCitizenship: 'Filipino',
-            wifeResidence: '103 Maharlika Highway, Brgy. Binanuahan, Legazpi City, Albay',
-            wifeReligion: 'Roman Catholic',
-            wifeCivilStatus: 'Single',
+            wifeSex: undefined,
+            wifeCitizenship: '',
+            wifeResidence: '',
+            wifeReligion: '',
+            wifeCivilStatus: undefined,
             wifeConsentPerson: {
                 name: {
-                    first: 'Elena',
-                    middle: 'Rodriguez',
-                    last: 'Fernandez'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                relationship: 'Mother',
+                relationship: '',
                 residence: {
-                    houseNo: '78',
-                    street: 'Mabini Street',
-                    barangay: 'Rizal',
-                    cityMunicipality: 'Legazpi City',
-                    province: 'Albay',
-                    country: 'Philippines'
+                    houseNo: '',
+                    street: '',
+                    barangay: '',
+                    cityMunicipality: '',
+                    province: '',
+                    country: ''
                 }
             },
             wifeParents: {
                 fatherName: {
-                    first: 'Antonio',
-                    middle: 'Gomez',
-                    last: 'Reyes'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                fatherCitizenship: 'Filipino',
+                fatherCitizenship: '',
                 motherName: {
-                    first: 'Elena',
-                    middle: 'Rodriguez',
-                    last: 'Fernandez'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                motherCitizenship: 'Filipino'
+                motherCitizenship: ''
             },
-
+    
             // Marriage Details
             placeOfMarriage: {
                 houseNo: '',
-                street: 'Ziga Avenue',
-                barangay: 'San Roque',
-                cityMunicipality: 'City of Tabaco',
-                province: 'Albay',
-                country: 'Philippines'
+                street: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             },
-            dateOfMarriage: new Date('2025-05-14'),
-            timeOfMarriage: new Date(),
-
+            dateOfMarriage: undefined,
+            timeOfMarriage: undefined,
+    
             // Witnesses
             husbandWitnesses: [
                 {
-                    name: 'Carlos Manuel Dizon',
-                    signature: 'Carlos M. Dizon'
+                    name: '',
+                    signature: ''
                 },
                 {
-                    name: 'Frederick James Lim',
-                    signature: 'Frederick J. Lim'
+                    name: '',
+                    signature: ''
                 }
             ],
             wifeWitnesses: [
                 {
-                    name: 'Patricia Anne Santos',
-                    signature: 'Patricia A. Santos'
+                    name: '',
+                    signature: ''
                 },
                 {
-                    name: 'Angelica Marie Torres',
-                    signature: 'Angelica M. Torres'
+                    name: '',
+                    signature: ''
                 }
             ],
-
+    
             // Contracting Parties
             husbandContractParty: {
-                signature: 'Juan Miguel D. Santos',
-                agreement: true
+                signature: '',
+                agreement: false
             },
             wifeContractParty: {
-                signature: 'Maria Cristina F. Reyes',
-                agreement: true
+                signature: '',
+                agreement: false
             },
-
+    
             // Marriage License Details
             marriageLicenseDetails: {
-
-                dateIssued: new Date('2025-04-15'),
-                placeIssued: 'Office of the Civil Registrar, Tabaco City, Albay',
-                licenseNumber: 'ML-2025-0452',
-                marriageAgreement: true
+                dateIssued: undefined,
+                placeIssued: '',
+                licenseNumber: '',
+                marriageAgreement: false
             },
-
+    
             // Marriage Article
             marriageArticle: {
-                article: 'Article 1',
-                marriageArticle: true
+                article: '',
+                marriageArticle: false
             },
-
+    
             // Marriage Settlement
-            marriageSettlement: true,
-
+            marriageSettlement: false,
+    
             // Solemnizing Officer
             solemnizingOfficer: {
-                name: 'Rev. Fr. Miguel Antonio Santos',
-                position: 'Parish Priest, St. John the Baptist Parish',
-                signature: 'Fr. Miguel A. Santos',
-                registryNoExpiryDate: '2027-12-31'
+                name: '',
+                position: '',
+                signature: '',
+                registryNoExpiryDate: ''
             },
-
+    
             // Registered at Civil Registrar
             preparedBy: {
-                date: new Date('2025-01-15'),
-                nameInPrint: 'Gloria P. Mendoza',
-                signature: 'Gloria P. Mendoza',
-                titleOrPosition: 'Registration Officer II'
+                date: undefined,
+                nameInPrint: '',
+                signature: '',
+                titleOrPosition: ''
             },
             receivedBy: {
-                date: new Date('2025-01-15'),
-                nameInPrint: 'Eduardo R. Velasco',
-                signature: 'Eduardo R. Velasco',
-                titleOrPosition: 'Administrative Assistant III'
+                date: undefined,
+                nameInPrint: '',
+                signature: '',
+                titleOrPosition: ''
             },
             registeredByOffice: {
-                date: new Date('2025-01-16'),
-                nameInPrint: 'Maria Corazon G. Bautista',
-                signature: 'Maria Corazon G. Bautista',
-                titleOrPosition: 'City Civil Registrar'
+                date: undefined,
+                nameInPrint: '',
+                signature: '',
+                titleOrPosition: ''
             },
-
+    
             // Optional Sections
-            remarks: 'Marriage ceremony conducted in accordance with Catholic rites. Reception held at Tabaco City Convention Center.',
+            remarks: '',
             pagination: {
-                pageNumber: '42',
-                bookNumber: '7'
+                pageNumber: '',
+                bookNumber: ''
             },
-
+    
             // Back page data - Affidavit of Solemnizing Officer
             affidavitOfSolemnizingOfficer: {
                 administeringInformation: {
-                    nameOfOfficer: 'Atty. Leonardo V. Reyes',
-                    signatureOfOfficer: 'Atty. Leonardo V. Reyes',
-                    position: 'Notary Public',
+                    nameOfOfficer: '',
+                    signatureOfOfficer: '',
+                    position: '',
                     addressOfOffice: {
-                        st: 'Rizal Avenue',
-                        barangay: 'Centro',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     },
                 },
-                nameOfPlace: 'City of Tabaco',
-                addressAt: 'St. John the Baptist Parish Church, Ziga Avenue, Tabaco City',
+                nameOfPlace: '',
+                addressAt: '',
                 a: {
                     nameOfHusband: {
-                        first: 'Juan Miguel',
-                        middle: 'Dela Cruz',
-                        last: 'Santos'
+                        first: '',
+                        middle: '',
+                        last: ''
                     },
                     nameOfWife: {
-                        first: 'Maria Cristina',
-                        middle: 'Fernandez',
-                        last: 'Reyes'
+                        first: '',
+                        middle: '',
+                        last: ''
                     },
                 },
                 b: {
-                    a: true,
+                    a: false,
                     b: false,
                     c: false,
                     d: false,
                     e: false,
                 },
-                c: 'The marriage was solemnized in accordance with the Family Code of the Philippines and the Catholic rites.',
+                c: '',
                 d: {
-                    dayOf: new Date('2025-05-14'),
+                    dayOf: undefined,
                     atPlaceOfMarriage: {
-                        st: 'Ziga Avenue',
-                        barangay: 'San Roque',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     },
                 },
                 dateSworn: {
-                    dayOf: new Date('2025-05-15'),
+                    dayOf: undefined,
                     atPlaceOfSworn: {
-                        st: 'Rizal Avenue',
-                        barangay: 'Centro',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     },
                     ctcInfo: {
-                        number: 'CTC-55987123',
-                        dateIssued: new Date('2025-01-15'),
-                        placeIssued: 'Tabaco City Treasurer\'s Office',
+                        number: '',
+                        dateIssued: undefined,
+                        placeIssued: '',
                     },
                 },
                 nameOfAdmin: {
-                    address: 'Office of the City Civil Registrar, Tabaco City Hall, Tabaco City',
+                    address: '',
                     signature: {
-                        signature: 'Fr. Miguel A. Santos',
-                        position: 'Parish Priest',
-                        name2: 'Rev. Fr. Miguel Antonio Santos',
+                        signature: '',
+                        position: '',
+                        name2: '',
                     }
-                }
+                },
             },
-
+    
             // Affidavit for Delayed Registration
             affidavitForDelayed: {
                 administeringInformation: {
-                    signatureOfAdmin: 'Atty. Roberto C. Magno',
-                    nameOfOfficer: 'Atty. Roberto Carlos Magno',
-                    position: 'Notary Public',
+                    signatureOfAdmin: '',
+                    nameOfOfficer: '',
+                    position: '',
                     addressOfOfficer: {
-                        st: 'Magallanes Street',
-                        barangay: 'Centro',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     }
                 },
                 applicantInformation: {
-                    signatureOfApplicant: 'Juan Miguel D. Santos',
-                    nameOfApplicant: 'Juan Miguel Dela Cruz Santos',
-                    postalCode: '4511',
+                    signatureOfApplicant: '',
+                    nameOfApplicant: '',
+                    postalCode: '',
                     applicantAddress: {
-                        st: 'Sampaguita Street',
-                        barangay: 'San Roque',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     }
                 },
                 a: {
                     a: {
-                        agreement: true,
+                        agreement: false,
                         nameOfPartner: {
-                            first: 'Maria Cristina',
-                            middle: 'Fernandez',
-                            last: 'Reyes'
+                            first: '',
+                            middle: '',
+                            last: ''
                         },
-                        placeOfMarriage: 'St. John the Baptist Parish Church, Tabaco City',
-                        dateOfMarriage: new Date('2025-05-14'),
+                        placeOfMarriage: '',
+                        dateOfMarriage: undefined,
                     },
                     b: {
                         agreement: false,
                         nameOfHusband: {
-                            first: 'Juan Miguel',
-                            middle: 'Dela Cruz',
-                            last: 'Santos'
+                            first: '',
+                            middle: '',
+                            last: ''
                         },
                         nameOfWife: {
-                            first: 'Maria Cristina',
-                            middle: 'Fernandez',
-                            last: 'Reyes'
+                            first: '',
+                            middle: '',
+                            last: ''
                         },
-                        placeOfMarriage: 'St. John the Baptist Parish Church, Tabaco City',
-                        dateOfMarriage: new Date('2025-05-14'),
+                        placeOfMarriage: '',
+                        dateOfMarriage: undefined,
                     }
                 },
                 b: {
-                    solemnizedBy: 'Rev. Fr. Miguel Antonio Santos',
-                    sector: 'religious-ceremony',
+                    solemnizedBy: '',
+                    sector: undefined,
                 },
                 c: {
                     a: {
-                        licenseNo: 'ML-2025-0452',
-                        dateIssued: new Date('2025-04-15'),
-                        placeOfSolemnizedMarriage: 'St. John the Baptist Parish Church, Tabaco City',
+                        licenseNo: '',
+                        dateIssued: undefined,
+                        placeOfSolemnizedMarriage: '',
                     },
                     b: {
-                        underArticle: 'Article 1 of the Family Code of the Philippines'
+                        underArticle: ''
                     },
                 },
                 d: {
-                    husbandCitizenship: 'Filipino',
-                    wifeCitizenship: 'Filipino',
+                    husbandCitizenship: '',
+                    wifeCitizenship: '',
                 },
-                e: 'The delay in registration was due to an administrative oversight. The solemnizing officer failed to submit the marriage certificate to the Local Civil Registrar within the prescribed period due to illness.',
+                e: '',
                 f: {
-                    date: new Date('2025-07-15'),
+                    date: undefined,
                     place: {
-                        st: 'Rizal Avenue',
-                        barangay: 'Centro',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     }
                 },
                 dateSworn: {
-                    dayOf: new Date('2025-07-16'),
+                    dayOf: undefined,
                     atPlaceOfSworn: {
-                        st: 'Magallanes Street',
-                        barangay: 'Centro',
-                        cityMunicipality: 'City of Tabaco',
-                        province: 'Albay',
-                        country: 'Philippines'
+                        st: '',
+                        barangay: '',
+                        cityMunicipality: '',
+                        province: '',
+                        country: ''
                     },
                     ctcInfo: {
-                        number: 'CTC-55987124',
-                        dateIssued: new Date('2025-01-16'),
-                        placeIssued: 'Tabaco City Treasurer\'s Office',
+                        number: '',
+                        dateIssued: undefined,
+                        placeIssued: '',
                     }
                 }
             }
