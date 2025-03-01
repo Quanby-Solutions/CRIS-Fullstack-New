@@ -142,9 +142,9 @@ export async function GET(request: Request) {
         }
 
         // Filter out periods with no documents if displayMode is 'hasDocuments'
-        if (displayMode === 'hasDocuments') {
-            reportData = reportData.filter(item => item.totalDocuments > 0);
-        }
+        // if (displayMode === 'hasDocuments') {
+        //     reportData = reportData.filter(item => item.totalDocuments > 0);
+        // }
 
         // Sort periods chronologically
         reportData.sort((a, b) => {

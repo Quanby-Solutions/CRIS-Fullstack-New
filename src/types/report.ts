@@ -5,9 +5,9 @@ export type ClassificationFilter = "all" | "marriage" | "birth" | "death"
 export interface ReportDataItem {
     period: string
     totalDocuments: number
-    processedDocuments: number
-    pendingDocuments: number
-    averageProcessingTime: string
+    // processedDocuments: number
+    // pendingDocuments: number
+    // averageProcessingTime: string
     marriageCount: number
     birthCount: number
     deathCount: number

@@ -197,7 +197,7 @@ export const DocumentReport = () => {
     // Export data preparation
     const exportData = reportData.map((item: ReportDataItem) => ({
         ...item,
-        averageProcessingTime: item.averageProcessingTime.toString(),
+        // averageProcessingTime: item.averageProcessingTime.toString(),
     })) as Record<string, unknown>[]
 
     const { exportToCSV, exportToExcel, exportToPDF } = useExportDialog(
@@ -241,7 +241,7 @@ export const DocumentReport = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     {/* Language Switcher */}
-                    <Select
+                    {/* <Select
                         value={i18n.language}
                         onValueChange={(value: string) => i18n.changeLanguage(value)}
                     >
@@ -252,7 +252,7 @@ export const DocumentReport = () => {
                             <SelectItem value="en">English</SelectItem>
                             <SelectItem value="fil">Tagalog</SelectItem>
                         </SelectContent>
-                    </Select>
+                    </Select> */}
                     {filtersChanged && (
                         <Button onClick={resetFilters} variant="outline" size="sm">
                             {t("documentReport.resetFilters")}
@@ -267,7 +267,7 @@ export const DocumentReport = () => {
                     <Button onClick={() => exportToPDF()} variant="outline" size="sm">
                         {t("documentReport.exportPDF")}
                     </Button>
-                    <Dialog>
+                    {/* <Dialog>
                         <DialogTrigger asChild>
                             <Button variant="outline" size="sm">
                                 {t("documentReport.help")}
@@ -288,7 +288,7 @@ export const DocumentReport = () => {
                                 </DialogDescription>
                             </DialogHeader>
                         </DialogContent>
-                    </Dialog>
+                    </Dialog> */}
                 </div>
             </CardHeader>
             <CardContent>
@@ -407,9 +407,9 @@ export const DocumentReport = () => {
                                     <TableRow>
                                         <TableHead className="bg-muted">{t("documentReport.period")}</TableHead>
                                         <TableHead className="bg-muted text-right">{t("documentReport.totalDocuments")}</TableHead>
-                                        <TableHead className="bg-muted text-right">{t("documentReport.processed")}</TableHead>
+                                        {/* <TableHead className="bg-muted text-right">{t("documentReport.processed")}</TableHead>
                                         <TableHead className="bg-muted text-right">{t("documentReport.pending")}</TableHead>
-                                        <TableHead className="bg-muted text-right">{t("documentReport.averageProcessingTime")}</TableHead>
+                                        <TableHead className="bg-muted text-right">{t("documentReport.averageProcessingTime")}</TableHead> */}
                                         <TableHead className="bg-muted text-right">{t("documentReport.marriage")}</TableHead>
                                         <TableHead className="bg-muted text-right">{t("documentReport.birth")}</TableHead>
                                         <TableHead className="bg-muted text-right">{t("documentReport.death")}</TableHead>
@@ -424,9 +424,9 @@ export const DocumentReport = () => {
                                             <TableRow key={item.period}>
                                                 <TableCell>{item.period}</TableCell>
                                                 <TableCell className="text-right">{item.totalDocuments}</TableCell>
-                                                <TableCell className="text-right">{item.processedDocuments}</TableCell>
+                                                {/* <TableCell className="text-right">{item.processedDocuments}</TableCell>
                                                 <TableCell className="text-right">{item.pendingDocuments}</TableCell>
-                                                <TableCell className="text-right">{item.averageProcessingTime}</TableCell>
+                                                <TableCell className="text-right">{item.averageProcessingTime}</TableCell> */}
                                                 <TableCell className="text-right">{item.marriageCount}</TableCell>
                                                 <TableCell className="text-right">{item.birthCount}</TableCell>
                                                 <TableCell className="text-right">{item.deathCount}</TableCell>
