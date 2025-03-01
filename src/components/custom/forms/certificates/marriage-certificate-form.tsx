@@ -11,7 +11,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMarriageCertificateForm } from '@/hooks/form-certificates-hooks/useMarriageCertificateForm';
-import type { MarriageCertificateFormProps } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import type { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { FormType } from '@prisma/client';
 import ContractingPartiesCertificationCard from './form-cards/marriage-cards/contracting-parties-certification-card';
 import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
@@ -30,14 +30,25 @@ import RegistryInformationCard from './form-cards/shared-components/registry-inf
 import RemarksCard from './form-cards/shared-components/remarks-card';
 import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
 import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
+import PaginationInputs from './form-cards/shared-components/pagination-inputs';
+
+
+export interface MarriageCertificateFormProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
+  defaultValues?: Partial<MarriageCertificateFormValues>
+}
 
 export default function MarriageCertificateForm({
   open,
   onOpenChange,
   onCancel,
+  defaultValues,
 }: MarriageCertificateFormProps) {
   const { formMethods, onSubmit, handleError } = useMarriageCertificateForm({
     onOpenChange,
+    defaultValues,
   });
 
   return (
@@ -60,6 +71,7 @@ export default function MarriageCertificateForm({
                 <div className='w-full '>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
+                      <PaginationInputs />
                       <RegistryInformationCard
                         formType={FormType.MARRIAGE}
                         title='Marriage Registry Information'
@@ -78,7 +90,12 @@ export default function MarriageCertificateForm({
                         fieldPrefix='registeredByOffice'
                         cardTitle='Registered at the Office of Civil Registrar'
                       />
-                      <RemarksCard />
+                      <RemarksCard
+                        fieldName='remarks'
+                        cardTitle='Marriage Certificate Remarks'
+                        label='Additional Remarks'
+                        placeholder='Enter any additional remarks or annotations'
+                      />
                       <AffidavitOfSolemnizingOfficer />
                       <AffidavitForDelayedMarriageRegistration />
                     </div>

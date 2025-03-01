@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   citizenshipSchema,
   cityMunicipalitySchema,
+  createDateFieldSchema,
   nameSchema,
   paginationSchema,
   processingDetailsSchema,
@@ -64,15 +65,24 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
   }),
   c: z.string().optional(),
   d: z.object({
-    dayOf: z.date(),
+    dayOf: createDateFieldSchema({
+      requiredError: 'Start date is required',
+      futureError: 'Start date cannot be in the future',
+    }),
     atPlaceOfMarriage: residenceSchemas,
   }),
   dateSworn: z.object({
-    dayOf: z.date(),
+    dayOf: createDateFieldSchema({
+      requiredError: 'Start date is required',
+      futureError: 'Start date cannot be in the future',
+    }),
     atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
       number: z.string().min(1, 'CTC number is required'),
-      dateIssued: z.date(),
+      dateIssued: createDateFieldSchema({
+        requiredError: 'Start date is required',
+        futureError: 'Start date cannot be in the future',
+      }),
       placeIssued: z.string().min(1, 'Place issued is required'),
     }),
   }),
@@ -103,72 +113,90 @@ const affidavitForDelayedSchema = z.object({
 
   a: z.object({
     a: z.object({
-      agreement: z.boolean().default(false).optional(),
+      agreement: z.boolean().default(false),
       nameOfPartner: z.object({
         first: z.string().optional(),
         middle: z.string().optional(), // Middle name can be optional
         last: z.string().optional(),
-      }).optional(),
+      }),
       placeOfMarriage: z.string().min(1, 'Place of marriage is required').optional(),
-      dateOfMarriage: z.date().optional(),
-    }).optional(),
+      dateOfMarriage: createDateFieldSchema({
+        requiredError: 'Start date is required',
+        futureError: 'Start date cannot be in the future',
+      })
+    }),
     b: z.object({
-      agreement: z.boolean().default(false).optional(),
+      agreement: z.boolean().default(false),
       nameOfHusband: z.object({
         first: z.string().optional(),
         middle: z.string().optional(), // Middle name can be optional
         last: z.string().optional(),
-      }).optional(),
+      }),
       nameOfWife: z.object({
         first: z.string().optional(),
         middle: z.string().optional(), // Middle name can be optional
         last: z.string().optional(),
-      }).optional(),
+      }),
       placeOfMarriage: z.string().min(1, 'Place of marriage is required').optional(),
-      dateOfMarriage: z.date().optional(),
+      dateOfMarriage: createDateFieldSchema({
+        requiredError: 'Start date is required',
+        futureError: 'Start date cannot be in the future',
+      })
     }),
   }).refine((data) => {
     // Ensure only one agreement is true at a time
-    return data.a?.agreement !== data.b?.agreement
+    return data.a.agreement !== data.b.agreement
   }, 'You can only select one option (either a or b)'),
 
   b: z.object({
-    solemnizedBy: z.string().min(1, 'Name of officer is required').optional(),
+    solemnizedBy: z.string().min(1, 'Name of officer is required'),
     sector: z.enum([
       'religious-ceremony',
       'civil-ceremony',
       'Muslim-rites',
       'tribal-rites',
-    ]).default('religious-ceremony').optional(),
+    ]),
   }),
   c: z.object({
     a: z.object({
-      licenseNo: z.string().min(1, 'License number is required').optional(),
-      dateIssued: z.date().optional(),
-      placeOfSolemnizedMarriage: z.string().min(1, 'Place of Solemnized marriage').optional(),
-    }).optional(),
+      licenseNo: z.string().min(1, 'License number is required'),
+      dateIssued: createDateFieldSchema({
+        requiredError: 'Start date is required',
+        futureError: 'Start date cannot be in the future',
+      }),
+      placeOfSolemnizedMarriage: z.string().min(1, 'Place of Solemnized marriage'),
+    }),
     b: z.object({
       underArticle: z.string().optional()
-    }).optional()
+    })
   }),
   d: z.object({
     husbandCitizenship: citizenshipSchema,
     wifeCitizenship: citizenshipSchema
   }),
-  e: z.string().nonempty('Add valid reason').optional(),
+  e: z.string().nonempty('Add valid reason'),
   f: z.object({
-    date: z.date().optional(),
+    date: createDateFieldSchema({
+      requiredError: 'Start date is required',
+      futureError: 'Start date cannot be in the future',
+    }),
     place: residenceSchemas
-  }).optional(),
+  }),
   dateSworn: z.object({
-    dayOf: z.date().optional(),
+    dayOf: createDateFieldSchema({
+      requiredError: 'Start date is required',
+      futureError: 'Start date cannot be in the future',
+    }),
     atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
-      number: z.string().min(1, 'CTC number is required').optional(),
-      dateIssued: z.date().optional(),
-      placeIssued: z.string().min(1, 'Place issued is required').optional(),
-    }).optional(),
-  }).optional(),
+      number: z.string().min(1, 'CTC number is required'),
+      dateIssued: createDateFieldSchema({
+        requiredError: 'Start date is required',
+        futureError: 'Start date cannot be in the future',
+      }),
+      placeIssued: z.string().min(1, 'Place issued is required'),
+    }),
+  }),
 })
 
 /**
@@ -180,25 +208,24 @@ export const marriageCertificateSchema = z.object({
   registryNumber: registryNumberSchema,
   province: provinceSchema,
   cityMunicipality: cityMunicipalitySchema,
-  contractDay: z.date(),
+  contractDay: createDateFieldSchema({
+    requiredError: 'Start date is required',
+    futureError: 'Start date cannot be in the future',
+  }),
 
   // Husband Information
   husbandName: nameSchema,
   husbandAge: z.number().int(),
-  husbandBirth: z.date(),
+  husbandBirth: createDateFieldSchema({
+    requiredError: 'Start date is required',
+    futureError: 'Start date cannot be in the future',
+  }),
   husbandPlaceOfBirth: locationSchema,
   husbandSex: z.enum(['Male', 'Female']),
   husbandCitizenship: z.string(),
   husbandResidence: z.string(),
   husbandReligion: z.string(),
-  husbandCivilStatus: z.enum([
-    'Single',
-    'Married',
-    'Widow',
-    'Widower',
-    'Annulled',
-    'Divorced'
-  ]),
+  husbandCivilStatus: z.enum(['Single', 'Widowed', 'Divorced']),
   husbandConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -214,20 +241,16 @@ export const marriageCertificateSchema = z.object({
   // Wife Information
   wifeName: nameSchema,
   wifeAge: z.number().int(),
-  wifeBirth: z.date(),
+  wifeBirth: createDateFieldSchema({
+    requiredError: 'Start date is required',
+    futureError: 'Start date cannot be in the future',
+  }),
   wifePlaceOfBirth: locationSchema,
   wifeSex: z.enum(['Female']),
   wifeCitizenship: z.string(),
   wifeResidence: z.string(),
   wifeReligion: z.string(),
-  wifeCivilStatus: z.enum([
-    'Single',
-    'Married',
-    'Widow',
-    'Widower',
-    'Annulled',
-    'Divorced'
-  ]),
+  wifeCivilStatus: z.enum(['Single', 'Widowed', 'Divorced']),
   wifeConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -244,7 +267,10 @@ export const marriageCertificateSchema = z.object({
   placeOfMarriage: z.object({
     ...locationSchema.shape
   }),
-  dateOfMarriage: z.date(),
+  dateOfMarriage: createDateFieldSchema({
+    requiredError: 'Start date is required',
+    futureError: 'Start date cannot be in the future',
+  }),
   timeOfMarriage: z.preprocess((val) => {
     if (val instanceof Date) {
       // If it's already a Date object, return it directly
@@ -260,7 +286,10 @@ export const marriageCertificateSchema = z.object({
 
     // If no valid input, return current timestamp
     return new Date()
-  }, z.date({ required_error: 'Time of marriage is required' })),
+  }, createDateFieldSchema({
+    requiredError: 'Start date is required',
+    futureError: 'Start date cannot be in the future',
+  }),),
 
   // Witnesses
   husbandWitnesses: z.array(z.object({
@@ -286,7 +315,10 @@ export const marriageCertificateSchema = z.object({
   // Marriage License Details
   marriageLicenseDetails: z.object({
     licenseNumber: z.string(),
-    dateIssued: z.date(),
+    dateIssued: createDateFieldSchema({
+      requiredError: 'Start date is required',
+      futureError: 'Start date cannot be in the future',
+    }),
     placeIssued: z.string(),
     marriageAgreement: z.boolean()
   }),

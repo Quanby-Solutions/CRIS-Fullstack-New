@@ -8,12 +8,11 @@ import { toast } from 'sonner';
 
 interface UseMarriageCertificateFormProps {
     onOpenChange?: (open: boolean) => void;
-    defaultValues?: Partial<DeathCertificateFormValues> & { id?: string };
+    defaultValues?: Partial<MarriageCertificateFormValues> & { id?: string };
 }
 
 // Helper function to prepare data for Prisma
 const preparePrismaData = (data: any) => {
-    // Convert Date objects to ISO strings for JSON fields
     const formatTimeString = (date: Date) => {
         return date instanceof Date ?
             date.toLocaleTimeString('en-US', {
@@ -22,454 +21,410 @@ const preparePrismaData = (data: any) => {
                 minute: '2-digit'
             }) : date;
     };
-
-    // Create a deep copy to avoid mutating the original
     const processedData = { ...data };
-
-
     return processedData;
 };
 
+const emptyDefaults: MarriageCertificateFormValues = {
+    // Registry Information
+    registryNumber: '',
+    province: '',
+    cityMunicipality: '',
+
+    // Husband Information
+    husbandName: {
+        first: '',
+        middle: '',
+        last: ''
+    },
+    husbandAge: 0,
+    husbandBirth: undefined,
+    husbandPlaceOfBirth: {
+        houseNo: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
+    },
+    husbandSex: 'Male',
+    husbandCitizenship: '',
+    husbandResidence: '',
+    husbandReligion: '',
+    husbandCivilStatus: 'Single',
+    husbandConsentPerson: {
+        name: {
+            first: '',
+            middle: '',
+            last: ''
+        },
+        relationship: '',
+        residence: {
+            houseNo: '',
+            street: '',
+            barangay: '',
+            cityMunicipality: '',
+            province: '',
+            country: ''
+        }
+    },
+    husbandParents: {
+        fatherName: {
+            first: '',
+            middle: '',
+            last: ''
+        },
+        fatherCitizenship: '',
+        motherName: {
+            first: '',
+            middle: '',
+            last: ''
+        },
+        motherCitizenship: ''
+    },
+
+    // Wife Information
+    wifeName: {
+        first: '',
+        middle: '',
+        last: ''
+    },
+    wifeAge: 0,
+    wifeBirth: undefined,
+    wifePlaceOfBirth: {
+        houseNo: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
+    },
+    wifeSex: 'Female',
+    wifeCitizenship: '',
+    wifeResidence: '',
+    wifeReligion: '',
+    wifeCivilStatus: 'Single',
+    wifeConsentPerson: {
+        name: {
+            first: '',
+            middle: '',
+            last: ''
+        },
+        relationship: '',
+        residence: {
+            houseNo: '',
+            street: '',
+            barangay: '',
+            cityMunicipality: '',
+            province: '',
+            country: ''
+        }
+    },
+    wifeParents: {
+        fatherName: {
+            first: '',
+            middle: '',
+            last: ''
+        },
+        fatherCitizenship: '',
+        motherName: {
+            first: '',
+            middle: '',
+            last: ''
+        },
+        motherCitizenship: ''
+    },
+
+    // Marriage Details
+    placeOfMarriage: {
+        houseNo: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
+    },
+    dateOfMarriage: undefined,
+    timeOfMarriage: undefined,
+
+    // Witnesses
+    husbandWitnesses: [
+        {
+            name: '',
+            signature: ''
+        },
+        {
+            name: '',
+            signature: ''
+        }
+    ],
+    wifeWitnesses: [
+        {
+            name: '',
+            signature: ''
+        },
+        {
+            name: '',
+            signature: ''
+        }
+    ],
+
+    // Contract Details
+    contractDay: undefined,
+
+    // Contracting Parties
+    husbandContractParty: {
+        signature: '',
+        agreement: false
+    },
+    wifeContractParty: {
+        signature: '',
+        agreement: false
+    },
+
+    // Marriage License Details
+    marriageLicenseDetails: {
+        dateIssued: undefined,
+        placeIssued: '',
+        licenseNumber: '',
+        marriageAgreement: false
+    },
+
+    // Marriage Article
+    marriageArticle: {
+        article: '',
+        marriageArticle: false
+    },
+
+    // Marriage Settlement
+    marriageSettlement: false,
+
+    // Solemnizing Officer
+    solemnizingOfficer: {
+        name: '',
+        position: '',
+        signature: '',
+        registryNoExpiryDate: ''
+    },
+
+    // Registered at Civil Registrar
+    preparedBy: {
+        date: undefined,
+        nameInPrint: '',
+        signature: '',
+        titleOrPosition: ''
+    },
+    receivedBy: {
+        date: undefined,
+        nameInPrint: '',
+        signature: '',
+        titleOrPosition: ''
+    },
+    registeredByOffice: {
+        date: undefined,
+        nameInPrint: '',
+        signature: '',
+        titleOrPosition: ''
+    },
+
+    // Optional Sections
+    remarks: '',
+    pagination: {
+        pageNumber: '',
+        bookNumber: ''
+    },
+
+    // Back page data - Affidavit of Solemnizing Officer
+    affidavitOfSolemnizingOfficer: {
+        administeringInformation: {
+            nameOfOfficer: '',
+            signatureOfOfficer: '',
+            position: '',
+            addressOfOffice: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            },
+        },
+        nameOfPlace: '',
+        addressAt: '',
+        a: {
+            nameOfHusband: {
+                first: '',
+                middle: '',
+                last: ''
+            },
+            nameOfWife: {
+                first: '',
+                middle: '',
+                last: ''
+            },
+        },
+        b: {
+            a: false,
+            b: false,
+            c: false,
+            d: false,
+            e: false,
+        },
+        c: '',
+        d: {
+            dayOf: undefined,
+            atPlaceOfMarriage: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            },
+        },
+        dateSworn: {
+            dayOf: undefined,
+            atPlaceOfSworn: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            },
+            ctcInfo: {
+                number: '',
+                dateIssued: undefined,
+                placeIssued: '',
+            },
+        },
+        nameOfAdmin: {
+            address: '',
+            signature: {
+                signature: '',
+                position: '',
+                name2: '',
+            }
+        },
+    },
+
+    // Affidavit for Delayed Registration
+    affidavitForDelayed: {
+        delayedRegistration: 'No',
+        administeringInformation: {
+            signatureOfAdmin: '',
+            nameOfOfficer: '',
+            position: '',
+            addressOfOfficer: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            }
+        },
+        applicantInformation: {
+            signatureOfApplicant: '',
+            nameOfApplicant: '',
+            postalCode: '',
+            applicantAddress: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            }
+        },
+        a: {
+            a: {
+                agreement: false,
+                nameOfPartner: {
+                    first: '',
+                    middle: '',
+                    last: ''
+                },
+                placeOfMarriage: '',
+                dateOfMarriage: undefined,
+            },
+            b: {
+                agreement: false,
+                nameOfHusband: {
+                    first: '',
+                    middle: '',
+                    last: ''
+                },
+                nameOfWife: {
+                    first: '',
+                    middle: '',
+                    last: ''
+                },
+                placeOfMarriage: '',
+                dateOfMarriage: undefined,
+            }
+        },
+        b: {
+            solemnizedBy: '',
+            sector: 'religious-ceremony',
+        },
+        c: {
+            a: {
+                licenseNo: '',
+                dateIssued: undefined,
+                placeOfSolemnizedMarriage: '',
+            },
+            b: {
+                underArticle: ''
+            },
+        },
+        d: {
+            husbandCitizenship: '',
+            wifeCitizenship: '',
+        },
+        e: '',
+        f: {
+            date: undefined,
+            place: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            }
+        },
+        dateSworn: {
+            dayOf: undefined,
+            atPlaceOfSworn: {
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
+            },
+            ctcInfo: {
+                number: '',
+                dateIssued: undefined,
+                placeIssued: '',
+            }
+        }
+    }
+}
+
 export function useMarriageCertificateForm({
-
-    defaultValues,
     onOpenChange,
+    defaultValues
 }: UseMarriageCertificateFormProps = {}) {
-
     const formMethods = useForm<MarriageCertificateFormValues>({
         resolver: zodResolver(marriageCertificateSchema),
         mode: 'onChange',
         reValidateMode: 'onChange',
-        defaultValues: {
-            // Registry Information
-            registryNumber: '',
-            province: '',
-            cityMunicipality: '',
-    
-            // Husband Information
-            husbandName: {
-                first: '',
-                middle: '',
-                last: ''
-            },
-            husbandAge: 0,
-            husbandBirth: undefined,
-            husbandPlaceOfBirth: {
-                houseNo: '',
-                street: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
-            },
-            husbandSex: undefined,
-            husbandCitizenship: '',
-            husbandResidence: '',
-            husbandReligion: '',
-            husbandCivilStatus: undefined,
-            husbandConsentPerson: {
-                name: {
-                    first: '',
-                    middle: '',
-                    last: ''
-                },
-                relationship: '',
-                residence: {
-                    houseNo: '',
-                    street: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: ''
-                }
-            },
-            husbandParents: {
-                fatherName: {
-                    first: '',
-                    middle: '',
-                    last: ''
-                },
-                fatherCitizenship: '',
-                motherName: {
-                    first: '',
-                    middle: '',
-                    last: ''
-                },
-                motherCitizenship: ''
-            },
-    
-            // Wife Information
-            wifeName: {
-                first: '',
-                middle: '',
-                last: ''
-            },
-            wifeAge: 0,
-            wifeBirth: undefined,
-            wifePlaceOfBirth: {
-                houseNo: '',
-                street: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
-            },
-            wifeSex: undefined,
-            wifeCitizenship: '',
-            wifeResidence: '',
-            wifeReligion: '',
-            wifeCivilStatus: undefined,
-            wifeConsentPerson: {
-                name: {
-                    first: '',
-                    middle: '',
-                    last: ''
-                },
-                relationship: '',
-                residence: {
-                    houseNo: '',
-                    street: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: ''
-                }
-            },
-            wifeParents: {
-                fatherName: {
-                    first: '',
-                    middle: '',
-                    last: ''
-                },
-                fatherCitizenship: '',
-                motherName: {
-                    first: '',
-                    middle: '',
-                    last: ''
-                },
-                motherCitizenship: ''
-            },
-    
-            // Marriage Details
-            placeOfMarriage: {
-                houseNo: '',
-                street: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
-            },
-            dateOfMarriage: undefined,
-            timeOfMarriage: undefined,
-    
-            // Witnesses
-            husbandWitnesses: [
-                {
-                    name: '',
-                    signature: ''
-                },
-                {
-                    name: '',
-                    signature: ''
-                }
-            ],
-            wifeWitnesses: [
-                {
-                    name: '',
-                    signature: ''
-                },
-                {
-                    name: '',
-                    signature: ''
-                }
-            ],
-    
-            // Contracting Parties
-            husbandContractParty: {
-                signature: '',
-                agreement: false
-            },
-            wifeContractParty: {
-                signature: '',
-                agreement: false
-            },
-    
-            // Marriage License Details
-            marriageLicenseDetails: {
-                dateIssued: undefined,
-                placeIssued: '',
-                licenseNumber: '',
-                marriageAgreement: false
-            },
-    
-            // Marriage Article
-            marriageArticle: {
-                article: '',
-                marriageArticle: false
-            },
-    
-            // Marriage Settlement
-            marriageSettlement: false,
-    
-            // Solemnizing Officer
-            solemnizingOfficer: {
-                name: '',
-                position: '',
-                signature: '',
-                registryNoExpiryDate: ''
-            },
-    
-            // Registered at Civil Registrar
-            preparedBy: {
-                date: undefined,
-                nameInPrint: '',
-                signature: '',
-                titleOrPosition: ''
-            },
-            receivedBy: {
-                date: undefined,
-                nameInPrint: '',
-                signature: '',
-                titleOrPosition: ''
-            },
-            registeredByOffice: {
-                date: undefined,
-                nameInPrint: '',
-                signature: '',
-                titleOrPosition: ''
-            },
-    
-            // Optional Sections
-            remarks: '',
-            pagination: {
-                pageNumber: '',
-                bookNumber: ''
-            },
-    
-            // Back page data - Affidavit of Solemnizing Officer
-            affidavitOfSolemnizingOfficer: {
-                administeringInformation: {
-                    nameOfOfficer: '',
-                    signatureOfOfficer: '',
-                    position: '',
-                    addressOfOffice: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    },
-                },
-                nameOfPlace: '',
-                addressAt: '',
-                a: {
-                    nameOfHusband: {
-                        first: '',
-                        middle: '',
-                        last: ''
-                    },
-                    nameOfWife: {
-                        first: '',
-                        middle: '',
-                        last: ''
-                    },
-                },
-                b: {
-                    a: false,
-                    b: false,
-                    c: false,
-                    d: false,
-                    e: false,
-                },
-                c: '',
-                d: {
-                    dayOf: undefined,
-                    atPlaceOfMarriage: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    },
-                },
-                dateSworn: {
-                    dayOf: undefined,
-                    atPlaceOfSworn: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    },
-                    ctcInfo: {
-                        number: '',
-                        dateIssued: undefined,
-                        placeIssued: '',
-                    },
-                },
-                nameOfAdmin: {
-                    address: '',
-                    signature: {
-                        signature: '',
-                        position: '',
-                        name2: '',
-                    }
-                },
-            },
-    
-            // Affidavit for Delayed Registration
-            affidavitForDelayed: {
-                administeringInformation: {
-                    signatureOfAdmin: '',
-                    nameOfOfficer: '',
-                    position: '',
-                    addressOfOfficer: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    }
-                },
-                applicantInformation: {
-                    signatureOfApplicant: '',
-                    nameOfApplicant: '',
-                    postalCode: '',
-                    applicantAddress: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    }
-                },
-                a: {
-                    a: {
-                        agreement: false,
-                        nameOfPartner: {
-                            first: '',
-                            middle: '',
-                            last: ''
-                        },
-                        placeOfMarriage: '',
-                        dateOfMarriage: undefined,
-                    },
-                    b: {
-                        agreement: false,
-                        nameOfHusband: {
-                            first: '',
-                            middle: '',
-                            last: ''
-                        },
-                        nameOfWife: {
-                            first: '',
-                            middle: '',
-                            last: ''
-                        },
-                        placeOfMarriage: '',
-                        dateOfMarriage: undefined,
-                    }
-                },
-                b: {
-                    solemnizedBy: '',
-                    sector: undefined,
-                },
-                c: {
-                    a: {
-                        licenseNo: '',
-                        dateIssued: undefined,
-                        placeOfSolemnizedMarriage: '',
-                    },
-                    b: {
-                        underArticle: ''
-                    },
-                },
-                d: {
-                    husbandCitizenship: '',
-                    wifeCitizenship: '',
-                },
-                e: '',
-                f: {
-                    date: undefined,
-                    place: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    }
-                },
-                dateSworn: {
-                    dayOf: undefined,
-                    atPlaceOfSworn: {
-                        st: '',
-                        barangay: '',
-                        cityMunicipality: '',
-                        province: '',
-                        country: ''
-                    },
-                    ctcInfo: {
-                        number: '',
-                        dateIssued: undefined,
-                        placeIssued: '',
-                    }
-                }
-            }
-        }
+        defaultValues: defaultValues || emptyDefaults,
     });
 
-    // Updated submission function with proper data preparation
-    const onSubmit = async (data: MarriageCertificateFormValues) => {
-        try {
-            console.log('Raw form data:', data);
-
-            // First prepare the data structure
-            const preparedData = preparePrismaData(data);
-
-            // Process file uploads and convert to base64
-            const processedData = await handleFileUploads(preparedData);
-
-            console.log('Processed data before submission:', processedData);
-
-            // Submit the processed data
-            const result = await submitMarriageCertificateForm(processedData);
-
-            if ('data' in result) {
-                toast.success(
-                    `Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
-                );
-                onOpenChange?.(false);
-                formMethods.reset();
-            } else if ('error' in result) {
-                const errorMessage = result.error.includes('No user found with name')
-                    ? 'Invalid prepared by user. Please check the name.'
-                    : result.error;
-                toast.error(errorMessage);
-            }
+    // Reset the form when defaultValues change (for edit mode)
+    React.useEffect(() => {
+        if (defaultValues) {
+            formMethods.reset({ ...emptyDefaults, ...defaultValues });
         }
-        catch (error) {
-            console.error('Error in submitMarriageCertificateForm:', error);
-            return {
-                success: false,
-                error: 'Internal server error',
-            };
-        }
-    };
+    }, [defaultValues, formMethods]);
 
-    // const onSubmit = async (data: MarriageCertificateFormValues) => {
-    //     try {
-    //         console.log('✅ Form Data Submitted:', JSON.stringify(data, null, 2)); // Pretty-print JSON data
-    //         console.log('✅ Form Current State:', JSON.stringify(formMethods.getValues(), null, 2)); // Debug current state
 
-    //         toast.success('Form submitted successfully');
-    //         onOpenChange?.(false);
-    //     } catch (error) {
-    //         console.error('❌ Error submitting form:', error);
-    //         toast.error('Submission failed, please try again');
-    //     }
-    // };
-
-    // Extract file upload processing to a separate function
     const handleFileUploads = async (data: any) => {
         // Create a deep copy to avoid mutating the original
         const processedData = { ...data };
@@ -557,6 +512,74 @@ export function useMarriageCertificateForm({
 
         return processedData;
     };
+
+    // Updated submission function with proper data preparation
+    const onSubmit = async (data: MarriageCertificateFormValues) => {
+        try {
+            console.log(
+                'Attempting to submit form with data:',
+                JSON.stringify(data, null, 2)
+            );
+
+            // First prepare the data structure
+            const preparedData = preparePrismaData(data);
+
+            // Process file uploads and convert to base64
+            const processedData = await handleFileUploads(preparedData);
+
+            console.log('Processed data before submission:', processedData);
+
+
+            // Submit the processed data
+            const result = await submitMarriageCertificateForm(processedData);
+
+            // If defaultValues includes an id, assume update mode and simply log success
+            if (defaultValues && defaultValues.id) {
+                console.log('Update successful:', data);
+                toast.success('Marriage certificate update successful');
+            } else {
+                const result = await submitMarriageCertificateForm(data);
+                console.log('API submission result:', result);
+                if ('data' in result) {
+                    console.log('Submission successful:', result);
+                    toast.success(
+                        `Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
+                    );
+                    onOpenChange?.(false);
+                } else if ('error' in result) {
+                    console.log('Submission error:', result.error);
+                    const errorMessage = result.error.includes('No user found with name')
+                        ? 'Invalid prepared by user. Please check the name.'
+                        : result.error;
+                    toast.error(errorMessage);
+                }
+            }
+            formMethods.reset(emptyDefaults);
+        }
+        catch (error) {
+            console.error('Error in submitMarriageCertificateForm:', error);
+            return {
+                success: false,
+                error: 'Internal server error',
+            };
+        }
+    };
+
+    // const onSubmit = async (data: MarriageCertificateFormValues) => {
+    //     try {
+    //         console.log('✅ Form Data Submitted:', JSON.stringify(data, null, 2)); // Pretty-print JSON data
+    //         console.log('✅ Form Current State:', JSON.stringify(formMethods.getValues(), null, 2)); // Debug current state
+
+    //         toast.success('Form submitted successfully');
+    //         onOpenChange?.(false);
+    //     } catch (error) {
+    //         console.error('❌ Error submitting form:', error);
+    //         toast.error('Submission failed, please try again');
+    //     }
+    // };
+
+    // Extract file upload processing to a separate function
+
 
     const handleError = (errors: any) => {
         console.error("❌ Form Errors:", errors); // Log errors for debugging

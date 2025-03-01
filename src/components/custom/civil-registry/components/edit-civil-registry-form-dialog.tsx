@@ -15,6 +15,9 @@ import { toast } from 'sonner';
 import DeathCertificateForm from '../../forms/certificates/death-certificate-form';
 import { EditBirthCivilRegistryFormInline } from './edit-form-provider/BirthFormProvider';
 import { mapToDeathCertificateValues } from '@/lib/utils/map-to-death-certificate-values';
+import { mapToMarriageCertificateValues } from '@/lib/utils/map-to-marriage-certificate';
+import MarriageCertificateForm from '../../forms/certificates/marriage-certificate-form';
+
 
 interface EditCivilRegistryFormDialogProps {
     form: BaseRegistryFormWithRelations;
@@ -542,22 +545,22 @@ export function EditCivilRegistryFormDialog({
                 const deathFormValues = mapToDeathCertificateValues(form);
                 return (
                     <DeathCertificateForm
-                        open={open}car
+                        open={open}
                         onOpenChange={onOpenChangeAction}
                         onCancel={handleCancel}
                         defaultValues={deathFormValues}
                     />
                 );
             case 'MARRIAGE':
-                // const marriageFormValues = mapToMarriageCertificateValues(form);
-                // return (
-                //     <DeathCertificateForm
-                //         open={open}
-                //         onOpenChange={onOpenChangeAction}
-                //         onCancel={handleCancel}
-                //         defaultValues={marriageFormValues}
-                //     />
-                // );
+                const marriageFormValues = mapToMarriageCertificateValues(form);
+                return (
+                    <MarriageCertificateForm
+                        open={open}
+                        onOpenChange={onOpenChangeAction}
+                        onCancel={handleCancel}
+                        defaultValues={marriageFormValues}
+                    />
+                );
             default:
                 return null;
         }
@@ -566,7 +569,7 @@ export function EditCivilRegistryFormDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
             <DialogTitle></DialogTitle>
-            <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-4'>
+            <DialogContent className='max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0'>
                 {renderForm()}
             </DialogContent>
         </Dialog>
