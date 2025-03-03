@@ -20,13 +20,16 @@ import { useFormContext } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 import LocationSelector from './location-selector';
 import NCRModeSwitch from './ncr-mode-switch';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 
 interface RegistryInformationCardProps {
   formType: FormType;
   title?: string;
+  forms?: any;
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
+  forms,
   formType,
   title = 'Registry Information',
 }) => {
@@ -44,14 +47,39 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   }>({ exists: null, error: null });
   const [animationKey, setAnimationKey] = useState(0);
   const [ncrMode, setNcrMode] = useState(false);
+    const { watch } = useFormContext<typeof forms>()
 
   const minLength = 6;
   const maxLength = 20;
+
+
+  const province = watch('province');
+
+  // Helper: Extract the province string from either a string or object shape
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue;
+    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+      return provinceValue.label;
+    }
+    return '';
+  };
+
+  // When the province changes, update the NCR mode accordingly.
+  useEffect(() => {
+    const provinceString = getProvinceString(province);
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
+    setNcrMode(shouldBeNCR);
+  }, []);
+
+
+
 
   const generateRegistryNumber = () => {
     const year = new Date().getFullYear();
     return `${year}-${Math.floor(Math.random() * 1000000)}`;
   };
+
 
   const validateRegistryNumber = useCallback(
     (value: string): string => {
@@ -73,6 +101,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     },
     [minLength]
   );
+
 
   const checkRegistryNumber = useCallback(
     async (value: string) => {
