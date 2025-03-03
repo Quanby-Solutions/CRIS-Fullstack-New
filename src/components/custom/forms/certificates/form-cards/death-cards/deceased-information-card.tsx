@@ -50,14 +50,12 @@ const DeceasedInformationCard: React.FC = () => {
   // Determine whether to show birth information
   const shouldShowBirthInfo = useMemo(() => {
     if (!dateOfBirth || !dateOfDeath) return false;
-
     const daysBetween = differenceInDays(dateOfDeath, dateOfBirth);
     const isInfantDeath = daysBetween <= 7;
     const isMaternal =
       sex === 'Female' &&
       Number(ageAtDeath.years) > 10 &&
       Number(ageAtDeath.years) < 50;
-
     return isInfantDeath || isMaternal;
   }, [dateOfBirth, dateOfDeath, sex, ageAtDeath]);
 
@@ -87,6 +85,7 @@ const DeceasedInformationCard: React.FC = () => {
                         className='h-10'
                         placeholder='Enter first name'
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -104,6 +103,7 @@ const DeceasedInformationCard: React.FC = () => {
                         className='h-10'
                         placeholder='Enter middle name'
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -121,6 +121,7 @@ const DeceasedInformationCard: React.FC = () => {
                         className='h-10'
                         placeholder='Enter last name'
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -185,7 +186,9 @@ const DeceasedInformationCard: React.FC = () => {
                       <SelectContent>
                         <SelectItem value='Single'>Single</SelectItem>
                         <SelectItem value='Married'>Married</SelectItem>
-                        <SelectItem value='Widowed'>Widowed</SelectItem>
+                        <SelectItem value='Widow'>Widow</SelectItem>
+                        <SelectItem value='Widower'>Widower</SelectItem>
+                        <SelectItem value='Annulled'>Annulled</SelectItem>
                         <SelectItem value='Divorced'>Divorced</SelectItem>
                       </SelectContent>
                     </Select>
@@ -214,7 +217,7 @@ const DeceasedInformationCard: React.FC = () => {
                   <FormItem>
                     <DatePickerField
                       field={{
-                        value: field.value ?? null,
+                        value: field.value ?? '',
                         onChange: field.onChange,
                       }}
                       label='Date of Death'
@@ -232,7 +235,7 @@ const DeceasedInformationCard: React.FC = () => {
                   <FormItem>
                     <DatePickerField
                       field={{
-                        value: field.value ?? null,
+                        value: field.value ?? '',
                         onChange: field.onChange,
                       }}
                       label='Date of Birth'
@@ -397,6 +400,7 @@ const DeceasedInformationCard: React.FC = () => {
                       className='h-10'
                       placeholder='Enter the name of the hospital or institution'
                       {...field}
+                      value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -417,6 +421,7 @@ const DeceasedInformationCard: React.FC = () => {
                         className='h-10'
                         placeholder='Enter house number'
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -434,6 +439,7 @@ const DeceasedInformationCard: React.FC = () => {
                         className='h-10'
                         placeholder='Enter street'
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -445,6 +451,7 @@ const DeceasedInformationCard: React.FC = () => {
             {/* Location Selector for Province, City/Municipality, and Barangay */}
             <div className='mt-4'>
               <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+
               <LocationSelector
                 provinceFieldName='placeOfDeath.province'
                 municipalityFieldName='placeOfDeath.cityMunicipality'
@@ -541,6 +548,7 @@ const DeceasedInformationCard: React.FC = () => {
                             max={65}
                             className='h-10'
                             placeholder="Enter mother's age"
+                            value={field.value ?? ''}
                           />
                         </FormControl>
                         <FormMessage />
@@ -603,7 +611,6 @@ const DeceasedInformationCard: React.FC = () => {
                             value={field.value ?? ''}
                             onChange={(e) => {
                               const val = e.target.value;
-                              // Convert the input value to a number if possible, otherwise set it to an empty string
                               field.onChange(val === '' ? '' : Number(val));
                             }}
                           />

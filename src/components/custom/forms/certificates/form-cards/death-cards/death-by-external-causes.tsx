@@ -40,7 +40,11 @@ const ExternalCausesCard: React.FC = () => {
                   Intervention, etc.)
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='Enter manner of death' />
+                  <Input
+                    {...field}
+                    placeholder='Enter manner of death'
+                    value={field.value ?? ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -57,7 +61,11 @@ const ExternalCausesCard: React.FC = () => {
                   factory, street, sea, etc.)
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='Enter place of occurrence' />
+                  <Input
+                    {...field}
+                    placeholder='Enter place of occurrence'
+                    value={field.value ?? ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,7 +76,7 @@ const ExternalCausesCard: React.FC = () => {
             control={control}
             name='medicalCertificate.autopsy'
             render={({ field }) => (
-              <FormItem className=' flex flex-col'>
+              <FormItem className='flex flex-col'>
                 <FormLabel>20. Autopsy (Yes/No)</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(value === 'yes')}

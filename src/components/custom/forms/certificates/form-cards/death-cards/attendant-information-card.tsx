@@ -61,7 +61,10 @@ const AttendantInformationCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>21a. (Attendant Type)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ''}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ''}
+                >
                   <FormControl>
                     <SelectTrigger ref={field.ref} className='h-10'>
                       <SelectValue placeholder='Select attendant type' />
@@ -85,7 +88,6 @@ const AttendantInformationCard: React.FC = () => {
               </FormItem>
             )}
           />
-          {/* Type of Attendant */}
 
           {/* Others Specify field - only show when "Others" is selected */}
           {attendant?.type === 'Others' && (
@@ -98,6 +100,7 @@ const AttendantInformationCard: React.FC = () => {
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       placeholder='Specify other attendant type'
                     />
                   </FormControl>
@@ -109,7 +112,6 @@ const AttendantInformationCard: React.FC = () => {
 
           {/* Duration Section - shown when attendant type is not "None" */}
           {attendant?.type !== 'None' && (
-
             <>
               <FormField
                 control={control}
@@ -147,10 +149,8 @@ const AttendantInformationCard: React.FC = () => {
                 )}
               />
             </>
-
           )}
         </div>
-
       </CardContent>
     </Card>
   );

@@ -107,6 +107,7 @@ const CertificationOfDeathCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter name in print'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -130,6 +131,7 @@ const CertificationOfDeathCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter title or position'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -178,6 +180,7 @@ const CertificationOfDeathCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter health officer name in print'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -214,6 +217,7 @@ const CertificationOfDeathCard: React.FC = () => {
                       className='h-10'
                       placeholder='House No.'
                       {...field}
+                      value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -227,7 +231,12 @@ const CertificationOfDeathCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Street</FormLabel>
                   <FormControl>
-                    <Input className='h-10' placeholder='Street' {...field} />
+                    <Input
+                      className='h-10'
+                      placeholder='Street'
+                      {...field}
+                      value={field.value ?? ''}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -240,7 +249,12 @@ const CertificationOfDeathCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Country</FormLabel>
                   <FormControl>
-                    <Input className='h-10' placeholder='Country' {...field} />
+                    <Input
+                      className='h-10'
+                      placeholder='Country'
+                      {...field}
+                      value={field.value ?? ''}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -258,6 +272,7 @@ const CertificationOfDeathCard: React.FC = () => {
                     }}
                     label='Certification Date'
                     placeholder='Select certification date'
+                    ref={field.ref}
                   />
                 </FormItem>
               )}

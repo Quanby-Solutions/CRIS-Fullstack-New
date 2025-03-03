@@ -37,6 +37,7 @@ const CausesOfDeath19bCard: React.FC = () => {
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       placeholder='Enter the immediate cause of death'
                     />
                   </FormControl>
@@ -53,6 +54,7 @@ const CausesOfDeath19bCard: React.FC = () => {
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       placeholder='e.g., 2 hours, 3 days, 1 week'
                     />
                   </FormControl>
@@ -76,6 +78,7 @@ const CausesOfDeath19bCard: React.FC = () => {
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       placeholder='Enter the antecedent cause'
                     />
                   </FormControl>
@@ -90,7 +93,11 @@ const CausesOfDeath19bCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Interval Between Onset and Death</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='e.g., 2 weeks, 1 month' />
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder='e.g., 2 weeks, 1 month'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,6 +119,7 @@ const CausesOfDeath19bCard: React.FC = () => {
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       placeholder='Enter the underlying cause'
                     />
                   </FormControl>
@@ -126,7 +134,11 @@ const CausesOfDeath19bCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Interval Between Onset and Death</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='e.g., 6 months, 1 year' />
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder='e.g., 6 months, 1 year'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,6 +163,7 @@ const CausesOfDeath19bCard: React.FC = () => {
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value ?? ''}
                     placeholder='Enter other significant conditions'
                   />
                 </FormControl>
