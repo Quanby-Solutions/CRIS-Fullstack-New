@@ -17,17 +17,24 @@ interface SignatureUploaderProps {
    */
   label?: string;
   /**
-   * Callback to pass the selected file back to the parent.
+   * Callback to pass the selected file (or base64 string) back to the parent.
    */
-  onChange?: (file: File) => void;
+  onChange?: (value: File | string) => void;
+  /**
+   * An optional initial value. This can be a File object or a base64 string.
+   */
+  initialValue?: File | string;
 }
 
 const SignatureUploader: React.FC<SignatureUploaderProps> = ({
   name,
   label = 'Signature',
   onChange,
+  initialValue = null,
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | string | null>(
+    initialValue
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -39,6 +46,15 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
 
   const triggerFileInput = () => {
     document.getElementById(name)?.click();
+  };
+
+  const renderPreview = () => {
+    if (selectedFile instanceof File) {
+      return URL.createObjectURL(selectedFile);
+    } else if (typeof selectedFile === 'string') {
+      return selectedFile;
+    }
+    return '';
   };
 
   return (
@@ -78,7 +94,7 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
             className='p-2 flex items-center justify-center'
           >
             <img
-              src={URL.createObjectURL(selectedFile)}
+              src={renderPreview()}
               alt='Signature Preview'
               className='w-full h-full object-contain'
             />

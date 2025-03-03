@@ -198,15 +198,26 @@ const AttendantInformationCard: React.FC = () => {
                         <SignatureUploader
                           name='attendant.certification.signature'
                           label='Upload Signature'
-                          onChange={(file: File) => {
-                            setValue(
-                              'attendant.certification.signature',
-                              file,
-                              {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              }
-                            );
+                          onChange={(value: File | string) => {
+                            if (value instanceof File) {
+                              setValue(
+                                'attendant.certification.signature',
+                                value,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              );
+                            } else {
+                              setValue(
+                                'attendant.certification.signature',
+                                value,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                }
+                              );
+                            }
                           }}
                         />
                       </FormControl>

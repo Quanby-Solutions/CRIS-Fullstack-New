@@ -36,11 +36,18 @@ const CertificationInformantCard: React.FC = () => {
                   <SignatureUploader
                     name='informant.signature'
                     label='Upload Signature'
-                    onChange={(file: File) => {
-                      setValue('informant.signature', file, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
+                    onChange={(value: File | string) => {
+                      if (value instanceof File) {
+                        setValue('informant.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      } else {
+                        setValue('informant.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }
                     }}
                   />
                 </FormControl>

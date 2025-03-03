@@ -50,7 +50,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>);
   const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>;
   const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
-  
+
   useEffect(() => {
     const selectedStaff = staff.find((s) => s.name === selectedName);
     if (selectedStaff) {
@@ -79,16 +79,26 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                     <SignatureUploader
                       name={signatureFieldName}
                       label='Signature'
-                      onChange={(file: File) => {
-                        // Type assertion to tell TS that file is a valid File for this field
-                        setValue(
-                          signatureFieldName,
-                          file as PathValue<T, Path<T>>,
-                          {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          }
-                        );
+                      onChange={(value: File | string) => {
+                        if (value instanceof File) {
+                          setValue(
+                            signatureFieldName,
+                            value as PathValue<T, Path<T>>,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            }
+                          );
+                        } else {
+                          setValue(
+                            signatureFieldName,
+                            value as PathValue<T, Path<T>>,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            }
+                          );
+                        }
                       }}
                     />
                   </FormControl>
@@ -175,8 +185,6 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
             />
           )}
         </div>
-
-
       </CardContent>
     </Card>
   );

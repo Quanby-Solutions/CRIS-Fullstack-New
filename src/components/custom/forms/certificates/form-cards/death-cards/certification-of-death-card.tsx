@@ -79,11 +79,18 @@ const CertificationOfDeathCard: React.FC = () => {
                   <SignatureUploader
                     name='certificationOfDeath.signature'
                     label='Upload Signature'
-                    onChange={(file: File) => {
-                      setValue('certificationOfDeath.signature', file, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
+                    onChange={(value: File | string) => {
+                      if (value instanceof File) {
+                        setValue('certificationOfDeath.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      } else {
+                        setValue('certificationOfDeath.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }
                     }}
                   />
                 </FormControl>
@@ -148,15 +155,26 @@ const CertificationOfDeathCard: React.FC = () => {
                   <SignatureUploader
                     name='certificationOfDeath.healthOfficerSignature'
                     label='Upload Health Officer Signature'
-                    onChange={(file: File) => {
-                      setValue(
-                        'certificationOfDeath.healthOfficerSignature',
-                        file,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        }
-                      );
+                    onChange={(value: File | string) => {
+                      if (value instanceof File) {
+                        setValue(
+                          'certificationOfDeath.healthOfficerSignature',
+                          value,
+                          {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }
+                        );
+                      } else {
+                        setValue(
+                          'certificationOfDeath.healthOfficerSignature',
+                          value,
+                          {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }
+                        );
+                      }
                     }}
                   />
                 </FormControl>
