@@ -44,7 +44,11 @@ const CertificationInformantCard: React.FC = () => {
                     }}
                   />
                 </FormControl>
-                <FormMessage>{errors?.informant?.signature?.message}</FormMessage>
+                <FormMessage>
+                  {typeof errors?.informant?.signature?.message === 'string'
+                    ? errors.informant.signature.message
+                    : ''}
+                </FormMessage>
               </FormItem>
             )}
           />
@@ -57,7 +61,12 @@ const CertificationInformantCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input className='h-10' placeholder='Enter name' {...field} />
+                  <Input
+                    className='h-10'
+                    placeholder='Enter name'
+                    {...field}
+                    value={field.value ?? ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -76,6 +85,7 @@ const CertificationInformantCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter relationship'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -98,8 +108,7 @@ const CertificationInformantCard: React.FC = () => {
             isNCRMode={false}
           />
 
-          {/* House No. and Street */}
-
+          {/* House No. */}
           <FormField
             control={control}
             name='informant.address.houseNo'
@@ -111,12 +120,15 @@ const CertificationInformantCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter house number'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {/* Street */}
           <FormField
             control={control}
             name='informant.address.st'
@@ -128,13 +140,13 @@ const CertificationInformantCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter street'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
 
           {/* Country */}
           <FormField
@@ -148,6 +160,7 @@ const CertificationInformantCard: React.FC = () => {
                     className='h-10'
                     placeholder='Enter country'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -163,7 +176,7 @@ const CertificationInformantCard: React.FC = () => {
               <FormItem>
                 <DatePickerField
                   field={{
-                    value: field.value ?? null,
+                    value: field.value ?? '',
                     onChange: field.onChange,
                   }}
                   label='Date'

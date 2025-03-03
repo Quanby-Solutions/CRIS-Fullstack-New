@@ -7,9 +7,9 @@ interface DeathCertificateFormData {
   baseFormId?: string;
   deceasedName?: any;
   sex?: any;
-  dateOfDeath?: Date;
-  timeOfDeath?: Date;
-  dateOfBirth?: Date;
+  dateOfDeath?: Date | string | null;
+  timeOfDeath?: Date | string | null;
+  dateOfBirth?: Date | string | null;
   ageAtDeath?: any;
   placeOfDeath?: any;
   civilStatus?: string;
@@ -38,11 +38,10 @@ interface DeathCertificateFormData {
 export const mapToDeathCertificateValues = (
   form: BaseRegistryFormWithRelations
 ): Partial<DeathCertificateFormValues> => {
-  // Extract the death certificate form data with proper typing
   const deathForm =
     (form.deathCertificateForm as DeathCertificateFormData) || {};
 
-  // Helper for parsing dates safely
+  // Parse dates safely. If no date is provided, we return undefined.
   const parseDateSafely = (
     dateValue: Date | string | null | undefined
   ): Date | undefined => {
@@ -55,13 +54,13 @@ export const mapToDeathCertificateValues = (
     }
   };
 
-  // Helper to ensure non-null string values
+  // Ensure a value is a string, defaulting to '' if null or undefined.
   const ensureString = (value: any): string => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
 
-  // Helper to validate civil status values
+  // Validate civil status values.
   const validateCivilStatus = (
     status: any
   ):
@@ -92,7 +91,6 @@ export const mapToDeathCertificateValues = (
     return undefined;
   };
 
-  // Map basic registry information
   const registryInfo = {
     registryNumber: ensureString(form.registryNumber),
     province: ensureString(form.province),
@@ -104,11 +102,14 @@ export const mapToDeathCertificateValues = (
     remarks: ensureString(form.remarks),
   };
 
-  // Map deceased information based on the actual Prisma model structure
   const deceasedInfo = {
     name: deathForm.deceasedName || { first: '', middle: '', last: '' },
-    sex: deathForm.sex,
-    dateOfDeath: parseDateSafely(deathForm.dateOfDeath),
+    sex:
+      deathForm.sex === 'Male' || deathForm.sex === 'Female'
+        ? deathForm.sex
+        : undefined,
+
+    dateOfDeath: parseDateSafely(deathForm.dateOfDeath), // no fallback to empty string
     timeOfDeath: parseDateSafely(deathForm.timeOfDeath),
     dateOfBirth: parseDateSafely(deathForm.dateOfBirth),
     ageAtDeath: deathForm.ageAtDeath || {
@@ -140,13 +141,14 @@ export const mapToDeathCertificateValues = (
     birthInformation: deathForm.birthInformation || {
       ageOfMother: '',
       methodOfDelivery: 'Normal spontaneous vertex',
-      lengthOfPregnancy: undefined,
+      lengthOfPregnancy: ensureString(
+        deathForm.birthInformation?.lengthOfPregnancy
+      ),
       typeOfBirth: 'Single',
-      birthOrder: undefined,
+      birthOrder: ensureString(deathForm.birthInformation?.birthOrder),
     },
   };
 
-  // Map parent information from the parentInfo JSON field
   const parentInfo = {
     parents: deathForm.parentInfo || {
       fatherName: { first: '', middle: '', last: '' },
@@ -154,7 +156,6 @@ export const mapToDeathCertificateValues = (
     },
   };
 
-  // Map causes of death directly from the causesOfDeath19b JSON field
   const causesOfDeath = {
     causesOfDeath19b: deathForm.causesOfDeath19b || {
       immediate: { cause: '', interval: '' },
@@ -164,7 +165,6 @@ export const mapToDeathCertificateValues = (
     },
   };
 
-  // Map medical certificate directly from the medicalCertificate JSON field
   const medicalCertificateInfo = {
     medicalCertificate: deathForm.medicalCertificate || {
       causesOfDeath: {
@@ -191,7 +191,6 @@ export const mapToDeathCertificateValues = (
     },
   };
 
-  // Map certifications from their respective JSON fields
   const certificationInfo = {
     certificationOfDeath: deathForm.certificationOfDeath || {
       hasAttended: false,
@@ -206,25 +205,24 @@ export const mapToDeathCertificateValues = (
         province: '',
         country: '',
       },
-      date: undefined,
+      date: parseDateSafely(deathForm.certificationOfDeath?.date), // keep as Date | undefined
       healthOfficerSignature: '',
       healthOfficerNameInPrint: '',
     },
     reviewedBy: deathForm.reviewedBy || {
       signature: '',
-      date: undefined,
+      date: parseDateSafely(deathForm.reviewedBy?.date),
     },
     postmortemCertificate: deathForm.postmortemCertificate,
     embalmerCertification: deathForm.embalmerCertification,
     delayedRegistration: deathForm.delayedRegistration,
   };
 
-  // Map disposal information from their respective fields
   const disposalInfo = {
     corpseDisposal: deathForm.corpseDisposal || '',
     burialPermit: deathForm.burialPermit || {
       number: '',
-      dateIssued: undefined,
+      dateIssued: parseDateSafely(deathForm.burialPermit?.dateIssued),
     },
     transferPermit: deathForm.transferPermit,
     cemeteryOrCrematory: deathForm.cemeteryOrCrematory || {
@@ -240,7 +238,6 @@ export const mapToDeathCertificateValues = (
     },
   };
 
-  // Map informant information from the informant JSON field
   const informantInfo = {
     informant: deathForm.informant || {
       signature: '',
@@ -254,11 +251,10 @@ export const mapToDeathCertificateValues = (
         province: '',
         country: '',
       },
-      date: undefined,
+      date: parseDateSafely(deathForm.informant?.date),
     },
   };
 
-  // Map processing details from the BaseRegistryForm
   const processingInfo = {
     preparedBy: {
       signature: '',
@@ -293,7 +289,6 @@ export const mapToDeathCertificateValues = (
     },
   };
 
-  // Combine all sections and return the mapped data
   return {
     ...registryInfo,
     ...deceasedInfo,
@@ -304,6 +299,5 @@ export const mapToDeathCertificateValues = (
     ...disposalInfo,
     ...informantInfo,
     ...processingInfo,
-    // Don't include id as it's not part of DeathCertificateFormValues
   };
 };

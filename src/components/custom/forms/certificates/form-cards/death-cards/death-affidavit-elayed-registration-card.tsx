@@ -29,10 +29,10 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader className='flex flex-row justify-between items-start '>
-        <div className=''>
+      <CardHeader className='flex flex-row justify-between items-start'>
+        <div>
           <CardTitle>Affidavit for Delayed Registration of Death</CardTitle>
-          <p className='text-sm text-muted-foreground '>
+          <p className='text-sm text-muted-foreground'>
             Fill out this section only if the registration of death is delayed.
           </p>
         </div>
@@ -42,8 +42,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Toggle for Delayed Registration */}
-
         {isDelayed && (
           <>
             {/* Affiant Information */}
@@ -57,7 +55,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Affiant Name</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Enter affiant name' />
+                        <Input
+                          {...field}
+                          placeholder='Enter affiant name'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -70,7 +72,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Civil Status</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='e.g. Single/Married' />
+                        <Input
+                          {...field}
+                          placeholder='e.g. Single/Married'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -88,6 +94,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                         <Input
                           {...field}
                           placeholder="Enter affiant's address"
+                          value={field.value ?? ''}
                         />
                       </FormControl>
                       <FormMessage />
@@ -101,7 +108,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Age (optional)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter affiant's age" />
+                        <Input
+                          {...field}
+                          placeholder="Enter affiant's age"
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -138,7 +149,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Name of Deceased</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter deceased's name" />
+                      <Input
+                        {...field}
+                        placeholder="Enter deceased's name"
+                        value={field.value ?? ''}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,7 +168,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                       <FormControl>
                         <DatePickerField
                           field={{
-                            value: field.value || null,
+                            value: field.value ?? '',
                             onChange: (date) =>
                               field.onChange(
                                 date ? format(date, 'MM/dd/yyyy') : ''
@@ -175,7 +190,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Burial/Cremation Place</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Enter location' />
+                        <Input
+                          {...field}
+                          placeholder='Enter location'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -188,7 +207,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Method</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Buried or Cremated' />
+                        <Input
+                          {...field}
+                          placeholder='Buried or Cremated'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -229,6 +252,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                         <Input
                           {...field}
                           placeholder='Name of physician/health officer'
+                          value={field.value ?? ''}
                         />
                       </FormControl>
                       <FormMessage />
@@ -237,7 +261,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                 />
               )}
               {/* Cause of Death & Reason for Delay */}
-
               <FormField
                 control={control}
                 name='delayedRegistration.causeOfDeath'
@@ -245,7 +268,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Cause of Death (Affidavit)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='Enter cause of death' />
+                      <Input
+                        {...field}
+                        placeholder='Enter cause of death'
+                        value={field.value ?? ''}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -261,6 +288,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                       <Input
                         {...field}
                         placeholder='Enter reason for delayed registration'
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -281,7 +309,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                       <FormControl>
                         <DatePickerField
                           field={{
-                            value: field.value || null,
+                            value: field.value ?? '',
                             onChange: (date) => field.onChange(date),
                           }}
                           label='Affidavit Date'
@@ -300,7 +328,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Affidavit Place</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Enter place' />
+                        <Input
+                          {...field}
+                          placeholder='Enter place'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -336,7 +368,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Officer Position</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Enter position' />
+                        <Input
+                          {...field}
+                          placeholder='Enter position'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -356,7 +392,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>CTC/ID Number</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Enter CTC/ID number' />
+                        <Input
+                          {...field}
+                          placeholder='Enter CTC/ID number'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,7 +409,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Issued On</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='YYYY-MM-DD' />
+                        <Input
+                          {...field}
+                          placeholder='YYYY-MM-DD'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -382,7 +426,11 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Issued At</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Place issued' />
+                        <Input
+                          {...field}
+                          placeholder='Place issued'
+                          value={field.value ?? ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

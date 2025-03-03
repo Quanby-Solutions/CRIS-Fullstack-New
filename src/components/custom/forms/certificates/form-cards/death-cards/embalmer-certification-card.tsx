@@ -39,7 +39,11 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Name of Deceased</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter name of deceased' />
+                <Input
+                  {...field}
+                  placeholder='Enter name of deceased'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,7 +74,11 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Name in Print</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter name in print' />
+                <Input
+                  {...field}
+                  placeholder='Enter name in print'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,7 +92,11 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Address</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter address' />
+                <Input
+                  {...field}
+                  placeholder='Enter address'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -98,7 +110,11 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Title/Designation</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='e.g., Licensed Embalmer' />
+                <Input
+                  {...field}
+                  placeholder='e.g., Licensed Embalmer'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -112,7 +128,11 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>License Number</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter license number' />
+                <Input
+                  {...field}
+                  placeholder='Enter license number'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -127,7 +147,11 @@ const EmbalmerCertificationCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Issued On</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='YYYY-MM-DD' />
+                  <Input
+                    {...field}
+                    placeholder='YYYY-MM-DD'
+                    value={field.value ?? ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -141,7 +165,11 @@ const EmbalmerCertificationCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Issued At</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='Enter place of issue' />
+                  <Input
+                    {...field}
+                    placeholder='Enter place of issue'
+                    value={field.value ?? ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -156,7 +184,11 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Expiry Date</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='YYYY-MM-DD' />
+                <Input
+                  {...field}
+                  placeholder='YYYY-MM-DD'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

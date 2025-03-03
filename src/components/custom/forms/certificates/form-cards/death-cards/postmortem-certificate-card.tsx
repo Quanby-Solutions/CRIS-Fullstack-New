@@ -17,11 +17,8 @@ import SignatureUploader from '../shared-components/signature-uploader';
 const PostmortemCertificateCard: React.FC = () => {
   const { control, watch } = useFormContext<DeathCertificateFormValues>();
 
-  // Business Logic: Only show the postmortem certificate section
-  // if autopsy is performed (i.e., medicalCertificate.autopsy === true).
+  // Only show if autopsy is performed
   const isAutopsyPerformed = watch('medicalCertificate.autopsy');
-
-  // If autopsy is false or undefined, hide this section
   if (!isAutopsyPerformed) {
     return null;
   }
@@ -35,7 +32,6 @@ const PostmortemCertificateCard: React.FC = () => {
           deceased and that the cause of death was:
         </p>
       </CardHeader>
-
       <CardContent className='space-y-4'>
         {/* Cause of Death */}
         <FormField
@@ -45,7 +41,11 @@ const PostmortemCertificateCard: React.FC = () => {
             <FormItem>
               <FormLabel>Cause of Death</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter cause of death' />
+                <Input
+                  {...field}
+                  placeholder='Enter cause of death'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -78,14 +78,18 @@ const PostmortemCertificateCard: React.FC = () => {
             <FormItem>
               <FormLabel>Name in Print</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter name in print' />
+                <Input
+                  {...field}
+                  placeholder='Enter name in print'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Date (use your DatePickerField if you prefer) */}
+        {/* Date */}
         <FormField
           control={control}
           name='postmortemCertificate.date'
@@ -95,7 +99,7 @@ const PostmortemCertificateCard: React.FC = () => {
               <FormControl>
                 <DatePickerField
                   field={{
-                    value: field.value,
+                    value: field.value ?? '',
                     onChange: field.onChange,
                   }}
                   label='Postmortem Date'
@@ -119,6 +123,7 @@ const PostmortemCertificateCard: React.FC = () => {
                 <Input
                   {...field}
                   placeholder='e.g., Pathologist, Medical Examiner'
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -134,7 +139,11 @@ const PostmortemCertificateCard: React.FC = () => {
             <FormItem>
               <FormLabel>Address</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Enter address' />
+                <Input
+                  {...field}
+                  placeholder='Enter address'
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
