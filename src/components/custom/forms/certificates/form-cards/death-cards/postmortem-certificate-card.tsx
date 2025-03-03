@@ -95,7 +95,7 @@ const PostmortemCertificateCard: React.FC = () => {
               <FormControl>
                 <DatePickerField
                   field={{
-                    value: field.value,
+                    value: field.value ?? null,
                     onChange: field.onChange,
                   }}
                   label='Postmortem Date'

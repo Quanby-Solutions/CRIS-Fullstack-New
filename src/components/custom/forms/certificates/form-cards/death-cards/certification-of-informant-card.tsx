@@ -44,7 +44,11 @@ const CertificationInformantCard: React.FC = () => {
                     }}
                   />
                 </FormControl>
-                <FormMessage>{errors?.informant?.signature?.message}</FormMessage>
+                <FormMessage>
+                  {typeof errors?.informant?.signature?.message === 'string'
+                    ? errors.informant.signature.message
+                    : ''}
+                </FormMessage>
               </FormItem>
             )}
           />
@@ -134,7 +138,6 @@ const CertificationInformantCard: React.FC = () => {
               </FormItem>
             )}
           />
-
 
           {/* Country */}
           <FormField

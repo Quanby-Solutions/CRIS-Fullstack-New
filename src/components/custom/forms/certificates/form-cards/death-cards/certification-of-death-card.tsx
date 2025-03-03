@@ -60,7 +60,6 @@ const CertificationOfDeathCard: React.FC = () => {
                 <FormLabel>Time of Death</FormLabel>
                 <FormControl>
                   <TimePicker
-                    
                     value={field.value ?? null}
                     onChange={(value) => field.onChange(value)}
                     ref={field.ref}
@@ -89,7 +88,10 @@ const CertificationOfDeathCard: React.FC = () => {
                   />
                 </FormControl>
                 <FormMessage>
-                  {errors?.certificationOfDeath?.signature?.message}
+                  {typeof errors?.certificationOfDeath?.signature?.message ===
+                  'string'
+                    ? errors.certificationOfDeath.signature.message
+                    : ''}
                 </FormMessage>
               </FormItem>
             )}
@@ -157,10 +159,10 @@ const CertificationOfDeathCard: React.FC = () => {
                   />
                 </FormControl>
                 <FormMessage>
-                  {
-                    errors?.certificationOfDeath?.healthOfficerSignature
-                      ?.message
-                  }
+                  {typeof errors?.certificationOfDeath?.healthOfficerSignature
+                    ?.message === 'string'
+                    ? errors.certificationOfDeath.healthOfficerSignature.message
+                    : ''}
                 </FormMessage>
               </FormItem>
             )}
@@ -183,7 +185,6 @@ const CertificationOfDeathCard: React.FC = () => {
             )}
           />
         </div>
-
 
         {/* NCR Mode Switch */}
         <div>

@@ -213,7 +213,10 @@ const DeceasedInformationCard: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <DatePickerField
-                      field={{ value: field.value, onChange: field.onChange }}
+                      field={{
+                        value: field.value ?? null,
+                        onChange: field.onChange,
+                      }}
                       label='Date of Death'
                       placeholder='Select date of death'
                       ref={field.ref}
@@ -228,7 +231,10 @@ const DeceasedInformationCard: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <DatePickerField
-                      field={{ value: field.value, onChange: field.onChange }}
+                      field={{
+                        value: field.value ?? null,
+                        onChange: field.onChange,
+                      }}
                       label='Date of Birth'
                       placeholder='Select date of birth'
                       ref={field.ref}
@@ -247,7 +253,7 @@ const DeceasedInformationCard: React.FC = () => {
                   <FormLabel>Time of Death</FormLabel>
                   <FormControl>
                     <TimePicker
-                      value={field.value}
+                      value={field.value ?? null}
                       onChange={(value) => field.onChange(value)}
                       ref={field.ref}
                     />
