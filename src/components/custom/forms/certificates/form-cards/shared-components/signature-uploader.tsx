@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { CheckCircle2 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface SignatureUploaderProps {
   /**
@@ -33,14 +33,18 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
   initialValue = null,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | string | null>(
-    initialValue
+    initialValue || null
   );
+
+  useEffect(() => {
+    setSelectedFile(initialValue || null);
+  }, [initialValue]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
-      onChange?.(file); // Pass the file to the parent
+      onChange?.(file);
     }
   };
 
@@ -51,11 +55,14 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
   const renderPreview = () => {
     if (selectedFile instanceof File) {
       return URL.createObjectURL(selectedFile);
+    } else if (typeof selectedFile === 'string' && selectedFile.startsWith('data:image')) {
+      return selectedFile; // Base64 string (already formatted)
     } else if (typeof selectedFile === 'string') {
-      return selectedFile;
+      return `data:image/png;base64,${selectedFile}`; // Ensure proper format
     }
     return '';
   };
+  
 
   return (
     <div className='signature-uploader'>

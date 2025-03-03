@@ -191,44 +191,31 @@ const AttendantInformationCard: React.FC = () => {
                 <FormField
                   control={control}
                   name='attendant.certification.signature'
-                  render={({ field, formState: { errors } }) => (
-                    <FormItem>
-                      <FormLabel>Signature</FormLabel>
-                      <FormControl>
-                        <SignatureUploader
-                          name='attendant.certification.signature'
-                          label='Upload Signature'
-                          onChange={(value: File | string) => {
-                            if (value instanceof File) {
-                              setValue(
-                                'attendant.certification.signature',
-                                value,
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                }
-                              );
-                            } else {
-                              setValue(
-                                'attendant.certification.signature',
-                                value,
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                }
-                              );
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage>
-                        {errors?.attendant?.certification?.signature?.message &&
-                          String(
-                            errors.attendant.certification.signature.message
-                          )}
-                      </FormMessage>
-                    </FormItem>
-                  )}
+                  render={({ field, formState: { errors } }) => {
+                    const existingSignature = watch('attendant.certification.signature');
+                    return (
+                      <FormItem>
+                        <FormLabel>Signature</FormLabel>
+                        <FormControl>
+                          <SignatureUploader
+                            name='attendant.certification.signature'
+                            label='Upload Signature'
+                            initialValue={existingSignature} // Pass existing data
+                            onChange={(value: File | string) => {
+                              setValue('attendant.certification.signature', value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage>
+                          {errors?.attendant?.certification?.signature?.message &&
+                            String(errors.attendant.certification.signature.message)}
+                        </FormMessage>
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField

@@ -57,28 +57,32 @@ const CertificationOfInformantCard: React.FC = () => {
             <FormField
               control={control}
               name='informant.signature'
-              render={({ field, formState: { errors } }) => (
-                <FormItem>
-                  <FormLabel>Signature</FormLabel>
-                  <FormControl>
-                    <SignatureUploader
-                      name='informant.signature'
-                      label='Signature'
-                      onChange={(file) =>
-                        setValue('informant.signature', file, {
-                          shouldValidate: true,
-                        })
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {errors.informant?.signature?.message &&
-                      String(errors.informant.signature.message)}
-                  </FormMessage>
-                </FormItem>
-              )}
+              render={({ field, formState: { errors } }) => {
+                const existingSignature = watch('informant.signature');
+                return (
+                  <FormItem>
+                    <FormLabel>Signature</FormLabel>
+                    <FormControl>
+                      <SignatureUploader
+                        name='informant.signature'
+                        label='Upload Signature'
+                        initialValue={existingSignature} // Pass existing data
+                        onChange={(value: File | string) => {
+                          setValue('informant.signature', value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage>
+                      {errors.informant?.signature?.message &&
+                        String(errors.informant.signature.message)}
+                    </FormMessage>
+                  </FormItem>
+                );
+              }}
             />
-
             {/* Date */}
             <FormField
               control={control}

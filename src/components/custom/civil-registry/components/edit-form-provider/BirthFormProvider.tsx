@@ -616,7 +616,8 @@ export function EditBirthCivilRegistryFormInline({
       preparedByValue.nameInPrint = (rawPreparedBy as any).name;
     }
 
-    
+
+
 
     return {
       registryNumber: form.registryNumber || '',
@@ -699,6 +700,7 @@ export function EditBirthCivilRegistryFormInline({
       // Informant information
       informant: informant,
 
+     
       // Processing details
       preparedBy: {
         signature: '',
