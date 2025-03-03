@@ -60,7 +60,6 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
       });
     }
   }, [selectedName, staff, setValue, isSubmitted, titleFieldName]);
-
   return (
     <Card>
       <CardHeader>
@@ -72,41 +71,30 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
             <FormField
               control={control}
               name={signatureFieldName}
-              render={({ field, formState: { errors } }) => (
-                <FormItem>
-                  <FormLabel>Signature</FormLabel>
-                  <FormControl>
-                    <SignatureUploader
-                      name={signatureFieldName}
-                      label='Signature'
-                      onChange={(value: File | string) => {
-                        if (value instanceof File) {
-                          setValue(
-                            signatureFieldName,
-                            value as PathValue<T, Path<T>>,
-                            {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            }
-                          );
-                        } else {
-                          setValue(
-                            signatureFieldName,
-                            value as PathValue<T, Path<T>>,
-                            {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            }
-                          );
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {errors?.[field.name]?.message as string}
-                  </FormMessage>
-                </FormItem>
-              )}
+              render={({ field, formState: { errors } }) => {
+                const existingSignature = watch(signatureFieldName);
+                return (
+                  <FormItem>
+                    <FormLabel>Signature</FormLabel>
+                    <FormControl>
+                      <SignatureUploader
+                        name={signatureFieldName}
+                        label='Upload Signature'
+                        initialValue={existingSignature} // Ensure existing signature is preloaded
+                        onChange={(value: File | string) => {
+                          setValue(signatureFieldName, value as PathValue<T, Path<T>>, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage>
+                      {errors?.[field.name]?.message as string}
+                    </FormMessage>
+                  </FormItem>
+                );
+              }}
             />
           )}
           {!hideDate && (
@@ -143,9 +131,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                     <FormControl>
                       <SelectTrigger className='h-10'>
                         <SelectValue
-                          placeholder={
-                            loading ? 'Loading...' : 'Select staff name'
-                          }
+                          placeholder={loading ? 'Loading...' : 'Select staff name'}
                         />
                       </SelectTrigger>
                     </FormControl>

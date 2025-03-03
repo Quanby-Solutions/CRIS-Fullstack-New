@@ -99,7 +99,6 @@ export async function submitBirthCertificateForm(
             },
           });
         }
-
         // For registered by
         if (isFileLike(formData.registeredByOffice.signature)) {
           await tx.user.update({

@@ -92,11 +92,14 @@ interface ParentMarriage {
   place: MarriagePlace;
 }
 
-type PreparedBy = string | {
-  name: string;
+
+interface PreparedBy {
   signature?: string;
-  titleOrPosition?: string;
-};
+  nameInPrint: string;
+  titleOrPosition: string;
+  date?: Date;
+}
+
 
 export function EditBirthCivilRegistryFormInline({
   form,
@@ -232,9 +235,9 @@ export function EditBirthCivilRegistryFormInline({
     const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth;
     const typeOfBirth: 'Single' | 'Twin' | 'Triplet' | 'Others' =
       rawTypeOfBirth === 'Single' ||
-      rawTypeOfBirth === 'Twin' ||
-      rawTypeOfBirth === 'Triplet' ||
-      rawTypeOfBirth === 'Others'
+        rawTypeOfBirth === 'Twin' ||
+        rawTypeOfBirth === 'Triplet' ||
+        rawTypeOfBirth === 'Others'
         ? rawTypeOfBirth
         : 'Single';
 
@@ -270,8 +273,8 @@ export function EditBirthCivilRegistryFormInline({
           typeof rawMotherResidence.street === 'string'
             ? rawMotherResidence.street
             : typeof rawMotherResidence.st === 'string'
-            ? rawMotherResidence.st
-            : '',
+              ? rawMotherResidence.st
+              : '',
         barangay:
           typeof rawMotherResidence.barangay === 'string'
             ? rawMotherResidence.barangay
@@ -316,8 +319,8 @@ export function EditBirthCivilRegistryFormInline({
           typeof rawFatherResidence.street === 'string'
             ? rawFatherResidence.street
             : typeof rawFatherResidence.st === 'string'
-            ? rawFatherResidence.st
-            : '',
+              ? rawFatherResidence.st
+              : '',
         barangay:
           typeof rawFatherResidence.barangay === 'string'
             ? rawFatherResidence.barangay
@@ -556,15 +559,15 @@ export function EditBirthCivilRegistryFormInline({
         date?: string;
         name?: string;
         address?:
-          | string
-          | {
-              province: string;
-              cityMunicipality: string;
-              country: string;
-              houseNo?: string;
-              st?: string;
-              barangay?: string;
-            };
+        | string
+        | {
+          province: string;
+          cityMunicipality: string;
+          country: string;
+          houseNo?: string;
+          st?: string;
+          barangay?: string;
+        };
         signature?: string;
         relationship?: string;
       };
@@ -575,49 +578,73 @@ export function EditBirthCivilRegistryFormInline({
         address:
           typeof inf.address === 'string'
             ? {
-                province: '',
-                cityMunicipality: '',
-                country: '',
-                houseNo: inf.address,
-              }
+              province: '',
+              cityMunicipality: '',
+              country: '',
+              houseNo: inf.address,
+            }
             : inf.address || {
-                province: '',
-                cityMunicipality: '',
-                country: '',
-              },
+              province: '',
+              cityMunicipality: '',
+              country: '',
+            },
         relationship:
           typeof inf.relationship === 'string' ? inf.relationship : '',
       };
     }
 
 
-
-    // Inside the mapToBirthCertificateValues function:
-
-    const rawPreparedBy = form.preparedBy;
-    let preparedByValue = {
-      signature: '',
+    // Prepared By extraction.
+    const rawPreparedBy = form.birthCertificateForm?.preparer;
+    let preparedBy: {
+      nameInPrint: string;
+      date: Date;
+      signature: string;
+      titleOrPosition: string;
+    } = {
       nameInPrint: '',
-      titleOrPosition: '',
       date: parseDateSafely(form.preparedByDate),
+      signature: '',
+      titleOrPosition: '',
     };
-    
-    if (rawPreparedBy && typeof rawPreparedBy === 'object' && 'signature' in rawPreparedBy && 'titleOrPosition' in rawPreparedBy) {
-      preparedByValue = {
-        signature: (rawPreparedBy as any).signature,
-        nameInPrint: (rawPreparedBy as any).name,
-        titleOrPosition: (rawPreparedBy as any).titleOrPosition,
-        date: parseDateSafely(form.preparedByDate),
-      };
+
+    if (
+      rawPreparedBy &&
+      typeof rawPreparedBy === 'object' &&
+      !Array.isArray(rawPreparedBy)
+    ) {
+      if (
+        ('signature' in rawPreparedBy && typeof rawPreparedBy.signature === 'string') ||
+        ('nameInPrint' in rawPreparedBy && typeof rawPreparedBy.nameInPrint === 'string') ||
+        ('titleOrPosition' in rawPreparedBy && typeof rawPreparedBy.titleOrPosition === 'string') ||
+        ('date' in rawPreparedBy && typeof rawPreparedBy.date === 'string')
+      ) {
+        preparedBy = {
+          date:
+            'date' in rawPreparedBy && typeof rawPreparedBy.date === 'string'
+              ? new Date(rawPreparedBy.date)
+              : parseDateSafely(form.preparedByDate),
+          signature:
+            'signature' in rawPreparedBy && typeof rawPreparedBy.signature === 'string'
+              ? rawPreparedBy.signature
+              : '',
+          nameInPrint:
+            'nameInPrint' in rawPreparedBy && typeof rawPreparedBy.nameInPrint === 'string'
+              ? rawPreparedBy.nameInPrint
+              : '',
+          titleOrPosition:
+            'titleOrPosition' in rawPreparedBy && typeof rawPreparedBy.titleOrPosition === 'string'
+              ? rawPreparedBy.titleOrPosition
+              : '',
+        };
+      } else if ('name' in rawPreparedBy && typeof rawPreparedBy.name === 'string') {
+        preparedBy.nameInPrint = rawPreparedBy.name;
+      }
     } else if (typeof rawPreparedBy === 'string') {
-      preparedByValue.nameInPrint = rawPreparedBy;
-    } else if (rawPreparedBy && typeof rawPreparedBy === 'object' && 'name' in rawPreparedBy) {
-      // Fallback if only name exists
-      preparedByValue.nameInPrint = (rawPreparedBy as any).name;
+      preparedBy.nameInPrint = rawPreparedBy;
     }
 
-
-
+    
 
     return {
       registryNumber: form.registryNumber || '',
@@ -700,17 +727,9 @@ export function EditBirthCivilRegistryFormInline({
       // Informant information
       informant: informant,
 
-     
-      // Processing details
-      preparedBy: {
-        signature: '',
-        nameInPrint:
-          typeof form.preparedBy === 'string'
-            ? form.preparedBy
-            : form.preparedBy?.name || '',
-        titleOrPosition: '',
-        date: parseDateSafely(form.preparedByDate),
-      },
+
+
+      preparedBy: preparedBy,
 
       receivedBy: {
         signature: '',
@@ -765,7 +784,7 @@ export function EditBirthCivilRegistryFormInline({
   };
 
   const { formMethods, handleError } = useBirthCertificateForm({
-    onOpenChange: () => {},
+    onOpenChange: () => { },
     defaultValues: initialData,
   });
 
@@ -807,7 +826,7 @@ export function EditBirthCivilRegistryFormInline({
             <ScrollArea className='h-[calc(95vh-180px)]'>
               <div className='p-6 space-y-4'>
                 <PaginationInputs />
-                <RegistryInformationCard formType={FormType.BIRTH} forms={form} />
+                <RegistryInformationCard formType={FormType.BIRTH} forms={form} isEdit="BIRTH" />
                 <ChildInformationCard />
                 <MotherInformationCard />
                 <FatherInformationCard />
@@ -815,11 +834,11 @@ export function EditBirthCivilRegistryFormInline({
                 <AttendantInformationCard />
                 <CertificationOfInformantCard />
                 <PreparedByCard />
-                <ReceivedByCard />
+                {/* <ReceivedByCard />
                 <RegisteredAtOfficeCard
                   fieldPrefix='registeredByOffice'
                   cardTitle='Registered at the Office of Civil Registrar'
-                />
+                /> */}
                 <RemarksCard
                   fieldName='remarks'
                   cardTitle='Birth Certificate Remarks'

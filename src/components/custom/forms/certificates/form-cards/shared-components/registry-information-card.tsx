@@ -26,9 +26,11 @@ interface RegistryInformationCardProps {
   formType: FormType;
   title?: string;
   forms?: any;
+  isEdit?: string | null;
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
+  isEdit = null,
   forms,
   formType,
   title = 'Registry Information',
@@ -47,13 +49,14 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   }>({ exists: null, error: null });
   const [animationKey, setAnimationKey] = useState(0);
   const [ncrMode, setNcrMode] = useState(false);
-    const { watch } = useFormContext<typeof forms>()
+  const { watch } = useFormContext<typeof forms>()
 
   const minLength = 6;
   const maxLength = 20;
 
 
   const province = watch('province');
+  const rNumber = watch('registryNumber');
 
   // Helper: Extract the province string from either a string or object shape
   const getProvinceString = (provinceValue: any): string => {
@@ -231,53 +234,62 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <FormField
-                control={control}
-                name='registryNumber'
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Registry Number</FormLabel>
-                    <div className='relative flex items-center'>
-                      <Button
-                        type='button'
-                        onClick={handleGenerateRegistryNumber}
-                        className='sm:btn sm:btn-primary absolute left-1 z-10'
-                        size={'sm'}
-                        variant={'default'}
-                      >
-                        <motion.div
-                          key={animationKey}
-                          variants={refreshIconVariants}
-                          initial='initial'
-                          animate='animate'
-                          whileTap='whileTap'
+              {isEdit ? (
+                <div className="p-6">
+                  <FormLabel>Registry Number</FormLabel>
+                  <div className="border rounded p-2">
+                    <p>{rNumber}</p>
+                  </div>
+                  <FormDescription>{description}</FormDescription>
+                </div>
+              ) : (
+                <FormField
+                  control={control}
+                  name="registryNumber"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>Registry Number</FormLabel>
+                      <div className="relative flex items-center">
+                        <Button
+                          type="button"
+                          onClick={handleGenerateRegistryNumber}
+                          className="sm:btn sm:btn-primary absolute left-1 z-10"
+                          size={"sm"}
+                          variant={"default"}
                         >
-                          <Icons.refresh className='h-3 w-3' />
-                        </motion.div>
-                      </Button>
-                      <FormControl>
-                        <Input
-                          className='h-10 pl-14'
-                          placeholder={placeholder}
-                          onChange={handleRegistryNumberChange}
-                          value={registryNumber}
-                          maxLength={maxLength}
-                          inputMode='numeric'
-                          disabled={false}
-                        />
-                      </FormControl>
-                      <div className='absolute right-2 top-[10px]'>
-                        {getValidationIcon()}
+                          <motion.div
+                            key={animationKey}
+                            variants={refreshIconVariants}
+                            initial="initial"
+                            animate="animate"
+                            whileTap="whileTap"
+                          >
+                            <Icons.refresh className="h-3 w-3" />
+                          </motion.div>
+                        </Button>
+                        <FormControl>
+                          <Input
+                            className="h-10 pl-14"
+                            placeholder={placeholder}
+                            onChange={handleRegistryNumberChange}
+                            value={registryNumber}
+                            maxLength={maxLength}
+                            inputMode="numeric"
+                            disabled={false}
+                          />
+                        </FormControl>
+                        <div className="absolute right-2 top-[10px]">
+                          {getValidationIcon()}
+                        </div>
                       </div>
-                    </div>
-                    <FormDescription>{description}</FormDescription>
-                    {fieldState.error && (
-                      <FormMessage>{fieldState.error.message}</FormMessage>
-                    )}
-                  </FormItem>
-                )}
-              />
-
+                      <FormDescription>{description}</FormDescription>
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
+                    </FormItem>
+                  )}
+                />
+              )}
               {/* The LocationSelector now ensures that province is required before municipality */}
               <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
             </div>
