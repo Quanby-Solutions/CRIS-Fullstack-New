@@ -92,6 +92,12 @@ interface ParentMarriage {
   place: MarriagePlace;
 }
 
+type PreparedBy = string | {
+  name: string;
+  signature?: string;
+  titleOrPosition?: string;
+};
+
 export function EditBirthCivilRegistryFormInline({
   form,
   onSaveAction,
@@ -584,6 +590,34 @@ export function EditBirthCivilRegistryFormInline({
       };
     }
 
+
+
+    // Inside the mapToBirthCertificateValues function:
+
+    const rawPreparedBy = form.preparedBy;
+    let preparedByValue = {
+      signature: '',
+      nameInPrint: '',
+      titleOrPosition: '',
+      date: parseDateSafely(form.preparedByDate),
+    };
+    
+    if (rawPreparedBy && typeof rawPreparedBy === 'object' && 'signature' in rawPreparedBy && 'titleOrPosition' in rawPreparedBy) {
+      preparedByValue = {
+        signature: (rawPreparedBy as any).signature,
+        nameInPrint: (rawPreparedBy as any).name,
+        titleOrPosition: (rawPreparedBy as any).titleOrPosition,
+        date: parseDateSafely(form.preparedByDate),
+      };
+    } else if (typeof rawPreparedBy === 'string') {
+      preparedByValue.nameInPrint = rawPreparedBy;
+    } else if (rawPreparedBy && typeof rawPreparedBy === 'object' && 'name' in rawPreparedBy) {
+      // Fallback if only name exists
+      preparedByValue.nameInPrint = (rawPreparedBy as any).name;
+    }
+
+    
+
     return {
       registryNumber: form.registryNumber || '',
       province: form.province || '',
@@ -675,6 +709,7 @@ export function EditBirthCivilRegistryFormInline({
         titleOrPosition: '',
         date: parseDateSafely(form.preparedByDate),
       },
+
       receivedBy: {
         signature: '',
         nameInPrint: typeof form.receivedBy === 'string' ? form.receivedBy : '',
@@ -770,7 +805,7 @@ export function EditBirthCivilRegistryFormInline({
             <ScrollArea className='h-[calc(95vh-180px)]'>
               <div className='p-6 space-y-4'>
                 <PaginationInputs />
-                <RegistryInformationCard formType={FormType.BIRTH} />
+                <RegistryInformationCard formType={FormType.BIRTH} forms={form} />
                 <ChildInformationCard />
                 <MotherInformationCard />
                 <FatherInformationCard />
