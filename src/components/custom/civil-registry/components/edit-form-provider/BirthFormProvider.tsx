@@ -834,7 +834,6 @@ const handleEditSubmit = async (
       body: JSON.stringify(updatedForm),
     });
 
-    console.log('Response 123:',JSON.stringify(updatedForm));
 
     // Read response for debugging.
     const responseText = await response.text();
@@ -847,6 +846,7 @@ const handleEditSubmit = async (
     }
 
     console.log('Form updated successfully:', responseData);
+    toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
   } catch (error) {
     console.error('Failed to update form:', error);
     toast.error('Error updating form');
@@ -916,8 +916,8 @@ const handleEditSubmit = async (
                   label='Additional Remarks'
                   placeholder='Enter any additional remarks or annotations'
                 />
-                <AffidavitOfPaternityForm />
-                <DelayedRegistrationForm />
+                {/* <AffidavitOfPaternityForm />
+                <DelayedRegistrationForm /> */}
               </div>
             </ScrollArea>
             <div className='flex justify-end gap-2 mt-4 mr-8'>
