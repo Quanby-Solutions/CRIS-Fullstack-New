@@ -5,9 +5,9 @@ import {
 } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { CheckCircle2 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-interface SignatureUploaderProps {
+export interface SignatureUploaderProps {
   /**
    * The name of the field for use in your form and Zod schema.
    */
@@ -21,9 +21,9 @@ interface SignatureUploaderProps {
    */
   onChange?: (value: File | string) => void;
   /**
-   * An optional initial value. This can be a File object or a base64 string.
+   * An optional current value. This can be a File object or a base64 string.
    */
-  initialValue?: File | string;
+  initialValue?: File | string | null;
 }
 
 const SignatureUploader: React.FC<SignatureUploaderProps> = ({
@@ -32,18 +32,9 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
   onChange,
   initialValue = null,
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | string | null>(
-    initialValue || null
-  );
-
-  useEffect(() => {
-    setSelectedFile(initialValue || null);
-  }, [initialValue]);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSelectedFile(file);
       onChange?.(file);
     }
   };
@@ -53,16 +44,18 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
   };
 
   const renderPreview = () => {
-    if (selectedFile instanceof File) {
-      return URL.createObjectURL(selectedFile);
-    } else if (typeof selectedFile === 'string' && selectedFile.startsWith('data:image')) {
-      return selectedFile; // Base64 string (already formatted)
-    } else if (typeof selectedFile === 'string') {
-      return `data:image/png;base64,${selectedFile}`; // Ensure proper format
+    if (initialValue instanceof File) {
+      return URL.createObjectURL(initialValue);
+    } else if (
+      typeof initialValue === 'string' &&
+      initialValue.startsWith('data:image')
+    ) {
+      return initialValue;
+    } else if (typeof initialValue === 'string' && initialValue.length > 0) {
+      return `data:image/png;base64,${initialValue}`;
     }
     return '';
   };
-  
 
   return (
     <div className='signature-uploader'>
@@ -71,7 +64,7 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
         id={name}
         name={name}
         type='file'
-        accept='image/*' // Restrict file types to images
+        accept='image/*'
         onChange={handleFileChange}
         className='hidden'
       />
@@ -80,21 +73,19 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
         <HoverCardTrigger asChild>
           <div className='relative'>
             <Input
-              placeholder={
-                selectedFile ? 'Change Signature' : 'Upload Signature'
-              }
+              placeholder={initialValue ? 'Change Signature' : 'Upload Signature'}
               readOnly
               onClick={triggerFileInput}
               className='h-10 cursor-pointer pr-10'
             />
-            {selectedFile && (
+            {initialValue && (
               <span className='absolute inset-y-0 right-2 flex items-center text-green-500'>
                 <CheckCircle2 className='w-5 h-5' />
               </span>
             )}
           </div>
         </HoverCardTrigger>
-        {selectedFile && (
+        {initialValue && (
           <HoverCardContent
             side='top'
             align='center'

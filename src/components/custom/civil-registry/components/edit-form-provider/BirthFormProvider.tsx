@@ -644,7 +644,7 @@ export function EditBirthCivilRegistryFormInline({
       preparedBy.nameInPrint = rawPreparedBy;
     }
 
-    
+
 
     return {
       registryNumber: form.registryNumber || '',
@@ -732,20 +732,28 @@ export function EditBirthCivilRegistryFormInline({
       preparedBy: preparedBy,
 
       receivedBy: {
-        signature: '',
+        signature: 'ReceivedSignature',
         nameInPrint: typeof form.receivedBy === 'string' ? form.receivedBy : '',
-        titleOrPosition: '',
+        titleOrPosition: 'SampleReceivePosition',
         date: parseDateSafely(form.receivedByDate),
       },
       registeredByOffice: {
-        signature: '',
+        signature: 'registeredSignature',
         nameInPrint:
           typeof form.registeredBy === 'string' ? form.registeredBy : '',
-        titleOrPosition: '',
+        titleOrPosition: 'SampleRegisterPosition',
         date: parseDateSafely(form.registeredByDate),
       },
+
+
+      
+
+      
       hasAffidavitOfPaternity: false,
       affidavitOfPaternityDetails: null,
+
+
+      
       isDelayedRegistration: false,
       affidavitOfDelayedRegistration: null,
     };
@@ -753,35 +761,98 @@ export function EditBirthCivilRegistryFormInline({
 
   const initialData = mapToBirthCertificateValues(form);
 
-  const handleEditSubmit = async (
-    data: BirthCertificateFormValues
-  ): Promise<void> => {
-    try {
-      const preparedByValue = { name: data.preparedBy.nameInPrint };
-      const updatedForm: BaseRegistryFormWithRelations = {
-        ...form,
-        registryNumber: data.registryNumber,
-        province: data.province,
-        cityMunicipality: data.cityMunicipality,
-        pageNumber: data.pagination?.pageNumber || form.pageNumber,
-        bookNumber: data.pagination?.bookNumber || form.bookNumber,
-        remarks: data.remarks || null,
-        preparedBy: preparedByValue,
-        preparedByDate: data.preparedBy.date || null,
-        receivedBy: data.receivedBy.nameInPrint || null,
-        receivedByDate: data.receivedBy.date || null,
-        registeredBy: data.registeredByOffice.nameInPrint || null,
-        registeredByDate: data.registeredByOffice.date || null,
-        updatedAt: new Date(),
-      };
-
-      await onSaveAction(updatedForm);
-      toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
-    } catch (error) {
-      console.error('Error updating form:', error);
-      toast.error(t('errorUpdatingForm'));
-    }
+  // BirthFormProvider.tsx
+const handleEditSubmit = async (
+  data: BirthCertificateFormValues
+): Promise<void> => {
+  // Build an updated form object using consistent defaults.
+  const updatedForm = {
+    id: form.id, // Make sure this is the correct id of an existing record.
+    registryNumber: data.registryNumber,
+    province: data.province,
+    cityMunicipality: data.cityMunicipality,
+    pageNumber: data.pagination?.pageNumber || form.pageNumber,
+    bookNumber: data.pagination?.bookNumber || form.bookNumber,
+    remarks: data.remarks || null,
+    // Send preparedBy as a simple string if your schema expects that.
+    preparedByDate: data.preparedBy.date || null,
+    receivedBy: data.receivedBy.nameInPrint || null,
+    receivedByDate: data.receivedBy.date || null,
+    registeredBy: data.registeredByOffice.nameInPrint || null,
+    registeredByDate: data.registeredByOffice.date || null,
+    updatedAt: new Date(),
+    // Map nested birth certificate fields:
+    childInfo: {
+      firstName: data.childInfo.firstName || '',
+      middleName: data.childInfo.middleName || '',
+      lastName: data.childInfo.lastName || '',
+      sex: data.childInfo.sex || '',
+      dateOfBirth: data.childInfo.dateOfBirth || null,
+      placeOfBirth: data.childInfo.placeOfBirth || '',
+      typeOfBirth: data.childInfo.typeOfBirth || '',
+      multipleBirthOrder: data.childInfo.multipleBirthOrder,
+      birthOrder: data.childInfo.birthOrder,
+      weightAtBirth: data.childInfo.weightAtBirth,
+    },
+    motherInfo: {
+      firstName: data.motherInfo.firstName || '',
+      middleName: data.motherInfo.middleName || '',
+      lastName: data.motherInfo.lastName || '',
+      citizenship: data.motherInfo.citizenship || '',
+      religion: data.motherInfo.religion || '',
+      occupation: data.motherInfo.occupation || '',
+      age: data.motherInfo.age,
+      residence: data.motherInfo.residence || '',
+    },
+    fatherInfo: {
+      firstName: data.fatherInfo!.firstName || '',
+      middleName: data.fatherInfo!.middleName || '',
+      lastName: data.fatherInfo!.lastName || '',
+      citizenship: data.fatherInfo!.citizenship || '',
+      religion: data.fatherInfo!.religion || '',
+      occupation: data.fatherInfo!.occupation || '',
+      age: data.fatherInfo!.age,
+      residence: data.fatherInfo!.residence || '',
+    },
+    parentMarriage: data.parentMarriage,
+    attendant: data.attendant,
+    informant: data.informant,
+    preparedBy: data.preparedBy,
+    hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
+    affidavitOfPaternityDetails: data.affidavitOfPaternityDetails,
+    isDelayedRegistration: data.isDelayedRegistration,
+    affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
+    reasonForDelay: data.affidavitOfDelayedRegistration?.reasonForDelay || '',
   };
+
+  try {
+    const response = await fetch('/api/editForm/birth', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedForm),
+    });
+
+    console.log('Response 123:',JSON.stringify(updatedForm));
+
+    // Read response for debugging.
+    const responseText = await response.text();
+
+    // Parse JSON only if responseText exists.
+    const responseData = responseText ? JSON.parse(responseText) : {};
+
+    if (!response.ok) {
+      throw new Error(responseData.error || 'Failed to update form');
+    }
+
+    console.log('Form updated successfully:', responseData);
+  } catch (error) {
+    console.error('Failed to update form:', error);
+    toast.error('Error updating form');
+  }
+};
+
 
   const { formMethods, handleError } = useBirthCertificateForm({
     onOpenChange: () => { },

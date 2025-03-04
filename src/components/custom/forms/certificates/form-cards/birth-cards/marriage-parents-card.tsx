@@ -17,7 +17,7 @@ import LocationSelector from '../shared-components/location-selector'
 import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 export default function MarriageInformationCard() {
-  const { control, watch } = useFormContext<BirthCertificateFormValues>()
+  const { control, watch, setValue} = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
 
   // Watch the province field for marriage place
@@ -36,11 +36,13 @@ export default function MarriageInformationCard() {
   // Update ncrMode based on the province value
   useEffect(() => {
     const provinceString = getProvinceString(province)
-    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
-    if (shouldBeNCR !== ncrMode) {
-      setNcrMode(shouldBeNCR)
+    const shouldBeNcr = provinceString.trim().toLowerCase() === 'metro manila'
+    if (shouldBeNcr !== ncrMode) {
+      setNcrMode(shouldBeNcr)
+      setValue('parentMarriage.place.province', 'Metro Manila')
     }
-  }, [])
+  }, [province, ncrMode])
+  
 
   return (
     <Card className='mb-6'>

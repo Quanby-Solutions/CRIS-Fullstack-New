@@ -19,12 +19,11 @@ import {
 } from '@/components/ui/select'
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
 import { useEffect, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
 import LocationSelector from '../shared-components/location-selector'
 import NCRModeSwitch from '../shared-components/ncr-mode-switch'
-
+import { useFormContext } from 'react-hook-form'
 const ChildInformationCard: React.FC = () => {
-  const { control, watch } = useFormContext<BirthCertificateFormValues>()
+  const { control, watch, setValue, trigger } = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
 
   // Watch the province value
@@ -40,12 +39,27 @@ const ChildInformationCard: React.FC = () => {
     return ''
   }
 
-
   useEffect(() => {
-    const provinceString = getProvinceString(province)
+    const provinceString = getProvinceString(province) || 'Metro Manila'
+    
+    // Determine if the province should be NCR (Metro Manila) or not
     const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
     setNcrMode(shouldBeNCR)
-  }, []) 
+  
+    // Set the province value based on whether NCR mode is true or false
+    setValue('childInfo.placeOfBirth.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
+      shouldValidate: true, // Trigger validation immediately
+      shouldDirty: true,     // Mark the field as dirty to ensure validation
+    })
+  
+    // Manually trigger revalidation of the province field after setting the value
+    trigger('childInfo.placeOfBirth.province')
+  }, [province]) // Runs whenever province changes
+  
+  
+
+
+  
 
   return (
     <Card>

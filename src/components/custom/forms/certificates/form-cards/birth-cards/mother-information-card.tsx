@@ -18,8 +18,9 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 import ReligionSelector from '../shared-components/religion-selector'
 
 const MotherInformationCard: React.FC = () => {
-  const { control, watch, setError, clearErrors } =
+  const { control, watch, setError, clearErrors, setValue, trigger } =
     useFormContext<BirthCertificateFormValues>()
+
   const [ncrMode, setNcrMode] = useState(false)
 
   // Watch children counts
@@ -61,16 +62,26 @@ const MotherInformationCard: React.FC = () => {
       clearErrors('motherInfo.totalChildrenBornAlive')
     }
   }, [total, living, dead, setError, clearErrors])
+  // Update ncrMode whenever the province changes
 
-  // Update ncrMode based on the province value
-  useEffect(() => {
-    const provinceString = getProvinceString(province)
-    const shouldBeNcr = provinceString.trim().toLowerCase() === 'metro manila'
-    if (shouldBeNcr !== ncrMode) {
-      setNcrMode(shouldBeNcr)
-    }
-  }, [])
   
+
+  useEffect(() => {
+    const provinceString = getProvinceString(province) || 'Metro Manila'
+    
+    // Determine if the province should be NCR (Metro Manila) or not
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+    setNcrMode(shouldBeNCR)
+  
+    // Set the province value based on whether NCR mode is true or false
+    setValue('motherInfo.residence.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
+      shouldValidate: true, // Trigger validation immediately
+      shouldDirty: true,     // Mark the field as dirty to ensure validation
+    })
+  
+    // Manually trigger revalidation of the province field after setting the value
+    trigger('motherInfo.residence.province')
+  }, [province]) // Runs whenever province changes
 
   return (
     <Card>
