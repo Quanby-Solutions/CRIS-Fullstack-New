@@ -119,22 +119,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   )}
                 />
               </div>
-              <FormField
-                control={control}
-                name='delayedRegistration.affiant.signature'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Affiant Signature</FormLabel>
-                    <FormControl>
-                      <SignatureUploader
-                        name='delayedRegistration.affiant.signature'
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             {/* Deceased Information (Affidavit) */}
@@ -345,22 +329,6 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
             <div className='space-y-4'>
               <h3 className='text-lg font-semibold'>Administering Officer</h3>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <FormField
-                  control={control}
-                  name='delayedRegistration.adminOfficer.signature'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Officer Signature</FormLabel>
-                      <FormControl>
-                        <SignatureUploader
-                          name='delayedRegistration.adminOfficer.signature'
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={control}
                   name='delayedRegistration.adminOfficer.position'

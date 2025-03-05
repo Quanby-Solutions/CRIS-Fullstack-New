@@ -3,7 +3,6 @@ import {
   DeathCertificateFormValues,
   deathCertificateFormSchema,
 } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Permission } from '@prisma/client';
 import React from 'react';
@@ -17,46 +16,46 @@ export interface UseDeathCertificateFormProps {
 }
 
 const emptyDefaults: DeathCertificateFormValues = {
-  registryNumber: '',
-  province: '',
-  cityMunicipality: '',
+  registryNumber: '3412',
+  province: 'Sample Province',
+  cityMunicipality: 'Sample City',
   name: {
-    first: '',
-    middle: '',
-    last: '',
+    first: 'Josh',
+    middle: 'Morris',
+    last: 'Aguilar',
   },
   sex: undefined,
-  dateOfDeath: undefined,
+  dateOfDeath: new Date('2022-01-01'),
   timeOfDeath: undefined,
-  dateOfBirth: undefined,
+  dateOfBirth: new Date('2022-04-01'),
   ageAtDeath: {
-    years: '',
-    months: '',
-    days: '',
-    hours: '',
+    years: '2',
+    months: '5',
+    days: '1',
+    hours: '52',
   },
   placeOfDeath: {
-    hospitalInstitution: '',
-    houseNo: '',
-    st: '',
+    hospitalInstitution: 'qweqwe',
+    houseNo: 'ewqes',
+    st: 'sadaw',
     barangay: '',
-    cityMunicipality: '',
-    province: '',
+    cityMunicipality: 'asdwd',
+    province: 'asfafs',
   },
   civilStatus: undefined,
-  religion: '',
-  citizenship: '',
+  religion: 'Catolic',
+  citizenship: 'Filipino',
   residence: {
-    houseNo: '',
-    st: '',
-    barangay: '',
-    cityMunicipality: '',
-    province: '',
-    country: '',
+    houseNo: '213',
+    st: '535qweqwe',
+    barangay: 'qweqweqw',
+    cityMunicipality: 'qwe',
+    province: 'qwe',
+    country: 'qwe',
   },
-  occupation: '',
+  occupation: 'qweqwe',
   birthInformation: {
-    ageOfMother: '',
+    ageOfMother: 'qweqwe',
     methodOfDelivery: 'Normal spontaneous vertex',
     lengthOfPregnancy: undefined,
     typeOfBirth: 'Single',
@@ -64,28 +63,28 @@ const emptyDefaults: DeathCertificateFormValues = {
   },
   parents: {
     fatherName: {
-      first: '',
-      middle: '',
-      last: '',
+      first: 'FFF',
+      middle: 'qQQWW',
+      last: 'FWQFQ',
     },
     motherName: {
-      first: '',
-      middle: '',
-      last: '',
+      first: 'qwerqs',
+      middle: 'SAFASFW',
+      last: 'fqwasfw',
     },
   },
   causesOfDeath19b: {
-    immediate: { cause: '', interval: '' },
-    antecedent: { cause: '', interval: '' },
-    underlying: { cause: '', interval: '' },
+    immediate: { cause: 'qwersaf', interval: '4' },
+    antecedent: { cause: 'asfwf', interval: '2' },
+    underlying: { cause: 'safqwf', interval: '15' },
     otherSignificantConditions: '',
   },
   medicalCertificate: {
     causesOfDeath: {
-      immediate: { cause: '', interval: '' },
-      antecedent: { cause: '', interval: '' },
-      underlying: { cause: '', interval: '' },
-      otherSignificantConditions: '',
+      immediate: { cause: 'qqqq', interval: '' },
+      antecedent: { cause: 'qqqq', interval: '' },
+      underlying: { cause: 'qqqq', interval: '' },
+      otherSignificantConditions: 'qwasdwd',
     },
     maternalCondition: {
       pregnantNotInLabor: false,
@@ -105,33 +104,32 @@ const emptyDefaults: DeathCertificateFormValues = {
   },
   certificationOfDeath: {
     hasAttended: false,
-    signature: '',
     nameInPrint: '',
     titleOfPosition: '',
     address: {
-      houseNo: '',
-      st: '',
+      houseNo: '5254125',
+      st: '123123qweqw',
       barangay: '',
       cityMunicipality: '',
       province: '',
       country: '',
     },
     date: undefined,
-    healthOfficerSignature: '',
     healthOfficerNameInPrint: '',
   },
-  reviewedBy: { signature: '', date: undefined },
+  reviewedBy: { date: undefined },
   postmortemCertificate: undefined,
   embalmerCertification: undefined,
-  delayedRegistration: undefined,
+  // Provide default value matching the non-delayed case:
+  delayedRegistration: { isDelayed: false },
   corpseDisposal: '',
   burialPermit: { number: '', dateIssued: undefined },
   transferPermit: undefined,
   cemeteryOrCrematory: {
     name: '',
     address: {
-      houseNo: '',
-      st: '',
+      houseNo: '465124',
+      st: '15qwqweqwe',
       barangay: '',
       cityMunicipality: '',
       province: '',
@@ -139,12 +137,11 @@ const emptyDefaults: DeathCertificateFormValues = {
     },
   },
   informant: {
-    signature: '',
     nameInPrint: '',
     relationshipToDeceased: '',
     address: {
-      houseNo: '',
-      st: '',
+      houseNo: '123123',
+      st: 'qweqweqwe',
       barangay: '',
       cityMunicipality: '',
       province: '',
@@ -153,25 +150,22 @@ const emptyDefaults: DeathCertificateFormValues = {
     date: undefined,
   },
   preparedBy: {
-    // signature: '',
     nameInPrint: '',
     titleOrPosition: '',
     date: undefined,
   },
   receivedBy: {
-    // signature: '',
     nameInPrint: '',
     titleOrPosition: '',
     date: undefined,
   },
   registeredByOffice: {
-    // signature: '',
     nameInPrint: '',
     titleOrPosition: '',
     date: undefined,
   },
-  remarks: '',
-  pagination: { pageNumber: '', bookNumber: '' },
+  remarks: 'No Remarks',
+  pagination: { pageNumber: '21', bookNumber: '112' },
 };
 
 export function useDeathCertificateForm({
@@ -199,69 +193,8 @@ export function useDeathCertificateForm({
         JSON.stringify(data, null, 2)
       );
 
-      // Convert signature fields to Base64 if needed
-      if (
-        data.medicalCertificate?.attendant?.certification?.signature instanceof
-        File
-      ) {
-        data.medicalCertificate.attendant.certification.signature =
-          await fileToBase64(
-            data.medicalCertificate.attendant.certification.signature
-          );
-      }
-      if (data.certificationOfDeath.signature instanceof File) {
-        data.certificationOfDeath.signature = await fileToBase64(
-          data.certificationOfDeath.signature
-        );
-      }
-      if (data.certificationOfDeath.healthOfficerSignature instanceof File) {
-        data.certificationOfDeath.healthOfficerSignature = await fileToBase64(
-          data.certificationOfDeath.healthOfficerSignature
-        );
-      }
-      if (data.reviewedBy.signature instanceof File) {
-        data.reviewedBy.signature = await fileToBase64(
-          data.reviewedBy.signature
-        );
-      }
-      if (data.informant.signature instanceof File) {
-        data.informant.signature = await fileToBase64(data.informant.signature);
-      }
-      // if (data.preparedBy.signature instanceof File) {
-      //   data.preparedBy.signature = await fileToBase64(
-      //     data.preparedBy.signature
-      //   );
-      // }
-      // if (data.receivedBy.signature instanceof File) {
-      //   data.receivedBy.signature = await fileToBase64(
-      //     data.receivedBy.signature
-      //   );
-      // }
-      // if (data.registeredByOffice.signature instanceof File) {
-      //   data.registeredByOffice.signature = await fileToBase64(
-      //     data.registeredByOffice.signature
-      //   );
-      // }
-      if (data.postmortemCertificate?.signature instanceof File) {
-        data.postmortemCertificate.signature = await fileToBase64(
-          data.postmortemCertificate.signature
-        );
-      }
-      if (data.embalmerCertification?.signature instanceof File) {
-        data.embalmerCertification.signature = await fileToBase64(
-          data.embalmerCertification.signature
-        );
-      }
-      if (data.delayedRegistration?.affiant?.signature instanceof File) {
-        data.delayedRegistration.affiant.signature = await fileToBase64(
-          data.delayedRegistration.affiant.signature
-        );
-      }
-      if (data.delayedRegistration?.adminOfficer?.signature instanceof File) {
-        data.delayedRegistration.adminOfficer.signature = await fileToBase64(
-          data.delayedRegistration.adminOfficer.signature
-        );
-      }
+      // (If you need to convert any file fields to Base64, add conversion logic here.
+      // The current Zod schema does not include any "signature" fields, so this conversion has been removed.)
 
       // If defaultValues includes an id, assume update mode and simply log success
       if (defaultValues && defaultValues.id) {
@@ -276,10 +209,10 @@ export function useDeathCertificateForm({
             `Death certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
           );
 
-             const documentRead = Permission.DOCUMENT_READ
-                  const Title = "New uploaded Death Certificate"
-                  const message = `New Death Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
-                  notifyUsersWithPermission(documentRead, Title, message)
+          const documentRead = Permission.DOCUMENT_READ;
+          const Title = 'New uploaded Death Certificate';
+          const message = `New Death Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`;
+          notifyUsersWithPermission(documentRead, Title, message);
 
           onOpenChange?.(false);
         } else if ('error' in result) {
@@ -311,10 +244,7 @@ export function useDeathCertificateForm({
       }
     };
     logNestedErrors(errors);
-    console.log(
-      'All validation errors as JSON:',
-      JSON.stringify(errors, null, 2)
-    );
+    console.log('All validation errors as JSON:', JSON.stringify(errors, null, 2));
     toast.error('Please check form for errors');
   };
 

@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useDeathCertificateForm } from '@/hooks/form-certificates-hooks/useDeathCertificateForm';
+
 import type { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { FormProvider } from 'react-hook-form';
 
@@ -33,6 +33,8 @@ import {
 } from './form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
+import { useDeathCertificateForm } from '@/hooks/form-certificates-hooks/useDeathCertificateForm';
+import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
 
 export interface DeathCertificateFormProps {
   open: boolean;
@@ -85,6 +87,7 @@ export default function DeathCertificateForm({
                       <CertificationOfDeathCard />
                       <DisposalInformationCard />
                       <CertificationInformantCard />
+                      {/* <MedicalCertificateCard /> */}
                       <PreparedByCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard
