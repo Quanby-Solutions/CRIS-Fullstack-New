@@ -240,13 +240,11 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               {isEdit ? (
-                <FormField
-
-                  control={control}
+                <FormField             
                   name='registryNumber'
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel>Registry Number</FormLabel>
+                      <FormLabel>Registry Number (cannot be edit)</FormLabel>
                       <FormControl className="">
                         <Input
                           {...field}
@@ -254,7 +252,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                           className='h-10'
                           placeholder={placeholder}
                           inputMode='numeric'
-                          disabled={false}
+                          disabled={true}
                         />
                       </FormControl>
                       <FormDescription>{description}</FormDescription>

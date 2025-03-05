@@ -153,19 +153,19 @@ const emptyDefaults: DeathCertificateFormValues = {
     date: undefined,
   },
   preparedBy: {
-    signature: '',
+    // signature: '',
     nameInPrint: '',
     titleOrPosition: '',
     date: undefined,
   },
   receivedBy: {
-    signature: '',
+    // signature: '',
     nameInPrint: '',
     titleOrPosition: '',
     date: undefined,
   },
   registeredByOffice: {
-    signature: '',
+    // signature: '',
     nameInPrint: '',
     titleOrPosition: '',
     date: undefined,
@@ -227,21 +227,21 @@ export function useDeathCertificateForm({
       if (data.informant.signature instanceof File) {
         data.informant.signature = await fileToBase64(data.informant.signature);
       }
-      if (data.preparedBy.signature instanceof File) {
-        data.preparedBy.signature = await fileToBase64(
-          data.preparedBy.signature
-        );
-      }
-      if (data.receivedBy.signature instanceof File) {
-        data.receivedBy.signature = await fileToBase64(
-          data.receivedBy.signature
-        );
-      }
-      if (data.registeredByOffice.signature instanceof File) {
-        data.registeredByOffice.signature = await fileToBase64(
-          data.registeredByOffice.signature
-        );
-      }
+      // if (data.preparedBy.signature instanceof File) {
+      //   data.preparedBy.signature = await fileToBase64(
+      //     data.preparedBy.signature
+      //   );
+      // }
+      // if (data.receivedBy.signature instanceof File) {
+      //   data.receivedBy.signature = await fileToBase64(
+      //     data.receivedBy.signature
+      //   );
+      // }
+      // if (data.registeredByOffice.signature instanceof File) {
+      //   data.registeredByOffice.signature = await fileToBase64(
+      //     data.registeredByOffice.signature
+      //   );
+      // }
       if (data.postmortemCertificate?.signature instanceof File) {
         data.postmortemCertificate.signature = await fileToBase64(
           data.postmortemCertificate.signature

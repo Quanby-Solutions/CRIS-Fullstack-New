@@ -211,22 +211,18 @@ const informantSchema = z.object({
 // Affidavit of Paternity Schema
 const affidavitOfPaternitySchema = z.object({
   father: z.object({
-    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
   }),
   mother: z.object({
-    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
   }),
   dateSworn: createDateFieldSchema({
     requiredError: 'Date sworn is required',
     futureError: 'Date cannot be in the future',
   }),
-
   adminOfficer: z.object({
-    signature: signatureSchema,
-    name: z.string().min(1, 'Officer name is required'),
-    position: z.string().min(1, 'Position is required'),
+    nameInPrint: z.string().min(1, 'Officer name is required'),
+    titleOrPosition: z.string().min(1, 'Position is required'),
     address: residenceSchema,
   }),
   ctcInfo: z.object({
@@ -235,7 +231,6 @@ const affidavitOfPaternitySchema = z.object({
       requiredError: 'Date issued is required',
       futureError: 'Date cannot be in the future',
     }),
-
     placeIssued: z.string().min(1, 'Place issued is required'),
   }),
 });
@@ -255,9 +250,9 @@ const delayedRegistrationAffidavitSchema = z.object({
     futureError: 'Date cannot be in the future',
   }),
   adminOfficer: z.object({
-    signature: signatureSchema,
-    name: z.string().min(1, 'Officer name is required'),
-    position: z.string().min(1, 'Position is required'),
+    nameInPrint: z.string().min(1, 'Officer name is required'),
+    titleOrPosition: z.string().min(1, 'Position is required'),
+    address: residenceSchema,
   }),
   ctcInfo: z.object({
     number: z.string().min(1, 'CTC number is required'),
