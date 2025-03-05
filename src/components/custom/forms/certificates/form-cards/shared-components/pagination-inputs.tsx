@@ -15,7 +15,7 @@ export function PaginationInputs() {
   const { control, getValues } = useFormContext()
 
   // Log current form values (optional for debugging)
-  console.log('PaginationInputs current values:', getValues('pagination'))
+  // console.log('PaginationInputs current values:', getValues('pagination'))
 
   return (
     <Card className="w-full">

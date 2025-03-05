@@ -200,7 +200,7 @@ export const mapToMarriageCertificateValues = (
     // Create a properly structured result object that matches the expected schema
     const result: Partial<MarriageCertificateFormValues> = {
         // ID information
-
+        id: ensureString(form.id),
 
         // Registry information
         registryNumber: ensureString(form.registryNumber),
@@ -389,7 +389,7 @@ export const mapToMarriageCertificateValues = (
     };
 
     // Add delayed registration if available - with proper type handling
-    if (marriageForm.affidavitOfdelayedRegistration) {
+    if (marriageForm.affidavitOfdelayedRegistration.delayedRegistration === 'Yes') {
         result.affidavitForDelayed = {
             // Ensure this is 'Yes' or 'No' as required by the schema
             delayedRegistration: validateDelayedRegistration(

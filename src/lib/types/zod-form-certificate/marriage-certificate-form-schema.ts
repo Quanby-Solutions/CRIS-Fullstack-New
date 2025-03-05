@@ -96,7 +96,7 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
 })
 
 const affidavitForDelayedSchema = z.object({
-  delayedRegistration: z.enum(['Yes', 'No']).default('No').optional(),
+  delayedRegistration: z.enum(['Yes', 'No']).optional(),
 
   administeringInformation: z.object({
     adminName: z.string().optional(),
@@ -371,7 +371,7 @@ export const marriageCertificateSchema = z.object({
   affidavitOfSolemnizingOfficer: affidavitOfSolemnizingOfficerSchema,
 
   affidavitForDelayed: affidavitForDelayedSchema.optional(),
-
+  id: z.string().optional(),
 
 })
 

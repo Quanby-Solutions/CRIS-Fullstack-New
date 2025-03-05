@@ -22,7 +22,7 @@ interface AffidavitForDelayedMarriageRegistrationProps {
 export const AffidavitForDelayedMarriageRegistration: FC<
     AffidavitForDelayedMarriageRegistrationProps
 > = ({ className }) => {
-    const { control, getValues, setValue } = useFormContext<MarriageCertificateFormValues>()
+    const { control, getValues, setValue, watch } = useFormContext<MarriageCertificateFormValues>()
 
 
     const isDelayed = useWatch({ control, name: 'affidavitForDelayed.delayedRegistration' })
@@ -35,6 +35,13 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' });
     const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' });
 
+    useEffect(() => {
+        // Set the default value to "No" when the component mounts
+        const currentValue = getValues('affidavitForDelayed.delayedRegistration');
+        if (currentValue === undefined) {
+          setValue('affidavitForDelayed.delayedRegistration', 'No', { shouldValidate: true });
+        }
+      }, []);
 
     useEffect(() => {
         // Detect NCR mode from fetched data on component mount
@@ -61,7 +68,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     }, [getValues]);
 
     useEffect(() => {
-        if(affiant && execution && ncrModeSwornDelayedOfficer === true) {
+        if (affiant && execution && ncrModeSwornDelayedOfficer === true) {
             setValue('affidavitForDelayed.applicantInformation.applicantAddress.province', 'Metro Manila')
             setValue('affidavitForDelayed.f.place.province', 'Metro Manila')
             setValue('affidavitForDelayed.dateSworn.atPlaceOfSworn.province', 'Metro Manila')
@@ -69,12 +76,29 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     })
 
 
-    // Reset the entire AffidavitForDelayed object
+    // Replace the problematic useEffect with this improved version
     useEffect(() => {
-        if (isDelayed === 'No') {
-            setValue('affidavitForDelayed', undefined)
+        // Make sure we explicitly set the value if it's undefined
+        if (isDelayed === undefined) {
+            setValue('affidavitForDelayed.delayedRegistration', 'No', { shouldValidate: true });
         }
-    }, [isDelayed, setValue])
+
+        // Reset the entire AffidavitForDelayed object when selecting "No"
+        if (isDelayed === 'No') {
+            // Preserve the delayedRegistration value while resetting other fields
+            const currentValue = 'No';
+            setValue('affidavitForDelayed', { delayedRegistration: currentValue });
+        }
+    }, [isDelayed, setValue]);
+
+    // Also make sure to set a default value when the component mounts
+    useEffect(() => {
+        // Set a default value if none exists
+        const currentValue = getValues('affidavitForDelayed.delayedRegistration');
+        if (!currentValue) {
+            setValue('affidavitForDelayed.delayedRegistration', 'No', { shouldValidate: true });
+        }
+    }, []);
 
     return (
         <Card className={cn('border dark:border-border', className)}>
@@ -208,7 +232,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                             </FormItem>
                                         )}
                                     />
-                                    
+
                                 </div>
                             </CardContent>
                         </Card>
@@ -1020,7 +1044,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                             )}
                                         />
 
-                                        
+
                                     </div>
                                 </div>
                             </CardContent>

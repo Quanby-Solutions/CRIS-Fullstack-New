@@ -233,7 +233,7 @@ model MarriageCertificateForm {
   contractDay                 DateTime
 
   marriageSettlement          Boolean           @default(false)
-  contractingPartiesSignature Json[]
+  // contractingPartiesSignature Json[]
   marriageLicenseDetails      Json?
   marriageArticle             Json?           
   executiveOrderApplied       Boolean           @default(false)
