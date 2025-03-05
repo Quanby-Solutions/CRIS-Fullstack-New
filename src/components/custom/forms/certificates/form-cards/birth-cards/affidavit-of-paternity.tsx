@@ -18,7 +18,7 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 import { RegisteredAtOfficeCard } from '../shared-components/processing-details-cards'
 
 const AffidavitOfPaternityForm: React.FC = () => {
-  const { control, watch, setValue } = useFormContext()
+  const { control, watch, setValue, trigger, getValues } = useFormContext()
 
   // Local state for NCR mode for the admin officer address.
   const [ncrMode, setncrMode] = useState(false)
@@ -26,18 +26,55 @@ const AffidavitOfPaternityForm: React.FC = () => {
   // Watch for the checkbox and nested affidavit details.
   const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity')
   const affidavitDetails = watch('affidavitOfPaternityDetails')
-
+  const province = watch('affidavitOfPaternityDetails.adminOfficer.address.province')
   // When checkbox is checked and nested details are not initialized, initialize them.
+
+
+  
+  const getProvinceString = (provinceValue: any): string => {
+    if (typeof provinceValue === 'string') {
+      return provinceValue;
+    } else if (
+      provinceValue &&
+      typeof provinceValue === 'object' &&
+      provinceValue.label
+    ) {
+      return provinceValue.label;
+    }
+    return '';
+  };
+
+
+    useEffect(() => {
+      if (hasAffidavitOfPaternity){
+      const provinceString = getProvinceString(province) || 'Metro Manila'
+      
+      // Determine if the province should be NCR (Metro Manila) or not
+      const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+      setncrMode(shouldBeNCR)
+    
+      // Set the province value based on whether NCR mode is true or false
+      setValue('affidavitOfPaternityDetails.adminOfficer.address.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
+        shouldValidate: true, // Trigger validation immediately
+        shouldDirty: true,     // Mark the field as dirty to ensure validation
+      })
+    
+      // Manually trigger revalidation of the province field after setting the value
+      trigger('affidavitOfPaternityDetails.adminOfficer.address.province')
+    }
+    }, [province, hasAffidavitOfPaternity]) // Runs whenever province changes
+
+
   useLayoutEffect(() => {
-    if (hasAffidavitOfPaternity && affidavitDetails) {
+    const currentDelayedReg = getValues('affidavitOfPaternityDetails');
+    if (hasAffidavitOfPaternity && currentDelayedReg === null) {
       setValue('affidavitOfPaternityDetails', {
         father: { signature: '', name: '' },
         mother: { signature: '', name: '' },
         dateSworn: undefined,
         adminOfficer: {
-          signature: '',
-          name: '',
-          position: '',
+          nameInPrint: '',
+          titleOrPosition: '',
           address: {
             houseNo: '',
             st: '',
@@ -62,6 +99,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
       setValue('affidavitOfPaternityDetails', null)
     }
   }, [hasAffidavitOfPaternity, setValue])
+  
 
   return (
     <Card>
@@ -116,19 +154,6 @@ const AffidavitOfPaternityForm: React.FC = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={control}
-                        name='affidavitOfPaternityDetails.father.signature'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Father&apos; Signature</FormLabel>
-                            <FormControl>
-                              <Input {...field} value={field.value || ''} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
 
                     {/* Mother's Details */}
@@ -146,19 +171,6 @@ const AffidavitOfPaternityForm: React.FC = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={control}
-                        name='affidavitOfPaternityDetails.mother.signature'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mother&apos; Signature</FormLabel>
-                            <FormControl>
-                              <Input {...field} value={field.value || ''} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
                   </div>
                 </CardContent>
@@ -166,13 +178,16 @@ const AffidavitOfPaternityForm: React.FC = () => {
 
               {/* Administering Officer Details */}
               <RegisteredAtOfficeCard
-                fieldPrefix='affidavitOfPaternityDetails.adminOfficer'
-                cardTitle='Administering Officer'
+                fieldPrefix="affidavitOfPaternityDetails.adminOfficer"
+                cardTitle="Administering Officer"
                 hideDate={true}
                 showSignature={true}
                 showNameInPrint={true}
                 showTitleOrPosition={true}
               />
+
+
+              
 
               {/* Admin Officer Address */}
               <Card>

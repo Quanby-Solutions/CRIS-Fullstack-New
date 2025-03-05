@@ -345,19 +345,19 @@ export function useBirthCertificateForm({
         date: new Date('2022-01-01'),
       },
       preparedBy: {
-        signature: undefined,
+        // signature: undefined,
         nameInPrint: 'Admin User',
         titleOrPosition: 'Registrar',
         date: new Date('2022-01-02'),
       },
       receivedBy: {
-        signature: undefined,
+        // signature: undefined,
         nameInPrint: 'Office Staff',
         titleOrPosition: 'Receiver',
         date: new Date('2022-01-02'),
       },
       registeredByOffice: {
-        signature: undefined,
+        // signature: undefined,
         nameInPrint: 'Registrar Office',
         titleOrPosition: 'Registrar',
         date: new Date('2022-01-03'),
@@ -386,21 +386,21 @@ export function useBirthCertificateForm({
       if (data.informant.signature instanceof File) {
         data.informant.signature = await fileToBase64(data.informant.signature)
       }
-      if (data.preparedBy.signature instanceof File) {
-        data.preparedBy.signature = await fileToBase64(
-          data.preparedBy.signature
-        )
-      }
-      if (data.receivedBy.signature instanceof File) {
-        data.receivedBy.signature = await fileToBase64(
-          data.receivedBy.signature
-        )
-      }
-      if (data.registeredByOffice.signature instanceof File) {
-        data.registeredByOffice.signature = await fileToBase64(
-          data.registeredByOffice.signature
-        )
-      }
+      // if (data.preparedBy.signature instanceof File) {
+      //   data.preparedBy.signature = await fileToBase64(
+      //     data.preparedBy.signature
+      //   )
+      // }
+      // if (data.receivedBy.signature instanceof File) {
+      //   data.receivedBy.signature = await fileToBase64(
+      //     data.receivedBy.signature
+      //   )
+      // }
+      // if (data.registeredByOffice.signature instanceof File) {
+      //   data.registeredByOffice.signature = await fileToBase64(
+      //     data.registeredByOffice.signature
+      //   )
+      // }
 
       const result = await submitBirthCertificateForm(data)
 

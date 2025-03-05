@@ -25,12 +25,14 @@ import {
 } from '../../../forms/certificates/form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from '../../../forms/certificates/form-cards/shared-components/registry-information-card';
 import RemarksCard from '../../../forms/certificates/form-cards/shared-components/remarks-card';
+import { useState } from 'react';
 
 interface EditCivilRegistryFormInlineProps {
   form: BaseRegistryFormWithRelations;
   onSaveAction: (updatedForm: BaseRegistryFormWithRelations) => Promise<void>;
   editType: 'BIRTH' | 'DEATH' | 'MARRIAGE';
- 
+  onCancel: () => void;
+
 }
 
 interface ChildName {
@@ -94,21 +96,16 @@ interface ParentMarriage {
 }
 
 
-interface PreparedBy {
-  signature?: string;
-  nameInPrint: string;
-  titleOrPosition: string;
-  date?: Date;
-}
-
 
 export function EditBirthCivilRegistryFormInline({
   form,
   onSaveAction,
   editType,
+  onCancel,
 
 
 }: EditCivilRegistryFormInlineProps) {
+  const [isUpdating, setIsUpdating] = useState(false);
   const { t } = useTranslation();
 
   // Helper function to safely parse dates
@@ -649,6 +646,70 @@ export function EditBirthCivilRegistryFormInline({
 
 
 
+    // Paternity
+
+    let affidavitOfPaternityDetails = null;
+    const rawAffidavit = form.birthCertificateForm?.affidavitOfPaternityDetails;
+    if (rawAffidavit) {
+      let parsedAffidavit = rawAffidavit;
+      if (typeof rawAffidavit === 'string') {
+        try {
+          parsedAffidavit = JSON.parse(rawAffidavit);
+        } catch {
+          parsedAffidavit = {};
+        }
+      }
+      if (parsedAffidavit && typeof parsedAffidavit === 'object') {
+        const { ctcInfo, dateSworn, ...rest } = parsedAffidavit as any;
+        let processedCtcInfo = ctcInfo;
+        if (ctcInfo && typeof ctcInfo === 'object') {
+          processedCtcInfo = {
+            ...ctcInfo,
+            dateIssued: ctcInfo.dateIssued ? new Date(ctcInfo.dateIssued) : undefined,
+          };
+        }
+        affidavitOfPaternityDetails = {
+          ...rest,
+          ctcInfo: processedCtcInfo,
+          dateSworn: dateSworn ? new Date(dateSworn) : undefined,
+        };
+      }
+    }
+
+
+    // DelayRegister
+    let affidavitOfDelayedRegistration = null;
+    const rawDelayedAffidavit = form.birthCertificateForm?.affidavitOfDelayedRegistration;
+    if (rawDelayedAffidavit) {
+      let parsedAffidavit = rawDelayedAffidavit;
+      if (typeof rawDelayedAffidavit === 'string') {
+        try {
+          parsedAffidavit = JSON.parse(rawDelayedAffidavit);
+        } catch {
+          parsedAffidavit = {};
+        }
+      }
+      if (parsedAffidavit && typeof parsedAffidavit === 'object') {
+        const { ctcInfo, dateSworn, ...rest } = parsedAffidavit as any;
+        let processedCtcInfo = ctcInfo;
+        if (ctcInfo && typeof ctcInfo === 'object') {
+          processedCtcInfo = {
+            ...ctcInfo,
+            dateIssued: ctcInfo.dateIssued ? new Date(ctcInfo.dateIssued) : undefined,
+          };
+        }
+        affidavitOfDelayedRegistration = {
+          ...rest,
+          ctcInfo: processedCtcInfo,
+          dateSworn: dateSworn ? new Date(dateSworn) : undefined,
+        };
+      }
+    }
+
+
+
+
+
     return {
       registryNumber: form.registryNumber || '',
       province: form.province || '',
@@ -749,112 +810,114 @@ export function EditBirthCivilRegistryFormInline({
       },
 
 
-      
-
-      
-      hasAffidavitOfPaternity: false,
-      affidavitOfPaternityDetails: null,
 
 
-      
-      isDelayedRegistration: false,
-      affidavitOfDelayedRegistration: null,
+
+      hasAffidavitOfPaternity: form.birthCertificateForm?.hasAffidavitOfPaternity,
+      affidavitOfPaternityDetails: affidavitOfPaternityDetails,
+
+
+
+      isDelayedRegistration: form.birthCertificateForm?.isDelayedRegistration,
+      affidavitOfDelayedRegistration: affidavitOfDelayedRegistration,
     };
   };
 
   const initialData = mapToBirthCertificateValues(form);
 
   // BirthFormProvider.tsx
-const handleEditSubmit = async (
-  data: BirthCertificateFormValues
-): Promise<void> => {
-  // Build an updated form object using consistent defaults.
-  const updatedForm = {
-    id: form.id, // Make sure this is the correct id of an existing record.
-    registryNumber: data.registryNumber,
-    province: data.province,
-    cityMunicipality: data.cityMunicipality,
-    pageNumber: data.pagination?.pageNumber || form.pageNumber,
-    bookNumber: data.pagination?.bookNumber || form.bookNumber,
-    remarks: data.remarks || null,
-    // Send preparedBy as a simple string if your schema expects that.
-    preparedByDate: data.preparedBy.date || null,
-    receivedBy: data.receivedBy.nameInPrint || null,
-    receivedByDate: data.receivedBy.date || null,
-    registeredBy: data.registeredByOffice.nameInPrint || null,
-    registeredByDate: data.registeredByOffice.date || null,
-    updatedAt: new Date(),
-    // Map nested birth certificate fields:
-    childInfo: {
-      firstName: data.childInfo.firstName || '',
-      middleName: data.childInfo.middleName || '',
-      lastName: data.childInfo.lastName || '',
-      sex: data.childInfo.sex || '',
-      dateOfBirth: data.childInfo.dateOfBirth || null,
-      placeOfBirth: data.childInfo.placeOfBirth || '',
-      typeOfBirth: data.childInfo.typeOfBirth || '',
-      multipleBirthOrder: data.childInfo.multipleBirthOrder,
-      birthOrder: data.childInfo.birthOrder,
-      weightAtBirth: data.childInfo.weightAtBirth,
-    },
-    motherInfo: {
-      firstName: data.motherInfo.firstName || '',
-      middleName: data.motherInfo.middleName || '',
-      lastName: data.motherInfo.lastName || '',
-      citizenship: data.motherInfo.citizenship || '',
-      religion: data.motherInfo.religion || '',
-      occupation: data.motherInfo.occupation || '',
-      age: data.motherInfo.age,
-      residence: data.motherInfo.residence || '',
-    },
-    fatherInfo: {
-      firstName: data.fatherInfo!.firstName || '',
-      middleName: data.fatherInfo!.middleName || '',
-      lastName: data.fatherInfo!.lastName || '',
-      citizenship: data.fatherInfo!.citizenship || '',
-      religion: data.fatherInfo!.religion || '',
-      occupation: data.fatherInfo!.occupation || '',
-      age: data.fatherInfo!.age,
-      residence: data.fatherInfo!.residence || '',
-    },
-    parentMarriage: data.parentMarriage,
-    attendant: data.attendant,
-    informant: data.informant,
-    preparedBy: data.preparedBy,
-    hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
-    affidavitOfPaternityDetails: data.affidavitOfPaternityDetails,
-    isDelayedRegistration: data.isDelayedRegistration,
-    affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
-    reasonForDelay: data.affidavitOfDelayedRegistration?.reasonForDelay || '',
-  };
+  const handleEditSubmit = async (
+    data: BirthCertificateFormValues
+  ): Promise<void> => {
+    // Set state to indicate update is in progress
+    setIsUpdating(true);
 
-  try {
-    const response = await fetch('/api/editForm/birth', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    // Build an updated form object using consistent defaults.
+    const updatedForm = {
+      id: form.id, // Make sure this is the correct id of an existing record.
+      registryNumber: data.registryNumber,
+      province: data.province,
+      cityMunicipality: data.cityMunicipality,
+      pageNumber: data.pagination?.pageNumber || form.pageNumber,
+      bookNumber: data.pagination?.bookNumber || form.bookNumber,
+      remarks: data.remarks || null,
+      preparedByDate: data.preparedBy.date || null,
+      receivedBy: data.receivedBy.nameInPrint || null,
+      receivedByDate: data.receivedBy.date || null,
+      registeredBy: data.registeredByOffice.nameInPrint || null,
+      registeredByDate: data.registeredByOffice.date || null,
+      updatedAt: new Date(),
+      // Map nested birth certificate fields:
+      childInfo: {
+        firstName: data.childInfo.firstName || '',
+        middleName: data.childInfo.middleName || '',
+        lastName: data.childInfo.lastName || '',
+        sex: data.childInfo.sex || '',
+        dateOfBirth: data.childInfo.dateOfBirth || null,
+        placeOfBirth: data.childInfo.placeOfBirth || '',
+        typeOfBirth: data.childInfo.typeOfBirth || '',
+        multipleBirthOrder: data.childInfo.multipleBirthOrder,
+        birthOrder: data.childInfo.birthOrder,
+        weightAtBirth: data.childInfo.weightAtBirth,
       },
-      body: JSON.stringify(updatedForm),
-    });
+      motherInfo: {
+        firstName: data.motherInfo.firstName || '',
+        middleName: data.motherInfo.middleName || '',
+        lastName: data.motherInfo.lastName || '',
+        citizenship: data.motherInfo.citizenship || '',
+        religion: data.motherInfo.religion || '',
+        occupation: data.motherInfo.occupation || '',
+        age: data.motherInfo.age,
+        residence: data.motherInfo.residence || '',
+      },
+      fatherInfo: {
+        firstName: data.fatherInfo!.firstName || '',
+        middleName: data.fatherInfo!.middleName || '',
+        lastName: data.fatherInfo!.lastName || '',
+        citizenship: data.fatherInfo!.citizenship || '',
+        religion: data.fatherInfo!.religion || '',
+        occupation: data.fatherInfo!.occupation || '',
+        age: data.fatherInfo!.age,
+        residence: data.fatherInfo!.residence || '',
+      },
+      parentMarriage: data.parentMarriage,
+      attendant: data.attendant,
+      informant: data.informant,
+      preparedBy: data.preparedBy,
+      hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
+      affidavitOfPaternityDetails: data.affidavitOfPaternityDetails,
+      isDelayedRegistration: data.isDelayedRegistration,
+      affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
+    };
 
+    try {
+      const response = await fetch('/api/editForm/birth', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedForm),
+      });
 
-    // Read response for debugging.
-    const responseText = await response.text();
+      // Read response for debugging.
+      const responseText = await response.text();
+      const responseData = responseText ? JSON.parse(responseText) : {};
 
-    // Parse JSON only if responseText exists.
-    const responseData = responseText ? JSON.parse(responseText) : {};
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to update form');
+      }
 
-    if (!response.ok) {
-      throw new Error(responseData.error || 'Failed to update form');
+      // Now that the update is successful, call onCancel.
+      onCancel();
+      toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
+    } catch (error) {
+      console.error('Failed to update form:', error);
+      toast.error('Error updating form');
+    } finally {
+      // Reset the state regardless of success or error.
+      setIsUpdating(false);
     }
-
-    // onCancel();
-    toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
-  } catch (error) {
-    console.error('Failed to update form:', error);
-    toast.error('Error updating form');
-  }
-};
+  };
 
 
   const { formMethods, handleError } = useBirthCertificateForm({
@@ -882,7 +945,7 @@ const handleEditSubmit = async (
 
   const handleCancel = () => {
     formMethods.reset();
-    // onCancel();
+    onCancel();
   };
 
   return (
@@ -921,8 +984,8 @@ const handleEditSubmit = async (
                   label='Additional Remarks'
                   placeholder='Enter any additional remarks or annotations'
                 />
-                {/* <AffidavitOfPaternityForm />
-                <DelayedRegistrationForm /> */}
+                <AffidavitOfPaternityForm />
+                <DelayedRegistrationForm />
               </div>
             </ScrollArea>
             <div className='flex justify-end gap-2 mt-4 mr-8'>
@@ -935,7 +998,7 @@ const handleEditSubmit = async (
                 Cancel
               </Button>
               <Button type='submit' variant='default' className='py-2 w-32'>
-                Update
+                {isUpdating ? 'Updating' : 'Update'}
               </Button>
             </div>
           </div>

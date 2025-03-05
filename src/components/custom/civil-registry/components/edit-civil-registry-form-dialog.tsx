@@ -614,6 +614,7 @@ export function EditCivilRegistryFormDialog({
               return Promise.resolve();
             }}
             editType={form.formType}
+            onCancel={handleCancel}
           />
         );
       case 'DEATH':
