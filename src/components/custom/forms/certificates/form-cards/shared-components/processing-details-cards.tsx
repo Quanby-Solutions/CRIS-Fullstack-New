@@ -29,6 +29,7 @@ export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   showSignature?: boolean;
   showNameInPrint?: boolean;
   showTitleOrPosition?: boolean;
+  isEdit?: string | null;
 }
 
 function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
@@ -38,6 +39,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   showSignature = true,
   showNameInPrint = true,
   showTitleOrPosition = true,
+  isEdit = null,
 }: ProcessingCardProps<T>) {
   const {
     control,
@@ -177,6 +179,9 @@ export function ReceivedByCard<T extends FieldValues = FieldValues>(
 export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
   props: ProcessingCardProps<T>
 ) {
+export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
+  props: ProcessingCardProps<T>
+) {
   return (
     <ProcessingDetailsCard<T>
       fieldPrefix={props.fieldPrefix}
@@ -185,6 +190,7 @@ export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
 
       showNameInPrint={props.showNameInPrint}
       showTitleOrPosition={props.showTitleOrPosition}
+      isEdit={props.isEdit}
     />
   );
 }
