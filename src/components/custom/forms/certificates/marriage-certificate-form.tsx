@@ -31,6 +31,7 @@ import RemarksCard from './form-cards/shared-components/remarks-card';
 import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
 import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
 import PaginationInputs from './form-cards/shared-components/pagination-inputs';
+import { RegistryInformationCardForEdit } from './form-cards/marriage-cards/registry';
 
 
 export interface MarriageCertificateFormProps {
@@ -73,11 +74,16 @@ export default function MarriageCertificateForm({
                     <div className='p-6 space-y-4'>
                       <span>{defaultValues?.id}</span>
                       <PaginationInputs />
-                      <RegistryInformationCard
-                        formType={FormType.MARRIAGE}
-                        title='Marriage Registry Information'
-                        isEdit={defaultValues?.id ? "MARRIAGE" : null} 
-                      />
+                      {defaultValues?.id ? (
+                        <RegistryInformationCardForEdit/>
+                        
+                      ) : (
+                        <RegistryInformationCard
+                          formType={FormType.MARRIAGE}
+                          title='Marriage Registry Information'
+                        />
+                      )}
+
                       <HusbandInfoCard />
                       <HusbandParentsInfoCard />
                       <WifeInfoCard />

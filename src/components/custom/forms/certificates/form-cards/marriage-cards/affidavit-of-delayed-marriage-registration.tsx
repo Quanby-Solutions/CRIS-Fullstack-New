@@ -35,6 +35,13 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' });
     const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' });
 
+    useEffect(() => {
+        // Set the default value to "No" when the component mounts
+        const currentValue = getValues('affidavitForDelayed.delayedRegistration');
+        if (currentValue === undefined) {
+          setValue('affidavitForDelayed.delayedRegistration', 'No', { shouldValidate: true });
+        }
+      }, []);
 
     useEffect(() => {
         // Detect NCR mode from fetched data on component mount

@@ -25,7 +25,7 @@ const preparePrismaData = (data: any) => {
                 minute: '2-digit'
             }) : date;
     };
-    
+
     const processedData = { ...data };
     return processedData;
 };
@@ -36,7 +36,7 @@ const emptyDefaults: MarriageCertificateFormValues = {
     province: 'Metro Manila',
     cityMunicipality: 'Quezon City',
 
-    pagination:{
+    pagination: {
         pageNumber: '',
         bookNumber: ''
     },
@@ -423,35 +423,33 @@ export function useMarriageCertificateForm({
         setIsSubmitting(true);
 
         // Check and simplify affidavitForDelayed if it's "No"
-        if (data.affidavitForDelayed?.delayedRegistration === 'No') {
+        if (!data.affidavitForDelayed ||
+            data.affidavitForDelayed.delayedRegistration === 'No' ||
+            data.affidavitForDelayed.delayedRegistration === null ||
+            data.affidavitForDelayed.delayedRegistration === undefined) {
+
             data.affidavitForDelayed = {
                 delayedRegistration: 'No'
             };
-        }
-
-        if (!formMethods.formState.isValid) {
-            console.error("Form is invalid, submission blocked");
-            setIsSubmitting(false);
-            return;
         }
 
         try {
             // Check if we're in update mode
             const isUpdateMode = Boolean(defaultValues && defaultValues.id);
             console.log('dapat na id:', defaultValues?.id || '');
-            
+
             let result;
-            
+
             if (isUpdateMode) {
                 console.log('Updating marriage certificate with ID:', defaultValues?.id);
                 console.log('Form values being sent:', data);
-                
+
                 // Call update function
                 result = await updateMarriageCertificateForm(defaultValues?.id || '', data);
-                
+
                 // Log the result
                 console.log('Update result:', result);
-                
+
                 if ('data' in result) {
                     toast.success(`Marriage certificate updated successfully`);
                     onOpenChange?.(false);
@@ -466,11 +464,11 @@ export function useMarriageCertificateForm({
             const processedData = await preparedData;
 
             console.log('Processed data before submission:', processedData);
-            
+
             // Call the appropriate action based on create or edit mode
             if (isUpdateMode && defaultValues?.id) {
                 result = await updateMarriageCertificateForm(defaultValues.id, processedData);
-                
+
                 if ('data' in result) {
                     toast.success(`Marriage certificate updated successfully (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber})`);
                     notifyUsersWithPermission(
@@ -478,13 +476,13 @@ export function useMarriageCertificateForm({
                         "Marriage Certificate Updated",
                         `Marriage Certificate with the details (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber}, Registry Number ${data.registryNumber}) has been updated.`
                     );
-                    
+
                     router.refresh();
                     onOpenChange?.(false);
                 }
             } else {
                 result = await submitMarriageCertificateForm(processedData);
-                
+
                 if ('data' in result) {
                     toast.success(`Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`);
                     notifyUsersWithPermission(
@@ -492,17 +490,17 @@ export function useMarriageCertificateForm({
                         "New uploaded Marriage Certificate",
                         `New Marriage Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
                     );
-                    
+
                     router.refresh();
                     onOpenChange?.(false);
                     formMethods.reset(emptyDefaults);
                 }
             }
-            
+
             if ('error' in result) {
                 console.log('Submission error:', result.error);
-                toast.error(result.error.includes('No user found with name') 
-                    ? 'Invalid prepared by user. Please check the name.' 
+                toast.error(result.error.includes('No user found with name')
+                    ? 'Invalid prepared by user. Please check the name.'
                     : result.error);
             }
         } catch (error) {

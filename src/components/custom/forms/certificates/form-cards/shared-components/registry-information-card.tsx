@@ -71,7 +71,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   // When the province changes, update the NCR mode accordingly.
   useEffect(() => {
     const provinceString = getProvinceString(province);
-    const shouldBeNCR = provinceString.trim().toLowerCase() === 'Metro Manila';
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
     setNcrMode(shouldBeNCR);
   }, []);
 
