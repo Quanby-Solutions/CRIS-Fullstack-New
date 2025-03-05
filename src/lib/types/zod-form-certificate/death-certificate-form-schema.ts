@@ -13,7 +13,6 @@ import {
   religionSchema,
   remarksAnnotationsSchema,
   residenceSchema,
-  signatureSchema, // <-- added import
 } from './form-certificates-shared-schema';
 
 // --- Deceased Information Schema ---
@@ -203,7 +202,6 @@ const medicalCertificateSchema = z.object({
             requiredError: 'Certification time is required',
             futureError: 'Certification time cannot be in the future',
           }),
-          signature: signatureSchema,
           name: z.string().nonempty('Attendant name is required'),
           title: z.string().nonempty('Attendant title is required'),
           address: residenceSchema,
@@ -250,7 +248,6 @@ const medicalCertificateSchema = z.object({
 // --- Certification of Death Schema ---
 const certificationOfDeathSchema = z.object({
   hasAttended: z.boolean(),
-  signature: signatureSchema,
   nameInPrint: z.string().nonempty('Name is required'),
   titleOfPosition: z.string().nonempty('Title/Position is required'),
   address: residenceSchema,
@@ -258,7 +255,6 @@ const certificationOfDeathSchema = z.object({
     requiredError: 'Certification date is required',
     futureError: 'Certification date cannot be in the future',
   }),
-  healthOfficerSignature: signatureSchema,
   healthOfficerNameInPrint: z
     .string()
     .nonempty('Health officer name is required'),
@@ -266,7 +262,6 @@ const certificationOfDeathSchema = z.object({
 
 // --- Review Schema ---
 const reviewSchema = z.object({
-  signature: signatureSchema,
   date: createDateFieldSchema({
     requiredError: 'Review date is required',
     futureError: 'Review date cannot be in the future',
@@ -277,7 +272,6 @@ const reviewSchema = z.object({
 const postmortemCertificateSchema = z
   .object({
     causeOfDeath: z.string().nonempty('Cause of death is required'),
-    signature: signatureSchema,
     nameInPrint: z.string().nonempty('Name is required'),
     date: createDateFieldSchema({
       requiredError: 'Postmortem date is required',
@@ -291,7 +285,6 @@ const postmortemCertificateSchema = z
 const embalmerCertificationSchema = z
   .object({
     nameOfDeceased: z.string().nonempty('Name of deceased is required'),
-    signature: signatureSchema,
     nameInPrint: z.string().nonempty('Name is required'),
     address: z.string().nonempty('Address is required'),
     titleDesignation: z.string().nonempty('Title/Designation is required'),
@@ -302,57 +295,58 @@ const embalmerCertificationSchema = z
   })
   .optional();
 
-// delayedRegistrationSchema with updates for the affidavit
-const delayedRegistrationSchema = z
-  .object({
-    affiant: z.object({
-      name: z.string().nonempty('Name is required'),
-      civilStatus: z.enum([
-        'Single',
-        'Married',
-        'Divorced',
-        'Widow',
-        'Widower',
-      ]),
-      residenceAddress: z.string().nonempty('Address is required'),
-      age: z.string().optional(),
-      signature: signatureSchema,
+  const delayedRegistrationSchema = z.discriminatedUnion('isDelayed', [
+    // Case when registration is NOT delayed – fields are not required.
+    z.object({
+      isDelayed: z.literal(false),
+      // Optionally, you could allow an empty object or minimal fields.
     }),
-    deceased: z.object({
-      name: z.string().nonempty('Name is required'),
-      dateOfDeath: z.string().nonempty('Date of death is required'),
-      placeOfDeath: z.string().nonempty('Place of death is required'),
-      burialInfo: z.object({
-        date: z.string().nonempty('Burial date is required'),
-        place: z.string().nonempty('Burial place is required'),
-        method: z.enum(['Buried', 'Cremated']).optional(),
+    // Case when registration is delayed – all fields are required.
+    z.object({
+      isDelayed: z.literal(true),
+      affiant: z.object({
+        name: z.string().nonempty('Name is required'),
+        civilStatus: z.enum([
+          'Single',
+          'Married',
+          'Divorced',
+          'Widow',
+          'Widower',
+        ]),
+        residenceAddress: z.string().nonempty('Address is required'),
+        age: z.string().optional(),
+      }),
+      deceased: z.object({
+        name: z.string().nonempty('Name is required'),
+        dateOfDeath: z.string().nonempty('Date of death is required'),
+        placeOfDeath: z.string().nonempty('Place of death is required'),
+        burialInfo: z.object({
+          date: z.string().nonempty('Burial date is required'),
+          place: z.string().nonempty('Burial place is required'),
+          method: z.enum(['Buried', 'Cremated']).optional(),
+        }),
+      }),
+      attendance: z.object({
+        wasAttended: z.boolean(),
+        attendedBy: z.string().optional(),
+      }),
+      causeOfDeath: z.string().nonempty('Cause of death is required'),
+      reasonForDelay: z.string().nonempty('Reason for delay is required'),
+      affidavitDate: createDateFieldSchema({
+        requiredError: 'Affidavit date is required',
+        futureError: 'Affidavit date cannot be in the future',
+      }),
+      affidavitDatePlace: z.string().nonempty('Affidavit place is required'),
+      adminOfficer: z.object({
+        position: z.string().nonempty('Position is required'),
+      }),
+      ctcInfo: z.object({
+        number: z.string().nonempty('CTC number is required'),
+        issuedOn: z.string().nonempty('Date issued is required'),
+        issuedAt: z.string().nonempty('Place issued is required'),
       }),
     }),
-    attendance: z.object({
-      wasAttended: z.boolean(),
-      attendedBy: z.string().optional(),
-    }),
-    causeOfDeath: z.string().nonempty('Cause of death is required'),
-    reasonForDelay: z.string().nonempty('Reason for delay is required'),
-    affidavitDate: createDateFieldSchema({
-      requiredError: 'Affidavit date is required',
-      futureError: 'Affidavit date cannot be in the future',
-    }).optional(),
-    affidavitDatePlace: z
-      .string()
-      .nonempty('Affidavit place is required')
-      .optional(),
-    adminOfficer: z.object({
-      signature: signatureSchema,
-      position: z.string().nonempty('Position is required'),
-    }),
-    ctcInfo: z.object({
-      number: z.string().nonempty('CTC number is required'),
-      issuedOn: z.string().nonempty('Date issued is required'),
-      issuedAt: z.string().nonempty('Place issued is required'),
-    }),
-  })
-  .optional();
+  ]);
 
 // --- Disposal Information Schema ---
 const disposalInformationSchema = z.object({
@@ -367,7 +361,10 @@ const disposalInformationSchema = z.object({
   transferPermit: z
     .object({
       number: z.string().optional(),
-      dateIssued: z.string().optional(),
+      dateIssued: createDateFieldSchema({
+        requiredError: 'Burial permit date is required',
+        futureError: 'Burial permit date cannot be in the future',
+      }),
     })
     .optional(),
   cemeteryOrCrematory: z.object({
@@ -378,7 +375,6 @@ const disposalInformationSchema = z.object({
 
 // --- Informant Schema ---
 const informantSchema = z.object({
-  signature: signatureSchema,
   nameInPrint: z.string().nonempty('Name is required'),
   relationshipToDeceased: z.string().nonempty('Relationship is required'),
   address: residenceSchema,
@@ -530,7 +526,6 @@ export const deathCertificateFormSchema = z
       } else {
         // You can add further checks for specific required fields.
         const requiredFields: Array<keyof typeof data.embalmerCertification> = [
-          'signature',
           'nameInPrint',
           'licenseNo',
           'issuedOn',

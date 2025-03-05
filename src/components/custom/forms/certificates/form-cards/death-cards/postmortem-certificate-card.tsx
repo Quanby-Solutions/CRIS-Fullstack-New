@@ -52,23 +52,6 @@ const PostmortemCertificateCard: React.FC = () => {
           )}
         />
 
-        {/* Signature */}
-        <FormField
-          control={control}
-          name='postmortemCertificate.signature'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Signature</FormLabel>
-              <FormControl>
-                <SignatureUploader
-                  name='postmortemCertificate.signature'
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         {/* Name in Print */}
         <FormField

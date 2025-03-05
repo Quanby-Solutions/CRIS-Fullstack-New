@@ -156,6 +156,27 @@ const DisposalInformationCard: React.FC = () => {
               )}
             />
 
+
+
+            <FormField
+              control={control}
+              name='cemeteryOrCrematory.address.country'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Input
+                      className='h-10'
+                      placeholder='Enter cemetery or crematory name'
+                      {...field}
+                      value={field.value ?? ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Use LocationSelector for the cemetery/crematory address */}
             <LocationSelector
               provinceFieldName='cemeteryOrCrematory.address.province'

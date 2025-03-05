@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
-import SignatureUploader from '../shared-components/signature-uploader';
+
 
 const CertificationInformantCard: React.FC = () => {
   const { control, setValue } = useFormContext<DeathCertificateFormValues>();
@@ -25,41 +25,6 @@ const CertificationInformantCard: React.FC = () => {
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-3 gap-4'>
-          {/* Signature */}
-          <FormField
-            control={control}
-            name='informant.signature'
-            render={({ field, formState: { errors } }) => (
-              <FormItem>
-                <FormLabel>Signature</FormLabel>
-                <FormControl>
-                  <SignatureUploader
-                    name='informant.signature'
-                    label='Upload Signature'
-                    onChange={(value: File | string) => {
-                      if (value instanceof File) {
-                        setValue('informant.signature', value, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        });
-                      } else {
-                        setValue('informant.signature', value, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        });
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage>
-                  {typeof errors?.informant?.signature?.message === 'string'
-                    ? errors.informant.signature.message
-                    : ''}
-                </FormMessage>
-              </FormItem>
-            )}
-          />
-
           {/* Name */}
           <FormField
             control={control}

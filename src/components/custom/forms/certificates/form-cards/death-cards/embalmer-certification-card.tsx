@@ -50,7 +50,7 @@ const EmbalmerCertificationCard: React.FC = () => {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={control}
           name='embalmerCertification.signature'
           render={({ field }) => (
@@ -65,7 +65,7 @@ const EmbalmerCertificationCard: React.FC = () => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={control}
