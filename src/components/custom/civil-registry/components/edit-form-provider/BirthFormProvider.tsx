@@ -30,6 +30,7 @@ interface EditCivilRegistryFormInlineProps {
   form: BaseRegistryFormWithRelations;
   onSaveAction: (updatedForm: BaseRegistryFormWithRelations) => Promise<void>;
   editType: 'BIRTH' | 'DEATH' | 'MARRIAGE';
+  onCancel: () => void;
 }
 
 interface ChildName {
@@ -105,6 +106,8 @@ export function EditBirthCivilRegistryFormInline({
   form,
   onSaveAction,
   editType,
+  onCancel
+
 }: EditCivilRegistryFormInlineProps) {
   const { t } = useTranslation();
 
@@ -845,7 +848,7 @@ const handleEditSubmit = async (
       throw new Error(responseData.error || 'Failed to update form');
     }
 
-    console.log('Form updated successfully:', responseData);
+    onCancel();
     toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
   } catch (error) {
     console.error('Failed to update form:', error);
@@ -879,6 +882,7 @@ const handleEditSubmit = async (
 
   const handleCancel = () => {
     formMethods.reset();
+    onCancel();
   };
 
   return (
