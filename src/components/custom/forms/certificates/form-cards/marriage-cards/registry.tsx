@@ -35,7 +35,7 @@ export const RegistryInformationCardForEdit: React.FC<
 
     useEffect(() => {
         // Detect NCR mode from fetched data on component mount
-        const province = getValues('placeOfMarriage.province');
+        const province = getValues('province');
         if (province === 'Metro Manila' || province === 'NCR') {
             setNcrMode(true);
         }
@@ -43,7 +43,7 @@ export const RegistryInformationCardForEdit: React.FC<
 
     useEffect(() => {
         if (ncrMode === true) {
-            setValue('placeOfMarriage.province', 'Metro Manila')
+            setValue('province', 'Metro Manila')
         }
     })
 
@@ -74,7 +74,7 @@ export const RegistryInformationCardForEdit: React.FC<
                                                 disabled={true}
                                                 name='registryNumber'
                                             />
-                                            
+
                                         </FormControl>
                                         <FormDescription>Format: YYYY-numbers (e.g., 2025-123456)</FormDescription>
                                     </FormItem>
@@ -83,7 +83,21 @@ export const RegistryInformationCardForEdit: React.FC<
 
 
                             {/* The LocationSelector now ensures that province is required before municipality */}
-                            <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
+                            <LocationSelector
+                                isNCRMode={ncrMode}
+
+                                provinceFieldName='province'
+                                municipalityFieldName='cityMunicipality'
+
+                                provinceLabel='Province'
+                                municipalityLabel='City/Municipality'
+
+
+
+                                provincePlaceholder='Select province'
+                                municipalityPlaceholder='Select city/municipality'
+
+                            />
                         </div>
                     </CardContent>
                 </Card>
