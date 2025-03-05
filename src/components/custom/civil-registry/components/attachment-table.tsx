@@ -86,6 +86,10 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
         process.env.NEXT_PUBLIC_NODE_ENV === 'development' ||
         hasPermission(permissions, Permission.DOCUMENT_EXPORT)
 
+        const canView = hasPermission(permissions, Permission.DOCUMENT_READ)
+
+        const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
+
     // Create a combined check for delete permission.
     const deleteAllowed =
         canDelete && hasPermission(permissions, Permission.DOCUMENT_DELETE)
@@ -413,7 +417,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                         </AlertDialogContent>
                                                     </AlertDialog>
                                                 )}
-
+                                               
                                                 {disableExport ? (
                                                     <div className="flex items-center gap-1">
                                                         <Button variant="outline" size="sm" disabled>
@@ -448,7 +452,8 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     </Button>
                                                 )}
 
-                                                <Button
+                                                { canUpload && (
+                                                    <Button
                                                     onClick={() => handleCtc(attachment)}
                                                     variant="secondary"
                                                     size="sm"
@@ -457,8 +462,11 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     <Icons.files className="mr-2 h-4 w-4" />
                                                     {t('issueCtc')}
                                                 </Button>
+                                                    
+                                                )}
 
-                                                {hasCTC ? (
+                                                
+                                                {hasCTC && canUpload ? (
                                                     <Button
                                                         onClick={() => handleIssueCertificate(attachment)}
                                                         variant="secondary"

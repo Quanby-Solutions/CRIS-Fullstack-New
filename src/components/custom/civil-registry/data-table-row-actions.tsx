@@ -66,7 +66,7 @@ export function DataTableRowActions({
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
   const canExport = hasPermission(permissions, Permission.DOCUMENT_EXPORT) || process.env.NEXT_PUBLIC_NODE_ENV === 'development'
-
+ 
   // Get the latest attachment with CTC information
   const attachments: AttachmentWithCertifiedCopies[] = form.documents
     .flatMap(doc => doc.document.attachments)
