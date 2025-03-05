@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 ;
 import { useFormContext } from 'react-hook-form';
@@ -18,8 +18,17 @@ import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const HusbandParentsInfoCard: React.FC = () => {
-  const { control } = useFormContext<MarriageCertificateFormValues>();
+  const { control, getValues } = useFormContext<MarriageCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
+
+    useEffect(() => {
+      // Detect NCR mode from fetched data on component mount
+      const province = getValues('husbandConsentPerson.residence.province');
+      if (province === 'Metro Manila' || province === 'NCR') {
+        setNcrMode(true);
+      }
+    }, [getValues]);
+
   return (
     <Card className='border dark:border-border'>
       <CardHeader>

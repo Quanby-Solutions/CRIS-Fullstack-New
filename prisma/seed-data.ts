@@ -291,6 +291,9 @@ const generateMarriageCertificate = (
   // Generate contract day
   const contractDay = randomDate(new Date(2020, 0, 1), marriageDate);
 
+  const delayedRegistration = faker.datatype.boolean(0.3);
+  const delayedRegistrationValue = delayedRegistration ? 'Yes' : 'No';
+
   // Create base form
   const baseForm = generateBaseRegistryForm(
     FormType.MARRIAGE,
@@ -339,7 +342,35 @@ const generateMarriageCertificate = (
           'Child',
           'Sibling',
         ]),
-        residence: faker.location.streetAddress(),
+        residence: generatePhLocation(),
+      },
+
+      husbandContractParty:{
+        signature: generatePersonName(),
+        agreement: true
+      },
+      wifeContractParty:{
+        signature: generatePersonName(),
+        agreement: true
+      },
+
+      receivedByOffice:{
+        signature: generatePersonName(),
+        nameInPrint: generatePersonName(),
+        title: faker.helpers.arrayElement([
+          'Civil Registrar',
+          'Civil Registry Officer',
+        ]),
+        date: registrationDate
+      },
+      preparedByOffice:{
+        signature: generatePersonName(),
+        nameInPrint: generatePersonName(),
+        title: faker.helpers.arrayElement([
+          'Civil Registrar',
+          'Civil Registry Officer',
+        ]),
+        date: registrationDate
       },
 
       // Wife Information
@@ -481,20 +512,17 @@ const generateMarriageCertificate = (
 
       // Affidavit of Solemnizing Officer
       affidavitOfSolemnizingOfficer: {
-        administeringInformation: {
-          nameOfOfficer: faker.person.fullName(),
-          signatureOfOfficer: faker.person.fullName(),
-          position: faker.helpers.arrayElement(['Judge', 'Mayor', 'Priest']),
-          addressOfOffice: {
-            st: faker.location.street(),
-            barangay: faker.location.county(),
-            cityMunicipality: faker.location.city(),
-            province: faker.location.state(),
-            country: 'Philippines'
-          }
+        solemnizingOfficerInformation: {
+          officerName: {
+            first: faker.person.firstName(),
+            middle: faker.person.middleName(),
+            last: faker.person.lastName()
+          },
+          officeName: faker.company.name(),
+          signature: faker.person.fullName(),
+          address: faker.location.streetAddress(),
         },
-        nameOfPlace: faker.location.city(),
-        addressAt: faker.location.streetAddress(),
+        
         a: {
           nameOfHusband: {
             first: husbandFirstName,
@@ -507,6 +535,7 @@ const generateMarriageCertificate = (
             last: wifeLastName
           }
         },
+        
         b: {
           a: faker.datatype.boolean(0.2),
           b: faker.datatype.boolean(0.2),
@@ -514,21 +543,24 @@ const generateMarriageCertificate = (
           d: faker.datatype.boolean(0.2),
           e: faker.datatype.boolean(0.2)
         },
+        
         c: faker.lorem.sentence(),
+        
         d: {
           dayOf: randomDate(new Date(2020, 0, 1), dateOfMarriage),
-          atPlaceOfMarriage: {
-            st: faker.location.street(),
+          atPlaceExecute: {
+            street: faker.location.street(),
             barangay: faker.location.county(),
             cityMunicipality: faker.location.city(),
             province: faker.location.state(),
             country: 'Philippines'
           }
         },
+        
         dateSworn: {
           dayOf: faker.date.recent(),
           atPlaceOfSworn: {
-            st: faker.location.street(),
+            street: faker.location.street(),
             barangay: faker.location.county(),
             cityMunicipality: faker.location.city(),
             province: faker.location.state(),
@@ -540,82 +572,87 @@ const generateMarriageCertificate = (
             placeIssued: faker.location.city()
           }
         },
-        nameOfAdmin: {
+        
+        administeringOfficerInformation: {
+          adminName: {
+            first: faker.person.firstName(),
+            middle: faker.person.middleName(),
+            last: faker.person.lastName()
+          },
+          position: faker.helpers.arrayElement(['Notary Public', 'Judge', 'Mayor']),
           address: faker.location.streetAddress(),
-          signature: {
-            signature: faker.person.fullName(),
-            name2: faker.person.fullName(),
-            position: faker.helpers.arrayElement(['Notary Public', 'Judge', 'Mayor'])
-          }
+          signature: faker.person.fullName()
         }
       },
 
       // Optional affidavit for delayed registration
-      affidavitOfdelayedRegistration: faker.datatype.boolean(0.3) ? {
-        // Administering Information
+      // Affidavit for Delayed Registration
+      affidavitOfdelayedRegistration : delayedRegistrationValue === 'Yes'  ? {
+        delayedRegistration: 'Yes',
         administeringInformation: {
           signatureOfAdmin: faker.person.fullName(),
           nameOfOfficer: faker.person.fullName(),
           position: faker.helpers.arrayElement(['Judge', 'Notary Public', 'Mayor']),
           addressOfOfficer: {
-            st: faker.location.street(),
+            street: faker.location.street(),
             barangay: faker.location.county(),
             cityMunicipality: faker.location.city(),
             province: faker.location.state(),
             country: 'Philippines'
           }
         },
-
-        // Applicant Information
         applicantInformation: {
           signatureOfApplicant: faker.person.fullName(),
           nameOfApplicant: faker.person.fullName(),
-          postalCode: faker.location.zipCode(),
+          postalCode: faker.location.zipCode('#####'), // Ensuring 5 digits for postalCode
           applicantAddress: {
-            st: faker.location.street(),
+            street: faker.location.street(),
             barangay: faker.location.county(),
             cityMunicipality: faker.location.city(),
             province: faker.location.state(),
             country: 'Philippines'
           }
         },
-
-        // Section A
-        a: {
-          a: {
-            agreement: faker.datatype.boolean(),
-            nameOfPartner: {
-              first: faker.person.firstName(),
-              middle: faker.person.lastName(),
-              last: faker.person.lastName()
+        a: (() => {
+          // To ensure only one agreement is true (per schema refine rule)
+          const useAgreementA = faker.datatype.boolean();
+          return {
+            a: {
+              agreement: useAgreementA,
+              nameOfPartner: {
+                first: faker.person.firstName(),
+                middle: faker.person.lastName(),
+                last: faker.person.lastName()
+              },
+              placeOfMarriage: faker.location.city(),
+              dateOfMarriage: randomDate(new Date(2020, 0, 1), new Date())
             },
-            placeOfMarriage: faker.location.city(),
-            dateOfMarriage: randomDate(new Date(2020, 0, 1), new Date())
-          },
-          b: {
-            agreement: faker.datatype.boolean(),
-            nameOfHusband: {
-              first: husbandFirstName,
-              middle: husbandMiddleName,
-              last: husbandLastName
-            },
-            nameOfWife: {
-              first: wifeFirstName,
-              middle: wifeMiddleName,
-              last: wifeLastName
-            },
-            placeOfMarriage: faker.location.city(),
-            dateOfMarriage: dateOfMarriage
-          }
-        },
-
-        // Section B
+            b: {
+              agreement: !useAgreementA,
+              nameOfHusband: {
+                first: husbandFirstName,
+                middle: husbandMiddleName,
+                last: husbandLastName
+              },
+              nameOfWife: {
+                first: wifeFirstName,
+                middle: wifeMiddleName,
+                last: wifeLastName
+              },
+              placeOfMarriage: faker.location.city(),
+              dateOfMarriage: dateOfMarriage
+            }
+          };
+        })(),
         b: {
           solemnizedBy: faker.person.fullName(),
-          sector: faker.helpers.arrayElement(['religious-ceremony', 'civil-ceremony', 'tribal-ceremony'])
+          sector: faker.helpers.arrayElement([
+            'religious-ceremony',
+            'civil-ceremony',
+            'Muslim-rites',
+            'tribal-rites'
+          ])
         },
-
-        // Section C
         c: {
           a: {
             licenseNo: faker.string.numeric(8),
@@ -630,33 +667,25 @@ const generateMarriageCertificate = (
             ])
           }
         },
-
-        // Section D
         d: {
           husbandCitizenship: 'Filipino',
           wifeCitizenship: 'Filipino'
         },
-
-        // Section E
-        e: faker.lorem.paragraph(),
-
-        // Section F
+        e: faker.lorem.paragraph(), // Required reason for delayed registration
         f: {
           date: faker.date.recent(),
           place: {
-            st: faker.location.street(),
+            street: faker.location.street(),
             barangay: faker.location.county(),
             cityMunicipality: faker.location.city(),
             province: faker.location.state(),
             country: 'Philippines'
           }
         },
-
-        // Date Sworn
         dateSworn: {
-          dayOf: faker.date.recent(),
+          dayOf: randomDate(new Date(2020, 0, 1), dateOfMarriage),
           atPlaceOfSworn: {
-            st: faker.location.street(),
+            street: faker.location.street(),
             barangay: faker.location.county(),
             cityMunicipality: faker.location.city(),
             province: faker.location.state(),
@@ -664,11 +693,12 @@ const generateMarriageCertificate = (
           },
           ctcInfo: {
             number: faker.string.alphanumeric(10),
-            dateIssued: faker.date.recent(),
+            dateIssued: randomDate(new Date(2020, 0, 1), dateOfMarriage),
             placeIssued: faker.location.city()
           }
         }
       } : {}
+
     }
   };
 };

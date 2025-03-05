@@ -24,8 +24,16 @@ import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const WifeInfoCard: React.FC = () => {
-  const { control, setValue } = useFormContext<MarriageCertificateFormValues>();
-  const [ncrMode, setncrMode] = useState(false);
+  const { control, setValue, getValues } = useFormContext<MarriageCertificateFormValues>();
+  const [ncrMode, setNcrMode] = useState(false);
+
+   useEffect(() => {
+      // Detect NCR mode from fetched data on component mount
+      const province = getValues('wifePlaceOfBirth.province');
+      if (province === 'Metro Manila' || province === 'NCR') {
+        setNcrMode(true);
+      }
+    }, [getValues]);
 
   // Auto-calculate and set age when birthdate changes
   const birthDate = useWatch({ control, name: 'wifeBirth' });
@@ -250,17 +258,20 @@ const WifeInfoCard: React.FC = () => {
             )}
           />
         </div>
+        <div className='col-span-3 py-4'>
+          <CardTitle >Place Of Birth</CardTitle>
+        </div>
         <div className='col-span-1 md:col-span-3'>
-          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setncrMode} />
+          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
         </div>
         {/* Place of Birth */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
 
           {/* Place of Birth */}
           <LocationSelector
-            provinceFieldName='husbandPlaceOfBirth.province'
-            municipalityFieldName='husbandPlaceOfBirth.cityMunicipality'
-            barangayFieldName='husbandPlaceOfBirth.barangay'
+            provinceFieldName='wifePlaceOfBirth.province'
+            municipalityFieldName='wifePlaceOfBirth.cityMunicipality'
+            barangayFieldName='wifePlaceOfBirth.barangay'
             provinceLabel='Province'
             municipalityLabel='City/Municipality'
             barangayLabel='Barangay'
@@ -272,7 +283,7 @@ const WifeInfoCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='husbandPlaceOfBirth.country'
+            name='wifePlaceOfBirth.country'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country</FormLabel>

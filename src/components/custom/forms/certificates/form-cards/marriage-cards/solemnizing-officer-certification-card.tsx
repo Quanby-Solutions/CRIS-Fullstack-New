@@ -115,7 +115,7 @@ export const SolemnizingOfficerCertification: React.FC<
             />
           </div>
 
-          {/* Signature Section *********************************************/}
+          {/*  Section *********************************************/}
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6 pt-4'>
             {/* License No */}
             <FormField

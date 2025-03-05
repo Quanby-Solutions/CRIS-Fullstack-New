@@ -17,6 +17,8 @@ import DatePickerField from '@/components/custom/datepickerfield/date-picker-fie
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
+import { useEffect } from 'react';
+
 interface AffidavitOfSolemnizingOfficerProps {
     className?: string;
 }
@@ -24,10 +26,25 @@ interface AffidavitOfSolemnizingOfficerProps {
 export const AffidavitOfSolemnizingOfficer: React.FC<
     AffidavitOfSolemnizingOfficerProps
 > = ({ className }) => {
-    const { control, watch } = useFormContext<MarriageCertificateFormValues>();
+    const { control, getValues } = useFormContext<MarriageCertificateFormValues>();
     const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = React.useState(false);
     const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = React.useState(false);
 
+    useEffect(() => {
+        // Detect NCR mode from fetched data on component mount
+        const province = getValues('affidavitOfSolemnizingOfficer.d.atPlaceExecute.province');
+        if (province === 'Metro Manila' || province === 'NCR') {
+            setNcrModeAdminOfficer(true);
+        }
+    }, [getValues]);
+
+    useEffect(() => {
+        // Detect NCR mode from fetched data on component mount
+        const province = getValues('affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.province');
+        if (province === 'Metro Manila' || province === 'NCR') {
+            setNcrModeSwornOfficer(true);
+        }
+    }, [getValues]);
     // Watch specific form fields for dynamic updates
     //   const marriageLicenseNumber = watch('marriageLicenseDetails.number');
     //   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued');
@@ -37,18 +54,18 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
     return (
         <Card className={cn('border dark:border-border', className)}>
             <CardHeader>
-                <CardTitle>Certification of the Solemnizing Officer</CardTitle>
+                <CardTitle>Affidavit of Solemnizing Officer</CardTitle>
             </CardHeader>
             <CardContent className='p-6'>
                 <div className='space-y-6'>
                     <div className='grid grid-cols-1 md:grid-cols-3 gap-6 '>
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.administeringInformation.nameOfOfficer'
+                            name='affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.officerName.first'
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className='text-foreground'>
-                                        Solemnizing Officer Name
+                                        I, (Solemnizing Officer Name) (first)
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -64,11 +81,11 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                         />
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.nameOfPlace'
+                            name='affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.officerName.middle'
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className='text-foreground'>
-                                        Office Name
+                                        I, (Solemnizing Officer Name) (middle)
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -84,11 +101,11 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                         />
                         <FormField
                             control={control}
-                            name='affidavitOfSolemnizingOfficer.addressAt'
+                            name='affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.officerName.last'
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className='text-foreground'>
-                                        Office Address
+                                        I, (Solemnizing Officer Name) (last)
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -96,6 +113,49 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                             value={field.value || ''}
                                             className='h-10'
                                             placeholder='Enter officer name'
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        
+
+                        <FormField
+                            control={control}
+                            name='affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.officeName'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className='text-foreground'>
+                                        (Officer of)
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            value={field.value || ''}
+                                            className='h-10'
+                                            placeholder='Enter office name'
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name='affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.address'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className='text-foreground'>
+                                        (With address at)
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            value={field.value || ''}
+                                            className='h-10'
+                                            placeholder='Enter address at'
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -334,7 +394,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                     {/* Solemnizing Officer Address */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Solemnizing Officer Address</CardTitle>
+                            <CardTitle>Execution of affidavit and legal intents and purpose</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className='space-y-4'>
@@ -352,13 +412,13 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                             <DatePickerField field={{
                                                 value: field.value || '',
                                                 onChange: field.onChange,
-                                            }} label='Issued on' />
+                                            }} label='Issued on (Day of)' />
                                         )}
                                     />
                                     <LocationSelector
-                                        provinceFieldName='affidavitOfSolemnizingOfficer.d.atPlaceOfMarriage.province'
-                                        municipalityFieldName='affidavitOfSolemnizingOfficer.d.atPlaceOfMarriage.cityMunicipality'
-                                        barangayFieldName='affidavitOfSolemnizingOfficer.d.atPlaceOfMarriage.barangay'
+                                        provinceFieldName='affidavitOfSolemnizingOfficer.d.atPlaceExecute.province'
+                                        municipalityFieldName='affidavitOfSolemnizingOfficer.d.atPlaceExecute.cityMunicipality'
+                                        barangayFieldName='affidavitOfSolemnizingOfficer.d.atPlaceExecute.barangay'
                                         provinceLabel='Province'
                                         municipalityLabel='City/Municipality'
                                         barangayLabel='Barangay'
@@ -370,7 +430,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                     />
                                     <FormField
                                         control={control}
-                                        name='affidavitOfSolemnizingOfficer.d.atPlaceOfMarriage.st'
+                                        name='affidavitOfSolemnizingOfficer.d.atPlaceExecute.st'
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Street</FormLabel>
@@ -385,7 +445,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                     {/* Redundant na su name so s apreview is get nalang si name of officer or fillout ini auto matic */}
                                     <FormField
                                         control={control}
-                                        name='affidavitOfSolemnizingOfficer.d.atPlaceOfMarriage.country'
+                                        name='affidavitOfSolemnizingOfficer.d.atPlaceExecute.country'
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Country</FormLabel>
@@ -552,10 +612,10 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                                 <FormField
                                     control={control}
-                                    name='affidavitOfSolemnizingOfficer.nameOfAdmin.signature.name2'
+                                    name='affidavitOfSolemnizingOfficer.administeringOfficerInformation.adminName.first'
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Name of the Administrator</FormLabel>
+                                            <FormLabel>Name of the Administrator (first)</FormLabel>
                                             <FormControl>
                                                 <Input {...field} value={field.value || ''}
                                                     placeholder='Enter admin name'
@@ -565,10 +625,42 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={control}
+                                    name='affidavitOfSolemnizingOfficer.administeringOfficerInformation.adminName.middle'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Name of the Administrator (middle)</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} value={field.value || ''}
+                                                    placeholder='Enter admin name'
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={control}
+                                    name='affidavitOfSolemnizingOfficer.administeringOfficerInformation.adminName.last'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Name of the Administrator (last)</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} value={field.value || ''}
+                                                    placeholder='Enter admin name'
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                             
+
                                 {/* Position */}
                                 <FormField
                                     control={control}
-                                    name='affidavitOfSolemnizingOfficer.nameOfAdmin.signature.position'
+                                    name='affidavitOfSolemnizingOfficer.administeringOfficerInformation.position'
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Position/Title</FormLabel>
@@ -585,7 +677,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                 {/* Address */}
                                 <FormField
                                     control={control}
-                                    name='affidavitOfSolemnizingOfficer.nameOfAdmin.address'
+                                    name='affidavitOfSolemnizingOfficer.administeringOfficerInformation.address'
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Address of administrator</FormLabel>
@@ -598,6 +690,10 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                         </FormItem>
                                     )}
                                 />
+
+
+
+
                             </div>
                         </CardContent>
                     </Card>

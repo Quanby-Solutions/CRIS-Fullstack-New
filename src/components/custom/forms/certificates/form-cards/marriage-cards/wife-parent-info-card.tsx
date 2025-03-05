@@ -13,12 +13,21 @@ import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/
 ;
 import { useFormContext } from 'react-hook-form';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import LocationSelector from '../shared-components/location-selector';
 
 const WifeParentsInfoCard: React.FC = () => {
-  const { control } = useFormContext<MarriageCertificateFormValues>();
+  const { control, getValues } = useFormContext<MarriageCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
+
+  useEffect(() => {
+    // Detect NCR mode from fetched data on component mount
+    const province = getValues('wifeConsentPerson.residence.province');
+    if (province === 'Metro Manila' || province === 'NCR') {
+      setNcrMode(true);
+    }
+  }, [getValues]);
+
   return (
     <Card className='border dark:border-border'>
       <CardHeader>

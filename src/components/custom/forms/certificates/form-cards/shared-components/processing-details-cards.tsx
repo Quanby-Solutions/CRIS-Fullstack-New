@@ -22,15 +22,6 @@ import { useEffect } from 'react';
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form';
 import SignatureUploader from './signature-uploader';
 
-// Helper function to convert a File object to a base64 string.
-const toBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   fieldPrefix: string;
   cardTitle: string;
@@ -59,101 +50,24 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>);
   const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>;
   const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
-  const dateFieldName = `${fieldPrefix}.date` as Path<T>;
 
   useEffect(() => {
     const selectedStaff = staff.find((s) => s.name === selectedName);
     if (selectedStaff) {
-      setValue(
-        titleFieldName,
-        selectedStaff.title as PathValue<T, Path<T>>,
-        {
-          shouldValidate: isSubmitted,
-          shouldDirty: true,
-        }
-      );
-    }
-  }, [selectedName, staff, setValue, isSubmitted, titleFieldName]);
-
-  // Handler to update signature value: converts File to base64 if needed.
-  const handleSignatureChange = async (value: File | string) => {
-    if (value instanceof File) {
-      try {
-        const base64 = await toBase64(value);
-        setValue(signatureFieldName, base64 as PathValue<T, Path<T>>, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
-      } catch (error) {
-        console.error('Error converting file to base64', error);
-      }
-    } else {
-      setValue(signatureFieldName, value as PathValue<T, Path<T>>, {
-        shouldValidate: true,
+      setValue(titleFieldName, selectedStaff.title as PathValue<T, Path<T>>, {
+        shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
-  };
-
-  // Handler to update date value (if necessary).
-  const handleDateChange = (value: any) => {
-    setValue(dateFieldName, value, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  };
+  }, [selectedName, staff, setValue, isSubmitted, titleFieldName]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {showSignature && (
-            <FormField
-              control={control}
-              name={signatureFieldName}
-              render={({ field, formState: { errors } }) => {
-                const existingSignature = watch(signatureFieldName);
-                return (
-                  <FormItem>
-                    <FormLabel>Signature</FormLabel>
-                    <FormControl>
-                      <SignatureUploader
-                        name={signatureFieldName}
-                        label="Upload Signature"
-                        initialValue={existingSignature} // Preload any existing signature
-                        onChange={handleSignatureChange}
-                      />
-                    </FormControl>
-                    <FormMessage>
-                      {errors?.[field.name]?.message as string}
-                    </FormMessage>
-                  </FormItem>
-                );
-              }}
-            />
-          )}
-          {!hideDate && (
-            <FormField
-              control={control}
-              name={`${fieldPrefix}.date` as Path<T>}
-              render={({ field }) => (
-                <DatePickerField
-                  field={{
-                    value: field.value || null,
-                    onChange: (value) => handleDateChange(value),
-                  }}
-                  label="Date"
-                  placeholder="Select date"
-                />
-              )}
-            />
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <CardContent className='space-y-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           {showNameInPrint && (
             <FormField
               control={control}
@@ -167,9 +81,11 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                     disabled={loading}
                   >
                     <FormControl>
-                      <SelectTrigger className="h-10">
+                      <SelectTrigger className='h-10'>
                         <SelectValue
-                          placeholder={loading ? 'Loading...' : 'Select staff name'}
+                          placeholder={
+                            loading ? 'Loading...' : 'Select staff name'
+                          }
                         />
                       </SelectTrigger>
                     </FormControl>
@@ -186,6 +102,26 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
               )}
             />
           )}
+          {!hideDate && (
+            <FormField
+              control={control}
+              name={`${fieldPrefix}.date` as Path<T>}
+              render={({ field }) => (
+                <DatePickerField
+                  field={{
+                    value: field.value || null,
+                    onChange: field.onChange,
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+              )}
+            />
+          )}
+
+
+
+
 
           {showTitleOrPosition && (
             <FormField
@@ -196,10 +132,10 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                   <FormLabel>Title or Position</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Title will auto-fill"
+                      placeholder='Title will auto-fill'
                       {...field}
                       value={field.value || ''}
-                      className="h-10"
+                      className='h-10'
                       disabled
                     />
                   </FormControl>
@@ -219,8 +155,8 @@ export function PreparedByCard<T extends FieldValues = FieldValues>(
 ) {
   return (
     <ProcessingDetailsCard<T>
-      fieldPrefix="preparedBy"
-      cardTitle="Prepared By"
+      fieldPrefix='preparedBy'
+      cardTitle='Prepared By'
       {...props}
     />
   );
@@ -231,20 +167,22 @@ export function ReceivedByCard<T extends FieldValues = FieldValues>(
 ) {
   return (
     <ProcessingDetailsCard<T>
-      fieldPrefix="receivedBy"
-      cardTitle="Received By"
+      fieldPrefix='receivedBy'
+      cardTitle='Received By'
       {...props}
     />
   );
 }
 
-export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(props: ProcessingCardProps<T>) {
+export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
+  props: ProcessingCardProps<T>
+) {
   return (
     <ProcessingDetailsCard<T>
       fieldPrefix={props.fieldPrefix}
       cardTitle={props.cardTitle}
       hideDate={props.hideDate}
-      showSignature={props.showSignature}
+
       showNameInPrint={props.showNameInPrint}
       showTitleOrPosition={props.showTitleOrPosition}
     />

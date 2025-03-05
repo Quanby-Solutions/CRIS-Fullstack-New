@@ -22,16 +22,46 @@ interface AffidavitForDelayedMarriageRegistrationProps {
 export const AffidavitForDelayedMarriageRegistration: FC<
     AffidavitForDelayedMarriageRegistrationProps
 > = ({ className }) => {
-    const { control, watch, setValue } = useFormContext<MarriageCertificateFormValues>()
-    const [affiant, setAffiant] = useState(false)
-    const [execution, setExecution] = useState(false)
+    const { control, getValues, setValue } = useFormContext<MarriageCertificateFormValues>()
+
+
     const isDelayed = useWatch({ control, name: 'affidavitForDelayed.delayedRegistration' })
 
-    const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = useState(false)
+    // NCR
+    const [affiant, setAffiant] = useState(false)
+    const [execution, setExecution] = useState(false)
     const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = useState(false)
 
-    const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' })
-    const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' })
+    const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' });
+    const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' });
+
+
+    useEffect(() => {
+        // Detect NCR mode from fetched data on component mount
+        const province = getValues('affidavitForDelayed.applicantInformation.applicantAddress.province');
+        if (province === 'Metro Manila' || province === 'NCR') {
+            setAffiant(true);
+        }
+    }, [getValues]);
+
+    useEffect(() => {
+        // Detect NCR mode from fetched data on component mount
+        const province = getValues('affidavitForDelayed.f.place.province');
+        if (province === 'Metro Manila' || province === 'NCR') {
+            setExecution(true);
+        }
+    }, [getValues]);
+
+    useEffect(() => {
+        // Detect NCR mode from fetched data on component mount
+        const province = getValues('affidavitForDelayed.dateSworn.atPlaceOfSworn.province');
+        if (province === 'Metro Manila' || province === 'NCR') {
+            setNcrModeSwornOfficer(true);
+        }
+    }, [getValues]);
+
+
+
 
     // Reset the entire AffidavitForDelayed object
     useEffect(() => {
@@ -172,24 +202,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                             </FormItem>
                                         )}
                                     />
-                                    <FormField
-                                        control={control}
-                                        name='affidavitForDelayed.applicantInformation.signatureOfApplicant'
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Signature (optional)</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type='text' className='h-10' placeholder='This is optional'
-                                                        {...field}
-                                                        value={field.value ?? ''}
-                                                        disabled
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    
                                 </div>
                             </CardContent>
                         </Card>
@@ -199,20 +212,38 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                 <CardTitle>Applicant for the delayed registration</CardTitle>
                             </CardHeader>
                             <CardContent className='p-6 space-y-6'>
+
                                 <FormField
                                     control={control}
-                                    name='affidavitForDelayed.a.a.agreement'
+                                    name="affidavitForDelayed.a.a.agreement" // Name of agreementA
                                     render={({ field }) => (
-                                        <FormItem className='flex flex-row items-center space-x-3 space-y-0'>
-                                            <FormControl>
-                                                <Checkbox
-                                                    checked={field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
-                                            </FormControl>
-                                            <FormLabel className='text-sm font-normal'>
-                                                a. (the affiant is the husband or wife)
-                                            </FormLabel>
+                                        <FormItem>
+                                            <FormLabel>Affiant Information</FormLabel>
+                                            <Select
+                                                onValueChange={(value) => {
+                                                    // Convert the string value to a boolean
+                                                    const isAffiantHusbandOrWife = value === "true";
+
+                                                    // Update both fields in one operation with boolean values
+                                                    setValue('affidavitForDelayed.a.a.agreement', isAffiantHusbandOrWife, { shouldValidate: true });
+                                                    setValue('affidavitForDelayed.a.b.agreement', !isAffiantHusbandOrWife, { shouldValidate: true });
+
+                                                    // Important: Trigger the field's onChange with a boolean value, not the string
+                                                    field.onChange(isAffiantHusbandOrWife);
+                                                }}
+                                                value={field.value === true ? "true" : "false"}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="h-10">
+                                                        <SelectValue placeholder="Select affiant type" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="true">a. (the affiant is the husband or wife)</SelectItem>
+                                                    <SelectItem value="false">a. (the affiant is <span className="text-red-500">not</span> the husband or wife)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -315,23 +346,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                     </div>
                                 )}
                                 <div className='pt-6 space-y-6'>
-                                    <FormField
-                                        control={control}
-                                        name='affidavitForDelayed.a.b.agreement'
-                                        render={({ field }) => (
-                                            <FormItem className='flex flex-row items-center space-x-3 space-y-0'>
-                                                <FormControl>
-                                                    <Checkbox
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                    />
-                                                </FormControl>
-                                                <FormLabel className='text-sm font-normal'>
-                                                    a. (the affiant is not the husband or wife)
-                                                </FormLabel>
-                                            </FormItem>
-                                        )}
-                                    />
+
                                     {agreementB && (
                                         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 '>
                                             <FormField
@@ -931,21 +946,17 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                             </CardContent>
                         </Card>
 
-                        {/* Signature of administrator */}
+                        {/*  of administrator */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Administering Officer Information</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className='space-y-4'>
-                                    <NCRModeSwitch
-                                        isNCRMode={ncrModeAdminOfficer}
-                                        setIsNCRMode={setNcrModeAdminOfficer}
-                                    />
                                     <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                                         <FormField
                                             control={control}
-                                            name='affidavitForDelayed.administeringInformation.nameOfOfficer'
+                                            name='affidavitForDelayed.administeringInformation.adminName'
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className='text-foreground'>
@@ -984,75 +995,26 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                             )}
                                         />
 
-                                        <LocationSelector
-                                            provinceFieldName='affidavitForDelayed.administeringInformation.addressOfOfficer.province'
-                                            municipalityFieldName='affidavitForDelayed.administeringInformation.addressOfOfficer.cityMunicipality'
-                                            barangayFieldName='affidavitForDelayed.administeringInformation.addressOfOfficer.barangay'
-                                            provinceLabel='Province'
-                                            municipalityLabel='City/Municipality'
-                                            selectTriggerClassName='h-10 px-3 text-base md:text-sm'
-                                            provincePlaceholder='Select province'
-                                            municipalityPlaceholder='Select city/municipality'
-                                            className='grid grid-cols-2 gap-4'
-                                            isNCRMode={ncrModeAdminOfficer}
-                                            showBarangay={true}
-                                            barangayLabel='Barangay'
-                                            barangayPlaceholder='Select barangay'
-                                        />
                                         <FormField
                                             control={control}
-                                            name='affidavitForDelayed.administeringInformation.addressOfOfficer.st'
+                                            name='affidavitForDelayed.administeringInformation.adminAddress'
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Street</FormLabel>
+                                                    <FormLabel>Address</FormLabel>
                                                     <FormControl>
                                                         <Input
                                                             {...field}
                                                             className='h-10'
                                                             value={field.value || ''}
-                                                            placeholder='Enter Office street'
+                                                            placeholder='Enter Office address'
                                                         />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
-                                        <FormField
-                                            control={control}
-                                            name='affidavitForDelayed.administeringInformation.addressOfOfficer.country'
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Country</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            {...field}
-                                                            className='h-10'
-                                                            value={field.value || ''}
-                                                            placeholder='Entry Country'
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={control}
-                                            name='affidavitForDelayed.administeringInformation.signatureOfAdmin'
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Signature (optional)</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            type='text' className='h-10' placeholder='This is optional'
-                                                            {...field}
-                                                            value={field.value ?? ''}
-                                                            disabled
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+
+                                        
                                     </div>
                                 </div>
                             </CardContent>
