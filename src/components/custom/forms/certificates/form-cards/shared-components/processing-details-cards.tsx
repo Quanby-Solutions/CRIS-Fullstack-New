@@ -31,6 +31,7 @@ const toBase64 = (file: File): Promise<string> =>
     reader.onerror = (error) => reject(error);
   });
 
+// Extended interface including an optional isEdit property.
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   fieldPrefix: string;
   cardTitle: string;
@@ -38,6 +39,7 @@ export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   showSignature?: boolean;
   showNameInPrint?: boolean;
   showTitleOrPosition?: boolean;
+  isEdit?: string | null;
 }
 
 function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
@@ -47,6 +49,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   showSignature = true,
   showNameInPrint = true,
   showTitleOrPosition = true,
+  isEdit = null,
 }: ProcessingCardProps<T>) {
   const {
     control,
@@ -103,6 +106,9 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
     });
   };
 
+  // If isEdit is provided (not null), hide the signature field.
+  const finalShowSignature = isEdit != null ? false : showSignature;
+
   return (
     <Card>
       <CardHeader>
@@ -110,7 +116,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {showSignature && (
+          {finalShowSignature && (
             <FormField
               control={control}
               name={signatureFieldName}
@@ -138,7 +144,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
           {!hideDate && (
             <FormField
               control={control}
-              name={`${fieldPrefix}.date` as Path<T>}
+              name={dateFieldName}
               render={({ field }) => (
                 <DatePickerField
                   field={{
@@ -238,7 +244,9 @@ export function ReceivedByCard<T extends FieldValues = FieldValues>(
   );
 }
 
-export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(props: ProcessingCardProps<T>) {
+export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
+  props: ProcessingCardProps<T>
+) {
   return (
     <ProcessingDetailsCard<T>
       fieldPrefix={props.fieldPrefix}
@@ -247,6 +255,7 @@ export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(prop
       showSignature={props.showSignature}
       showNameInPrint={props.showNameInPrint}
       showTitleOrPosition={props.showTitleOrPosition}
+      isEdit={props.isEdit}
     />
   );
 }

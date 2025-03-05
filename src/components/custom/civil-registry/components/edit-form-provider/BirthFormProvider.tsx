@@ -909,11 +909,12 @@ const handleEditSubmit = async (
                 <AttendantInformationCard />
                 <CertificationOfInformantCard />
                 <PreparedByCard />
-                {/* <ReceivedByCard />
+                <ReceivedByCard isEdit="BIRTH" />
                 <RegisteredAtOfficeCard
                   fieldPrefix='registeredByOffice'
                   cardTitle='Registered at the Office of Civil Registrar'
-                /> */}
+                  isEdit="BIRTH"
+                />
                 <RemarksCard
                   fieldName='remarks'
                   cardTitle='Birth Certificate Remarks'
