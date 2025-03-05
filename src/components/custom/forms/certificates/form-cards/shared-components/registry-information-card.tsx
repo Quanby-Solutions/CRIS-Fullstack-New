@@ -68,13 +68,17 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return '';
   };
 
-  // When the province changes, update the NCR mode accordingly.
+  // And replace with this consolidated version:
   useEffect(() => {
+    // Use the watched province value which updates reactively
     const provinceString = getProvinceString(province);
     const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
-    setNcrMode(shouldBeNCR);
-  }, []);
 
+    // Log the change for debugging
+    console.log('Setting NCR mode:', shouldBeNCR, 'based on province:', provinceString, 'Edit mode:', isEdit ? 'Yes' : 'No');
+
+    setNcrMode(shouldBeNCR);
+  }, [province, getProvinceString, isEdit]);
 
 
 
@@ -144,6 +148,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     },
     [setError, clearErrors, formType, setValue]
   );
+
 
   useEffect(() => {
     if (debouncedRegistryNumber.length >= minLength) {
@@ -236,7 +241,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               {isEdit ? (
                 <FormField
-                
+
                   control={control}
                   name='registryNumber'
                   render={({ field }) => (
@@ -244,7 +249,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                       <FormLabel>Registry Number</FormLabel>
                       <FormControl className="">
                         <Input
-                        {...field}
+                          {...field}
                           value={rNumber}
                           className='h-10'
                           placeholder={placeholder}

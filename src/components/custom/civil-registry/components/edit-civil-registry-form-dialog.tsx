@@ -13,14 +13,17 @@ import { EditBirthCivilRegistryFormInline } from './edit-form-provider/BirthForm
 import { Button } from '@/components/ui/button';
 import { DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { useEffect, useRef } from 'react';
+import MarriageCertificateForm from '../../forms/certificates/marriage-certificate-form';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 
 interface EmptyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCancel: () => void;
+  editType?: string;
 }
 
-function EmptyDialog({ open, onOpenChange, onCancel }: EmptyDialogProps) {
+function EmptyDialog({ open, onOpenChange, onCancel, editType }: EmptyDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='p-6'>
@@ -113,7 +116,7 @@ export function EditCivilRegistryFormDialog({
 }: EditCivilRegistryFormDialogProps) {
   const { t } = useTranslation();
   const openRef = useRef(open);
-  
+
   // This prevents the dialog from closing when switching tabs
   useEffect(() => {
     openRef.current = open;
@@ -134,7 +137,7 @@ export function EditCivilRegistryFormDialog({
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     // Handle window focus/blur events as well for better coverage
     const handleWindowFocus = () => {
       if (openRef.current) {
@@ -143,15 +146,15 @@ export function EditCivilRegistryFormDialog({
         }, 0);
       }
     };
-    
+
     window.addEventListener('focus', handleWindowFocus);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleWindowFocus);
     };
   }, [onOpenChangeAction]);
-  
+
   // Custom handler for dialog open state changes
   const handleOpenChange = (newOpenState: boolean) => {
     // If attempting to close by clicking outside or pressing escape, 
@@ -264,9 +267,9 @@ export function EditCivilRegistryFormDialog({
     const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth;
     const typeOfBirth: 'Single' | 'Twin' | 'Triplet' | 'Others' =
       rawTypeOfBirth === 'Single' ||
-      rawTypeOfBirth === 'Twin' ||
-      rawTypeOfBirth === 'Triplet' ||
-      rawTypeOfBirth === 'Others'
+        rawTypeOfBirth === 'Twin' ||
+        rawTypeOfBirth === 'Triplet' ||
+        rawTypeOfBirth === 'Others'
         ? rawTypeOfBirth
         : 'Single';
 
@@ -544,10 +547,10 @@ export function EditCivilRegistryFormDialog({
   const initialData = mapToBirthCertificateValues(form);
 
   const handleEditSubmit = async (
-      data: BirthCertificateFormValues
-    ): Promise<void> => {
-      try {
-        const preparedByValue = { name: data.preparedBy.nameInPrint || '' };
+    data: BirthCertificateFormValues
+  ): Promise<void> => {
+    try {
+      const preparedByValue = { name: data.preparedBy.nameInPrint || '' };
       const updatedForm: BaseRegistryFormWithRelations = {
         ...form,
         registryNumber: data.registryNumber,
@@ -575,7 +578,7 @@ export function EditCivilRegistryFormDialog({
   };
 
   const { formMethods, handleError } = useBirthCertificateForm({
-    onOpenChange: () => {},
+    onOpenChange: () => { },
     defaultValues: initialData,
   });
 
@@ -599,6 +602,15 @@ export function EditCivilRegistryFormDialog({
 
   const handleCancel = () => {
     onOpenChangeAction(false);
+  };
+
+  // For marriage certificates
+  const handleMarriageFormCancel = () => {
+    onOpenChangeAction(false);
+  };
+
+  const handleMarriageFormOpenChange = (open: boolean) => {
+    handleOpenChange(open);
   };
 
   const renderForm = () => {
@@ -626,11 +638,18 @@ export function EditCivilRegistryFormDialog({
         );
       case 'MARRIAGE':
         const marriageFormValues = mapToMarriageCertificateValues(form);
+
+        // Add the marriage certificate form ID to the values
+        if (form.marriageCertificateForm && typeof form.marriageCertificateForm === 'object') {
+          marriageFormValues.id = form.marriageCertificateForm.id || 'no id found';
+        }
+
         return (
-          <EmptyDialog
+          <MarriageCertificateForm
             open={open}
-            onOpenChange={handleOpenChange}
-            onCancel={handleCancel}
+            onOpenChange={handleMarriageFormOpenChange}
+            onCancel={handleMarriageFormCancel}
+            defaultValues={marriageFormValues as Partial<MarriageCertificateFormValues>}
           />
         );
       default:

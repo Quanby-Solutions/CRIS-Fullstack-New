@@ -71,6 +71,7 @@ export default function MarriageCertificateForm({
                 <div className='w-full '>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
+                      <span>{defaultValues?.id}</span>
                       <PaginationInputs />
                       <RegistryInformationCard
                         formType={FormType.MARRIAGE}

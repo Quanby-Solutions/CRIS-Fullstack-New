@@ -371,7 +371,7 @@ export const marriageCertificateSchema = z.object({
   affidavitOfSolemnizingOfficer: affidavitOfSolemnizingOfficerSchema,
 
   affidavitForDelayed: affidavitForDelayedSchema.optional(),
-
+  id: z.string().optional(),
 
 })
 

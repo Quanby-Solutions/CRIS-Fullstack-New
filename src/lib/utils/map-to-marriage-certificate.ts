@@ -200,7 +200,7 @@ export const mapToMarriageCertificateValues = (
     // Create a properly structured result object that matches the expected schema
     const result: Partial<MarriageCertificateFormValues> = {
         // ID information
-
+        id: ensureString(form.id),
 
         // Registry information
         registryNumber: ensureString(form.registryNumber),
