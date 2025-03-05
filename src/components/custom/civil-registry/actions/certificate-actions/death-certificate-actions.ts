@@ -106,39 +106,39 @@ export async function submitDeathCertificateForm(
         });
 
         // Update users' eSignature (convert file to base64 if it's a file)
-        await tx.user.updateMany({
-          where: {
-            id: {
-              in: [preparedByUser.id, receivedByUser.id, registeredByUser.id],
-            },
-          },
-          data: {
-            eSignature:
-              formData.preparedBy.signature instanceof File
-                ? await fileToBase64(formData.preparedBy.signature)
-                : formData.preparedBy.signature, // If it's already base64, leave it unchanged
-          },
-        });
+        // await tx.user.updateMany({
+        //   where: {
+        //     id: {
+        //       in: [preparedByUser.id, receivedByUser.id, registeredByUser.id],
+        //     },
+        //   },
+        //   data: {
+        //     eSignature:
+        //       formData.preparedBy.signature instanceof File
+        //         ? await fileToBase64(formData.preparedBy.signature)
+        //         : formData.preparedBy.signature, // If it's already base64, leave it unchanged
+        //   },
+        // });
 
-        await tx.user.update({
-          where: { id: receivedByUser.id },
-          data: {
-            eSignature:
-              formData.receivedBy.signature instanceof File
-                ? await fileToBase64(formData.receivedBy.signature)
-                : formData.receivedBy.signature,
-          },
-        });
+        // await tx.user.update({
+        //   where: { id: receivedByUser.id },
+        //   data: {
+        //     eSignature:
+        //       formData.receivedBy.signature instanceof File
+        //         ? await fileToBase64(formData.receivedBy.signature)
+        //         : formData.receivedBy.signature,
+        //   },
+        // });
 
-        await tx.user.update({
-          where: { id: registeredByUser.id },
-          data: {
-            eSignature:
-              formData.registeredByOffice.signature instanceof File
-                ? await fileToBase64(formData.registeredByOffice.signature)
-                : formData.registeredByOffice.signature,
-          },
-        });
+        // await tx.user.update({
+        //   where: { id: registeredByUser.id },
+        //   data: {
+        //     eSignature:
+        //       formData.registeredByOffice.signature instanceof File
+        //         ? await fileToBase64(formData.registeredByOffice.signature)
+        //         : formData.registeredByOffice.signature,
+        //   },
+        // });
 
         // Helper function to convert Date to ISO string for JSON
         const dateToJSON = (date: Date) => date.toISOString();

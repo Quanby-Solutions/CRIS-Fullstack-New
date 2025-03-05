@@ -29,7 +29,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
     <Card className='w-full'>
       <CardHeader className='flex flex-row justify-between items-center'>
         <CardTitle>Marriage Witnesses</CardTitle>
-        <button className='bg-chart-1 text-accent p-2 w-24 text-sm rounded-lg' type="button" onClick={() => append({ name: '', signature: '' })}>
+        <button className='bg-chart-1 text-accent p-2 w-24 text-sm rounded-lg' type="button" onClick={() => append({ name: '',})}>
           Add Witness
         </button>
       </CardHeader>

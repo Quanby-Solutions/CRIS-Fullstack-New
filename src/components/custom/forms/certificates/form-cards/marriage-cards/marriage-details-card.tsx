@@ -12,8 +12,8 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import TimePicker from '@/components/custom/time/time-picker';
 
 const MarriageDetailsCard: React.FC = () => {
-  const { control, getValues } = useFormContext<MarriageCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+  const { control, getValues, setValue } = useFormContext<MarriageCertificateFormValues>();
+  const [marriageNcr, setNcrMode] = useState(false);
 
   useEffect(() => {
     // Detect NCR mode from fetched data on component mount
@@ -23,6 +23,12 @@ const MarriageDetailsCard: React.FC = () => {
     }
   }, [getValues]);
 
+  useEffect(() => {
+    if (marriageNcr === true) {
+      setValue('placeOfMarriage.province', 'Metro Manila')
+    }
+  })
+
 
   return (
     <Card className='border dark:border-border'>
@@ -31,7 +37,7 @@ const MarriageDetailsCard: React.FC = () => {
       </CardHeader>
       <CardContent className='p-6 space-y-4'>
         <div className='col-span-1 md:col-span-3'>
-          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+          <NCRModeSwitch isNCRMode={marriageNcr} setIsNCRMode={setNcrMode} />
         </div>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
           {/* Place of Birth */}
@@ -42,7 +48,7 @@ const MarriageDetailsCard: React.FC = () => {
             provinceLabel='Province'
             municipalityLabel='City/Municipality'
             barangayLabel='Barangay'
-            isNCRMode={ncrMode}
+            isNCRMode={marriageNcr}
             showBarangay={true}
             provincePlaceholder='Select province'
             municipalityPlaceholder='Select city/municipality'

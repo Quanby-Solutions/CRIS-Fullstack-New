@@ -34,6 +34,11 @@ const emptyDefaults: MarriageCertificateFormValues = {
     province: 'Metro Manila',
     cityMunicipality: 'Quezon City',
 
+    pagination:{
+        pageNumber: '',
+        bookNumber: ''
+    },
+
     // Husband Information
     husbandName: {
         first: 'Juan',
@@ -206,18 +211,18 @@ const emptyDefaults: MarriageCertificateFormValues = {
     // Registered at Civil Registrar
     preparedBy: {
         date: new Date('2023-10-11'),
-        nameInPrint: 'Clerk Juan',
-        titleOrPosition: 'Clerk'
+        nameInPrint: 'Clerk 1',
+        titleOrPosition: 'Clerk 1'
     },
     receivedBy: {
         date: new Date('2023-10-11'),
-        nameInPrint: 'Registrar Maria',
-        titleOrPosition: 'Registrar'
+        nameInPrint: 'Clerk 2',
+        titleOrPosition: 'Clerk 2'
     },
     registeredByOffice: {
         date: new Date('2023-10-11'),
-        nameInPrint: 'Office Clerk',
-        titleOrPosition: 'Office Clerk'
+        nameInPrint: 'Clerk 3',
+        titleOrPosition: 'Clerk 3'
     },
 
     // Optional Sections
@@ -293,7 +298,7 @@ const emptyDefaults: MarriageCertificateFormValues = {
 
     // Affidavit for Delayed Registration
     affidavitForDelayed: {
-        delayedRegistration: 'No',
+        delayedRegistration: undefined,
         administeringInformation: {
             adminName: 'Admin Juan',
             position: 'Admin',
@@ -312,7 +317,7 @@ const emptyDefaults: MarriageCertificateFormValues = {
         },
         a: {
             a: {
-                agreement: false,
+                agreement: undefined,
                 nameOfPartner: {
                     first: '',
                     middle: '',
@@ -389,7 +394,6 @@ export function useMarriageCertificateForm({
     defaultValues
 }: UseMarriageCertificateFormProps = {}) {
     const [isInitialized, setIsInitialized] = useState(false);
-    const [initialValues, setInitialValues] = useState<Partial<MarriageCertificateFormValues> | undefined>(undefined);
 
     const formMethods = useForm<MarriageCertificateFormValues>({
         resolver: zodResolver(marriageCertificateSchema),
@@ -409,182 +413,47 @@ export function useMarriageCertificateForm({
         }
     }, [defaultValues, formMethods, isInitialized]);
 
-
-    // const handleFileUploads = async (data: any) => {
-    //     // Create a deep copy to avoid mutating the original
-    //     const processedData = { ...data };
-
-    //     // Process all signatures
-    //     // Prepared By, Received By, and Registered By signatures
-    //     if (processedData.preparedByOffice?.signature instanceof File) {
-    //         processedData.preparedByOffice.signature = await fileToBase64(processedData.preparedByOffice.signature);
-    //     }
-
-    //     if (processedData.receivedByOffice?.signature instanceof File) {
-    //         processedData.receivedByOffice.signature = await fileToBase64(processedData.receivedByOffice.signature);
-    //     }
-
-    //     if (processedData.registeredByOffice?.signature instanceof File) {
-    //         processedData.registeredByOffice.signature = await fileToBase64(processedData.registeredByOffice.signature);
-    //     }
-
-    //     // Solemnizing Officer signature
-    //     if (processedData.solemnizingOfficer?.signature instanceof File) {
-    //         processedData.solemnizingOfficer.signature = await fileToBase64(processedData.solemnizingOfficer.signature);
-    //     }
-
-    //     // Contracting Parties signatures
-    //     if (processedData.husbandContractParty?.signature instanceof File) {
-    //         processedData.husbandContractParty.signature = await fileToBase64(
-    //             processedData.husbandContractParty.signature
-    //         );
-    //     }
-
-    //     if (processedData.wifeContractParty?.signature instanceof File) {
-    //         processedData.wifeContractParty.signature = await fileToBase64(
-    //             processedData.wifeContractParty.signature
-    //         );
-    //     }
-
-    //     if (processedData.husbandWitnesses?.signature instanceof File) {
-    //         processedData.husbandWitnesses.signature = await fileToBase64(processedData.husbandWitnesses.signature);
-    //     }
-    //     if (processedData.wifeWitnesses?.signature instanceof File) {
-    //         processedData.wifeWitnesses.signature = await fileToBase64(processedData.wifeWitnesses.signature);
-    //     }
-
-    //     // Affidavit of Solemnizing Officer
-    //     if (processedData.affidavitOfSolemnizingOfficer) {
-    //         if (processedData.affidavitOfSolemnizingOfficer.solemnizingOfficerInformation?.signature instanceof File) {
-    //             processedData.affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.signature =
-    //                 await fileToBase64(processedData.affidavitOfSolemnizingOfficer.solemnizingOfficerInformation.signature);
-    //         }
-
-    //         if (processedData.affidavitOfSolemnizingOfficer.administeringOfficerInformation?.signature instanceof File) {
-    //             processedData.affidavitOfSolemnizingOfficer.administeringOfficerInformation.signature =
-    //                 await fileToBase64(processedData.affidavitOfSolemnizingOfficer.administeringOfficerInformation.signature);
-    //         }
-    //     }
-    //     // Affidavit for Delayed Registration (optional)
-    //     if (processedData.affidavitForDelayed && processedData.affidavitForDelayed.delayedRegistration === 'Yes') {
-    //         // Check if administeringInformation exists before accessing its properties
-    //         if (processedData.affidavitForDelayed.administeringInformation) {
-    //             if (processedData.affidavitForDelayed.administeringInformation.adminSignature instanceof File) {
-    //                 processedData.affidavitForDelayed.administeringInformation.adminSignature =
-    //                     await fileToBase64(processedData.affidavitForDelayed.administeringInformation.adminSignature);
-    //             }
-    //         }
-
-    //         // Check if applicantInformation exists before accessing its properties
-    //         if (processedData.affidavitForDelayed.applicantInformation) {
-    //             if (processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant instanceof File) {
-    //                 processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant =
-    //                     await fileToBase64(processedData.affidavitForDelayed.applicantInformation.signatureOfApplicant);
-    //             }
-    //         }
-    //     } else if (processedData.affidavitForDelayed) {
-    //         // If not a 'Yes' for delayed registration, set to null or a minimal object
-    //         processedData.affidavitForDelayed = {
-    //             delayedRegistration: 'No'
-    //         };
-    //     }
-
-    //     return processedData;
-    // };
-
     // Updated submission function with proper data preparation
     const onSubmit = async (data: MarriageCertificateFormValues) => {
-        console.log('🔍 Initial Form Data Submission Started');
-        console.log('📋 Full Form Data:', JSON.stringify(data, null, 2));
+        // Check and simplify affidavitForDelayed if it's "No"
+        if (data.affidavitForDelayed?.delayedRegistration === 'No') {
+            data.affidavitForDelayed = {
+                delayedRegistration: 'No'
+            };
+        }
 
-        // Log form state details
-        console.log('📊 Form State Details:', {
-            isValid: formMethods.formState.isValid,
-            isDirty: formMethods.formState.isDirty,
-            isSubmitting: formMethods.formState.isSubmitting,
-            submitCount: formMethods.formState.submitCount,
-        });
-
-        // Detailed validation check
-        const validationResult = marriageCertificateSchema.safeParse(data);
-        console.log('🕵️ Zod Validation Result:', {
-            success: validationResult.success,
-            ...(validationResult.success ? {} : {
-                errors: validationResult.error.errors.map(err => ({
-                    path: err.path.join('.'),
-                    message: err.message,
-                    code: err.code
-                }))
-            })
-        });
-
-        // Comprehensive form validity check
         if (!formMethods.formState.isValid) {
-            console.error("❌ Form is INVALID - Submission Blocked");
-
-            // Detailed error logging
-            const errors = formMethods.formState.errors;
-            console.error("🚨 Detailed Form Errors:", JSON.stringify(errors, null, 2));
-
-            // Log specific invalid fields
-            Object.keys(errors).forEach(field => {
-                console.error(`🔴 Invalid Field: ${field}`, (errors as any)[field]);
-            });
-
-            // Trigger error handling
-            handleError(errors);
+            console.error("Form is invalid, submission blocked");
             return;
         }
 
         try {
-            console.log('🚀 Preparing to submit form data');
-
-            // Check and simplify affidavitForDelayed if it's "No"
-            if (data.affidavitForDelayed?.delayedRegistration === 'No') {
-                console.log('🔍 Simplifying Delayed Registration Data');
-                data.affidavitForDelayed = {
-                    delayedRegistration: 'No'
-                };
-            }
-
             // Check if we're in update mode
             const isUpdateMode = Boolean(defaultValues && defaultValues.id);
 
             if (isUpdateMode) {
-                console.log('🖊️ Update Mode Detected', {
-                    currentId: defaultValues?.id,
-                    updateData: JSON.stringify(data, null, 2)
-                });
+                console.log('Preparing to update marriage certificate with data:', JSON.stringify(data, null, 2));
             } else {
-                console.log('📝 New Record Submission');
+                console.log('Preparing to submit new marriage certificate with data:', JSON.stringify(data, null, 2));
             }
 
-            // Data preparation
             const preparedData = preparePrismaData(data);
-            console.log('🔧 Prepared Data:', JSON.stringify(preparedData, null, 2));
+            const processedData = await preparedData;
 
-            // For update mode, just show the toast and log
+            console.log('Processed data before submission:', processedData);
+
+            // For update mode, just show the toast and log without actual submission
             if (isUpdateMode) {
-                console.log('🟢 Update data is correct and ready to be saved');
+                console.log('Update data is correct and ready to be saved to the database:', processedData);
                 toast.success('Marriage certificate data prepared successfully for update');
-                return;
+                return; // Stop here for update mode
             }
 
-            // Actual submission
-            console.log('📤 Submitting Marriage Certificate Form');
-            const result = await submitMarriageCertificateForm(preparedData);
-
-            console.log('📥 Submission Result:', JSON.stringify(result, null, 2));
+            // Continue with regular submission for new records
+            const result = await submitMarriageCertificateForm(processedData);
 
             if ('data' in result) {
-                console.log('✅ Successful Submission', {
-                    bookNumber: result.data.bookNumber,
-                    pageNumber: result.data.pageNumber,
-                    registryNumber: data.registryNumber
-                });
-
                 toast.success(`Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`);
-
                 notifyUsersWithPermission(
                     Permission.DOCUMENT_READ,
                     "New uploaded Marriage Certificate",
@@ -594,20 +463,13 @@ export function useMarriageCertificateForm({
                 onOpenChange?.(false);
                 formMethods.reset();
             } else if ('error' in result) {
-                console.error('❌ Submission Error:', result.error);
-                toast.error(
-                    result.error.includes('No user found with name')
-                        ? 'Invalid prepared by user. Please check the name.'
-                        : result.error
-                );
+                console.log('Submission error:', result.error);
+                toast.error(result.error.includes('No user found with name') ? 'Invalid prepared by user. Please check the name.' : result.error);
             }
 
-            // Reset form to default values
             formMethods.reset(emptyDefaults);
-
         } catch (error) {
-            console.error('🔥 Catastrophic Submission Error:', error);
-            toast.error('Submission failed, please try again');
+            console.error('Error in submitMarriageCertificateForm:', error);
             return { success: false, error: 'Internal server error' };
         }
     };

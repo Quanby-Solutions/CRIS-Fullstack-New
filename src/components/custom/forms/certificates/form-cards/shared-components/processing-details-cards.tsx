@@ -179,9 +179,6 @@ export function ReceivedByCard<T extends FieldValues = FieldValues>(
 export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
   props: ProcessingCardProps<T>
 ) {
-export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
-  props: ProcessingCardProps<T>
-) {
   return (
     <ProcessingDetailsCard<T>
       fieldPrefix={props.fieldPrefix}

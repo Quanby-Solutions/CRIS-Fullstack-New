@@ -26,7 +26,7 @@ interface AffidavitOfSolemnizingOfficerProps {
 export const AffidavitOfSolemnizingOfficer: React.FC<
     AffidavitOfSolemnizingOfficerProps
 > = ({ className }) => {
-    const { control, getValues } = useFormContext<MarriageCertificateFormValues>();
+    const { control, getValues, setValue } = useFormContext<MarriageCertificateFormValues>();
     const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = React.useState(false);
     const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = React.useState(false);
 
@@ -45,11 +45,13 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
             setNcrModeSwornOfficer(true);
         }
     }, [getValues]);
-    // Watch specific form fields for dynamic updates
-    //   const marriageLicenseNumber = watch('marriageLicenseDetails.number');
-    //   const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued');
-    //   const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued');
-    //   const marriageArticleNumber = watch('marriageArticle.articleExecutiveOrder');
+
+    useEffect(() => {
+        if(ncrModeAdminOfficer && ncrModeSwornOfficer === true) {
+            setValue('affidavitOfSolemnizingOfficer.d.atPlaceExecute.province', 'Metro Manila')
+            setValue('affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.province', 'Metro Manila')
+        }
+    })
 
     return (
         <Card className={cn('border dark:border-border', className)}>

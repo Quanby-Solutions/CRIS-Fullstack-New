@@ -247,27 +247,27 @@ export async function submitMarriageCertificateForm(
               title: formData.registeredByOffice.titleOrPosition,
             } as Prisma.JsonObject,
 
-            // Received At Civil Registrar
-            receivedByOffice: {
-              ...formData.receivedBy,
-              date: formData.receivedBy.date,
-              nameInPrint: formData.receivedBy.nameInPrint,
-              // signature: formData.receivedBy.signature instanceof File
-              //   ? await fileToBase64(formData.receivedBy.signature)
-              //   : formData.receivedBy.signature,
-              title: formData.receivedBy.titleOrPosition,
-            } as Prisma.JsonObject,
+            // // Received At Civil Registrar
+            // receivedByOffice: {
+            //   ...formData.receivedBy,
+            //   date: formData.receivedBy.date,
+            //   nameInPrint: formData.receivedBy.nameInPrint,
+            //   // signature: formData.receivedBy.signature instanceof File
+            //   //   ? await fileToBase64(formData.receivedBy.signature)
+            //   //   : formData.receivedBy.signature,
+            //   title: formData.receivedBy.titleOrPosition,
+            // } as Prisma.JsonObject,
 
-            // Prepared At Civil Registrar
-            preparedByOffice: {
-              ...formData.preparedBy,
-              date: formData.preparedBy.date,
-              nameInPrint: formData.preparedBy.nameInPrint,
-              // signature: formData.preparedBy.signature instanceof File
-              //   ? await fileToBase64(formData.preparedBy.signature)
-              //   : formData.preparedBy.signature,
-              title: formData.preparedBy.titleOrPosition,
-            } as Prisma.JsonObject,
+            // // Prepared At Civil Registrar
+            // preparedByOffice: {
+            //   ...formData.preparedBy,
+            //   date: formData.preparedBy.date,
+            //   nameInPrint: formData.preparedBy.nameInPrint,
+            //   // signature: formData.preparedBy.signature instanceof File
+            //   //   ? await fileToBase64(formData.preparedBy.signature)
+            //   //   : formData.preparedBy.signature,
+            //   title: formData.preparedBy.titleOrPosition,
+            // } as Prisma.JsonObject,
 
             remarks: formData.remarks,
 
@@ -429,6 +429,7 @@ export async function submitMarriageCertificateForm(
                 } as Prisma.JsonObject,
               } as Prisma.JsonObject)
               : Prisma.JsonNull,
+
           },
         });
 

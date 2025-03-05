@@ -345,33 +345,33 @@ const generateMarriageCertificate = (
         residence: generatePhLocation(),
       },
 
-      husbandContractParty:{
-        signature: generatePersonName(),
+      husbandContractParty: {
+
         agreement: true
       },
-      wifeContractParty:{
-        signature: generatePersonName(),
+      wifeContractParty: {
+
         agreement: true
       },
 
-      receivedByOffice:{
-        signature: generatePersonName(),
-        nameInPrint: generatePersonName(),
-        title: faker.helpers.arrayElement([
-          'Civil Registrar',
-          'Civil Registry Officer',
-        ]),
-        date: registrationDate
-      },
-      preparedByOffice:{
-        signature: generatePersonName(),
-        nameInPrint: generatePersonName(),
-        title: faker.helpers.arrayElement([
-          'Civil Registrar',
-          'Civil Registry Officer',
-        ]),
-        date: registrationDate
-      },
+      // receivedByOffice:{
+      //   
+      //   nameInPrint: generatePersonName(),
+      //   title: faker.helpers.arrayElement([
+      //     'Civil Registrar',
+      //     'Civil Registry Officer',
+      //   ]),
+      //   date: registrationDate
+      // },
+      // preparedByOffice:{
+      //   
+      //   nameInPrint: generatePersonName(),
+      //   title: faker.helpers.arrayElement([
+      //     'Civil Registrar',
+      //     'Civil Registry Officer',
+      //   ]),
+      //   date: registrationDate
+      // },
 
       // Wife Information
       wifeFirstName: wifeFirstName,
@@ -421,12 +421,12 @@ const generateMarriageCertificate = (
       contractingPartiesSignature: [
         {
           party: 'husband',
-          signature: faker.person.fullName(),
+
           agreement: true
         },
         {
           party: 'wife',
-          signature: faker.person.fullName(),
+
           agreement: true
         }
       ],
@@ -499,13 +499,13 @@ const generateMarriageCertificate = (
       registeredByOffice: {
         date: faker.date.recent(),
         nameInPrint: faker.person.fullName(),
-        signature: faker.person.fullName(),
+
         title: faker.helpers.arrayElement([
           'Civil Registrar',
           'Assistant Civil Registrar',
           'Registration Officer'
         ])
-      },
+      } ,
 
       // Remarks
       remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
@@ -519,10 +519,10 @@ const generateMarriageCertificate = (
             last: faker.person.lastName()
           },
           officeName: faker.company.name(),
-          signature: faker.person.fullName(),
+
           address: faker.location.streetAddress(),
         },
-        
+
         a: {
           nameOfHusband: {
             first: husbandFirstName,
@@ -535,7 +535,7 @@ const generateMarriageCertificate = (
             last: wifeLastName
           }
         },
-        
+
         b: {
           a: faker.datatype.boolean(0.2),
           b: faker.datatype.boolean(0.2),
@@ -543,9 +543,9 @@ const generateMarriageCertificate = (
           d: faker.datatype.boolean(0.2),
           e: faker.datatype.boolean(0.2)
         },
-        
+
         c: faker.lorem.sentence(),
-        
+
         d: {
           dayOf: randomDate(new Date(2020, 0, 1), dateOfMarriage),
           atPlaceExecute: {
@@ -556,7 +556,7 @@ const generateMarriageCertificate = (
             country: 'Philippines'
           }
         },
-        
+
         dateSworn: {
           dayOf: faker.date.recent(),
           atPlaceOfSworn: {
@@ -572,7 +572,7 @@ const generateMarriageCertificate = (
             placeIssued: faker.location.city()
           }
         },
-        
+
         administeringOfficerInformation: {
           adminName: {
             first: faker.person.firstName(),
@@ -581,16 +581,16 @@ const generateMarriageCertificate = (
           },
           position: faker.helpers.arrayElement(['Notary Public', 'Judge', 'Mayor']),
           address: faker.location.streetAddress(),
-          signature: faker.person.fullName()
+
         }
       },
 
       // Optional affidavit for delayed registration
       // Affidavit for Delayed Registration
-      affidavitOfdelayedRegistration : delayedRegistrationValue === 'Yes'  ? {
+      affidavitOfdelayedRegistration: delayedRegistrationValue === 'Yes' ? {
         delayedRegistration: 'Yes',
         administeringInformation: {
-          signatureOfAdmin: faker.person.fullName(),
+
           nameOfOfficer: faker.person.fullName(),
           position: faker.helpers.arrayElement(['Judge', 'Notary Public', 'Mayor']),
           addressOfOfficer: {
@@ -602,7 +602,7 @@ const generateMarriageCertificate = (
           }
         },
         applicantInformation: {
-          signatureOfApplicant: faker.person.fullName(),
+
           nameOfApplicant: faker.person.fullName(),
           postalCode: faker.location.zipCode('#####'), // Ensuring 5 digits for postalCode
           applicantAddress: {

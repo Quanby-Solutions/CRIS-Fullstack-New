@@ -28,11 +28,11 @@ const HusbandInfoCard: React.FC = () => {
 
   // Auto-calculate and set age when birthdate changes
   const birthDate = useWatch({ control, name: 'husbandBirth' });
-  
+
   // Watch place of birth province to detect NCR
-  const birthProvince = useWatch({ 
-    control, 
-    name: 'husbandPlaceOfBirth.province' 
+  const birthProvince = useWatch({
+    control,
+    name: 'husbandPlaceOfBirth.province'
   });
 
   useEffect(() => {
@@ -42,6 +42,12 @@ const HusbandInfoCard: React.FC = () => {
       setNcrMode(true);
     }
   }, [getValues]);
+
+  useEffect(() => {
+    if (ncrMode === true) {
+      setValue('husbandPlaceOfBirth.province', 'Metro Manila')
+    }
+  })
 
 
 

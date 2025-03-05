@@ -327,16 +327,16 @@ export const mapToMarriageCertificateValues = (
 
         preparedBy: {
             // signature: ensureString(marriageForm.preparedByOffice?.signature),
-            nameInPrint: ensureString(marriageForm.preparedByOffice?.nameInPrint),
-            titleOrPosition: ensureString(marriageForm.preparedByOffice?.titleOrPosition),
-            date: parseDateSafely(marriageForm.preparedByOffice?.date),
+            nameInPrint: ensureString(form.preparedByName),
+            titleOrPosition: ensureString(form.preparedByPosition),
+            date: parseDateSafely(form.preparedByDate),
         },
 
         receivedBy: {
             // signature: ensureString(marriageForm.receivedByOffice?.signature),
-            nameInPrint: ensureString(marriageForm.receivedByOffice?.nameInPrint),
-            titleOrPosition: ensureString(marriageForm.receivedByOffice?.titleOrPosition),
-            date: parseDateSafely(marriageForm.receivedByOffice?.date),
+           nameInPrint: ensureString(form.receivedBy),
+            titleOrPosition: ensureString(form.receivedByPosition),
+            date: parseDateSafely(form.receivedByDate),
         },
 
         registeredByOffice: {

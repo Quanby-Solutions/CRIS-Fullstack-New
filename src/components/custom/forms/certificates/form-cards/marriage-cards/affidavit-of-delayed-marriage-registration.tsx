@@ -30,7 +30,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     // NCR
     const [affiant, setAffiant] = useState(false)
     const [execution, setExecution] = useState(false)
-    const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = useState(false)
+    const [ncrModeSwornDelayedOfficer, setNcrModeSwornOfficer] = useState(false)
 
     const agreementA = useWatch({ control, name: 'affidavitForDelayed.a.a.agreement' });
     const agreementB = useWatch({ control, name: 'affidavitForDelayed.a.b.agreement' });
@@ -60,7 +60,13 @@ export const AffidavitForDelayedMarriageRegistration: FC<
         }
     }, [getValues]);
 
-
+    useEffect(() => {
+        if(affiant && execution && ncrModeSwornDelayedOfficer === true) {
+            setValue('affidavitForDelayed.applicantInformation.applicantAddress.province', 'Metro Manila')
+            setValue('affidavitForDelayed.f.place.province', 'Metro Manila')
+            setValue('affidavitForDelayed.dateSworn.atPlaceOfSworn.province', 'Metro Manila')
+        }
+    })
 
 
     // Reset the entire AffidavitForDelayed object
@@ -816,7 +822,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                             <CardContent>
                                 <div className='space-y-4'>
                                     <NCRModeSwitch
-                                        isNCRMode={ncrModeSwornOfficer}
+                                        isNCRMode={ncrModeSwornDelayedOfficer}
                                         setIsNCRMode={setNcrModeSwornOfficer}
                                     />
                                     <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -841,7 +847,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
                                             provincePlaceholder='Select province'
                                             municipalityPlaceholder='Select city/municipality'
                                             className='grid grid-cols-2 gap-4'
-                                            isNCRMode={ncrModeSwornOfficer}
+                                            isNCRMode={ncrModeSwornDelayedOfficer}
                                             showBarangay={true}
                                             barangayLabel='Barangay'
                                             barangayPlaceholder='Select barangay'

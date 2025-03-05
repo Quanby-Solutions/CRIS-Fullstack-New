@@ -241,8 +241,6 @@ model MarriageCertificateForm {
   witnesses                   Json[]
 
   registeredByOffice          Json?
-  receivedByOffice            Json?
-  preparedByOffice            Json?
 
   affidavitOfSolemnizingOfficer Json?
   affidavitOfdelayedRegistration Json?

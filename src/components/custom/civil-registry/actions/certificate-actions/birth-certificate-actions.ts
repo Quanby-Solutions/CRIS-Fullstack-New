@@ -81,35 +81,35 @@ export async function submitBirthCertificateForm(
         });
 
         // For prepared by
-        if (isFileLike(formData.preparedBy.signature)) {
-          await tx.user.update({
-            where: { id: preparedByUser.id },
-            data: {
-              eSignature: await fileToBase64(formData.preparedBy.signature),
-            },
-          });
-        }
+        // if (isFileLike(formData.preparedBy.signature)) {
+        //   await tx.user.update({
+        //     where: { id: preparedByUser.id },
+        //     data: {
+        //       eSignature: await fileToBase64(formData.preparedBy.signature),
+        //     },
+        //   });
+        // }
 
-        // For received by
-        if (isFileLike(formData.receivedBy.signature)) {
-          await tx.user.update({
-            where: { id: receivedByUser.id },
-            data: {
-              eSignature: await fileToBase64(formData.receivedBy.signature),
-            },
-          });
-        }
-        // For registered by
-        if (isFileLike(formData.registeredByOffice.signature)) {
-          await tx.user.update({
-            where: { id: registeredByUser.id },
-            data: {
-              eSignature: await fileToBase64(
-                formData.registeredByOffice.signature
-              ),
-            },
-          });
-        }
+        // // For received by
+        // if (isFileLike(formData.receivedBy.signature)) {
+        //   await tx.user.update({
+        //     where: { id: receivedByUser.id },
+        //     data: {
+        //       eSignature: await fileToBase64(formData.receivedBy.signature),
+        //     },
+        //   });
+        // }
+        // // For registered by
+        // if (isFileLike(formData.registeredByOffice.signature)) {
+        //   await tx.user.update({
+        //     where: { id: registeredByUser.id },
+        //     data: {
+        //       eSignature: await fileToBase64(
+        //         formData.registeredByOffice.signature
+        //       ),
+        //     },
+        //   });
+        // }
 
         // Helper function to convert Date to ISO string for JSON
         const dateToJSON = (date: Date) => date.toISOString();

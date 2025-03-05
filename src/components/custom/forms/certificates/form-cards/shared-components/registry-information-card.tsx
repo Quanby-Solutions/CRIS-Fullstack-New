@@ -230,18 +230,32 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
       </CardHeader>
       <CardContent>
         <Card>
-          <CardContent className='p-6'>
+          <CardContent className='p-6 flex flex-col gap-4'>
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               {isEdit ? (
-                <div className="p-6">
-                  <FormLabel>Registry Number</FormLabel>
-                  <div className="border rounded p-2">
-                    <p>{rNumber}</p>
-                  </div>
-                  <FormDescription>{description}</FormDescription>
-                </div>
+                <FormField
+                
+                  control={control}
+                  name='registryNumber'
+                  render={({ field }) => (
+                    <FormItem className="">
+                      <FormLabel>Registry Number</FormLabel>
+                      <FormControl className="">
+                        <Input
+                        {...field}
+                          value={rNumber}
+                          className='h-10'
+                          placeholder={placeholder}
+                          inputMode='numeric'
+                          disabled={false}
+                        />
+                      </FormControl>
+                      <FormDescription>{description}</FormDescription>
+                    </FormItem>
+                  )}
+                />
               ) : (
                 <FormField
                   control={control}

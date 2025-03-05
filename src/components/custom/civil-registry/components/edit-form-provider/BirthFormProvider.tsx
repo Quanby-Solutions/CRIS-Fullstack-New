@@ -30,7 +30,7 @@ interface EditCivilRegistryFormInlineProps {
   form: BaseRegistryFormWithRelations;
   onSaveAction: (updatedForm: BaseRegistryFormWithRelations) => Promise<void>;
   editType: 'BIRTH' | 'DEATH' | 'MARRIAGE';
-  onCancel: () => void;
+ 
 }
 
 interface ChildName {
@@ -106,7 +106,7 @@ export function EditBirthCivilRegistryFormInline({
   form,
   onSaveAction,
   editType,
-  onCancel
+
 
 }: EditCivilRegistryFormInlineProps) {
   const { t } = useTranslation();
@@ -735,13 +735,13 @@ export function EditBirthCivilRegistryFormInline({
       preparedBy: preparedBy,
 
       receivedBy: {
-        signature: 'ReceivedSignature',
+        // signature: 'ReceivedSignature',
         nameInPrint: typeof form.receivedBy === 'string' ? form.receivedBy : '',
         titleOrPosition: 'SampleReceivePosition',
         date: parseDateSafely(form.receivedByDate),
       },
       registeredByOffice: {
-        signature: 'registeredSignature',
+        // signature: 'registeredSignature',
         nameInPrint:
           typeof form.registeredBy === 'string' ? form.registeredBy : '',
         titleOrPosition: 'SampleRegisterPosition',
@@ -848,7 +848,7 @@ const handleEditSubmit = async (
       throw new Error(responseData.error || 'Failed to update form');
     }
 
-    onCancel();
+    // onCancel();
     toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
   } catch (error) {
     console.error('Failed to update form:', error);
@@ -882,7 +882,7 @@ const handleEditSubmit = async (
 
   const handleCancel = () => {
     formMethods.reset();
-    onCancel();
+    // onCancel();
   };
 
   return (

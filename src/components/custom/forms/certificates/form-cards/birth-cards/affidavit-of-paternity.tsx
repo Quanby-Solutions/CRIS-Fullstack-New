@@ -29,7 +29,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
 
   // When checkbox is checked and nested details are not initialized, initialize them.
   useLayoutEffect(() => {
-    if (hasAffidavitOfPaternity && !affidavitDetails) {
+    if (hasAffidavitOfPaternity && affidavitDetails) {
       setValue('affidavitOfPaternityDetails', {
         father: { signature: '', name: '' },
         mother: { signature: '', name: '' },

@@ -96,7 +96,7 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
 })
 
 const affidavitForDelayedSchema = z.object({
-  delayedRegistration: z.enum(['Yes', 'No']).default('No'),
+  delayedRegistration: z.enum(['Yes', 'No']).default('No').optional(),
 
   administeringInformation: z.object({
     adminName: z.string().optional(),
@@ -229,6 +229,8 @@ export const marriageCertificateSchema = z.object({
     futureError: 'Start date cannot be in the future',
   }),
 
+  pagination: paginationSchema.optional(),
+
   // Husband Information
   husbandName: nameSchema,
   husbandAge: z.number().int(),
@@ -327,7 +329,7 @@ export const marriageCertificateSchema = z.object({
     // Signature removed
     agreement: z.boolean().optional()
   }),
-  
+
 
   // Marriage License Details
   marriageLicenseDetails: z.object({
@@ -361,8 +363,6 @@ export const marriageCertificateSchema = z.object({
   preparedBy: processingDetailsSchema.shape.preparedBy,
   receivedBy: processingDetailsSchema.shape.receivedBy,
   registeredByOffice: processingDetailsSchema.shape.registeredBy,
-
-  pagination: paginationSchema.optional(),
 
   // Optional Sections
   remarks: z.string().optional(),
