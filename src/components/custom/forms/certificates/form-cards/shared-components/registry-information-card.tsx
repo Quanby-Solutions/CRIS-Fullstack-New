@@ -30,7 +30,7 @@ interface RegistryInformationCardProps {
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
-  isEdit = null,
+  isEdit,
   forms,
   formType,
   title = 'Registry Information',
@@ -68,17 +68,13 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return '';
   };
 
-  // And replace with this consolidated version:
+  // When the province changes, update the NCR mode accordingly.
   useEffect(() => {
-    // Use the watched province value which updates reactively
     const provinceString = getProvinceString(province);
-    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
-
-    // Log the change for debugging
-    console.log('Setting NCR mode:', shouldBeNCR, 'based on province:', provinceString, 'Edit mode:', isEdit ? 'Yes' : 'No');
-
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'Metro Manila';
     setNcrMode(shouldBeNCR);
-  }, [province, getProvinceString, isEdit]);
+  }, []);
+
 
 
 
@@ -148,7 +144,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     },
     [setError, clearErrors, formType, setValue]
   );
-
 
   useEffect(() => {
     if (debouncedRegistryNumber.length >= minLength) {
@@ -240,11 +235,11 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               {isEdit ? (
-                <FormField             
+                <FormField
                   name='registryNumber'
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel>Registry Number (cannot be edit)</FormLabel>
+                      <FormLabel>Registry Number <span className='text-destructive'>(edit is forbidden)</span></FormLabel>
                       <FormControl className="">
                         <Input
                           {...field}

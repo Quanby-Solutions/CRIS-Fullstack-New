@@ -105,10 +105,10 @@ export const useLocationSelector = ({
     }
 
     if (matchedMunicipality) {
-      console.log('Found matching municipality:', {
-        input: municipalityValue,
-        matched: matchedMunicipality
-      })
+      // console.log('Found matching municipality:', {
+      //   input: municipalityValue,
+      //   matched: matchedMunicipality
+      // })
 
       setSelectedMunicipality(matchedMunicipality.id)
       setValue(municipalityFieldName, matchedMunicipality.displayName)

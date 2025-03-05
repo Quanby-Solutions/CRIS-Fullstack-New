@@ -417,20 +417,6 @@ const generateMarriageCertificate = (
       // Contract Party
       contractDay: contractDay,
 
-      // Contracting Parties Signature
-      contractingPartiesSignature: [
-        {
-          party: 'husband',
-
-          agreement: true
-        },
-        {
-          party: 'wife',
-
-          agreement: true
-        }
-      ],
-
       // Marriage Details
       placeOfMarriage: generatePhLocation(),
       dateOfMarriage: dateOfMarriage,

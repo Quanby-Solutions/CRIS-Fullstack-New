@@ -117,9 +117,10 @@ export async function updateMarriageCertificateForm(
                 registeredByOffice: data.registeredByOffice,
 
                 affidavitOfSolemnizingOfficer: data.affidavitOfSolemnizingOfficer,
+
                 affidavitOfdelayedRegistration: data.affidavitForDelayed?.delayedRegistration === 'Yes'
                     ? data.affidavitForDelayed
-                    : undefined,
+                    : {delayedRegistration: 'No'},
             }
         });
 

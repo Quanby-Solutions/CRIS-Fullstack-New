@@ -76,7 +76,7 @@ export default function MarriageCertificateForm({
                       <RegistryInformationCard
                         formType={FormType.MARRIAGE}
                         title='Marriage Registry Information'
-                        isEdit="MARRIAGE" 
+                        isEdit={defaultValues?.id ? "MARRIAGE" : null} 
                       />
                       <HusbandInfoCard />
                       <HusbandParentsInfoCard />

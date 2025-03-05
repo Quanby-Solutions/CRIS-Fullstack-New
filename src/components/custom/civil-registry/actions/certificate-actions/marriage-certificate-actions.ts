@@ -428,7 +428,7 @@ export async function submitMarriageCertificateForm(
                   } as Prisma.JsonObject,
                 } as Prisma.JsonObject,
               } as Prisma.JsonObject)
-              : Prisma.JsonNull,
+              : {delayedRegistration: 'No'},
 
           },
         });
