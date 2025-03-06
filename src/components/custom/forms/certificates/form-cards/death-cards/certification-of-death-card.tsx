@@ -14,16 +14,31 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const CertificationOfDeathCard: React.FC = () => {
-  const { control, watch, setValue } =
+  const { control, watch, setValue, getValues } =
     useFormContext<DeathCertificateFormValues>();
   const [isNCRMode, setIsNCRMode] = useState(false);
+
+  useEffect(() => {
+    // Detect NCR mode from fetched data on component mount
+    const province = getValues('certificationOfDeath.address.province');
+    if (province === 'Metro Manila' || province === 'NCR') {
+      setIsNCRMode(true);
+    }
+  }, [getValues]);
+
+
+  useEffect(() => {
+    if (isNCRMode === true) {
+      setValue('certificationOfDeath.address.province', 'Metro Manila')
+    }
+  }, [isNCRMode])
 
   return (
     <Card>
@@ -69,7 +84,40 @@ const CertificationOfDeathCard: React.FC = () => {
               </FormItem>
             )}
           />
-
+          {/* <FormField
+            control={control}
+            name='certificationOfDeath.signature'
+            render={({ field, formState: { errors } }) => (
+              <FormItem>
+                <FormLabel>Signature</FormLabel>
+                <FormControl>
+                  <SignatureUploader
+                    name='certificationOfDeath.signature'
+                    label='Upload Signature'
+                    onChange={(value: File | string) => {
+                      if (value instanceof File) {
+                        setValue('certificationOfDeath.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      } else {
+                        setValue('certificationOfDeath.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage>
+                  {typeof errors?.certificationOfDeath?.signature?.message ===
+                  'string'
+                    ? errors.certificationOfDeath.signature.message
+                    : ''}
+                </FormMessage>
+              </FormItem>
+            )}
+          /> */}
           <FormField
             control={control}
             name='certificationOfDeath.nameInPrint'
@@ -112,6 +160,48 @@ const CertificationOfDeathCard: React.FC = () => {
               </FormItem>
             )}
           />
+          {/* <FormField
+            control={control}
+            name='certificationOfDeath.healthOfficerSignature'
+            render={({ field, formState: { errors } }) => (
+              <FormItem>
+                <FormLabel>Health Officer Signature</FormLabel>
+                <FormControl>
+                  <SignatureUploader
+                    name='certificationOfDeath.healthOfficerSignature'
+                    label='Upload Health Officer Signature'
+                    onChange={(value: File | string) => {
+                      if (value instanceof File) {
+                        setValue(
+                          'certificationOfDeath.healthOfficerSignature',
+                          value,
+                          {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }
+                        );
+                      } else {
+                        setValue(
+                          'certificationOfDeath.healthOfficerSignature',
+                          value,
+                          {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }
+                        );
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage>
+                  {typeof errors?.certificationOfDeath?.healthOfficerSignature
+                    ?.message === 'string'
+                    ? errors.certificationOfDeath.healthOfficerSignature.message
+                    : ''}
+                </FormMessage>
+              </FormItem>
+            )}
+          /> */}
           <FormField
             control={control}
             name='certificationOfDeath.healthOfficerNameInPrint'

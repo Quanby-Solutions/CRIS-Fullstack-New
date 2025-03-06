@@ -20,6 +20,7 @@ interface DeathCertificateFormData {
   parentInfo?: any;
   birthInformation?: any;
   medicalCertificate?: any;
+  causesOfDeath19a?: any;
   causesOfDeath19b?: any;
   certificationOfDeath?: any;
   reviewedBy?: any;
@@ -38,10 +39,11 @@ interface DeathCertificateFormData {
 export const mapToDeathCertificateValues = (
   form: BaseRegistryFormWithRelations
 ): Partial<DeathCertificateFormValues> => {
+  // Extract the Death certificate form data with proper typing
   const deathForm =
     (form.deathCertificateForm as DeathCertificateFormData) || {};
 
-  // Parse dates safely. If no date is provided, we return undefined.
+  // Helper for parsing dates safely
   const parseDateSafely = (
     dateValue: Date | string | null | undefined
   ): Date | undefined => {
@@ -54,13 +56,68 @@ export const mapToDeathCertificateValues = (
     }
   };
 
-  // Ensure a value is a string, defaulting to '' if null or undefined.
+  // Helper to ensure non-null string values
   const ensureString = (value: any): string => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
 
-  // Validate civil status values.
+  // Helper to create name object
+  const createNameObject = (nameObj: any) => {
+    if (!nameObj) return { first: '', middle: '', last: '' };
+    return {
+      first: ensureString(nameObj.first),
+      middle: ensureString(nameObj.middle),
+      last: ensureString(nameObj.last)
+    };
+  };
+
+  // Helper to create address object
+  const createAddressObject = (addressObj?: any) => {
+    if (!addressObj || typeof addressObj !== 'object') {
+      return {
+        hospitalInstitution: '',
+        houseNo: '',
+        st: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
+      };
+    }
+
+    return {
+      hospitalInstitution: ensureString(addressObj.hospitalInstitution),
+      houseNo: ensureString(addressObj.houseNo),
+      st: ensureString(addressObj.st),
+      barangay: ensureString(addressObj.barangay),
+      cityMunicipality: ensureString(addressObj.cityMunicipality),
+      province: ensureString(addressObj.province),
+      country: ensureString(addressObj.country),
+    };
+  };
+
+  // Validate sex
+  const validateSex = (sex: any): 'Male' | 'Female' | undefined => {
+    return sex === 'Male' || sex === 'Female' ? sex : undefined;
+  };
+
+  // Validate attendant type
+  const validateAttendantType = (
+    type: any
+  ): 'Others' | 'Private physician' | 'Public health officer' | 'Hospital authority' | 'None' | undefined => {
+    const validTypes = [
+      'Others',
+      'Private physician',
+      'Public health officer',
+      'Hospital authority',
+      'None',
+    ];
+    return validTypes.includes(type) ? type : undefined;
+  };
+
+  // Validate civil status
+  // Validate civil status
   const validateCivilStatus = (
     status: any
   ):
@@ -68,7 +125,6 @@ export const mapToDeathCertificateValues = (
     | 'Married'
     | 'Widow'
     | 'Widower'
-    | 'Annulled'
     | 'Divorced'
     | undefined => {
     const validStatuses = [
@@ -76,7 +132,6 @@ export const mapToDeathCertificateValues = (
       'Married',
       'Widow',
       'Widower',
-      'Annulled',
       'Divorced',
     ];
     if (status && validStatuses.includes(status)) {
@@ -85,13 +140,14 @@ export const mapToDeathCertificateValues = (
         | 'Married'
         | 'Widow'
         | 'Widower'
-        | 'Annulled'
         | 'Divorced';
     }
     return undefined;
   };
-
-  const registryInfo = {
+  // Create a properly structured result object that matches the expected schema
+  const result: Partial<DeathCertificateFormValues> = {
+    // Registry Information
+    id: ensureString(form.id) || '',
     registryNumber: ensureString(form.registryNumber),
     province: ensureString(form.province),
     cityMunicipality: ensureString(form.cityMunicipality),
@@ -100,16 +156,11 @@ export const mapToDeathCertificateValues = (
       bookNumber: ensureString(form.bookNumber),
     },
     remarks: ensureString(form.remarks),
-  };
 
-  const deceasedInfo = {
-    name: deathForm.deceasedName || { first: '', middle: '', last: '' },
-    sex:
-      deathForm.sex === 'Male' || deathForm.sex === 'Female'
-        ? deathForm.sex
-        : undefined,
-
-    dateOfDeath: parseDateSafely(deathForm.dateOfDeath), // no fallback to empty string
+    // Deceased Information
+    name: createNameObject(deathForm.deceasedName),
+    sex: validateSex(deathForm.sex) || 'Male', // Default to Male if undefined
+    dateOfDeath: parseDateSafely(deathForm.dateOfDeath),
     timeOfDeath: parseDateSafely(deathForm.timeOfDeath),
     dateOfBirth: parseDateSafely(deathForm.dateOfBirth),
     ageAtDeath: deathForm.ageAtDeath || {
@@ -118,159 +169,189 @@ export const mapToDeathCertificateValues = (
       days: '',
       hours: '',
     },
-    placeOfDeath: deathForm.placeOfDeath || {
-      hospitalInstitution: '',
-      houseNo: '',
-      st: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-    },
-    civilStatus: validateCivilStatus(deathForm.civilStatus),
-    religion: deathForm.religion || '',
-    citizenship: deathForm.citizenship || '',
-    residence: deathForm.residence || {
-      houseNo: '',
-      st: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
-    },
-    occupation: deathForm.occupation || '',
-    birthInformation: deathForm.birthInformation || {
-      ageOfMother: '',
-      methodOfDelivery: 'Normal spontaneous vertex',
-      lengthOfPregnancy: ensureString(
-        deathForm.birthInformation?.lengthOfPregnancy
-      ),
-      typeOfBirth: 'Single',
-      birthOrder: ensureString(deathForm.birthInformation?.birthOrder),
-    },
-  };
+    placeOfDeath: createAddressObject(deathForm.placeOfDeath),
+    civilStatus: validateCivilStatus(deathForm.civilStatus) || 'Single',
+    religion: ensureString(deathForm.religion),
+    citizenship: ensureString(deathForm.citizenship),
+    residence: createAddressObject(deathForm.residence),
+    occupation: ensureString(deathForm.occupation),
 
-  const parentInfo = {
-    parents: deathForm.parentInfo || {
-      fatherName: { first: '', middle: '', last: '' },
-      motherName: { first: '', middle: '', last: '' },
+    // Parent Information
+    parents: {
+      fatherName: createNameObject(deathForm.parentInfo?.fatherName),
+      motherName: createNameObject(deathForm.parentInfo?.motherName),
     },
-  };
 
-  const causesOfDeath = {
-    causesOfDeath19b: deathForm.causesOfDeath19b || {
-      immediate: { cause: '', interval: '' },
-      antecedent: { cause: '', interval: '' },
-      underlying: { cause: '', interval: '' },
-      otherSignificantConditions: '',
+    // Birth Information
+    birthInformation: {
+      ageOfMother: ensureString(deathForm.birthInformation?.ageOfMother),
+      methodOfDelivery: ensureString(deathForm.birthInformation?.methodOfDelivery) || 'Normal spontaneous vertex',
+      lengthOfPregnancy: deathForm.birthInformation?.lengthOfPregnancy,
+      typeOfBirth: deathForm.birthInformation?.typeOfBirth || 'Single',
+      birthOrder: deathForm.birthInformation?.birthOrder,
     },
-  };
 
-  const medicalCertificateInfo = {
-    medicalCertificate: deathForm.medicalCertificate || {
+    // Causes of Death
+    causesOfDeath19a: {
+      mainDiseaseOfInfant: ensureString(deathForm.causesOfDeath19a?.mainDiseaseOfInfant),
+      otherDiseasesOfInfant: ensureString(deathForm.causesOfDeath19a?.otherDiseasesOfInfant),
+      mainMaternalDisease: ensureString(deathForm.causesOfDeath19a?.mainMaternalDisease),
+      otherMaternalDisease: ensureString(deathForm.causesOfDeath19a?.otherMaternalDisease),
+      otherRelevantCircumstances: ensureString(deathForm.causesOfDeath19a?.otherRelevantCircumstances),
+    },
+    causesOfDeath19b: {
+      immediate: {
+        cause: ensureString(deathForm.causesOfDeath19b?.immediate?.cause),
+        interval: ensureString(deathForm.causesOfDeath19b?.immediate?.interval),
+      },
+      antecedent: {
+        cause: ensureString(deathForm.causesOfDeath19b?.antecedent?.cause),
+        interval: ensureString(deathForm.causesOfDeath19b?.antecedent?.interval),
+      },
+      underlying: {
+        cause: ensureString(deathForm.causesOfDeath19b?.underlying?.cause),
+        interval: ensureString(deathForm.causesOfDeath19b?.underlying?.interval),
+      },
+      otherSignificantConditions: ensureString(deathForm.causesOfDeath19b?.otherSignificantConditions),
+    },
+
+    // Medical Certificate
+    medicalCertificate: {
+      autopsy: Boolean(deathForm.medicalCertificate?.autopsy),
       causesOfDeath: {
-        immediate: { cause: '', interval: '' },
-        antecedent: { cause: '', interval: '' },
-        underlying: { cause: '', interval: '' },
-        otherSignificantConditions: '',
+        immediate: {
+          cause: ensureString(deathForm.medicalCertificate?.causesOfDeath?.immediate?.cause),
+          interval: ensureString(deathForm.medicalCertificate?.causesOfDeath?.immediate?.interval),
+        },
+        antecedent: {
+          cause: ensureString(deathForm.medicalCertificate?.causesOfDeath?.antecedent?.cause),
+          interval: ensureString(deathForm.medicalCertificate?.causesOfDeath?.antecedent?.interval),
+        },
+        underlying: {
+          cause: ensureString(deathForm.medicalCertificate?.causesOfDeath?.underlying?.cause),
+          interval: ensureString(deathForm.medicalCertificate?.causesOfDeath?.underlying?.interval),
+        },
       },
       maternalCondition: {
-        pregnantNotInLabor: false,
-        pregnantInLabor: false,
-        lessThan42Days: false,
-        daysTo1Year: false,
-        noneOfTheAbove: false,
+        pregnantNotInLabor: Boolean(deathForm.medicalCertificate?.maternalCondition?.pregnantNotInLabor),
+        pregnantInLabor: Boolean(deathForm.medicalCertificate?.maternalCondition?.pregnantInLabor),
+        lessThan42Days: Boolean(deathForm.medicalCertificate?.maternalCondition?.lessThan42Days),
+        daysTo1Year: Boolean(deathForm.medicalCertificate?.maternalCondition?.daysTo1Year),
+        noneOfTheAbove: Boolean(deathForm.medicalCertificate?.maternalCondition?.noneOfTheAbove),
       },
-      externalCauses: { mannerOfDeath: '', placeOfOccurrence: '' },
+      externalCauses: {
+        mannerOfDeath: ensureString(deathForm.medicalCertificate?.externalCauses?.mannerOfDeath),
+        placeOfOccurrence: ensureString(deathForm.medicalCertificate?.externalCauses?.placeOfOccurrence),
+      },
       attendant: {
-        type: undefined,
-        othersSpecify: '',
-        duration: undefined,
-        certification: undefined,
+        type: validateAttendantType(deathForm.medicalCertificate?.attendant?.type),
+        othersSpecify: ensureString(deathForm.medicalCertificate?.attendant?.othersSpecify),
+        duration: deathForm.medicalCertificate?.attendant?.duration
+          ? {
+            from: parseDateSafely(deathForm.medicalCertificate.attendant.duration.from),
+            to: parseDateSafely(deathForm.medicalCertificate.attendant.duration.to),
+          }
+          : undefined,
+        certification: deathForm.medicalCertificate?.attendant?.certification
+          ? {
+            time: parseDateSafely(deathForm.medicalCertificate.attendant.certification.time),
+            date: parseDateSafely(deathForm.medicalCertificate.attendant.certification.date),
+            name: ensureString(deathForm.medicalCertificate.attendant.certification.name),
+            title: ensureString(deathForm.medicalCertificate.attendant.certification.title),
+            address: createAddressObject(deathForm.medicalCertificate.attendant.certification.address),
+          }
+          : undefined,
       },
-      autopsy: false,
-    },
-  };
 
-  const certificationInfo = {
-    certificationOfDeath: deathForm.certificationOfDeath || {
-      hasAttended: false,
-      signature: '',
-      nameInPrint: '',
-      titleOfPosition: '',
-      address: {
-        houseNo: '',
-        st: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: '',
-      },
-      date: parseDateSafely(deathForm.certificationOfDeath?.date), // keep as Date | undefined
-      healthOfficerSignature: '',
-      healthOfficerNameInPrint: '',
     },
-    reviewedBy: deathForm.reviewedBy || {
-      signature: '',
+
+    // Certification of Death
+    certificationOfDeath: {
+      hasAttended: Boolean(deathForm.certificationOfDeath?.hasAttended),
+      nameInPrint: ensureString(deathForm.certificationOfDeath?.nameInPrint),
+      titleOfPosition: ensureString(deathForm.certificationOfDeath?.titleOfPosition),
+      address: createAddressObject(deathForm.certificationOfDeath?.address),
+      date: parseDateSafely(deathForm.certificationOfDeath?.date),
+      healthOfficerNameInPrint: ensureString(deathForm.certificationOfDeath?.healthOfficerNameInPrint),
+    },
+
+    // Review Information
+    reviewedBy: {
       date: parseDateSafely(deathForm.reviewedBy?.date),
     },
-    postmortemCertificate: deathForm.postmortemCertificate,
-    embalmerCertification: deathForm.embalmerCertification,
-    delayedRegistration: deathForm.delayedRegistration,
-  };
 
-  const disposalInfo = {
-    corpseDisposal: deathForm.corpseDisposal || '',
-    burialPermit: deathForm.burialPermit || {
-      number: '',
+    // Optional Certificates
+    postmortemCertificate: deathForm.postmortemCertificate
+      ? {
+        date: parseDateSafely(deathForm.postmortemCertificate.date),
+        nameInPrint: ensureString(deathForm.postmortemCertificate.nameInPrint),
+        address: ensureString(deathForm.postmortemCertificate.address),
+        causeOfDeath: ensureString(deathForm.postmortemCertificate.causeOfDeath),
+        titleDesignation: ensureString(deathForm.postmortemCertificate.titleDesignation),
+      }
+      : {
+        date: undefined,
+        nameInPrint: '',
+        address: '',
+        causeOfDeath: '',
+        titleDesignation: '',
+      },
+
+    embalmerCertification: {
+      nameInPrint: ensureString(deathForm.embalmerCertification?.nameInPrint),
+      nameOfDeceased: ensureString(deathForm.embalmerCertification?.nameOfDeceased),
+      licenseNo: ensureString(deathForm.embalmerCertification?.licenseNo),
+      issuedOn: parseDateSafely(deathForm.embalmerCertification?.issuedOn),
+      issuedAt: ensureString(deathForm.embalmerCertification?.issuedAt),
+      expiryDate: parseDateSafely(deathForm.embalmerCertification?.expiryDate),
+      address: ensureString(deathForm.embalmerCertification?.address),
+      titleDesignation: ensureString(deathForm.embalmerCertification?.titleDesignation),
+    },
+
+    // Disposal Information
+    corpseDisposal: ensureString(deathForm.corpseDisposal),
+    burialPermit: {
+      number: ensureString(deathForm.burialPermit?.number),
       dateIssued: parseDateSafely(deathForm.burialPermit?.dateIssued),
     },
-    transferPermit: deathForm.transferPermit,
-    cemeteryOrCrematory: deathForm.cemeteryOrCrematory || {
-      name: '',
-      address: {
-        houseNo: '',
-        st: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: '',
+    transferPermit: deathForm.transferPermit
+      ? {
+        number: ensureString(deathForm.transferPermit.number),
+        dateIssued: parseDateSafely(deathForm.transferPermit.dateIssued),
+      }
+      : {
+        number: '',
+        dateIssued: undefined,
       },
+    cemeteryOrCrematory: {
+      name: ensureString(deathForm.cemeteryOrCrematory?.name),
+      address: createAddressObject(deathForm.cemeteryOrCrematory?.address),
     },
-  };
 
-  const informantInfo = {
-    informant: deathForm.informant || {
-      signature: '',
-      nameInPrint: '',
-      relationshipToDeceased: '',
-      address: {
-        houseNo: '',
-        st: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: '',
-      },
+    // Informant Information
+    informant: {
+      nameInPrint: ensureString(deathForm.informant?.nameInPrint),
+      relationshipToDeceased: ensureString(deathForm.informant?.relationshipToDeceased),
+      address: createAddressObject(deathForm.informant?.address),
       date: parseDateSafely(deathForm.informant?.date),
     },
-  };
 
-  const processingInfo = {
+
+
+    // Processing Information
     preparedBy: {
-      signature: '',
       nameInPrint:
         typeof form.preparedBy === 'string'
           ? form.preparedBy
           : form.preparedByName
-          ? ensureString(form.preparedByName)
-          : form.preparedBy?.name
-          ? ensureString(form.preparedBy.name)
-          : '',
+            ? ensureString(form.preparedByName)
+            : form.preparedBy?.name
+              ? ensureString(form.preparedBy.name)
+              : '',
       titleOrPosition: ensureString(form.preparedByPosition),
       date: parseDateSafely(form.preparedByDate),
     },
     receivedBy: {
-      signature: '',
       nameInPrint:
         typeof form.receivedBy === 'string'
           ? form.receivedBy
@@ -279,25 +360,86 @@ export const mapToDeathCertificateValues = (
       date: parseDateSafely(form.receivedByDate),
     },
     registeredByOffice: {
-      signature: '',
       nameInPrint:
         typeof form.registeredBy === 'string'
           ? form.registeredBy
           : ensureString(form.registeredBy),
       titleOrPosition: ensureString(form.registeredByPosition),
       date: parseDateSafely(form.registeredByDate),
-    },
+    }
   };
 
-  return {
-    ...registryInfo,
-    ...deceasedInfo,
-    ...parentInfo,
-    ...causesOfDeath,
-    ...medicalCertificateInfo,
-    ...certificationInfo,
-    ...disposalInfo,
-    ...informantInfo,
-    ...processingInfo,
-  };
+  if (deathForm.delayedRegistration) {
+    result.delayedRegistration = {
+      isDelayed: Boolean(deathForm.delayedRegistration.isDelayed),
+      affiant: {
+        name: ensureString(deathForm.delayedRegistration.affiant?.name),
+        civilStatus: ensureString(deathForm.delayedRegistration?.affiant?.civilStatus),
+        residenceAddress: ensureString(deathForm.delayedRegistration.affiant?.residenceAddress),
+        age: ensureString(deathForm.delayedRegistration.affiant?.age),
+      },
+      deceased: {
+        name: ensureString(deathForm.delayedRegistration.deceased?.name),
+        dateOfDeath: parseDateSafely(deathForm.delayedRegistration.deceased?.dateOfDeath),
+        placeOfDeath: ensureString(deathForm.delayedRegistration.deceased?.placeOfDeath),
+        burialInfo: {
+          date: parseDateSafely(deathForm.delayedRegistration.deceased?.burialInfo?.date),
+          place: ensureString(deathForm.delayedRegistration.deceased?.burialInfo?.place),
+          method: ensureString(deathForm.delayedRegistration.deceased?.burialInfo?.method),
+        },
+      },
+      attendance: {
+        wasAttended: Boolean(deathForm.delayedRegistration.attendance?.wasAttended),
+        attendedBy: ensureString(deathForm.delayedRegistration.attendance?.attendedBy),
+      },
+      causeOfDeath: ensureString(deathForm.delayedRegistration?.causeOfDeath),
+      reasonForDelay: ensureString(deathForm.delayedRegistration?.reasonForDelay),
+      affidavitDate: parseDateSafely(deathForm.delayedRegistration?.affidavitDate),
+      affidavitDatePlace: ensureString(deathForm.delayedRegistration?.affidavitDatePlace),
+      adminOfficer: ensureString(deathForm.delayedRegistration?.adminOfficer),
+      ctcInfo: {
+        number: ensureString(deathForm.delayedRegistration?.ctcInfo?.number),
+        issuedOn: parseDateSafely(deathForm.delayedRegistration?.ctcInfo?.issuedOn),
+        issuedAt: ensureString(deathForm.delayedRegistration?.ctcInfo?.issuedAt),
+      },
+    }
+  } else {
+    result.delayedRegistration = {
+
+      isDelayed: false,
+      affiant: {
+        name: '',
+        civilStatus: undefined,
+        residenceAddress: '',
+        age: '',
+      },
+      deceased: {
+        name: '',
+        dateOfDeath: undefined,
+        placeOfDeath: '',
+        burialInfo: {
+          date: undefined,
+          place: '',
+          method: undefined,
+        },
+      },
+      attendance: {
+        wasAttended: false,
+        attendedBy: '',
+      },
+      causeOfDeath: '',
+      reasonForDelay: '',
+      affidavitDate: undefined,
+      affidavitDatePlace: '',
+      adminOfficer: '',
+      ctcInfo: {
+        number: '',
+        issuedOn: undefined,
+        issuedAt: '',
+      },
+
+    }
+  }
+
+  return result;
 };

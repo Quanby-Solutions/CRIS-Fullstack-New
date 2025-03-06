@@ -34,7 +34,8 @@ import {
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
 import { useDeathCertificateForm } from '@/hooks/form-certificates-hooks/useDeathCertificateForm';
-import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
+import { RegistryInformationCardForEdit } from './form-cards/death-cards/registry';
+
 
 export interface DeathCertificateFormProps {
   open: boolean;
@@ -74,7 +75,13 @@ export default function DeathCertificateForm({
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
                       <PaginationInputs />
-                      <RegistryInformationCard formType='DEATH' />
+                      {defaultValues?.id ? (
+                        <RegistryInformationCardForEdit />
+                      ) : (
+                        <RegistryInformationCard
+                          formType='DEATH'
+                        />
+                      )}
                       <DeceasedInformationCard />
                       <CausesOfDeath19aCard />
                       <CausesOfDeath19bCard />
@@ -87,7 +94,6 @@ export default function DeathCertificateForm({
                       <CertificationOfDeathCard />
                       <DisposalInformationCard />
                       <CertificationInformantCard />
-                      {/* <MedicalCertificateCard /> */}
                       <PreparedByCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard

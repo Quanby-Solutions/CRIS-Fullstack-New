@@ -491,7 +491,7 @@ const generateMarriageCertificate = (
           'Assistant Civil Registrar',
           'Registration Officer'
         ])
-      } ,
+      },
 
       // Remarks
       remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
@@ -976,7 +976,6 @@ const generateDeathCertificate = (
           },
           certification: {
             time: deathDate,
-            signature: faker.person.fullName(),
             name: faker.person.fullName(),
             title: faker.helpers.arrayElement([
               'MD',
@@ -989,6 +988,26 @@ const generateDeathCertificate = (
         },
 
         autopsy: faker.datatype.boolean(),
+      },
+
+      causesOfDeath19a: {
+        mainDiseaseOfInfant: faker.helpers.arrayElement([
+          'Respiratory Distress Syndrome',
+          'Neonatal Sepsis',
+          'Congenital Heart Disease',
+        ]),
+        otherDiseasesOfInfant: faker.helpers.maybe(() =>
+          faker.helpers.arrayElement(['Jaundice', 'Premature Birth'])
+        ),
+        mainMaternalDisease: faker.helpers.maybe(() =>
+          faker.helpers.arrayElement(['Preeclampsia', 'Gestational Diabetes'])
+        ),
+        otherMaternalDisease: faker.helpers.maybe(() =>
+          faker.helpers.arrayElement(['Anemia', 'Infections'])
+        ),
+        otherRelevantCircumstances: faker.helpers.maybe(() =>
+          faker.lorem.sentence()
+        ),
       },
 
       // Causes of Death (specific section - standard format)
@@ -1029,7 +1048,6 @@ const generateDeathCertificate = (
       // Certification of Death
       certificationOfDeath: {
         hasAttended: faker.datatype.boolean(),
-        signature: faker.person.fullName(),
         nameInPrint: faker.person.fullName(),
         titleOfPosition: faker.helpers.arrayElement([
           'MD',
@@ -1038,18 +1056,15 @@ const generateDeathCertificate = (
         ]),
         address: generatePhLocation(),
         date: randomDate(deathDate, new Date(deathDate.getTime() + 86400000)),
-        healthOfficerSignature: faker.person.fullName(),
         healthOfficerNameInPrint: faker.person.fullName(),
       },
 
       // Review Information
-      reviewedBy: {
-        signature: faker.person.fullName(),
-        date: randomDate(
-          deathDate,
-          new Date(deathDate.getTime() + 86400000 * 7)
-        ),
-      },
+      reviewedBy: randomDate(
+        deathDate,
+        new Date(deathDate.getTime() + 86400000 * 7)
+      ),
+
 
       // Optional Certificates
       postmortemCertificate: faker.helpers.maybe(
@@ -1059,7 +1074,6 @@ const generateDeathCertificate = (
             'Gunshot wound',
             'Blunt force trauma',
           ]),
-          signature: faker.person.fullName(),
           nameInPrint: faker.person.fullName(),
           date: randomDate(
             deathDate,
@@ -1074,7 +1088,6 @@ const generateDeathCertificate = (
       embalmerCertification: faker.helpers.maybe(
         () => ({
           nameOfDeceased: `${faker.person.firstName()} ${faker.person.lastName()}`,
-          signature: faker.person.fullName(),
           nameInPrint: faker.person.fullName(),
           address: faker.location.streetAddress(),
           titleDesignation: 'Licensed Embalmer',
@@ -1090,67 +1103,7 @@ const generateDeathCertificate = (
         { probability: 0.3 }
       ),
 
-      delayedRegistration: faker.helpers.maybe(
-        () => ({
-          affiant: {
-            name: faker.person.fullName(),
-            civilStatus: faker.helpers.arrayElement([
-              'Single',
-              'Married',
-              'Widowed',
-              'Divorced',
-            ]),
-            residenceAddress: faker.location.streetAddress(),
-            age: faker.number.int({ min: 21, max: 70 }).toString(),
-            signature: faker.person.fullName(),
-          },
-          deceased: {
-            name: `${faker.person.firstName()} ${faker.person.lastName()}`,
-            dateOfDeath: deathDate.toISOString().split('T')[0],
-            placeOfDeath: faker.location.city(),
-            burialInfo: {
-              date: randomDate(
-                deathDate,
-                new Date(deathDate.getTime() + 86400000 * 7)
-              )
-                .toISOString()
-                .split('T')[0],
-              place: faker.location.city(),
-              method: faker.helpers.arrayElement(['Buried', 'Cremated']),
-            },
-          },
-          attendance: {
-            wasAttended: faker.datatype.boolean(),
-            attendedBy: faker.helpers.maybe(() => faker.person.fullName()),
-          },
-          causeOfDeath: faker.helpers.arrayElement([
-            'Heart Attack',
-            'Cancer',
-            'Stroke',
-            'Respiratory Failure',
-          ]),
-          reasonForDelay: faker.helpers.arrayElement([
-            'Family was in mourning',
-            'Unaware of registration requirement',
-            'Lived in remote area',
-            'Documentation issues',
-          ]),
-          affidavitDate: randomDate(deathDate, new Date()),
-          affidavitDatePlace: faker.location.city(),
-          adminOfficer: {
-            signature: faker.person.fullName(),
-            position: 'Civil Registrar',
-          },
-          ctcInfo: {
-            number: faker.string.numeric(10),
-            issuedOn: randomDate(new Date(2015, 0, 1), new Date())
-              .toISOString()
-              .split('T')[0],
-            issuedAt: faker.location.city(),
-          },
-        }),
-        { probability: 0.25 }
-      ),
+      delayedRegistration: {},
 
       // Disposal Information
       corpseDisposal: faker.helpers.arrayElement([
@@ -1191,7 +1144,6 @@ const generateDeathCertificate = (
 
       // Informant Information
       informant: {
-        signature: faker.person.fullName(),
         nameInPrint: faker.person.fullName(),
         relationshipToDeceased: faker.helpers.arrayElement([
           'Spouse',

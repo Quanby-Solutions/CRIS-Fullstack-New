@@ -36,29 +36,26 @@ const deceasedInformationSchema = z.object({
     requiredError: 'Date of death is required',
     futureError: 'Date of death cannot be in the future',
   }),
-  timeOfDeath: z.preprocess(
-    (val) => {
-      if (val == null || val === '') return undefined; // Handle empty values
-      if (typeof val === 'string' && val.trim() !== '') {
-        const [hours, minutes] = val.split(':');
-        const date = new Date();
-        date.setHours(Number(hours), Number(minutes), 0, 0);
-        return date;
-      }
-      return val;
-    },
-    z
-      .date({ required_error: 'Time of death is required' })
-      .optional() // Make the schema accept undefined
-      .superRefine((val, ctx) => {
-        if (val === undefined) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Time of death is required',
-          });
-        }
-      })
-  ),
+  timeOfDeath: z.preprocess((val) => {
+    if (val instanceof Date) {
+      // If it's already a Date object, return it directly
+      return val
+    }
+
+    if (typeof val === 'string' && val.trim() !== '') {
+      const [hours, minutes] = val.split(':')
+      const date = new Date() // Use current date
+      date.setHours(Number(hours), Number(minutes), 0, 0)
+      return date
+    }
+
+    // If no valid input, return current timestamp
+    return new Date()
+  }, createDateFieldSchema({
+    requiredError: 'Start date is required',
+    futureError: 'Start date cannot be in the future',
+  }),),
+
   dateOfBirth: createDateFieldSchema({
     requiredError: 'Date of birth is required',
     futureError: 'Date of birth cannot be in the future',
@@ -198,10 +195,25 @@ const medicalCertificateSchema = z.object({
         .optional(),
       certification: z
         .object({
-          time: createDateFieldSchema({
-            requiredError: 'Certification time is required',
-            futureError: 'Certification time cannot be in the future',
-          }),
+          time: z.preprocess((val) => {
+            if (val instanceof Date) {
+              // If it's already a Date object, return it directly
+              return val
+            }
+
+            if (typeof val === 'string' && val.trim() !== '') {
+              const [hours, minutes] = val.split(':')
+              const date = new Date() // Use current date
+              date.setHours(Number(hours), Number(minutes), 0, 0)
+              return date
+            }
+
+            // If no valid input, return current timestamp
+            return new Date()
+          }, createDateFieldSchema({
+            requiredError: 'Start date is required',
+            futureError: 'Start date cannot be in the future',
+          }),),
           name: z.string().nonempty('Attendant name is required'),
           title: z.string().nonempty('Attendant title is required'),
           address: residenceSchema,
@@ -289,64 +301,146 @@ const embalmerCertificationSchema = z
     address: z.string().nonempty('Address is required'),
     titleDesignation: z.string().nonempty('Title/Designation is required'),
     licenseNo: z.string().nonempty('License number is required'),
-    issuedOn: z.string().nonempty('Issue date is required'),
+    issuedOn: createDateFieldSchema({
+      requiredError: 'Date of death is required',
+      futureError: 'Date of death cannot be in the future',
+    }),
     issuedAt: z.string().nonempty('Issue location is required'),
-    expiryDate: z.string().nonempty('Expiry date is required'),
+    expiryDate: createDateFieldSchema({
+      requiredError: 'Date of death is required',
+      futureError: 'Date of death cannot be in the future',
+    }),
   })
   .optional();
 
-  const delayedRegistrationSchema = z.discriminatedUnion('isDelayed', [
-    // Case when registration is NOT delayed – fields are not required.
-    z.object({
-      isDelayed: z.literal(false),
-      // Optionally, you could allow an empty object or minimal fields.
-    }),
-    // Case when registration is delayed – all fields are required.
-    z.object({
-      isDelayed: z.literal(true),
-      affiant: z.object({
-        name: z.string().nonempty('Name is required'),
-        civilStatus: z.enum([
-          'Single',
-          'Married',
-          'Divorced',
-          'Widow',
-          'Widower',
-        ]),
-        residenceAddress: z.string().nonempty('Address is required'),
-        age: z.string().optional(),
-      }),
-      deceased: z.object({
-        name: z.string().nonempty('Name is required'),
-        dateOfDeath: z.string().nonempty('Date of death is required'),
-        placeOfDeath: z.string().nonempty('Place of death is required'),
-        burialInfo: z.object({
-          date: z.string().nonempty('Burial date is required'),
-          place: z.string().nonempty('Burial place is required'),
-          method: z.enum(['Buried', 'Cremated']).optional(),
-        }),
-      }),
-      attendance: z.object({
-        wasAttended: z.boolean(),
-        attendedBy: z.string().optional(),
-      }),
-      causeOfDeath: z.string().nonempty('Cause of death is required'),
-      reasonForDelay: z.string().nonempty('Reason for delay is required'),
-      affidavitDate: createDateFieldSchema({
-        requiredError: 'Affidavit date is required',
-        futureError: 'Affidavit date cannot be in the future',
-      }),
-      affidavitDatePlace: z.string().nonempty('Affidavit place is required'),
-      adminOfficer: z.object({
-        position: z.string().nonempty('Position is required'),
-      }),
-      ctcInfo: z.object({
-        number: z.string().nonempty('CTC number is required'),
-        issuedOn: z.string().nonempty('Date issued is required'),
-        issuedAt: z.string().nonempty('Place issued is required'),
-      }),
-    }),
-  ]);
+// const delayedRegistrationSchema = z.discriminatedUnion('isDelayed', [
+//   // Case when registration is NOT delayed – fields are not required.
+//   z.object({
+//     isDelayed: z.literal(false),
+//     // Optionally, you could allow an empty object or minimal fields.
+//   }),
+//   // Case when registration is delayed – all fields are required.
+//   z.object({
+//     isDelayed: z.literal(true),
+//     affiant: z.object({
+//       name: z.string().nonempty('Name is required'),
+//       civilStatus: z.enum([
+//         'Single',
+//         'Married',
+//         'Divorced',
+//         'Widow',
+//         'Widower',
+//       ]),
+//       residenceAddress: z.string().nonempty('Address is required'),
+//       age: z.string().optional(),
+//     }),
+//     deceased: z.object({
+//       name: z.string().nonempty('Name is required'),
+//       dateOfDeath: createDateFieldSchema({
+//         requiredError: 'Date of death is required',
+//         futureError: 'Date of death cannot be in the future',
+//       }),
+//       placeOfDeath: z.string().nonempty('Place of death is required'),
+//       burialInfo: z.object({
+//         date: createDateFieldSchema({
+//           requiredError: 'Date of burial is required',
+//           futureError: 'Date of burial cannot be in the future',
+//         }),
+//         place: z.string().nonempty('Burial place is required'),
+//         method: z.enum(['Buried', 'Cremated']).optional(),
+//       }),
+//     }),
+//     attendance: z.object({
+//       wasAttended: z.boolean(),
+//       attendedBy: z.string().optional(),
+//     }),
+//     causeOfDeath: z.string().nonempty('Cause of death is required'),
+//     reasonForDelay: z.string().nonempty('Reason for delay is required'),
+//     affidavitDate: createDateFieldSchema({
+//       requiredError: 'Affidavit date is required',
+//       futureError: 'Affidavit date cannot be in the future',
+//     }),
+//     affidavitDatePlace: z.string().nonempty('Affidavit place is required'),
+//     adminOfficer: z.string().nonempty('Position is required'),
+
+//     ctcInfo: z.object({
+//       number: z.string().nonempty('CTC number is required'),
+//       issuedOn: createDateFieldSchema({
+//         requiredError: 'Date issued is required',
+//         futureError: 'Date issued cannot be in the future',
+//       }),
+//       issuedAt: z.string().nonempty('Place issued is required'),
+//     }),
+//   }),
+// ]);
+
+const delayedRegistrationSchema = z.object({
+  isDelayed: z.boolean(),
+  affiant: z.object({
+    name: z.string().optional(),
+    civilStatus: z.string().optional(),
+    residenceAddress: z.string().optional(),
+    age: z.string().optional(),
+  }).optional(),
+  deceased: z.object({
+    name: z.string().optional(),
+    dateOfDeath: createDateFieldSchema({
+      requiredError: "Date of burial is required",
+      futureError: "Date of burial cannot be in the future",
+    }).optional(),
+    placeOfDeath: z.string().optional(),
+    burialInfo: z.object({
+      date: createDateFieldSchema({
+        requiredError: "Date of burial is required",
+        futureError: "Date of burial cannot be in the future",
+      }).optional(),
+      place: z.string().optional(),
+      method: z.string().optional(),
+    }).optional(),
+  }).optional(),
+  attendance: z.object({
+    wasAttended: z.boolean().optional(),
+    attendedBy: z.string().optional(),
+  }).optional(),
+  causeOfDeath: z.string().optional(),
+  reasonForDelay: z.string().optional(),
+  affidavitDate: createDateFieldSchema({
+    requiredError: "Date of burial is required",
+    futureError: "Date of burial cannot be in the future",
+  }).optional(),
+  affidavitDatePlace: z.string().optional(),
+  adminOfficer: z.string().optional(),
+  ctcInfo: z.object({
+    number: z.string().optional(),
+    issuedOn: createDateFieldSchema({
+      requiredError: "Date of burial is required",
+      futureError: "Date of burial cannot be in the future",
+    }).optional(),
+    issuedAt: z.string().optional(),
+  }).optional(),
+}).refine(
+  (data) => {
+    // If isDelayed is true, validate that all required fields are present
+    if (data.isDelayed) {
+      return !!(
+        data.affiant?.name &&
+        data.affiant?.residenceAddress &&
+        data.deceased?.name &&
+        data.causeOfDeath &&
+        data.reasonForDelay &&
+        data.affidavitDatePlace &&
+        data.adminOfficer &&
+        data.ctcInfo?.number &&
+        data.ctcInfo?.issuedAt
+      );
+    }
+    return true;
+  },
+  {
+    message: "All required fields must be filled when delayed registration is true",
+    path: ["isDelayed"]
+  }
+);
 
 // --- Disposal Information Schema ---
 const disposalInformationSchema = z.object({
@@ -354,8 +448,8 @@ const disposalInformationSchema = z.object({
   burialPermit: z.object({
     number: z.string().nonempty('Permit number is required'),
     dateIssued: createDateFieldSchema({
-      requiredError: 'Burial permit date is required',
-      futureError: 'Burial permit date cannot be in the future',
+      requiredError: 'Date of death is required',
+      futureError: 'Date of death cannot be in the future',
     }),
   }),
   transferPermit: z
@@ -415,6 +509,8 @@ const causesOfDeath19bSchema = z.object({
 // --- Main Death Certificate Schema ---
 export const deathCertificateFormSchema = z
   .object({
+
+    id: z.string().optional(),
     // Header Information
     registryNumber: registryNumberSchema,
     province: provinceSchema,
@@ -425,6 +521,9 @@ export const deathCertificateFormSchema = z
 
     // Parent Information
     parents: parentInfoSchema,
+
+    //causes of death 19a
+    causesOfDeath19a: causesOfDeath19aSchema,
 
     // Causes of Death 19b
     causesOfDeath19b: causesOfDeath19bSchema,
@@ -441,7 +540,7 @@ export const deathCertificateFormSchema = z
     // Certificates
     postmortemCertificate: postmortemCertificateSchema,
     embalmerCertification: embalmerCertificationSchema,
-    delayedRegistration: delayedRegistrationSchema,
+    delayedRegistration: delayedRegistrationSchema.optional(),
 
     // Disposal Information
     ...disposalInformationSchema.shape,
@@ -504,7 +603,7 @@ export const deathCertificateFormSchema = z
     // 4. If burial location differs from place of death, a transfer permit is required.
     if (
       data.placeOfDeath.cityMunicipality !==
-        data.cemeteryOrCrematory.address.cityMunicipality &&
+      data.cemeteryOrCrematory.address.cityMunicipality &&
       !data.transferPermit
     ) {
       ctx.addIssue({

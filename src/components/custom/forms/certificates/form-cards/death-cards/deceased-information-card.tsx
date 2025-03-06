@@ -28,14 +28,33 @@ import {
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { differenceInDays } from 'date-fns';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const DeceasedInformationCard: React.FC = () => {
-  const { control, setValue } = useFormContext<DeathCertificateFormValues>();
+  const { control, setValue, getValues } = useFormContext<DeathCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
+  const initialRender = useRef(true);
+
+  useEffect(() => {
+    if (initialRender.current) {
+      const province = getValues('placeOfDeath.province');
+      if (province === 'Metro Manila' || province === 'NCR') {
+        setNcrMode(true);
+        setValue('placeOfDeath.province', 'Metro Manila');
+      }
+      initialRender.current = false;
+    }
+  }, [getValues, setValue]);
+
+  // Handle NCR mode changes
+  useEffect(() => {
+    if (!initialRender.current && ncrMode) {
+      setValue('placeOfDeath.province', 'Metro Manila');
+    }
+  }, [ncrMode, setValue]);
 
   // Watch fields for overall business logic
   const dateOfBirth = useWatch({ control, name: 'dateOfBirth' });
@@ -59,8 +78,17 @@ const DeceasedInformationCard: React.FC = () => {
     return isInfantDeath || isMaternal;
   }, [dateOfBirth, dateOfDeath, sex, ageAtDeath]);
 
+
+
   return (
     <Card className='w-full'>
+      {ncrMode && (
+        <input
+          type="hidden"
+          name="placeOfDeath.province"
+          value="Metro Manila"
+        />
+      )}
       <CardHeader>
         <CardTitle className='text-2xl font-semibold'>
           Deceased Information

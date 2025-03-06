@@ -13,16 +13,28 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import SignatureUploader from '../shared-components/signature-uploader';
 
 const AffidavitDelayedRegistrationCard: React.FC = () => {
-  const { control, setValue, watch } =
+  const { control, setValue, watch, getValues } =
     useFormContext<DeathCertificateFormValues>();
 
   // Local state toggle for displaying the affidavit section.
-  const [isDelayed, setIsDelayed] = useState(false);
+
+  const delayedRegistration = watch('delayedRegistration')
+  const [isDelayed, setIsDelayed] = useState(delayedRegistration?.isDelayed ?? false)
+
+  useEffect(() => {
+    setValue('delayedRegistration.isDelayed', isDelayed)
+  }, [isDelayed, setValue])
+
+  useEffect(() => {
+    if (delayedRegistration?.isDelayed !== undefined) {
+      setIsDelayed(delayedRegistration.isDelayed)
+    }
+  }, [delayedRegistration?.isDelayed])
 
   // Watch attendance.wasAttended to conditionally show attendedBy.
   const wasAttended = watch('delayedRegistration.attendance.wasAttended');
@@ -119,6 +131,22 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   )}
                 />
               </div>
+              {/* <FormField
+                control={control}
+                name='delayedRegistration.affiant.signature'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Affiant Signature</FormLabel>
+                    <FormControl>
+                      <SignatureUploader
+                        name='delayedRegistration.affiant.signature'
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
             </div>
 
             {/* Deceased Information (Affidavit) */}
@@ -126,24 +154,43 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
               <h3 className='text-lg font-semibold'>
                 Deceased Information (Affidavit)
               </h3>
-              <FormField
-                control={control}
-                name='delayedRegistration.deceased.name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name of Deceased</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Enter deceased's name"
-                        value={field.value ?? ''}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={control}
+                  name='delayedRegistration.deceased.name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name of Deceased</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter deceased's name"
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name='delayedRegistration.deceased.placeOfDeath'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Place of Death</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter deceased's place of death"
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={control}
                   name='delayedRegistration.deceased.burialInfo.date'
@@ -329,9 +376,25 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
             <div className='space-y-4'>
               <h3 className='text-lg font-semibold'>Administering Officer</h3>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {/* <FormField
+                  control={control}
+                  name='delayedRegistration.adminOfficer.signature'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Officer Signature</FormLabel>
+                      <FormControl>
+                        <SignatureUploader
+                          name='delayedRegistration.adminOfficer.signature'
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                /> */}
                 <FormField
                   control={control}
-                  name='delayedRegistration.adminOfficer.position'
+                  name='delayedRegistration.adminOfficer'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Officer Position</FormLabel>
@@ -375,12 +438,16 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   name='delayedRegistration.ctcInfo.issuedOn'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Issued On</FormLabel>
+
                       <FormControl>
-                        <Input
-                          {...field}
-                          placeholder='YYYY-MM-DD'
-                          value={field.value ?? ''}
+                        <DatePickerField
+                          field={{
+                            value: field.value ?? '',
+                            onChange: (date) => field.onChange(date),
+                          }}
+                          label='Issued On'
+                          placeholder='Select date'
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />

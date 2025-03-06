@@ -12,19 +12,76 @@ import {
 import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import LocationSelector from '../shared-components/location-selector';
-
+import SignatureUploader from '../shared-components/signature-uploader';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const CertificationInformantCard: React.FC = () => {
-  const { control, setValue } = useFormContext<DeathCertificateFormValues>();
+  const { control, setValue, getValues } = useFormContext<DeathCertificateFormValues>();
+  const [isNCRMode, setIsNCRMode] = useState(false);
+
+
+
+  useEffect(() => {
+    // Detect NCR mode from fetched data on component mount
+    const province = getValues('informant.address.province');
+    if (province === 'Metro Manila' || province === 'NCR') {
+      setIsNCRMode(true);
+    }
+  }, [getValues]);
+
+
+  useEffect(() => {
+    if (isNCRMode === true) {
+      setValue('informant.address.province', 'Metro Manila')
+    }
+  }, [isNCRMode])
+
 
   return (
     <Card>
       <CardHeader className='pb-3'>
         <h3 className='text-sm font-semibold'>Certification of Informant</h3>
       </CardHeader>
+      <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-3 gap-4'>
+          {/* Signature */}
+          {/* <FormField
+            control={control}
+            name='informant.signature'
+            render={({ field, formState: { errors } }) => (
+              <FormItem>
+                <FormLabel>Signature</FormLabel>
+                <FormControl>
+                  <SignatureUploader
+                    name='informant.signature'
+                    label='Upload Signature'
+                    onChange={(value: File | string) => {
+                      if (value instanceof File) {
+                        setValue('informant.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      } else {
+                        setValue('informant.signature', value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage>
+                  {typeof errors?.informant?.signature?.message === 'string'
+                    ? errors.informant.signature.message
+                    : ''}
+                </FormMessage>
+              </FormItem>
+            )}
+          /> */}
+
           {/* Name */}
           <FormField
             control={control}
@@ -77,7 +134,7 @@ const CertificationInformantCard: React.FC = () => {
             municipalityPlaceholder='Select city/municipality...'
             barangayPlaceholder='Select barangay...'
             showBarangay={true}
-            isNCRMode={false}
+            isNCRMode={isNCRMode}
           />
 
           {/* House No. */}

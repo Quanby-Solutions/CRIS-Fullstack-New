@@ -92,6 +92,35 @@ export async function submitDeathCertificateForm(
           },
         });
 
+        // Update each user's eSignature individually.
+        // await tx.user.update({
+        //   where: { id: preparedByUser.id },
+        //   data: {
+        //     eSignature:
+        //       formData.preparedBy.signature instanceof File
+        //         ? await fileToBase64(formData.preparedBy.signature)
+        //         : formData.preparedBy.signature,
+        //   },
+        // });
+        // await tx.user.update({
+        //   where: { id: receivedByUser.id },
+        //   data: {
+        //     eSignature:
+        //       formData.receivedBy.signature instanceof File
+        //         ? await fileToBase64(formData.receivedBy.signature)
+        //         : formData.receivedBy.signature,
+        //   },
+        // });
+        // await tx.user.update({
+        //   where: { id: registeredByUser.id },
+        //   data: {
+        //     eSignature:
+        //       formData.registeredByOffice.signature instanceof File
+        //         ? await fileToBase64(formData.registeredByOffice.signature)
+        //         : formData.registeredByOffice.signature,
+        //   },
+        // });
+
         // Helper function to convert Date to ISO string.
         const dateToJSON = (date: Date) => date.toISOString();
 
@@ -104,14 +133,28 @@ export async function submitDeathCertificateForm(
             deceasedName: formData.name,
             sex: formData.sex!,
             dateOfDeath: formData.dateOfDeath!,
-            timeOfDeath: formData.timeOfDeath!, // Non-null assertion.
+            timeOfDeath: dateToJSON(formData.timeOfDeath!), // Non-null assertion.
             dateOfBirth: formData.dateOfBirth!, // Non-null assertion.
             ageAtDeath: formData.ageAtDeath as Prisma.JsonObject,
-            placeOfDeath: formData.placeOfDeath as Prisma.JsonObject,
+            placeOfDeath: {
+              province: formData.placeOfDeath.province,
+              cityMunicipality: formData.placeOfDeath.cityMunicipality,
+              houseNo: formData.placeOfDeath.houseNo,
+              st: formData.placeOfDeath.st,
+              barangay: formData.placeOfDeath.barangay,
+              hospitalInstitution: formData.placeOfDeath.hospitalInstitution,
+            },
             civilStatus: formData.civilStatus!,
             religion: formData.religion || '',
             citizenship: formData.citizenship,
-            residence: formData.residence as Prisma.JsonObject,
+            residence: {
+              province: formData.residence.province,
+              cityMunicipality: formData.residence.cityMunicipality,
+              houseNo: formData.residence.houseNo,
+              st: formData.residence.st,
+              barangay: formData.residence.barangay,
+              country: formData.residence.country
+            },
             occupation: formData.occupation,
 
             // Parent Information.
@@ -130,36 +173,43 @@ export async function submitDeathCertificateForm(
               externalCauses: formData.medicalCertificate.externalCauses,
               attendant: formData.medicalCertificate.attendant
                 ? {
-                    ...formData.medicalCertificate.attendant,
-                    duration: formData.medicalCertificate.attendant.duration
-                      ? {
-                          from: dateToJSON(
-                            formData.medicalCertificate.attendant.duration.from!
-                          ),
-                          to: dateToJSON(
-                            formData.medicalCertificate.attendant.duration.to!
-                          ),
-                        }
-                      : null,
-                    certification: formData.medicalCertificate.attendant
-                      .certification
-                      ? {
-                          ...formData.medicalCertificate.attendant
-                            .certification,
-                          time: dateToJSON(
-                            formData.medicalCertificate.attendant.certification
-                              .time!
-                          ),
-                          date: dateToJSON(
-                            formData.medicalCertificate.attendant.certification
-                              .date!
-                          ),
-                        }
-                      : null,
-                  }
+                  ...formData.medicalCertificate.attendant,
+                  duration: formData.medicalCertificate.attendant.duration
+                    ? {
+                      from: dateToJSON(
+                        formData.medicalCertificate.attendant.duration.from!
+                      ),
+                      to: dateToJSON(
+                        formData.medicalCertificate.attendant.duration.to!
+                      ),
+                    }
+                    : null,
+                  certification: formData.medicalCertificate.attendant
+                    .certification
+                    ? {
+                      ...formData.medicalCertificate.attendant
+                        .certification,
+                      time: dateToJSON(formData.medicalCertificate.attendant.certification.time!),
+                      date: dateToJSON(formData.medicalCertificate.attendant.certification.date!),
+                      name: formData.medicalCertificate.attendant.certification.name!,
+                      title: formData.medicalCertificate.attendant.certification.title!,
+                      address: {
+                        province: formData.medicalCertificate.attendant.certification.address.province,
+                        cityMunicipality: formData.medicalCertificate.attendant.certification.address.cityMunicipality,
+                        houseNo: formData.medicalCertificate.attendant.certification.address.houseNo,
+                        st: formData.medicalCertificate.attendant.certification.address.st,
+                        barangay: formData.medicalCertificate.attendant.certification.address.barangay,
+                        country: formData.medicalCertificate.attendant.certification.address.country
+                      },
+                    }
+                    : null,
+                }
                 : null,
               autopsy: formData.medicalCertificate.autopsy,
             } as Prisma.JsonObject,
+
+            //Causes of Death (specific section).
+            causesOfDeath19a: formData.causesOfDeath19a as Prisma.JsonObject,
 
             // Causes of Death (specific section).
             causesOfDeath19b: formData.causesOfDeath19b as Prisma.JsonObject,
@@ -167,49 +217,98 @@ export async function submitDeathCertificateForm(
             // Certification of Death.
             certificationOfDeath: {
               hasAttended: formData.certificationOfDeath.hasAttended,
+              // signature:
+              //   formData.certificationOfDeath.signature instanceof File
+              //     ? await fileToBase64(formData.certificationOfDeath.signature)
+              //     : formData.certificationOfDeath.signature,
               nameInPrint: formData.certificationOfDeath.nameInPrint,
               titleOfPosition: formData.certificationOfDeath.titleOfPosition,
-              address: formData.certificationOfDeath
-                .address as Prisma.JsonObject,
+              address: {
+                province: formData.certificationOfDeath.address.province,
+                cityMunicipality: formData.certificationOfDeath.address.cityMunicipality,
+                houseNo: formData.certificationOfDeath.address.houseNo,
+                st: formData.certificationOfDeath.address.st,
+                barangay: formData.certificationOfDeath.address.barangay,
+                country: formData.certificationOfDeath.address.country
+              },
               date: dateToJSON(formData.certificationOfDeath.date!),
+              // healthOfficerSignature:
+              //   formData.certificationOfDeath.healthOfficerSignature instanceof
+              //   File
+              //     ? await fileToBase64(
+              //         formData.certificationOfDeath.healthOfficerSignature
+              //       )
+              //     : formData.certificationOfDeath.healthOfficerSignature,
               healthOfficerNameInPrint:
                 formData.certificationOfDeath.healthOfficerNameInPrint,
             } as Prisma.JsonObject,
 
             // Review Information.
-            reviewedBy: {
-              date: dateToJSON(formData.reviewedBy.date!),
-            } as Prisma.JsonObject,
+            reviewedBy: dateToJSON(formData.reviewedBy.date!),
+
 
             // Optional Certificates.
             postmortemCertificate: formData.postmortemCertificate
               ? ({
-                  ...formData.postmortemCertificate,
-                  date: dateToJSON(formData.postmortemCertificate.date!),
-                } as Prisma.JsonObject)
+                ...formData.postmortemCertificate,
+                // signature:
+                //   formData.postmortemCertificate.signature instanceof File
+                //     ? await fileToBase64(
+                //         formData.postmortemCertificate.signature
+                //       )
+                //     : formData.postmortemCertificate.signature,
+                date: dateToJSON(formData.postmortemCertificate.date!),
+              } as Prisma.JsonObject)
               : Prisma.JsonNull,
 
-            embalmerCertification: formData.embalmerCertification
+            embalmerCertification: {
+              nameInPrint: formData.embalmerCertification?.nameInPrint,
+              nameOfDeceased: formData.embalmerCertification?.nameOfDeceased,
+              licenseNo: formData.embalmerCertification?.licenseNo,
+              issuedOn: dateToJSON(formData.embalmerCertification?.issuedOn!),
+              issuedAt: formData.embalmerCertification?.issuedAt,
+              expiryDate: dateToJSON(formData.embalmerCertification?.expiryDate!),
+              address: formData.embalmerCertification?.address,
+              titleDesignation: formData.embalmerCertification?.titleDesignation,
+            } as Prisma.JsonObject,
+
+            delayedRegistration: formData.delayedRegistration?.isDelayed
               ? ({
-                  ...formData.embalmerCertification,
-                } as Prisma.JsonObject)
-              : Prisma.JsonNull,
+                isDelayed: formData.delayedRegistration.isDelayed,
+                affiant: {
+                  name: formData.delayedRegistration?.affiant?.name,
+                  civilStatus: formData.delayedRegistration?.affiant?.civilStatus,
+                  residenceAddress: formData.delayedRegistration?.affiant?.residenceAddress,
+                  age: formData.delayedRegistration?.affiant?.age,
+                } as Prisma.JsonObject,
+                deceased: {
+                  name: formData.delayedRegistration?.deceased?.name,
+                  dateOfDeath: dateToJSON(formData.delayedRegistration?.deceased?.dateOfDeath!),
+                  placeOfDeath: formData.delayedRegistration?.deceased?.placeOfDeath,
+                  burialInfo: {
+                    date: dateToJSON(formData.delayedRegistration?.deceased?.burialInfo?.date!),
+                    place: formData.delayedRegistration?.deceased?.burialInfo?.place,
+                    method: formData.delayedRegistration?.deceased?.burialInfo?.method
+                  }
+                } as Prisma.JsonObject,
+                attendance: {
+                  wasAttended: formData.delayedRegistration?.attendance?.wasAttended,
+                  attendedBy: formData.delayedRegistration?.attendance?.attendedBy,
+                },
+                causeOfDeath: formData.delayedRegistration?.causeOfDeath,
+                reasonForDelay: formData.delayedRegistration?.reasonForDelay,
+                affidavitDate: dateToJSON(formData.delayedRegistration?.affidavitDate!),
+                affidavitDatePlace: formData.delayedRegistration?.affidavitDatePlace,
+                adminOfficer: formData.delayedRegistration?.adminOfficer,
+                ctcInfo: {
+                  number: formData.delayedRegistration?.ctcInfo?.number,
+                  issuedOn: dateToJSON(formData.delayedRegistration?.ctcInfo?.issuedOn!),
+                  issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt
+                } as Prisma.JsonObject
 
-              delayedRegistration:
-              formData.delayedRegistration && formData.delayedRegistration.isDelayed
-                ? ({
-                    ...formData.delayedRegistration,
-                    affiant: {
-                      ...formData.delayedRegistration.affiant,
-                    },
-                    adminOfficer: {
-                      ...formData.delayedRegistration.adminOfficer,
-                    },
-                    affidavitDate: formData.delayedRegistration.affidavitDate
-                      ? dateToJSON(formData.delayedRegistration.affidavitDate)
-                      : null,
-                  } as Prisma.JsonObject)
-                : Prisma.JsonNull,
+              } as Prisma.JsonObject)
+              : {},
+
 
             // Disposal Information.
             corpseDisposal: formData.corpseDisposal,
@@ -219,11 +318,11 @@ export async function submitDeathCertificateForm(
             } as Prisma.JsonObject,
 
             transferPermit: formData.transferPermit
-            ? ({
+              ? ({
                 number: formData.transferPermit.number,
-                dateIssued: dateToJSON(formData.transferPermit.dateIssued!)
+                dateIssued: dateToJSON(formData.transferPermit.dateIssued!),
               } as Prisma.JsonObject)
-            : Prisma.JsonNull,
+              : Prisma.JsonNull,
 
             cemeteryOrCrematory: {
               name: formData.cemeteryOrCrematory.name,
@@ -232,9 +331,20 @@ export async function submitDeathCertificateForm(
 
             // Informant Information.
             informant: {
+              // signature:
+              //   formData.informant.signature instanceof File
+              //     ? await fileToBase64(formData.informant.signature)
+              //     : formData.informant.signature,
               nameInPrint: formData.informant.nameInPrint,
               relationshipToDeceased: formData.informant.relationshipToDeceased,
-              address: formData.informant.address as Prisma.JsonObject,
+              address: {
+                province: formData.informant.address.province,
+                cityMunicipality: formData.informant.address.cityMunicipality,
+                houseNo: formData.informant.address.houseNo,
+                st: formData.informant.address.st,
+                barangay: formData.informant.address.barangay,
+                country: formData.informant.address.country
+              },
               date: dateToJSON(formData.informant.date!),
             } as Prisma.JsonObject,
 

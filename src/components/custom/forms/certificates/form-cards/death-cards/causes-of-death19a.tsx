@@ -28,7 +28,7 @@ const CausesOfDeath19aCard: React.FC = () => {
           {/* Main Disease/Condition */}
           <FormField
             control={control}
-            name='medicalCertificate.causesOfDeath.mainDiseaseOfInfant'
+            name='causesOfDeath19a.mainDiseaseOfInfant'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Main Disease/Condition</FormLabel>
@@ -46,7 +46,7 @@ const CausesOfDeath19aCard: React.FC = () => {
           {/* Other Diseases/Conditions */}
           <FormField
             control={control}
-            name='medicalCertificate.causesOfDeath.otherDiseasesOfInfant'
+            name='causesOfDeath19a.otherDiseasesOfInfant'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Other Diseases/Conditions</FormLabel>
@@ -64,7 +64,7 @@ const CausesOfDeath19aCard: React.FC = () => {
           {/* Main Maternal Disease */}
           <FormField
             control={control}
-            name='medicalCertificate.causesOfDeath.mainMaternalDisease'
+            name='causesOfDeath19a.mainMaternalDisease'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Main Maternal Disease</FormLabel>
@@ -82,7 +82,7 @@ const CausesOfDeath19aCard: React.FC = () => {
           {/* Other Maternal Disease */}
           <FormField
             control={control}
-            name='medicalCertificate.causesOfDeath.otherMaternalDisease'
+            name='causesOfDeath19a.otherMaternalDisease'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Other Maternal Disease</FormLabel>
@@ -100,7 +100,7 @@ const CausesOfDeath19aCard: React.FC = () => {
           {/* Other Relevant Circumstances */}
           <FormField
             control={control}
-            name='medicalCertificate.causesOfDeath.otherRelevantCircumstances'
+            name='causesOfDeath19a.otherRelevantCircumstances'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Other Relevant Circumstances</FormLabel>

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
 import SignatureUploader from '../shared-components/signature-uploader';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
 const EmbalmerCertificationCard: React.FC = () => {
   const { control, watch } = useFormContext<DeathCertificateFormValues>();
@@ -147,10 +148,14 @@ const EmbalmerCertificationCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Issued On</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder='YYYY-MM-DD'
-                    value={field.value ?? ''}
+                  <DatePickerField
+                    field={{
+                      value: field.value ?? '',
+                      onChange: field.onChange,
+                    }}
+                    label='Date Issued'
+                    placeholder='Select date issued'
+                    ref={field.ref}
                   />
                 </FormControl>
                 <FormMessage />
@@ -184,10 +189,14 @@ const EmbalmerCertificationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Expiry Date</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder='YYYY-MM-DD'
-                  value={field.value ?? ''}
+                <DatePickerField
+                  field={{
+                    value: field.value ?? '',
+                    onChange: field.onChange,
+                  }}
+                  label='Expiry Date'
+                  placeholder='Select expiry date'
+                  ref={field.ref}
                 />
               </FormControl>
               <FormMessage />

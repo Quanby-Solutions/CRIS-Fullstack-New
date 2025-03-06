@@ -3,12 +3,15 @@ import {
   DeathCertificateFormValues,
   deathCertificateFormSchema,
 } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Permission } from '@prisma/client';
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { notifyUsersWithPermission } from '../users-action';
+import { useRouter } from 'next/navigation';
+import { updateDeathCertificateForm } from '@/components/custom/civil-registry/actions/certificate-edit-actions/death-certificate-edit-form';
 
 export interface UseDeathCertificateFormProps {
   onOpenChange?: (open: boolean) => void;
@@ -16,162 +19,232 @@ export interface UseDeathCertificateFormProps {
 }
 
 const emptyDefaults: DeathCertificateFormValues = {
-  registryNumber: '3412',
-  province: 'Sample Province',
-  cityMunicipality: 'Sample City',
+  registryNumber: '2023-001',
+  province: 'Albay',
+  cityMunicipality: 'City of Tabaco',
   name: {
-    first: 'Josh',
-    middle: 'Morris',
-    last: 'Aguilar',
+    first: 'Juan',
+    middle: 'Dela',
+    last: 'Cruz',
   },
-  sex: undefined,
-  dateOfDeath: new Date('2022-01-01'),
-  timeOfDeath: undefined,
-  dateOfBirth: new Date('2022-04-01'),
+  sex: 'Male',
+  dateOfDeath: new Date('2023-10-01'),
+  timeOfDeath: new Date('2023-10-10T14:30:00'),
+  dateOfBirth: new Date('1980-05-15'),
   ageAtDeath: {
-    years: '2',
-    months: '5',
-    days: '1',
-    hours: '52',
+    years: '43',
+    months: '4',
+    days: '16',
+    hours: '14',
   },
   placeOfDeath: {
-    hospitalInstitution: 'qweqwe',
-    houseNo: 'ewqes',
-    st: 'sadaw',
-    barangay: '',
-    cityMunicipality: 'asdwd',
-    province: 'asfafs',
+    hospitalInstitution: 'Tabaco City Hospital',
+    houseNo: '123',
+    st: 'Rizal Street',
+    barangay: 'Salvacion',
+    cityMunicipality: 'City of Tabaco',
+    province: 'Albay',
   },
-  civilStatus: undefined,
-  religion: 'Catolic',
+  civilStatus: 'Married',
+  religion: 'Roman Catholic',
   citizenship: 'Filipino',
   residence: {
-    houseNo: '213',
-    st: '535qweqwe',
-    barangay: 'qweqweqw',
-    cityMunicipality: 'qwe',
-    province: 'qwe',
-    country: 'qwe',
+    houseNo: '456',
+    st: 'Luna Street',
+    barangay: 'San Roque',
+    cityMunicipality: 'City of Tabaco',
+    province: 'Albay',
+    country: 'Philippines',
   },
-  occupation: 'qweqwe',
+  occupation: 'Farmer',
   birthInformation: {
-    ageOfMother: 'qweqwe',
+    ageOfMother: '25',
     methodOfDelivery: 'Normal spontaneous vertex',
-    lengthOfPregnancy: undefined,
+    lengthOfPregnancy: 37,
     typeOfBirth: 'Single',
-    birthOrder: undefined,
+    birthOrder: 'First',
   },
   parents: {
     fatherName: {
-      first: 'FFF',
-      middle: 'qQQWW',
-      last: 'FWQFQ',
+      first: 'Pedro',
+      middle: 'Dela',
+      last: 'Cruz',
     },
     motherName: {
-      first: 'qwerqs',
-      middle: 'SAFASFW',
-      last: 'fqwasfw',
+      first: 'Maria',
+      middle: 'Santos',
+      last: 'Dela Cruz',
     },
   },
+
+  causesOfDeath19a: {
+    mainDiseaseOfInfant: 'Cardiac Arrest',
+    otherDiseasesOfInfant: 'None',
+    mainMaternalDisease: 'Hypertension',
+    otherMaternalDisease: 'None',
+    otherRelevantCircumstances: 'None',
+  },
+
   causesOfDeath19b: {
-    immediate: { cause: 'qwersaf', interval: '4' },
-    antecedent: { cause: 'asfwf', interval: '2' },
-    underlying: { cause: 'safqwf', interval: '15' },
-    otherSignificantConditions: '',
+    immediate: { cause: 'Cardiac Arrest', interval: 'Immediate' },
+    antecedent: { cause: 'Hypertension', interval: '5 years' },
+    underlying: { cause: 'Diabetes', interval: '10 years' },
+    otherSignificantConditions: 'None',
   },
   medicalCertificate: {
     causesOfDeath: {
-      immediate: { cause: 'qqqq', interval: '' },
-      antecedent: { cause: 'qqqq', interval: '' },
-      underlying: { cause: 'qqqq', interval: '' },
-      otherSignificantConditions: 'qwasdwd',
+      immediate: { cause: 'Cardiac Arrest', interval: 'Immediate' },
+      antecedent: { cause: 'Hypertension', interval: '5 years' },
+      underlying: { cause: 'Diabetes', interval: '10 years' },
+      otherSignificantConditions: 'None',
     },
     maternalCondition: {
       pregnantNotInLabor: false,
       pregnantInLabor: false,
       lessThan42Days: false,
       daysTo1Year: false,
-      noneOfTheAbove: false,
+      noneOfTheAbove: true,
     },
-    externalCauses: { mannerOfDeath: '', placeOfOccurrence: '' },
+    externalCauses: { mannerOfDeath: 'Natural', placeOfOccurrence: 'Home' },
     attendant: {
-      type: undefined,
-      othersSpecify: '',
-      duration: undefined,
-      certification: undefined,
+      type: 'Hospital authority',
+      othersSpecify: 'None',
+      duration: { from: new Date('2023-09-30'), to: new Date('2023-10-01') },
+      certification: {
+        date: new Date('2023-10-02'),
+        name: 'Dr. Jose Reyes',
+        title: 'Medical Doctor',
+        time: new Date('2023-10-10T14:30:00'),
+        address: {
+          province: 'Albay',
+          cityMunicipality: 'City of Tabaco',
+          country: 'Philippines',
+        },
+      },
     },
     autopsy: false,
   },
   certificationOfDeath: {
     hasAttended: false,
-    nameInPrint: '',
-    titleOfPosition: '',
+    nameInPrint: 'Dr. Maria Santos',
+    titleOfPosition: 'Medical Officer',
     address: {
-      houseNo: '5254125',
-      st: '123123qweqw',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
+      houseNo: '789',
+      st: 'Mabini Street',
+      barangay: 'San Lorenzo',
+      cityMunicipality: 'City of Tabaco',
+      province: 'Albay',
+      country: 'Philippines',
     },
-    date: undefined,
-    healthOfficerNameInPrint: '',
+    date: new Date('2023-10-02'),
+    healthOfficerNameInPrint: 'Dr. Juan Dela Cruz',
   },
-  reviewedBy: { date: undefined },
-  postmortemCertificate: undefined,
-  embalmerCertification: undefined,
-  // Provide default value matching the non-delayed case:
-  delayedRegistration: { isDelayed: false },
-  corpseDisposal: '',
-  burialPermit: { number: '', dateIssued: undefined },
-  transferPermit: undefined,
+  reviewedBy: { date: new Date('2023-10-03') },
+  postmortemCertificate: {
+    address: 'Tabaco City Hospital, City of Tabaco, Albay',
+    nameInPrint: 'Dr. Jose Reyes',
+    causeOfDeath: 'Cardiac Arrest',
+    titleDesignation: 'Medical Doctor',
+    date: new Date('2023-10-02'),
+  },
+  embalmerCertification: {
+    address: 'Tabaco Funeral Homes, City of Tabaco, Albay',
+    nameInPrint: 'John Doe',
+    titleDesignation: 'Licensed Embalmer',
+    nameOfDeceased: 'Juan Dela Cruz',
+    licenseNo: 'EMB-12345',
+    issuedOn: new Date('2023-09-30'),
+    issuedAt: 'City of Tabaco, Albay',
+    expiryDate: new Date('2024-09-30'),
+  },
+  delayedRegistration: {
+    isDelayed: true, // Optional boolean
+    affiant: {
+      name: 'Juan Dela Cruz', // Required
+      civilStatus: 'Married', // Required, must be one of the enum values
+      residenceAddress: '123 Rizal Street, Barangay San Miguel, City of Tabaco, Albay', // Required
+      age: '45', // Optional
+    },
+    deceased: {
+      name: 'Maria Santos Dela Cruz', // Required
+      dateOfDeath: new Date('2023-09-15'), // Optional date
+      placeOfDeath: 'Tabaco City Hospital, Albay', // Optional
+      burialInfo: {
+        date: new Date('2023-09-20'), // Optional date
+        place: 'Tabaco Public Cemetery, Albay', // Optional
+        method: 'Buried', // Optional, must be one of the enum values
+      },
+    },
+    attendance: {
+      wasAttended: true, // Required boolean
+      attendedBy: 'Dr. Jose Reyes', // Optional
+    },
+    causeOfDeath: 'Cardiac Arrest', // Required
+    reasonForDelay: 'Delayed reporting due to family being abroad', // Required
+    affidavitDate: new Date('2023-09-25'), // Required date
+    affidavitDatePlace: 'City of Tabaco, Albay', // Required
+    adminOfficer: 'City Health Officer', // Required
+    ctcInfo: {
+      number: 'CTC-123456', // Required
+      issuedOn: new Date('2023-09-25'), // Required date
+      issuedAt: 'City of Tabaco, Albay', // Required
+    },
+  },
+  corpseDisposal: 'Burial',
+  burialPermit: { number: 'BP-2023-001', dateIssued: new Date('2023-10-03') },
+  transferPermit: { number: 'TP-2023-001', dateIssued: new Date('2023-10-03') },
   cemeteryOrCrematory: {
-    name: '',
+    name: 'Tabaco Public Cemetery',
     address: {
-      houseNo: '465124',
-      st: '15qwqweqwe',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
+      houseNo: 'N/A',
+      st: 'Cemetery Road',
+      barangay: 'San Roque',
+      cityMunicipality: 'City of Tabaco',
+      province: 'Albay',
+      country: 'Philippines',
     },
   },
   informant: {
-    nameInPrint: '',
-    relationshipToDeceased: '',
+    nameInPrint: 'Maria Dela Cruz',
+    relationshipToDeceased: 'Spouse',
     address: {
-      houseNo: '123123',
-      st: 'qweqweqwe',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
+      houseNo: '456',
+      st: 'Luna Street',
+      barangay: 'San Roque',
+      cityMunicipality: 'City of Tabaco',
+      province: 'Albay',
+      country: 'Philippines',
     },
-    date: undefined,
+    date: new Date('2023-10-02'),
   },
   preparedBy: {
-    nameInPrint: '',
-    titleOrPosition: '',
-    date: undefined,
+    nameInPrint: 'Clerk 1',
+    titleOrPosition: 'Clerk 1',
+    date: new Date('2023-10-02'),
   },
   receivedBy: {
-    nameInPrint: '',
-    titleOrPosition: '',
-    date: undefined,
+    nameInPrint: 'Clerk 2',
+    titleOrPosition: 'Clerk 2',
+    date: new Date('2023-10-03'),
   },
   registeredByOffice: {
-    nameInPrint: '',
-    titleOrPosition: '',
-    date: undefined,
+    nameInPrint: 'Clerk 3',
+    titleOrPosition: 'Clerk 3',
+    date: new Date('2023-10-03'),
   },
-  remarks: 'No Remarks',
-  pagination: { pageNumber: '21', bookNumber: '112' },
+  remarks: 'None',
+  pagination: { pageNumber: '1', bookNumber: '2023-001' },
 };
+
 
 export function useDeathCertificateForm({
   onOpenChange,
   defaultValues,
 }: UseDeathCertificateFormProps = {}) {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
   const formMethods = useForm<DeathCertificateFormValues>({
     resolver: zodResolver(deathCertificateFormSchema),
     mode: 'onChange',
@@ -179,54 +252,131 @@ export function useDeathCertificateForm({
     defaultValues: defaultValues || emptyDefaults,
   });
 
+
+  const preparePrismaData = (data: any) => {
+    const formatTimeString = (date: Date) => {
+      return date instanceof Date ?
+        date.toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : date;
+    };
+
+    const processedData = { ...data };
+    return processedData;
+  };
+
+
+  const router = useRouter();
+
   // Reset the form when defaultValues change (for edit mode)
-  React.useEffect(() => {
-    if (defaultValues) {
-      formMethods.reset({ ...emptyDefaults, ...defaultValues });
+  useEffect(() => {
+    if (defaultValues && !isInitialized) {
+      // Set the form values once and mark as initialized
+      formMethods.reset(defaultValues);
+      setIsInitialized(true);
     }
-  }, [defaultValues, formMethods]);
+  }, [defaultValues, formMethods, isInitialized]);
 
   const onSubmit = async (data: DeathCertificateFormValues) => {
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    // Check and simplify affidavitForDelayed if it's false
+    if (!data.delayedRegistration ||
+      data.delayedRegistration.isDelayed === false ||
+      data.delayedRegistration.isDelayed === null ||
+      data.delayedRegistration.isDelayed === undefined) {
+
+      data.delayedRegistration
+    }
+
     try {
-      console.log(
-        'Attempting to submit form with data:',
-        JSON.stringify(data, null, 2)
-      );
+      // Check if we're in update mode
+      const isUpdateMode = Boolean(defaultValues && defaultValues.id);
+      console.log('dapat na id:', defaultValues?.id || '');
 
-      // (If you need to convert any file fields to Base64, add conversion logic here.
-      // The current Zod schema does not include any "signature" fields, so this conversion has been removed.)
+      let result;
 
-      // If defaultValues includes an id, assume update mode and simply log success
-      if (defaultValues && defaultValues.id) {
-        console.log('Update successful:', data);
-        toast.success('Death certificate update successful');
-      } else {
-        const result = await submitDeathCertificateForm(data);
-        console.log('API submission result:', result);
+      if (isUpdateMode) {
+        console.log('Updating marriage certificate with ID:', defaultValues?.id);
+        console.log('Form values being sent:', data);
+
+        // Call update function
+        result = await updateDeathCertificateForm(defaultValues?.id || '', data);
+
+        // Log the result
+        console.log('Update result:', result);
+
         if ('data' in result) {
-          console.log('Submission successful:', result);
-          toast.success(
-            `Death certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
-          );
-
-          const documentRead = Permission.DOCUMENT_READ;
-          const Title = 'New uploaded Death Certificate';
-          const message = `New Death Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`;
-          notifyUsersWithPermission(documentRead, Title, message);
-
+          toast.success(`Marriage certificate updated successfully`);
           onOpenChange?.(false);
         } else if ('error' in result) {
-          console.log('Submission error:', result.error);
-          const errorMessage = result.error.includes('No user found with name')
-            ? 'Invalid prepared by user. Please check the name.'
-            : result.error;
-          toast.error(errorMessage);
+          toast.error(`Update failed: ${result.error}`);
+        }
+      } else {
+        console.log('Preparing to submit new marriage certificate');
+      }
+
+      const preparedData = preparePrismaData(data);
+      const processedData = await preparedData;
+
+      console.log('Processed data before submission:', processedData);
+
+      // Call the appropriate action based on create or edit mode
+      if (isUpdateMode && defaultValues?.id) {
+        // Check and simplify affidavitForDelayed if it's false
+        if (!data.delayedRegistration ||
+          data.delayedRegistration.isDelayed === false ||
+          data.delayedRegistration.isDelayed === null ||
+          data.delayedRegistration.isDelayed === undefined) {
+
+          data.delayedRegistration = undefined;
+        }
+
+        result = await updateDeathCertificateForm(defaultValues.id, processedData);
+
+        if ('data' in result) {
+          toast.success(`Marriage certificate updated successfully (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber})`);
+          notifyUsersWithPermission(
+            Permission.DOCUMENT_READ,
+            "Marriage Certificate Updated",
+            `Marriage Certificate with the details (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber}, Registry Number ${data.registryNumber}) has been updated.`
+          );
+
+          router.refresh();
+          onOpenChange?.(false);
+        }
+      } else {
+        result = await submitDeathCertificateForm(processedData);
+
+        if ('data' in result) {
+          toast.success(`Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`);
+          notifyUsersWithPermission(
+            Permission.DOCUMENT_READ,
+            "New uploaded Marriage Certificate",
+            `New Marriage Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
+          );
+
+          router.refresh();
+          onOpenChange?.(false);
+          formMethods.reset(emptyDefaults);
         }
       }
-      formMethods.reset(emptyDefaults);
+
+      if ('error' in result) {
+        console.log('Submission error:', result.error);
+        toast.error(result.error.includes('No user found with name')
+          ? 'Invalid prepared by user. Please check the name.'
+          : result.error);
+      }
     } catch (error) {
-      console.error('Form submission error details:', error);
-      toast.error('An unexpected error occurred while submitting the form');
+      console.error('Error in submitMarriageCertificateForm:', error);
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -244,7 +394,10 @@ export function useDeathCertificateForm({
       }
     };
     logNestedErrors(errors);
-    console.log('All validation errors as JSON:', JSON.stringify(errors, null, 2));
+    console.log(
+      'All validation errors as JSON:',
+      JSON.stringify(errors, null, 2)
+    );
     toast.error('Please check form for errors');
   };
 

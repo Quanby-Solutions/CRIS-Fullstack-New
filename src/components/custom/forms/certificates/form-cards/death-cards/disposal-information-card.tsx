@@ -11,11 +11,30 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const DisposalInformationCard: React.FC = () => {
-  const { control } = useFormContext<DeathCertificateFormValues>();
+  const { control, getValues, setValue } = useFormContext<DeathCertificateFormValues>();
+  const [ncrMode, setNcrMode] = useState(false);
+
+  useEffect(() => {
+      // Detect NCR mode from fetched data on component mount
+      const province = getValues('cemeteryOrCrematory.address.province');
+      if (province === 'Metro Manila' || province === 'NCR') {
+        setNcrMode(true);
+      }
+    }, [getValues]);
+  
+  
+    useEffect(() => {
+      if (ncrMode === true) {
+        setValue('cemeteryOrCrematory.address.province', 'Metro Manila')
+      }
+    }, [ncrMode])
+
 
   return (
     <Card>
@@ -133,6 +152,7 @@ const DisposalInformationCard: React.FC = () => {
 
         {/* Cemetery or Crematory Information */}
         <div className='space-y-4'>
+          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
           <h4 className='text-sm font-medium'>
             Cemetery or Crematory Information
           </h4>
@@ -143,27 +163,6 @@ const DisposalInformationCard: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      className='h-10'
-                      placeholder='Enter cemetery or crematory name'
-                      {...field}
-                      value={field.value ?? ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-
-
-            <FormField
-              control={control}
-              name='cemeteryOrCrematory.address.country'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Country</FormLabel>
                   <FormControl>
                     <Input
                       className='h-10'

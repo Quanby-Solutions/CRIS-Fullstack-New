@@ -326,6 +326,8 @@ model DeathCertificateForm {
   // Medical Certificate
   medicalCertificate Json // Contains causesOfDeath, maternalCondition, externalCauses, attendant, autopsy
 
+  causesOfDeath19a Json // Standard cause of death (immediate, antecedent, underlying, otherSignificantConditions)
+
   // Causes of Death sections
   causesOfDeath19b Json // Standard cause of death (immediate, antecedent, underlying, otherSignificantConditions)
 
@@ -333,7 +335,7 @@ model DeathCertificateForm {
   certificationOfDeath Json // Contains hasAttended, signature, nameInPrint, titleOfPosition, address, date, healthOfficerSignature, healthOfficerNameInPrint
 
   // Review Information
-  reviewedBy Json // Contains signature and date
+  reviewedBy DateTime // Contains signature and date
 
   // Optional Certificates
   postmortemCertificate Json? // For autopsy cases
