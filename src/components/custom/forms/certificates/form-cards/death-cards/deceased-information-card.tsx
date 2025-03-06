@@ -35,26 +35,23 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const DeceasedInformationCard: React.FC = () => {
   const { control, setValue, getValues } = useFormContext<DeathCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+  const [deceasedNCRMode, setDeceasedNCRMode] = useState(false)
   const initialRender = useRef(true);
 
   useEffect(() => {
-    if (initialRender.current) {
-      const province = getValues('placeOfDeath.province');
-      if (province === 'Metro Manila' || province === 'NCR') {
-        setNcrMode(true);
-        setValue('placeOfDeath.province', 'Metro Manila');
-      }
-      initialRender.current = false;
+    // Detect NCR mode from fetched data on component mount
+    const province = getValues('placeOfDeath.province');
+    if (province === 'Metro Manila' || province === 'NCR') {
+      setDeceasedNCRMode(true);
     }
-  }, [getValues, setValue]);
+  }, [getValues]);
 
-  // Handle NCR mode changes
+
   useEffect(() => {
-    if (!initialRender.current && ncrMode) {
-      setValue('placeOfDeath.province', 'Metro Manila');
+    if (deceasedNCRMode === true) {
+      setValue('placeOfDeath.province', 'Metro Manila')
     }
-  }, [ncrMode, setValue]);
+  }, [deceasedNCRMode])
 
   // Watch fields for overall business logic
   const dateOfBirth = useWatch({ control, name: 'dateOfBirth' });
@@ -82,13 +79,6 @@ const DeceasedInformationCard: React.FC = () => {
 
   return (
     <Card className='w-full'>
-      {ncrMode && (
-        <input
-          type="hidden"
-          name="placeOfDeath.province"
-          value="Metro Manila"
-        />
-      )}
       <CardHeader>
         <CardTitle className='text-2xl font-semibold'>
           Deceased Information
@@ -478,7 +468,7 @@ const DeceasedInformationCard: React.FC = () => {
 
             {/* Location Selector for Province, City/Municipality, and Barangay */}
             <div className='mt-4'>
-              <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+              <NCRModeSwitch isNCRMode={deceasedNCRMode} setIsNCRMode={setDeceasedNCRMode} />
 
               <LocationSelector
                 provinceFieldName='placeOfDeath.province'
@@ -490,7 +480,7 @@ const DeceasedInformationCard: React.FC = () => {
                 provincePlaceholder='Select province'
                 municipalityPlaceholder='Select city/municipality'
                 barangayPlaceholder='Select barangay'
-                isNCRMode={ncrMode}
+                isNCRMode={deceasedNCRMode}
                 showBarangay={true}
               />
             </div>

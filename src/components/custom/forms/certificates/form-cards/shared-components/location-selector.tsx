@@ -101,14 +101,14 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     handleMunicipalityChange,
   ]);
 
-  // NEW: State to track initial barangay value and loading status
+  // State to track initial barangay value and loading status
   const [initialBarangayValue] = useState(
     getValues(barangayFieldName) || ''
   );
   const [isInitialBarangayLoadComplete, setIsInitialBarangayLoadComplete] =
     useState(false);
 
-  // NEW: Effect to handle initial loading for barangay in edit scenarios
+  // Effect to handle initial loading for barangay in edit scenarios
   useEffect(() => {
     if (
       initialBarangayValue &&
@@ -121,9 +121,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       );
 
       if (matchingBarangay) {
-        // If your state or hook expects an ID, you might call:
-        // handleBarangayChange(matchingBarangay.id);
-        // If it expects the name, use matchingBarangay.name
         handleBarangayChange(matchingBarangay.name);
         setIsInitialBarangayLoadComplete(true);
       }
@@ -134,6 +131,25 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     isInitialBarangayLoadComplete,
     handleBarangayChange,
   ]);
+
+  // Track previous NCR mode to detect changes
+  const [prevNCRMode, setPrevNCRMode] = useState(isNCRMode);
+  
+  useEffect(() => {
+    if (prevNCRMode !== isNCRMode) {
+      setPrevNCRMode(isNCRMode)
+      // Reset province and municipality fields
+      handleProvinceChange('')
+      handleMunicipalityChange('')
+      handleBarangayChange('')
+      setValue(provinceFieldName, '')
+      setValue(municipalityFieldName, '')
+      setValue(barangayFieldName, '')
+      trigger([provinceFieldName, municipalityFieldName, barangayFieldName])
+    }
+  }, [isNCRMode, prevNCRMode, handleProvinceChange, handleMunicipalityChange, handleBarangayChange, setValue, provinceFieldName, municipalityFieldName, barangayFieldName])
+  
+  
 
   // Styling classes for select triggers.
   const selectTriggerClasses =
@@ -151,7 +167,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     </FormLabel>
   );
 
-
   return (
     <>
       {/* Province/Region Field */}
@@ -165,7 +180,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             </CustomFormLabel>
             <FormControl>
               <Select
-                value={selectedProvince}
+                value={selectedProvince || undefined}
                 onValueChange={(value: string) => {
                   field.onChange(value);
                   handleProvinceChange(value);
@@ -174,9 +189,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 disabled={isNCRMode}
               >
                 <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
-                  <SelectValue
-                    placeholder={isNCRMode ? 'Metro Manila' : provincePlaceholder}
-                  />
+                  <SelectValue placeholder={isNCRMode ? 'Metro Manila' : provincePlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
                   {provinces.map((prov) => (
@@ -213,7 +226,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             </CustomFormLabel>
             <FormControl>
               <Select
-                value={selectedMunicipality}
+                value={selectedMunicipality || undefined}
                 onValueChange={(value: string) => {
                   const selectedMun = municipalities.find(
                     (m) => m.id === value
@@ -257,7 +270,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               </CustomFormLabel>
               <FormControl>
                 <Select
-                  value={selectedBarangay}
+                  value={selectedBarangay || undefined}
                   onValueChange={(value: string) => {
                     field.onChange(value);
                     handleBarangayChange(value);

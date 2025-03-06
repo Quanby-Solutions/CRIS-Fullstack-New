@@ -18,22 +18,22 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const DisposalInformationCard: React.FC = () => {
   const { control, getValues, setValue } = useFormContext<DeathCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+  const [disposalNcrMode, setDisposalNcrMode] = useState(false);
 
   useEffect(() => {
       // Detect NCR mode from fetched data on component mount
       const province = getValues('cemeteryOrCrematory.address.province');
       if (province === 'Metro Manila' || province === 'NCR') {
-        setNcrMode(true);
+        setDisposalNcrMode(true);
       }
     }, [getValues]);
   
   
     useEffect(() => {
-      if (ncrMode === true) {
+      if (disposalNcrMode === true) {
         setValue('cemeteryOrCrematory.address.province', 'Metro Manila')
       }
-    }, [ncrMode])
+    }, [disposalNcrMode])
 
 
   return (
@@ -152,7 +152,7 @@ const DisposalInformationCard: React.FC = () => {
 
         {/* Cemetery or Crematory Information */}
         <div className='space-y-4'>
-          <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+          <NCRModeSwitch isNCRMode={disposalNcrMode} setIsNCRMode={setDisposalNcrMode} />
           <h4 className='text-sm font-medium'>
             Cemetery or Crematory Information
           </h4>

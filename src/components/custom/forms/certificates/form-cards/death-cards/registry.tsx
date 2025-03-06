@@ -92,6 +92,8 @@ export const RegistryInformationCardForEdit: React.FC<
                                 provinceLabel='Province'
                                 municipalityLabel='City/Municipality'
 
+
+
                                 provincePlaceholder='Select province'
                                 municipalityPlaceholder='Select city/municipality'
 

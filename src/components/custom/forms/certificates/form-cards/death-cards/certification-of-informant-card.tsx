@@ -19,7 +19,7 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const CertificationInformantCard: React.FC = () => {
   const { control, setValue, getValues } = useFormContext<DeathCertificateFormValues>();
-  const [isNCRMode, setIsNCRMode] = useState(false);
+  const [informantIsNCRMode, setInformantIsNCRMode] = useState(false);
 
 
 
@@ -27,16 +27,16 @@ const CertificationInformantCard: React.FC = () => {
     // Detect NCR mode from fetched data on component mount
     const province = getValues('informant.address.province');
     if (province === 'Metro Manila' || province === 'NCR') {
-      setIsNCRMode(true);
+      setInformantIsNCRMode(true);
     }
   }, [getValues]);
 
 
   useEffect(() => {
-    if (isNCRMode === true) {
+    if (informantIsNCRMode === true) {
       setValue('informant.address.province', 'Metro Manila')
     }
-  }, [isNCRMode])
+  }, [informantIsNCRMode])
 
 
   return (
@@ -44,7 +44,7 @@ const CertificationInformantCard: React.FC = () => {
       <CardHeader className='pb-3'>
         <h3 className='text-sm font-semibold'>Certification of Informant</h3>
       </CardHeader>
-      <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+      <NCRModeSwitch isNCRMode={informantIsNCRMode} setIsNCRMode={setInformantIsNCRMode} />
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-3 gap-4'>
           {/* Signature */}
@@ -134,7 +134,7 @@ const CertificationInformantCard: React.FC = () => {
             municipalityPlaceholder='Select city/municipality...'
             barangayPlaceholder='Select barangay...'
             showBarangay={true}
-            isNCRMode={isNCRMode}
+            isNCRMode={informantIsNCRMode}
           />
 
           {/* House No. */}

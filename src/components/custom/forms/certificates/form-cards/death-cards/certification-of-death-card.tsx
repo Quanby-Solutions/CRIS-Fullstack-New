@@ -23,22 +23,24 @@ import SignatureUploader from '../shared-components/signature-uploader';
 const CertificationOfDeathCard: React.FC = () => {
   const { control, watch, setValue, getValues } =
     useFormContext<DeathCertificateFormValues>();
-  const [isNCRMode, setIsNCRMode] = useState(false);
+  const [CertificateIsNCRMode, setCertificateIsNCRMode] = useState(false);
 
   useEffect(() => {
     // Detect NCR mode from fetched data on component mount
     const province = getValues('certificationOfDeath.address.province');
     if (province === 'Metro Manila' || province === 'NCR') {
-      setIsNCRMode(true);
+      setCertificateIsNCRMode(true);
     }
   }, [getValues]);
 
 
   useEffect(() => {
-    if (isNCRMode === true) {
+    if (CertificateIsNCRMode === true) {
       setValue('certificationOfDeath.address.province', 'Metro Manila')
     }
-  }, [isNCRMode])
+  }, [CertificateIsNCRMode])
+
+  
 
   return (
     <Card>
@@ -224,7 +226,7 @@ const CertificationOfDeathCard: React.FC = () => {
 
         {/* NCR Mode Switch */}
         <div>
-          <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+          <NCRModeSwitch isNCRMode={CertificateIsNCRMode} setIsNCRMode={setCertificateIsNCRMode} />
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <LocationSelector
               provinceFieldName='certificationOfDeath.address.province'
@@ -233,7 +235,7 @@ const CertificationOfDeathCard: React.FC = () => {
               provinceLabel='Province'
               municipalityLabel='City/Municipality'
               barangayLabel='Barangay'
-              isNCRMode={isNCRMode}
+              isNCRMode={CertificateIsNCRMode}
               showBarangay={true}
               provincePlaceholder='Select province'
               municipalityPlaceholder='Select city/municipality'
