@@ -124,7 +124,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
       <div className="p-4 border-b">
         <div className="text-sm text-left font-medium capitalize ">
-          {t(roleName)} {t("panel")}
+          {t(roleName)}
         </div>
       </div>
 

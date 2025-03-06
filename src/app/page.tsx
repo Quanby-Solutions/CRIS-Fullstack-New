@@ -83,7 +83,7 @@ const Login = () => {
                     </CardHeader>
                     <CardContent>
                       <SignInFormComponent />
-                      {isDevelopment && (
+                      {/* {isDevelopment && (
                         <div className="text-center text-sm mt-6">
                           <p className="text-muted-foreground">
                             Don&apos;t have an account?{" "}
@@ -96,7 +96,7 @@ const Login = () => {
                             </Button>
                           </p>
                         </div>
-                      )}
+                      )} */}
                     </CardContent>
                   </motion.div>
                 ) : (
@@ -119,7 +119,7 @@ const Login = () => {
                       </CardHeader>
                       <CardContent className="p-6 sm:p-12 pt-6">
                         <SignUpFormComponent />
-                        <div className="text-center text-sm mt-6">
+                        {/* <div className="text-center text-sm mt-6">
                           <p className="text-muted-foreground">
                             Already have an account?{" "}
                             <Button
@@ -130,7 +130,7 @@ const Login = () => {
                               Sign in here
                             </Button>
                           </p>
-                        </div>
+                        </div> */}
                       </CardContent>
                     </motion.div>
                   )
