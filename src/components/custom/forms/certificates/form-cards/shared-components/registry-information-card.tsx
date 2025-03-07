@@ -35,7 +35,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   formType,
   title = 'Registry Information',
 }) => {
-  const { control, setValue, setError, clearErrors, getValues } =
+  const { control, setValue, setError, clearErrors, getValues, trigger } =
     useFormContext();
 
   // Initialize local state from RHF default value.
@@ -68,13 +68,24 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return '';
   };
 
-  // When the province changes, update the NCR mode accordingly.
   useEffect(() => {
-    const provinceString = getProvinceString(province);
-    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
-    setNcrMode(shouldBeNCR);
-  }, []);
-
+    const provinceString = getProvinceString(province) || 'Metro Manila'
+    
+    // Determine if the province should be NCR (Metro Manila) or not
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+    setNcrMode(shouldBeNCR)
+  
+    // Set the province value based on whether NCR mode is true or false
+    setValue('province', shouldBeNCR ? 'Metro Manila' : provinceString, {
+      shouldValidate: true, // Trigger validation immediately
+      shouldDirty: true,     // Mark the field as dirty to ensure validation
+    })
+  
+    // Manually trigger revalidation of the province field after setting the value
+    trigger('province')
+  }, [province]) // Runs whenever province changes
+  
+  
 
 
 
