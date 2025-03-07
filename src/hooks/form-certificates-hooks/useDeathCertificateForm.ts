@@ -301,7 +301,7 @@ export function useDeathCertificateForm({
       let result;
 
       if (isUpdateMode) {
-        console.log('Updating marriage certificate with ID:', defaultValues?.id);
+        console.log('Updating Death certificate with ID:', defaultValues?.id);
         console.log('Form values being sent:', data);
 
         // Call update function
@@ -311,13 +311,13 @@ export function useDeathCertificateForm({
         console.log('Update result:', result);
 
         if ('data' in result) {
-          toast.success(`Marriage certificate updated successfully`);
+          toast.success(`Death certificate updated successfully`);
           onOpenChange?.(false);
         } else if ('error' in result) {
           toast.error(`Update failed: ${result.error}`);
         }
       } else {
-        console.log('Preparing to submit new marriage certificate');
+        console.log('Preparing to submit new Death certificate');
       }
 
       const preparedData = preparePrismaData(data);
@@ -339,11 +339,11 @@ export function useDeathCertificateForm({
         result = await updateDeathCertificateForm(defaultValues.id, processedData);
 
         if ('data' in result) {
-          toast.success(`Marriage certificate updated successfully (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber})`);
+          toast.success(`Death certificate updated successfully (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber})`);
           notifyUsersWithPermission(
             Permission.DOCUMENT_READ,
-            "Marriage Certificate Updated",
-            `Marriage Certificate with the details (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber}, Registry Number ${data.registryNumber}) has been updated.`
+            "Death Certificate Updated",
+            `Death Certificate with the details (Book ${result?.data?.bookNumber}, Page ${result?.data?.pageNumber}, Registry Number ${data.registryNumber}) has been updated.`
           );
 
           router.refresh();
@@ -353,11 +353,11 @@ export function useDeathCertificateForm({
         result = await submitDeathCertificateForm(processedData);
 
         if ('data' in result) {
-          toast.success(`Marriage certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`);
+          toast.success(`Death certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`);
           notifyUsersWithPermission(
             Permission.DOCUMENT_READ,
-            "New uploaded Marriage Certificate",
-            `New Marriage Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
+            "New uploaded Death Certificate",
+            `New Death Certificate with the details (Book ${result.data.bookNumber}, Page ${result.data.pageNumber}, Registry Number ${data.registryNumber}) has been uploaded.`
           );
 
           router.refresh();
@@ -373,7 +373,7 @@ export function useDeathCertificateForm({
           : result.error);
       }
     } catch (error) {
-      console.error('Error in submitMarriageCertificateForm:', error);
+      console.error('Error in submitDeathCertificateForm:', error);
       toast.error('An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
