@@ -38,20 +38,22 @@ const DeceasedInformationCard: React.FC = () => {
   const [deceasedNCRMode, setDeceasedNCRMode] = useState(false)
   const initialRender = useRef(true);
 
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues('placeOfDeath.province');
-    if (province === 'Metro Manila' || province === 'NCR') {
-      setDeceasedNCRMode(true);
-    }
-  }, [getValues]);
-
-
-  useEffect(() => {
-    if (deceasedNCRMode === true) {
-      setValue('placeOfDeath.province', 'Metro Manila')
-    }
-  }, [deceasedNCRMode])
+    useEffect(() => {
+      // Detect NCR mode from fetched data on component mount
+      const province = getValues('placeOfDeath.province');
+      if (province === 'Metro Manila' || province === 'NCR') {
+        setDeceasedNCRMode(true);
+      }
+    }, [getValues]);
+  
+  
+  
+  
+    useEffect(() => {
+      if (deceasedNCRMode === true) {
+        setValue('placeOfDeath.province', 'Metro Manila')
+      }
+    })
 
   // Watch fields for overall business logic
   const dateOfBirth = useWatch({ control, name: 'dateOfBirth' });

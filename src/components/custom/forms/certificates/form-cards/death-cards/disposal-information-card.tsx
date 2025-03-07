@@ -21,19 +21,21 @@ const DisposalInformationCard: React.FC = () => {
   const [disposalNcrMode, setDisposalNcrMode] = useState(false);
 
   useEffect(() => {
-      // Detect NCR mode from fetched data on component mount
-      const province = getValues('cemeteryOrCrematory.address.province');
-      if (province === 'Metro Manila' || province === 'NCR') {
-        setDisposalNcrMode(true);
-      }
-    }, [getValues]);
-  
-  
-    useEffect(() => {
-      if (disposalNcrMode === true) {
-        setValue('cemeteryOrCrematory.address.province', 'Metro Manila')
-      }
-    }, [disposalNcrMode])
+    // Detect NCR mode from fetched data on component mount
+    const province = getValues('cemeteryOrCrematory.address.province');
+    if (province === 'Metro Manila' || province === 'NCR') {
+      setDisposalNcrMode(true);
+    }
+  }, [getValues]);
+
+
+
+
+  useEffect(() => {
+    if (disposalNcrMode === true) {
+      setValue('cemeteryOrCrematory.address.province', 'Metro Manila')
+    }
+  })
 
 
   return (

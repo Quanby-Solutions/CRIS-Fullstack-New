@@ -75,28 +75,35 @@ export const mapToDeathCertificateValues = (
   // Helper to create address object
   const createAddressObject = (addressObj?: any) => {
     if (!addressObj || typeof addressObj !== 'object') {
-      return {
-        hospitalInstitution: '',
-        houseNo: '',
-        st: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: ''
-      };
+      return { cityMunicipality: '', province: '', barangay: '', houseNo: '', street: '', st: '', country: '' };
     }
 
+    const ensureString = (value: any) => (typeof value === 'string' ? value : value?.toString() ?? '');
+
     return {
-      hospitalInstitution: ensureString(addressObj.hospitalInstitution),
-      houseNo: ensureString(addressObj.houseNo),
-      st: ensureString(addressObj.st),
-      barangay: ensureString(addressObj.barangay),
-      cityMunicipality: ensureString(addressObj.cityMunicipality),
-      province: ensureString(addressObj.province),
-      country: ensureString(addressObj.country),
+      province: addressObj.province
+        ? ensureString(addressObj.province?.value ?? addressObj.province)
+        : '', // Always a string
+      barangay: addressObj.barangay
+        ? ensureString(addressObj.barangay?.value ?? addressObj.barangay)
+        : undefined,
+      cityMunicipality: addressObj.cityMunicipality
+        ? ensureString(addressObj.cityMunicipality?.value ?? addressObj.cityMunicipality)
+        : '', // Always a string
+      houseNo: addressObj.houseNo
+        ? ensureString(addressObj.houseNo?.value ?? addressObj.houseNo)
+        : undefined,
+      street: addressObj.street
+        ? ensureString(addressObj.street?.value ?? addressObj.street)
+        : undefined,
+      st: addressObj.st
+        ? ensureString(addressObj.st?.value ?? addressObj.st)
+        : undefined,
+      country: addressObj.country
+        ? ensureString(addressObj.country?.value ?? addressObj.country)
+        : undefined,
     };
   };
-
   // Validate sex
   const validateSex = (sex: any): 'Male' | 'Female' | undefined => {
     return sex === 'Male' || sex === 'Female' ? sex : undefined;

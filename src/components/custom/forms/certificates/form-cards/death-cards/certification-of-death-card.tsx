@@ -33,14 +33,13 @@ const CertificationOfDeathCard: React.FC = () => {
     }
   }, [getValues]);
 
-
   useEffect(() => {
     if (CertificateIsNCRMode === true) {
       setValue('certificationOfDeath.address.province', 'Metro Manila')
     }
-  }, [CertificateIsNCRMode])
+  })
 
-  
+
 
   return (
     <Card>

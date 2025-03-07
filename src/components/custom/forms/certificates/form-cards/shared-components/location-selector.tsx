@@ -42,9 +42,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     trigger,
     setValue,
     getValues,
-    setError,
     clearErrors,
-    formState: { errors, isSubmitted },
+    formState: { isSubmitted },
   } = useFormContext();
 
   const {
@@ -101,14 +100,14 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     handleMunicipalityChange,
   ]);
 
-  // NEW: State to track initial barangay value and loading status
+  // State to track initial barangay value and loading status
   const [initialBarangayValue] = useState(
     getValues(barangayFieldName) || ''
   );
   const [isInitialBarangayLoadComplete, setIsInitialBarangayLoadComplete] =
     useState(false);
 
-  // NEW: Effect to handle initial loading for barangay in edit scenarios
+  // Effect to handle initial loading for barangay in edit scenarios
   useEffect(() => {
     if (
       initialBarangayValue &&
@@ -121,9 +120,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       );
 
       if (matchingBarangay) {
-        // If your state or hook expects an ID, you might call:
-        // handleBarangayChange(matchingBarangay.id);
-        // If it expects the name, use matchingBarangay.name
         handleBarangayChange(matchingBarangay.name);
         setIsInitialBarangayLoadComplete(true);
       }
@@ -151,10 +147,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     </FormLabel>
   );
 
-
   return (
     <>
-      {/* Province/Region Field */}
+      {/* Province/Region Field - Made Optional */}
       <FormField
         control={control}
         name={provinceFieldName}
@@ -194,18 +189,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         )}
       />
 
-      {/* Municipality/City Field */}
+      {/* Municipality/City Field - Made Optional */}
       <Controller
         control={control}
         name={municipalityFieldName}
-        rules={{
-          validate: {
-            required: (value) => {
-              if (isMunicipalityDisabled || !selectedProvince) return true;
-              return !!value || 'City/Municipality is required';
-            },
-          },
-        }}
+        // Removed validation rules to make field optional
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
             <CustomFormLabel className={formLabelClassName}>
@@ -238,14 +226,14 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {isSubmitted && selectedProvince && fieldState.error && (
+            {isSubmitted && fieldState.error && (
               <FormMessage>{fieldState.error.message}</FormMessage>
             )}
           </FormItem>
         )}
       />
 
-      {/* Barangay Field (if applicable) */}
+      {/* Barangay Field - Made Optional */}
       {showBarangay && (
         <FormField
           control={control}

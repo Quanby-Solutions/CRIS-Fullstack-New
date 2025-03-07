@@ -30,19 +30,18 @@ export const RegistryInformationCardForEdit: React.FC<
 > = ({ className }) => {
     const { control, setValue, getValues } = useFormContext<MarriageCertificateFormValues>();
 
-    const [ncrMode, setNcrMode] = useState(false);
-
+    const [editNcrMode, setEditNcrMode] = useState(false);
 
     useEffect(() => {
         // Detect NCR mode from fetched data on component mount
         const province = getValues('province');
         if (province === 'Metro Manila' || province === 'NCR') {
-            setNcrMode(true);
+            setEditNcrMode(true);
         }
     }, [getValues]);
 
     useEffect(() => {
-        if (ncrMode === true) {
+        if (editNcrMode === true) {
             setValue('province', 'Metro Manila')
         }
     })
@@ -55,7 +54,7 @@ export const RegistryInformationCardForEdit: React.FC<
             <CardContent>
                 <Card>
                     <CardContent className='p-6 flex flex-col gap-4'>
-                        <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+                        <NCRModeSwitch isNCRMode={editNcrMode} setIsNCRMode={setEditNcrMode} />
 
                         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 
@@ -84,7 +83,7 @@ export const RegistryInformationCardForEdit: React.FC<
 
                             {/* The LocationSelector now ensures that province is required before municipality */}
                             <LocationSelector
-                                isNCRMode={ncrMode}
+                                isNCRMode={editNcrMode}
 
                                 provinceFieldName='province'
                                 municipalityFieldName='cityMunicipality'

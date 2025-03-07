@@ -21,8 +21,6 @@ const CertificationInformantCard: React.FC = () => {
   const { control, setValue, getValues } = useFormContext<DeathCertificateFormValues>();
   const [informantIsNCRMode, setInformantIsNCRMode] = useState(false);
 
-
-
   useEffect(() => {
     // Detect NCR mode from fetched data on component mount
     const province = getValues('informant.address.province');
@@ -31,12 +29,11 @@ const CertificationInformantCard: React.FC = () => {
     }
   }, [getValues]);
 
-
   useEffect(() => {
     if (informantIsNCRMode === true) {
       setValue('informant.address.province', 'Metro Manila')
     }
-  }, [informantIsNCRMode])
+  })
 
 
   return (
