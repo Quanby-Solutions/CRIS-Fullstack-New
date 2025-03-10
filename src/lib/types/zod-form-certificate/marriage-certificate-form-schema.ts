@@ -16,8 +16,8 @@ import {
  */
 const locationSchema = z.object({
   houseNo: z.string().optional(),
-  street: z.string().min(1, 'Street is required'),
-  barangay: z.string().min(1, 'Barangay is required'),
+  street: z.string().optional(),
+  barangay: z.string().optional(),
   cityMunicipality: z.string().min(1, 'City/Municipality is required'),
   province: z.string().min(1, 'Province is required'),
   country: z.string().min(1, 'Country is required')
