@@ -32,7 +32,7 @@ const PostmortemCertificateCard: React.FC = () => {
           deceased and that the cause of death was:
         </p>
       </CardHeader>
-      <CardContent className='space-y-4'>
+      <CardContent className='grid grid-cols-3 gap-4'>
         {/* Cause of Death */}
         <FormField
           control={control}
@@ -95,7 +95,6 @@ const PostmortemCertificateCard: React.FC = () => {
           name='postmortemCertificate.date'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date</FormLabel>
               <FormControl>
                 <DatePickerField
                   field={{

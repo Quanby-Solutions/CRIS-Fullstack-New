@@ -71,6 +71,14 @@ const generateTimeString = (): string => {
     .padStart(2, '0')} ${ampm}`;
 };
 
+
+const registryNumberFormat = (): string => {
+  return `${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`
+}
+
+console.log(registryNumberFormat()) // Example output: 2025-654321
+
+
 /**
  * Generate a random Philippine location.
  * Returns an object with cityMunicipality, province, region, barangay, street and houseNo.
@@ -220,6 +228,8 @@ export const seedNotificationData = async (
 /**
  * Generate a Base Registry Form.
  */
+
+
 const generateBaseRegistryForm = (
   formType: FormType,
   userIds: string[],
@@ -234,7 +244,7 @@ const generateBaseRegistryForm = (
           ? '102'
           : '103',
     formType,
-    registryNumber: faker.string.numeric(8),
+    registryNumber: registryNumberFormat(),
     province: location.province,
     cityMunicipality: location.cityMunicipality,
     pageNumber: faker.string.numeric(3),
