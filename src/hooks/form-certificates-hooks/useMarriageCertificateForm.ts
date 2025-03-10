@@ -13,6 +13,7 @@ import { updateMarriageCertificateForm } from '@/components/custom/civil-registr
 interface UseMarriageCertificateFormProps {
     onOpenChange?: (open: boolean) => void;
     defaultValues?: Partial<MarriageCertificateFormValues> & { id?: string };
+    scrollAreaRef?: React.RefObject<HTMLDivElement>;
 }
 
 // Helper function to prepare data for Prisma
@@ -33,8 +34,8 @@ const preparePrismaData = (data: any) => {
 const emptyDefaults: MarriageCertificateFormValues = {
     // Registry Information
     registryNumber: '',
-    province: 'Metro Manila',
-    cityMunicipality: 'Quezon City',
+    province: '',
+    cityMunicipality: '',
 
     pagination: {
         pageNumber: '',
@@ -43,258 +44,258 @@ const emptyDefaults: MarriageCertificateFormValues = {
 
     // Husband Information
     husbandName: {
-        first: 'Juan',
-        middle: 'Dela',
-        last: 'Cruz'
+        first: '',
+        middle: '',
+        last: ''
     },
-    husbandAge: 30,
-    husbandBirth: new Date('1990-01-01'),
+    husbandAge: 0,
+    husbandBirth: undefined,
     husbandPlaceOfBirth: {
-        houseNo: '123',
-        street: 'Main Street',
-        barangay: 'Capri',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines'
+        houseNo: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
     },
-    husbandSex: 'Male',
-    husbandCitizenship: 'Filipino',
-    husbandResidence: 'Quezon City',
-    husbandReligion: 'Roman Catholic',
-    husbandCivilStatus: 'Single',
+    husbandSex: undefined,
+    husbandCitizenship: '',
+    husbandResidence: '',
+    husbandReligion: '',
+    husbandCivilStatus: undefined,
     husbandConsentPerson: {
         name: {
-            first: 'Pedro',
-            middle: 'Dela',
-            last: 'Cruz'
+            first: '',
+            middle: '',
+            last: ''
         },
-        relationship: 'Father',
+        relationship: '',
         residence: {
-            houseNo: '123',
-            street: 'Main Street',
-            barangay: 'Capri',
-            cityMunicipality: 'Quezon City',
-            province: 'Metro Manila',
-            country: 'Philippines'
+            houseNo: '',
+            street: '',
+            barangay: '',
+            cityMunicipality: '',
+            province: '',
+            country: ''
         }
     },
     husbandParents: {
         fatherName: {
-            first: 'Pedro',
-            middle: 'Dela',
-            last: 'Cruz'
+            first: '',
+            middle: '',
+            last: ''
         },
-        fatherCitizenship: 'Filipino',
+        fatherCitizenship: '',
         motherName: {
-            first: 'Maria',
-            middle: 'Dela',
-            last: 'Cruz'
+            first: '',
+            middle: '',
+            last: ''
         },
-        motherCitizenship: 'Filipino'
+        motherCitizenship: ''
     },
 
     // Wife Information
     wifeName: {
-        first: 'Maria',
-        middle: 'Dela',
-        last: 'Cruz'
+        first: '',
+        middle: '',
+        last: ''
     },
-    wifeAge: 28,
-    wifeBirth: new Date('1992-02-02'),
+    wifeAge: 0,
+    wifeBirth: undefined,
     wifePlaceOfBirth: {
-        houseNo: '456',
-        street: 'Second Street',
-        barangay: 'Capri',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines'
+        houseNo: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
     },
-    wifeSex: 'Female',
-    wifeCitizenship: 'Filipino',
-    wifeResidence: 'Quezon City',
-    wifeReligion: 'Roman Catholic',
-    wifeCivilStatus: 'Single',
+    wifeSex: undefined,
+    wifeCitizenship: '',
+    wifeResidence: '',
+    wifeReligion: '',
+    wifeCivilStatus: undefined,
     wifeConsentPerson: {
         name: {
-            first: 'Juanita',
-            middle: 'Dela',
-            last: 'Cruz'
+            first: '',
+            middle: '',
+            last: ''
         },
-        relationship: 'Mother',
+        relationship: '',
         residence: {
-            houseNo: '456',
-            street: 'Second Street',
-            barangay: 'Capri',
-            cityMunicipality: 'Quezon City',
-            province: 'Metro Manila',
-            country: 'Philippines'
+            houseNo: '',
+            street: '',
+            barangay: '',
+            cityMunicipality: '',
+            province: '',
+            country: ''
         }
     },
     wifeParents: {
         fatherName: {
-            first: 'Jose',
-            middle: 'Dela',
-            last: 'Cruz'
+            first: '',
+            middle: '',
+            last: ''
         },
-        fatherCitizenship: 'Filipino',
+        fatherCitizenship: '',
         motherName: {
-            first: 'Ana',
-            middle: 'Dela',
-            last: 'Cruz'
+            first: '',
+            middle: '',
+            last: ''
         },
-        motherCitizenship: 'Filipino'
+        motherCitizenship: ''
     },
 
     // Marriage Details
     placeOfMarriage: {
-        houseNo: '789',
-        street: 'Third Street',
-        barangay: 'Capri',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines'
+        houseNo: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: ''
     },
-    dateOfMarriage: new Date('2023-10-10'),
-    timeOfMarriage: new Date('2023-10-10T14:30:00'),
+    dateOfMarriage: undefined,
+    timeOfMarriage: undefined,
 
     // Witnesses
     husbandWitnesses: [
         {
-            name: 'John Doe'
+            name: ''
         },
         {
-            name: 'Jane Doe'
+            name: ''
         }
     ],
     wifeWitnesses: [
         {
-            name: 'Alice Smith'
+            name: ''
         },
         {
-            name: 'Bob Johnson'
+            name: ''
         }
     ],
 
     // Contract Details
-    contractDay: new Date('2023-10-10'),
+    contractDay: undefined,
 
     // Contracting Parties
     husbandContractParty: {
-        agreement: true
+        agreement: undefined
     },
     wifeContractParty: {
-        agreement: true
+        agreement: undefined
     },
 
     // Marriage License Details
     marriageLicenseDetails: {
-        dateIssued: new Date('2023-09-01'),
-        placeIssued: 'Manila City Hall',
-        licenseNumber: 'LIC123456',
-        marriageAgreement: true
+        dateIssued: undefined,
+        placeIssued: '',
+        licenseNumber: '',
+        marriageAgreement:  false
     },
 
     // Marriage Article
     marriageArticle: {
-        article: 'Article 1',
-        marriageArticle: true
+        article: '',
+        marriageArticle: false
     },
 
     // Marriage Settlement
-    marriageSettlement: true,
+    marriageSettlement: false,
 
     // Solemnizing Officer
     solemnizingOfficer: {
-        name: 'Rev. Father Santos',
-        position: 'Priest',
-        registryNoExpiryDate: '2025-12-31'
+        name: '',
+        position: '',
+        registryNoExpiryDate: ''
     },
 
     // Registered at Civil Registrar
     preparedBy: {
-        date: new Date('2023-10-11'),
-        nameInPrint: 'Clerk 1',
-        titleOrPosition: 'Clerk 1'
+        date: undefined,
+        nameInPrint: '',
+        titleOrPosition: ''
     },
     receivedBy: {
-        date: new Date('2023-10-11'),
-        nameInPrint: 'Clerk 2',
-        titleOrPosition: 'Clerk 2'
+        date: undefined,
+        nameInPrint: '',
+        titleOrPosition: ''
     },
     registeredByOffice: {
-        date: new Date('2023-10-11'),
-        nameInPrint: 'Clerk 3',
-        titleOrPosition: 'Clerk 3'
+        date: undefined,
+        nameInPrint: '',
+        titleOrPosition: ''
     },
 
     // Optional Sections
-    remarks: 'No remarks',
+    remarks: '',
 
     // Back page data - Affidavit of Solemnizing Officer
     affidavitOfSolemnizingOfficer: {
         solemnizingOfficerInformation: {
             officerName: {
-                first: 'Rev. Father',
-                middle: 'Dela',
-                last: 'Santos'
+                first: '',
+                middle: '',
+                last: ''
             },
-            officeName: 'Manila Parish',
-            address: 'Manila, Philippines'
+            officeName: '',
+            address: ''
         },
 
         a: {
             nameOfHusband: {
-                first: 'Juan',
-                middle: 'Dela',
-                last: 'Cruz'
+                first: '',
+                middle: '',
+                last: ''
             },
             nameOfWife: {
-                first: 'Maria',
-                middle: 'Dela',
-                last: 'Cruz'
+                first: '',
+                middle: '',
+                last: ''
             },
         },
         b: {
-            a: true,
+            a: false,
             b: false,
             c: false,
             d: false,
             e: false,
         },
-        c: '', //wala man to
+        c: '',
         d: {
-            dayOf: new Date('2023-10-10'),
+            dayOf: undefined,
             atPlaceExecute: {
-                st: 'Third Street',
-                barangay: 'Capri',
-                cityMunicipality: 'Quezon City',
-                province: 'Metro Manila',
-                country: 'Philippines'
+                street: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             },
         },
         dateSworn: {
-            dayOf: new Date('2023-10-11'),
+            dayOf: undefined,
             atPlaceOfSworn: {
-                st: 'Third Street',
-                barangay: 'Capri',
-                cityMunicipality: 'Quezon City',
-                province: 'Metro Manila',
-                country: 'Philippines'
+                street: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             },
             ctcInfo: {
-                number: 'CTC123456',
-                dateIssued: new Date('2023-10-11'),
-                placeIssued: 'Manila City Hall'
+                number: '',
+                dateIssued: undefined,
+                placeIssued: ''
             },
         },
         administeringOfficerInformation: {
             adminName: {
-                first: 'Clerk',
-                middle: 'Dela',
-                last: 'Juan'
+                first: '',
+                middle: '',
+                last: ''
             },
-            address: 'Manila, Philippines',
-            position: 'Clerk'
+            address: '',
+            position: ''
         },
     },
 
@@ -302,19 +303,19 @@ const emptyDefaults: MarriageCertificateFormValues = {
     affidavitForDelayed: {
         delayedRegistration: undefined,
         administeringInformation: {
-            adminName: 'Admin Juan',
-            position: 'Admin',
-            adminAddress: 'Manila, Philippines'
+            adminName: '',
+            position: '',
+            adminAddress: ''
         },
         applicantInformation: {
-            nameOfApplicant: 'Juan Cruz',
-            postalCode: '1234',
+            nameOfApplicant: '',
+            postalCode: '',
             applicantAddress: {
-                st: 'Main Street',
-                barangay: 'Capri',
-                cityMunicipality: 'Quezon City',
-                province: 'Metro Manila',
-                country: 'Philippines'
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             }
         },
         a: {
@@ -329,63 +330,63 @@ const emptyDefaults: MarriageCertificateFormValues = {
                 dateOfMarriage: undefined,
             },
             b: {
-                agreement: true,
+                agreement: undefined,
                 nameOfHusband: {
-                    first: 'Juan',
-                    middle: 'Dela',
-                    last: 'Cruz'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
                 nameOfWife: {
-                    first: 'Maria',
-                    middle: 'Dela',
-                    last: 'Cruz'
+                    first: '',
+                    middle: '',
+                    last: ''
                 },
-                placeOfMarriage: 'Manila',
-                dateOfMarriage: new Date('2023-10-10'),
+                placeOfMarriage: '',
+                dateOfMarriage: undefined,
             }
         },
         b: {
-            solemnizedBy: 'Rev. Father Santos',
+            solemnizedBy: '',
             sector: 'religious-ceremony',
         },
         c: {
             a: {
-                licenseNo: 'LIC123456',
-                dateIssued: new Date('2023-09-01'),
-                placeOfSolemnizedMarriage: 'Manila'
+                licenseNo: '',
+                dateIssued: undefined,
+                placeOfSolemnizedMarriage: ''
             },
             b: {
-                underArticle: 'Article 1'
+                underArticle: ''
             }
         },
         d: {
-            husbandCitizenship: 'Filipino',
-            wifeCitizenship: 'Filipino'
+            husbandCitizenship: '',
+            wifeCitizenship: ''
         },
-        e: 'No reason provided',
+        e: '',
         f: {
-            date: new Date('2023-10-11'),
+            date: undefined,
             place: {
-                st: 'Third Street',
-                barangay: 'Capri',
-                cityMunicipality: 'Quezon City',
-                province: 'Metro Manila',
-                country: 'Philippines'
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             }
         },
         dateSworn: {
-            dayOf: new Date('2023-10-11'),
+            dayOf: undefined,
             atPlaceOfSworn: {
-                st: 'Third Street',
-                barangay: 'Capri',
-                cityMunicipality: 'Quezon City',
-                province: 'Metro Manila',
-                country: 'Philippines'
+                st: '',
+                barangay: '',
+                cityMunicipality: '',
+                province: '',
+                country: ''
             },
             ctcInfo: {
-                number: 'CTC123456',
-                dateIssued: new Date('2023-10-11'),
-                placeIssued: 'Manila City Hall'
+                number: '',
+                dateIssued: undefined,
+                placeIssued: ''
             }
         }
     }
@@ -393,7 +394,8 @@ const emptyDefaults: MarriageCertificateFormValues = {
 
 export function useMarriageCertificateForm({
     onOpenChange,
-    defaultValues
+    defaultValues,
+    scrollAreaRef
 }: UseMarriageCertificateFormProps = {}) {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -425,7 +427,7 @@ export function useMarriageCertificateForm({
         // Check and simplify affidavitForDelayed if it's "No"
         if (!data.affidavitForDelayed ||
             data.affidavitForDelayed.delayedRegistration === 'No' ||
-            data.affidavitForDelayed.delayedRegistration === null ||
+            data.affidavitForDelayed.delayedRegistration === undefined ||
             data.affidavitForDelayed.delayedRegistration === undefined) {
 
             data.affidavitForDelayed = {
@@ -511,29 +513,150 @@ export function useMarriageCertificateForm({
         }
     };
 
+    // Enhanced handleError function for useMarriageCertificateForm.ts
     const handleError = (errors: any) => {
         console.error("❌ Form Errors:", errors);
-        console.log("handleError triggered, preventing submission");
 
-        const errorMessages: string[] = [];
+        // Get all error field names to determine which section to scroll to
+        const errorFields = Object.keys(errors);
 
-        Object.entries(errors).forEach(([fieldName, error]: any) => {
-            if (error?.message) {
-                errorMessages.push(`${formatFieldName(fieldName)}: ${error.message}`);
-            } else if (typeof error === "object") {
-                Object.entries(error).forEach(([subField, subError]: any) => {
-                    if (subError?.message) {
-                        errorMessages.push(`${formatFieldName(fieldName)} → ${formatFieldName(subField)}: ${subError.message}`);
-                    }
-                });
-            }
-        });
+        if (errorFields.length === 0) return;
 
-        if (errorMessages.length > 0) {
-            toast.error(errorMessages.join("\n"));
-        } else {
-            toast.error("Please check the form for errors");
+        // Define the field prefix to card ID mapping for scrolling
+        const fieldToCardMap: Record<string, string> = {
+            'registry': 'registry-information-card',
+            'pagination': 'registry-information-card',
+
+            'husband': 'husband-info-card',
+            'husbandName': 'husband-info-card',
+            'husbandParents': 'husband-parents-info-card',
+            'husbandContractParty': 'contracting-parties-certification-card',
+            'husbandWitnesses': 'witnesses-section-card',
+
+            'wife': 'wife-info-card',
+            'wifeName': 'wife-info-card',
+            'wifeParents': 'wife-parents-info-card',
+            'wifeContractParty': 'contracting-parties-certification-card',
+            'wifeWitnesses': 'witnesses-section-card',
+
+            'marriageDetails': 'marriage-details-card',
+            'placeOfMarriage': 'marriage-details-card',
+            'dateOfMarriage': 'marriage-details-card',
+            'timeOfMarriage': 'marriage-details-card',
+
+            'contractDay': 'registry-information-card',
+            'marriageLicenseDetails': 'marriage-details-card',
+            'marriageArticle': 'marriage-details-card',
+            'marriageSettlement': 'marriage-details-card',
+
+            'solemnizingOfficer': 'solemnizing-officer-certification-card',
+
+            'preparedBy': 'prepared-by-card',
+            'receivedBy': 'received-by-card',
+            'registeredByOffice': 'registered-at-office-card',
+
+            'remarks': 'remarks-card',
+
+            'affidavitOfSolemnizingOfficer': 'affidavit-of-solemnizing-officer',
+            'affidavitForDelayed': 'affidavit-for-delayed-marriage-registration'
+        };
+
+        // Build a hierarchy of priority - which errors to scroll to first
+        const errorHierarchy = [
+            'registryNumber', 'province', 'cityMunicipality', 'contractDay',
+            'husbandName', 'husbandAge', 'husbandBirth', 'husbandPlaceOfBirth',
+            'wifeName', 'wifeAge', 'wifeBirth', 'wifePlaceOfBirth',
+            'placeOfMarriage', 'dateOfMarriage', 'timeOfMarriage',
+            // Add more fields in priority order
+        ];
+
+        // Find the first field that has an error according to our hierarchy
+        let firstErrorField = errorHierarchy.find(field => errorFields.includes(field));
+
+        // If no match in hierarchy, just take the first error field
+        if (!firstErrorField && errorFields.length > 0) {
+            firstErrorField = errorFields[0];
         }
+
+        // Determine which card to scroll to
+        let cardToScrollTo = undefined;
+
+        if (firstErrorField) {
+            // First check for exact matches
+            if (fieldToCardMap[firstErrorField]) {
+                cardToScrollTo = fieldToCardMap[firstErrorField];
+            } else {
+                // If no exact match, check for prefixes
+                for (const [prefix, cardId] of Object.entries(fieldToCardMap)) {
+                    if (firstErrorField.startsWith(prefix)) {
+                        cardToScrollTo = cardId;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Execute the scrolling after a short delay to ensure the DOM is ready
+        setTimeout(() => {
+            if (cardToScrollTo) {
+                // Try to find the corresponding card element
+                const cardElement = document.getElementById(cardToScrollTo) ||
+                    document.querySelector(`.${cardToScrollTo}`);
+
+                if (cardElement) {
+                    // Find the scrollable container - may be the ScrollArea viewport
+                    const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]') ||
+                        document.querySelector('.ScrollArea') ||
+                        document.querySelector('.overflow-auto') ||
+                        window;
+
+                    // Different scrolling logic based on the container
+                    if (scrollContainer === window) {
+                        // Global window scrolling
+                        cardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else if (scrollContainer instanceof Element) {
+                        // For custom scrollable containers
+                        const containerRect = scrollContainer.getBoundingClientRect();
+                        const cardRect = cardElement.getBoundingClientRect();
+
+                        // Calculate the scroll position relative to the container
+                        const scrollTop = cardRect.top - containerRect.top + scrollContainer.scrollTop - 20;
+
+                        // Scroll the container
+                        scrollContainer.scrollTo({
+                            top: scrollTop,
+                            behavior: 'smooth'
+                        });
+                    }
+
+                    // Flash the card to highlight it
+                    cardElement.classList.add('error-flash');
+                    setTimeout(() => {
+                        cardElement.classList.remove('error-flash');
+                    }, 1000);
+                }
+            }
+
+            // Build error messages for toast
+            const errorMessages: string[] = [];
+            Object.entries(errors).forEach(([fieldName, error]: any) => {
+                if (error?.message) {
+                    errorMessages.push(`${formatFieldName(fieldName)}: ${error.message}`);
+                } else if (typeof error === "object") {
+                    Object.entries(error).forEach(([subField, subError]: any) => {
+                        if (subError?.message) {
+                            errorMessages.push(`${formatFieldName(fieldName)} → ${formatFieldName(subField)}: ${subError.message}`);
+                        }
+                    });
+                }
+            });
+
+            if (errorMessages.length > 0) {
+                toast.error(errorMessages.join("\n"));
+            } else {
+                toast.error("Please check the form for errors");
+            }
+        }, 100);
     };
 
     // Helper function to make field names user-friendly

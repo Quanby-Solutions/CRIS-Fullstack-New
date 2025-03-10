@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import { MarriageCertificateFormValues, MarriageProps } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import React, { useEffect, useState } from 'react';
 
 ;
@@ -17,7 +17,7 @@ import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-const HusbandParentsInfoCard: React.FC = () => {
+const HusbandParentsInfoCard: React.FC= () => {
   const { control, getValues, setValue } = useFormContext<MarriageCertificateFormValues>();
   const [parentMode, setNcrMode] = useState(false);
 

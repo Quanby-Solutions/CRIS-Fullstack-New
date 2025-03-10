@@ -27,9 +27,11 @@ interface RegistryInformationCardProps {
   title?: string;
   forms?: any;
   isEdit?: string | null;
+  id?: string;
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
+  id,
   isEdit,
   forms,
   formType,
@@ -235,7 +237,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const description = 'Format: YYYY-numbers (e.g., 2025-123456)';
 
   return (
-    <Card>
+    <Card id={id} className={`${id}`}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

@@ -13,11 +13,8 @@ import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/
 import { useFieldArray, useFormContext } from 'react-hook-form';
 ;
 
-interface WitnessesCardProps {
-  className?: string;
-}
 
-export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
+export const WitnessesCard: React.FC= () => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
   // Setup field array for husband witnesses
   const { fields, append, remove } = useFieldArray({
@@ -26,7 +23,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
   });
 
   return (
-    <Card className='w-full'>
+    <Card className='w-full' >
       <CardHeader className='flex flex-row justify-between items-center'>
         <CardTitle>Marriage Witnesses</CardTitle>
         <button className='bg-chart-1 text-accent p-2 w-24 text-sm rounded-lg' type="button" onClick={() => append({ name: '',})}>

@@ -305,7 +305,7 @@ export async function submitMarriageCertificateForm(
               d: {
                 dayOf: dateToJSON(formData.affidavitOfSolemnizingOfficer.d.dayOf || new Date()),
                 atPlaceExecute: {
-                  st: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.st,
+                  st: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.street,
                   barangay: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.barangay,
                   cityMunicipality: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.cityMunicipality,
                   province: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.province,
@@ -315,7 +315,7 @@ export async function submitMarriageCertificateForm(
               dateSworn: {
                 dayOf: dateToJSON(formData.affidavitOfSolemnizingOfficer.dateSworn.dayOf || new Date()),
                 atPlaceOfSworn: {
-                  st: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.st,
+                  st: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.street,
                   barangay: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.barangay,
                   cityMunicipality: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.cityMunicipality,
                   province: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.province,

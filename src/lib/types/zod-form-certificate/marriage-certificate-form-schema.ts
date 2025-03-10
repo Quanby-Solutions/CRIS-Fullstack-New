@@ -16,12 +16,11 @@ import {
  */
 const locationSchema = z.object({
   houseNo: z.string().optional(),
-  street: z.string().optional(),
-  barangay: z.string().optional(),
-  cityMunicipality: z.string(),
-  province: z.string().optional(),
-  country: z.string().optional(),
-  region: z.string().optional(),
+  street: z.string().min(1, 'Street is required'),
+  barangay: z.string().min(1, 'Barangay is required'),
+  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+  province: z.string().min(1, 'Province is required'),
+  country: z.string().min(1, 'Country is required')
 })
 
 
@@ -30,8 +29,7 @@ const residenceSchemas = z.object({
   barangay: z.string().optional(),
   cityMunicipality: z.string().optional(), // Reuse shared city/municipality schema
   province: z.string().optional(), // Reuse shared province schema
-  country: z.string().optional(),
-  region: z.string().optional(),
+  country: z.string().optional()
 })
 
 
@@ -56,14 +54,14 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
       requiredError: 'Start date is required',
       futureError: 'Start date cannot be in the future',
     }),
-    atPlaceExecute: residenceSchemas,
+    atPlaceExecute: locationSchema,
   }),
   dateSworn: z.object({
     dayOf: createDateFieldSchema({
       requiredError: 'Start date is required',
       futureError: 'Start date cannot be in the future',
     }),
-    atPlaceOfSworn: residenceSchemas,
+    atPlaceOfSworn: locationSchema,
     ctcInfo: z.object({
       number: z.string().min(1, 'CTC number is required'),
       dateIssued: createDateFieldSchema({
@@ -161,12 +159,22 @@ const affidavitForDelayedSchema = z.object({
 
   b: z.object({
     solemnizedBy: z.string().min(1, 'Name of officer is required').optional(), // Make required fields optional
-    sector: z.enum([
-      'religious-ceremony',
-      'civil-ceremony',
-      'Muslim-rites',
-      'tribal-rites',
-    ]).optional(), // Make required fields optional
+
+    sector: z
+      .preprocess(
+        (val) => (val === '' ? undefined : val),
+        z
+          .enum(['religious-ceremony', 'civil-ceremony', 'Muslim-rites', 'tribal-rites'])
+          .optional()
+      )
+      .superRefine((val, ctx) => {
+        if (val === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Sector status is required',
+          });
+        }
+      }),
   }).optional(),
 
   c: z.object({
@@ -239,11 +247,37 @@ export const marriageCertificateSchema = z.object({
     futureError: 'Start date cannot be in the future',
   }),
   husbandPlaceOfBirth: locationSchema,
-  husbandSex: z.enum(['Male', 'Female']),
+  husbandSex: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.union([z.enum(['Male', 'Female']), z.undefined()])
+    )
+    .superRefine((val, ctx) => {
+      if (val === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Sex is required',
+        });
+      }
+    }),
   husbandCitizenship: z.string(),
   husbandResidence: z.string(),
   husbandReligion: z.string(),
-  husbandCivilStatus: z.enum(['Single', 'Widowed', 'Divorced']),
+  husbandCivilStatus: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z
+        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
+        .optional()
+    )
+    .superRefine((val, ctx) => {
+      if (val === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Civil status is required',
+        });
+      }
+    }),
   husbandConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -264,11 +298,37 @@ export const marriageCertificateSchema = z.object({
     futureError: 'Start date cannot be in the future',
   }),
   wifePlaceOfBirth: locationSchema,
-  wifeSex: z.enum(['Female']),
+  wifeSex: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.union([z.enum(['Male', 'Female']), z.undefined()])
+    )
+    .superRefine((val, ctx) => {
+      if (val === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Sex is required',
+        });
+      }
+    }),
   wifeCitizenship: z.string(),
   wifeResidence: z.string(),
   wifeReligion: z.string(),
-  wifeCivilStatus: z.enum(['Single', 'Widowed', 'Divorced']),
+  wifeCivilStatus: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z
+        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
+        .optional()
+    )
+    .superRefine((val, ctx) => {
+      if (val === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Civil status is required',
+        });
+      }
+    }),
   wifeConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -385,4 +445,8 @@ export interface MarriageCertificateFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCancel: () => void
+}
+
+export interface MarriageProps {
+  id?: string
 }

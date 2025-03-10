@@ -18,11 +18,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import { MarriageCertificateFormValues, MarriageProps } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import LocationSelector from '../shared-components/location-selector';
 
-const HusbandInfoCard: React.FC = () => {
+const HusbandInfoCard: React.FC =() => {
   const { control, setValue, getValues } = useFormContext<MarriageCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
 

@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 import type { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { FormProvider } from 'react-hook-form';
+import { useRef } from 'react';
 
 import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
 import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
@@ -50,9 +51,13 @@ export default function DeathCertificateForm({
   onCancel,
   defaultValues,
 }: DeathCertificateFormProps) {
-  const { formMethods, onSubmit, handleError } = useDeathCertificateForm({
+  // Reference to the scroll area for programmatic scrolling
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const { formMethods, onSubmit, handleError, isSubmitting } = useDeathCertificateForm({
     onOpenChange,
     defaultValues,
+    scrollAreaRef, // Pass the ref to the hook
   });
 
   return (
@@ -62,6 +67,7 @@ export default function DeathCertificateForm({
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
             className='space-y-6'
+            noValidate
           >
             <div className='h-full flex flex-col'>
               <DialogHeader>
@@ -72,40 +78,93 @@ export default function DeathCertificateForm({
               <div className='flex flex-1 overflow-hidden'>
                 {/* Left Side - Form */}
                 <div className='w-full'>
-                  <ScrollArea className='h-[calc(95vh-120px)]'>
+                  <ScrollArea className='h-[calc(95vh-120px)]' ref={scrollAreaRef}>
                     <div className='p-6 space-y-4'>
-                      <PaginationInputs />
-                      {defaultValues?.id ? (
-                        <RegistryInformationCardForEdit />
-                      ) : (
-                        <RegistryInformationCard
-                          formType='DEATH'
+                      <div id="pagination-inputs">
+                        <PaginationInputs />
+                      </div>
+                      
+                      <div id="registry-information-card">
+                        {defaultValues?.id ? (
+                          <RegistryInformationCardForEdit />
+                        ) : (
+                          <RegistryInformationCard
+                            formType='DEATH'
+                          />
+                        )}
+                      </div>
+                      
+                      <div id="deceased-information-card">
+                        <DeceasedInformationCard />
+                      </div>
+                      
+                      <div id="causes-of-death-19a-card">
+                        <CausesOfDeath19aCard />
+                      </div>
+                      
+                      <div id="causes-of-death-19b-card">
+                        <CausesOfDeath19bCard />
+                      </div>
+                      
+                      <div id="maternal-condition-card">
+                        <MaternalConditionCard />
+                      </div>
+                      
+                      <div id="death-by-external-causes-card">
+                        <DeathByExternalCausesCard />
+                      </div>
+                      
+                      <div id="attendant-information-card">
+                        <AttendantInformationCard />
+                      </div>
+                      
+                      <div id="embalmer-certification-card">
+                        <EmbalmerCertificationCard />
+                      </div>
+                      
+                      <div id="postmortem-certificate-card">
+                        <PostmortemCertificateCard />
+                      </div>
+                      
+                      <div id="affidavit-delayed-registration-card">
+                        <AffidavitDelayedRegistrationCard />
+                      </div>
+                      
+                      <div id="certification-of-death-card">
+                        <CertificationOfDeathCard />
+                      </div>
+                      
+                      <div id="disposal-information-card">
+                        <DisposalInformationCard />
+                      </div>
+                      
+                      <div id="certification-informant-card">
+                        <CertificationInformantCard />
+                      </div>
+                      
+                      <div id="prepared-by-card">
+                        <PreparedByCard />
+                      </div>
+                      
+                      <div id="received-by-card">
+                        <ReceivedByCard />
+                      </div>
+                      
+                      <div id="registered-at-office-card">
+                        <RegisteredAtOfficeCard
+                          fieldPrefix='registeredByOffice'
+                          cardTitle='Registered at the Office of Civil Registrar'
                         />
-                      )}
-                      <DeceasedInformationCard />
-                      <CausesOfDeath19aCard />
-                      <CausesOfDeath19bCard />
-                      <MaternalConditionCard />
-                      <DeathByExternalCausesCard />
-                      <AttendantInformationCard />
-                      <EmbalmerCertificationCard />
-                      <PostmortemCertificateCard />
-                      <AffidavitDelayedRegistrationCard />
-                      <CertificationOfDeathCard />
-                      <DisposalInformationCard />
-                      <CertificationInformantCard />
-                      <PreparedByCard />
-                      <ReceivedByCard />
-                      <RegisteredAtOfficeCard
-                        fieldPrefix='registeredByOffice'
-                        cardTitle='Registered at the Office of Civil Registrar'
-                      />
-                      <RemarksCard
-                        fieldName='remarks'
-                        cardTitle='Death Certificate Remarks'
-                        label='Additional Remarks'
-                        placeholder='Enter any additional remarks or annotations'
-                      />
+                      </div>
+                      
+                      <div id="remarks-card">
+                        <RemarksCard
+                          fieldName='remarks'
+                          cardTitle='Death Certificate Remarks'
+                          label='Additional Remarks'
+                          placeholder='Enter any additional remarks or annotations'
+                        />
+                      </div>
                     </div>
                   </ScrollArea>
                 </div>
@@ -117,14 +176,16 @@ export default function DeathCertificateForm({
                 variant='outline'
                 className='py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent'
                 onClick={onCancel}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button
                 type='submit'
                 className='py-2 w-32 bg-primary/80 hover:bg-primary'
+                disabled={isSubmitting}
               >
-                Submit
+                {isSubmitting ? 'Saving...' : 'Submit'}
               </Button>
             </DialogFooter>
           </form>

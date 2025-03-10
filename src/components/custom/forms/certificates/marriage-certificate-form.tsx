@@ -13,6 +13,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMarriageCertificateForm } from '@/hooks/form-certificates-hooks/useMarriageCertificateForm';
 import type { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { FormType } from '@prisma/client';
+import { useRef } from 'react';
+
+// Import form components
 import ContractingPartiesCertificationCard from './form-cards/marriage-cards/contracting-parties-certification-card';
 import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
 import HusbandParentsInfoCard from './form-cards/marriage-cards/husband-parent-info-card';
@@ -47,18 +50,23 @@ export default function MarriageCertificateForm({
   onCancel,
   defaultValues,
 }: MarriageCertificateFormProps) {
-  const { formMethods, onSubmit, handleError } = useMarriageCertificateForm({
+  // Reference to the scroll area for programmatic scrolling
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const { formMethods, onSubmit, handleError, isSubmitting } = useMarriageCertificateForm({
     onOpenChange,
     defaultValues,
+    scrollAreaRef, // Pass the ref to the hook
   });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0' >
+      <DialogContent className='max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0'>
         <Form {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
             className='space-y-6'
+            noValidate
           >
             <div className='h-full flex flex-col'>
               <DialogHeader>
@@ -69,67 +77,124 @@ export default function MarriageCertificateForm({
 
               <div className='flex flex-1 overflow-hidden'>
                 {/* Left Side - Form */}
-                <div className='w-full '>
-                  <ScrollArea className='h-[calc(95vh-120px)]'>
-                    <div className='p-6 space-y-4'>
+                <div className='w-full'>
+                  {/* Add ref to the ScrollArea for programmatic scrolling */}
+                  <ScrollArea
+                    className='h-[calc(95vh-120px)]'
+                    ref={scrollAreaRef}
+                  >
+                    <div className='p-6 space-y-4' id="form-content">
                       <span>{defaultValues?.id}</span>
-                      <PaginationInputs />
-                      {defaultValues?.id ? (
-                        <RegistryInformationCardForEdit/>
-                        
-                      ) : (
-                        <RegistryInformationCard
-                          formType={FormType.MARRIAGE}
-                          title='Marriage Registry Information'
-                        />
-                      )}
+                      
+                      <div id="pagination-inputs">
+                        <PaginationInputs />
+                      </div>
 
-                      <HusbandInfoCard />
-                      <HusbandParentsInfoCard />
-                      <WifeInfoCard />
-                      <WifeParentsInfoCard />
-                      <MarriageDetailsCard />
-                      <ContractingPartiesCertificationCard />
-                      <SolemnizingOfficerCertification />
-                      <WitnessesCard />
-                      <PreparedByCard />
-                      <ReceivedByCard />
-                      <RegisteredAtOfficeCard
-                        fieldPrefix='registeredByOffice'
-                        cardTitle='Registered at the Office of Civil Registrar'
-                      />
-                      <RemarksCard
-                        fieldName='remarks'
-                        cardTitle='Marriage Certificate Remarks'
-                        label='Additional Remarks'
-                        placeholder='Enter any additional remarks or annotations'
-                      />
-                      <AffidavitOfSolemnizingOfficer />
-                      <AffidavitForDelayedMarriageRegistration />
+                      {/* Registry Information Section */}
+                      <div id="registry-information-card">
+                        {defaultValues?.id ? (
+                          <RegistryInformationCardForEdit />
+                        ) : (
+                          <RegistryInformationCard
+                            formType={FormType.MARRIAGE}
+                            title='Marriage Registry Information'
+                          />
+                        )}
+                      </div>
+
+                      {/* Husband Information Section */}
+                      <div id="husband-info-card">
+                        <HusbandInfoCard />
+                      </div>
+                      
+                      <div id="husband-parents-info-card">
+                        <HusbandParentsInfoCard />
+                      </div>
+
+                      {/* Wife Information Section */}
+                      <div id="wife-info-card">
+                        <WifeInfoCard />
+                      </div>
+                      
+                      <div id="wife-parents-info-card">
+                        <WifeParentsInfoCard />
+                      </div>
+
+                      {/* Marriage Details Section */}
+                      <div id="marriage-details-card">
+                        <MarriageDetailsCard />
+                      </div>
+
+                      {/* Certification and Witnesses Section */}
+                      <div id="contracting-parties-certification-card">
+                        <ContractingPartiesCertificationCard />
+                      </div>
+                      
+                      <div id="solemnizing-officer-certification-card">
+                        <SolemnizingOfficerCertification />
+                      </div>
+                      
+                      <div id="witnesses-section-card">
+                        <WitnessesCard />
+                      </div>
+
+                      {/* Processing Details Section */}
+                      <div id="prepared-by-card">
+                        <PreparedByCard />
+                      </div>
+                      
+                      <div id="received-by-card">
+                        <ReceivedByCard />
+                      </div>
+                      
+                      <div id="registered-at-office-card">
+                        <RegisteredAtOfficeCard
+                          fieldPrefix='registeredByOffice'
+                          cardTitle='Registered at the Office of Civil Registrar'
+                        />
+                      </div>
+
+                      {/* Remarks Section */}
+                      <div id="remarks-card">
+                        <RemarksCard
+                          fieldName='remarks'
+                          cardTitle='Marriage Certificate Remarks'
+                          label='Additional Remarks'
+                          placeholder='Enter any additional remarks or annotations'
+                        />
+                      </div>
+
+                      {/* Affidavit Sections */}
+                      <div id="affidavit-of-solemnizing-officer">
+                        <AffidavitOfSolemnizingOfficer />
+                      </div>
+                      
+                      <div id="affidavit-for-delayed-marriage-registration">
+                        <AffidavitForDelayedMarriageRegistration />
+                      </div>
                     </div>
                   </ScrollArea>
                 </div>
               </div>
             </div>
+
             <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>
               <Button
                 type='button'
                 variant='outline'
                 className='py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent'
                 onClick={onCancel}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button
                 type='submit'
                 className='py-2 w-32 bg-primary/80 hover:bg-primary'
+                disabled={isSubmitting}
               >
-                Save
+                {isSubmitting ? 'Saving...' : 'Save'}
               </Button>
-              {/* <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
-                Log Form Data
-              </Button> */}
-
             </DialogFooter>
           </form>
         </Form>

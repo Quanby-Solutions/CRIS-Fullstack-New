@@ -17,11 +17,12 @@ import DatePickerField from '@/components/custom/datepickerfield/date-picker-fie
 
 interface SolemnizingOfficerCertificationProps {
   className?: string;
+
 }
 
 export const SolemnizingOfficerCertification: React.FC<
   SolemnizingOfficerCertificationProps
-> = ({ className }) => {
+> = ({ className,  }) => {
   const { control, watch } = useFormContext<MarriageCertificateFormValues>();
 
   // Watch specific form fields for dynamic updates
@@ -31,7 +32,7 @@ export const SolemnizingOfficerCertification: React.FC<
   const marriageArticleNumber = watch('marriageArticle.article');
 
   return (
-    <Card className={cn('border dark:border-border', className)}>
+    <Card className={cn('border dark:border-border', className)} >
       <CardHeader>
         <CardTitle>Certification of the Solemnizing Officer</CardTitle>
       </CardHeader>

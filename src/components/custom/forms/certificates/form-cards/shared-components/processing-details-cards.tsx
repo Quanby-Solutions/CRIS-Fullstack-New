@@ -30,6 +30,7 @@ export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   showNameInPrint?: boolean;
   showTitleOrPosition?: boolean;
   isEdit?: string | null;
+
 }
 
 function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
@@ -38,6 +39,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   hideDate = false,
   showNameInPrint = true,
   showTitleOrPosition = true,
+
 }: ProcessingCardProps<T>) {
   const {
     control,

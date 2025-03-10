@@ -19,7 +19,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import { MarriageCertificateFormValues, MarriageProps } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 

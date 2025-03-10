@@ -160,7 +160,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             </CustomFormLabel>
             <FormControl>
               <Select
-                value={selectedProvince}
+                value={selectedProvince || undefined}
                 onValueChange={(value: string) => {
                   field.onChange(value);
                   handleProvinceChange(value);
@@ -201,7 +201,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             </CustomFormLabel>
             <FormControl>
               <Select
-                value={selectedMunicipality}
+                value={selectedMunicipality || undefined}
                 onValueChange={(value: string) => {
                   const selectedMun = municipalities.find(
                     (m) => m.id === value
@@ -245,7 +245,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               </CustomFormLabel>
               <FormControl>
                 <Select
-                  value={selectedBarangay}
+                  value={selectedBarangay || undefined}
                   onValueChange={(value: string) => {
                     field.onChange(value);
                     handleBarangayChange(value);

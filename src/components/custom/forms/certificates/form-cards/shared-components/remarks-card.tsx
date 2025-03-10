@@ -20,6 +20,7 @@ export interface RemarksCardProps<T extends FieldValues = FieldValues> {
   label?: string
   /** The placeholder text for the textarea. */
   placeholder?: string
+
 }
 
 const RemarksCard = <T extends FieldValues = FieldValues>({
@@ -27,11 +28,12 @@ const RemarksCard = <T extends FieldValues = FieldValues>({
   cardTitle = 'Remarks/Annotations',
   label = 'Additional Remarks',
   placeholder = 'Enter any additional remarks or annotations',
+
 }: RemarksCardProps<T>) => {
   const { control } = useFormContext<T>()
 
   return (
-    <Card>
+    <Card >
       <CardHeader>
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>

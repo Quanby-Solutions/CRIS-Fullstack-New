@@ -19,11 +19,12 @@ import DatePickerField from '@/components/custom/datepickerfield/date-picker-fie
 
 interface ContractingPartiesCertificationProps {
   className?: string;
+
 }
 
 export const ContractingPartiesCertification: React.FC<
   ContractingPartiesCertificationProps
-> = ({ className }) => {
+> = ({ className}) => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
 
   // Watch contractDay field
@@ -36,7 +37,7 @@ export const ContractingPartiesCertification: React.FC<
     : '';
 
   return (
-    <Card className={cn('border dark:border-border', className)}>
+    <Card className={cn('border dark:border-border', className)} >
       <CardHeader>
         <CardTitle>Certification of the Contracting Parties</CardTitle>
       </CardHeader>

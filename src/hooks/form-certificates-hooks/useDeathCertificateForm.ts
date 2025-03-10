@@ -16,109 +16,110 @@ import { updateDeathCertificateForm } from '@/components/custom/civil-registry/a
 export interface UseDeathCertificateFormProps {
   onOpenChange?: (open: boolean) => void;
   defaultValues?: Partial<DeathCertificateFormValues> & { id?: string };
+  scrollAreaRef?: React.RefObject<HTMLDivElement>; // Add scroll area ref
 }
 
 const emptyDefaults: DeathCertificateFormValues = {
-  registryNumber: '2023-001',
-  province: 'Albay',
-  cityMunicipality: 'City of Tabaco',
+  registryNumber: '',
+  province: '',
+  cityMunicipality: '',
   name: {
-    first: 'Juan',
-    middle: 'Dela',
-    last: 'Cruz',
+    first: '',
+    middle: '',
+    last: '',
   },
-  sex: 'Male',
-  dateOfDeath: new Date('2023-10-01'),
-  timeOfDeath: new Date('2023-10-10T14:30:00'),
-  dateOfBirth: new Date('1980-05-15'),
+  sex: undefined,
+  dateOfDeath: undefined,
+  timeOfDeath: undefined,
+  dateOfBirth: undefined,
   ageAtDeath: {
-    years: '43',
-    months: '4',
-    days: '16',
-    hours: '14',
+    years: undefined,
+    months: undefined,
+    days: undefined,
+    hours: undefined,
   },
   placeOfDeath: {
-    hospitalInstitution: 'Tabaco City Hospital',
-    houseNo: '123',
-    st: 'Rizal Street',
-    barangay: 'Salvacion',
-    cityMunicipality: 'City of Tabaco',
-    province: 'Albay',
+    hospitalInstitution: undefined,
+    houseNo: undefined,
+    st: undefined,
+    barangay: undefined,
+    cityMunicipality: '',
+    province: '',
   },
-  civilStatus: 'Married',
-  religion: 'Roman Catholic',
-  citizenship: 'Filipino',
+  civilStatus: undefined,
+  religion: '',
+  citizenship: '',
   residence: {
-    houseNo: '456',
-    st: 'Luna Street',
-    barangay: 'San Roque',
-    cityMunicipality: 'City of Tabaco',
-    province: 'Albay',
-    country: 'Philippines',
+    houseNo: undefined,
+    st: undefined,
+    barangay: undefined,
+    cityMunicipality: '',
+    province: '',
+    country: '',
   },
-  occupation: 'Farmer',
+  occupation: '',
   birthInformation: {
-    ageOfMother: '25',
-    methodOfDelivery: 'Normal spontaneous vertex',
-    lengthOfPregnancy: 37,
-    typeOfBirth: 'Single',
-    birthOrder: 'First',
+    ageOfMother: undefined,
+    methodOfDelivery: undefined,
+    lengthOfPregnancy: undefined,
+    typeOfBirth: undefined,
+    birthOrder: undefined,
   },
   parents: {
     fatherName: {
-      first: 'Pedro',
-      middle: 'Dela',
-      last: 'Cruz',
+      first: '',
+      middle: '',
+      last: '',
     },
     motherName: {
-      first: 'Maria',
-      middle: 'Santos',
-      last: 'Dela Cruz',
+      first: '',
+      middle: '',
+      last: '',
     },
   },
 
   causesOfDeath19a: {
-    mainDiseaseOfInfant: 'Cardiac Arrest',
-    otherDiseasesOfInfant: 'None',
-    mainMaternalDisease: 'Hypertension',
-    otherMaternalDisease: 'None',
-    otherRelevantCircumstances: 'None',
+    mainDiseaseOfInfant: '',
+    otherDiseasesOfInfant: undefined,
+    mainMaternalDisease: undefined,
+    otherMaternalDisease: undefined,
+    otherRelevantCircumstances: undefined,
   },
 
   causesOfDeath19b: {
-    immediate: { cause: 'Cardiac Arrest', interval: 'Immediate' },
-    antecedent: { cause: 'Hypertension', interval: '5 years' },
-    underlying: { cause: 'Diabetes', interval: '10 years' },
-    otherSignificantConditions: 'None',
+    immediate: { cause: '', interval: '' },
+    antecedent: { cause: undefined, interval: undefined },
+    underlying: { cause: undefined, interval: undefined },
+    otherSignificantConditions: undefined,
   },
   medicalCertificate: {
     causesOfDeath: {
-      immediate: { cause: 'Cardiac Arrest', interval: 'Immediate' },
-      antecedent: { cause: 'Hypertension', interval: '5 years' },
-      underlying: { cause: 'Diabetes', interval: '10 years' },
-      otherSignificantConditions: 'None',
+      immediate: { cause: '', interval: '' },
+      antecedent: { cause: undefined, interval: undefined },
+      underlying: { cause: undefined, interval: undefined },
+      otherSignificantConditions: undefined,
     },
     maternalCondition: {
       pregnantNotInLabor: false,
       pregnantInLabor: false,
       lessThan42Days: false,
       daysTo1Year: false,
-      noneOfTheAbove: true,
+      noneOfTheAbove: false,
     },
-    externalCauses: { mannerOfDeath: 'Natural', placeOfOccurrence: 'Home' },
+    externalCauses: { mannerOfDeath: undefined, placeOfOccurrence: undefined },
     attendant: {
-      type: 'Hospital authority',
-      othersSpecify: 'None',
-      duration: { from: new Date('2023-09-30'), to: new Date('2023-10-01') },
+      type: undefined,
+      othersSpecify: undefined,
+      duration: { from: undefined, to: undefined },
       certification: {
-        date: new Date('2023-10-02'),
-        name: 'Dr. Jose Reyes',
-        title: 'Medical Doctor',
-        time: new Date('2023-10-10T14:30:00'),
+        date: undefined,
+        name: '',
+        title: '',
+        time: undefined,
         address: {
-          province: 'Albay',
-          cityMunicipality: 'City of Tabaco',
-          country: 'Philippines',
+          province: '',
+          cityMunicipality: '',
+          country: '',
         },
       },
     },
@@ -126,120 +127,121 @@ const emptyDefaults: DeathCertificateFormValues = {
   },
   certificationOfDeath: {
     hasAttended: false,
-    nameInPrint: 'Dr. Maria Santos',
-    titleOfPosition: 'Medical Officer',
+    nameInPrint: '',
+    titleOfPosition: '',
     address: {
-      houseNo: '789',
-      st: 'Mabini Street',
-      barangay: 'San Lorenzo',
-      cityMunicipality: 'City of Tabaco',
-      province: 'Albay',
-      country: 'Philippines',
+      houseNo: undefined,
+      st: undefined,
+      barangay: undefined,
+      cityMunicipality: '',
+      province: '',
+      country: '',
     },
-    date: new Date('2023-10-02'),
-    healthOfficerNameInPrint: 'Dr. Juan Dela Cruz',
+    date: undefined,
+    healthOfficerNameInPrint: '',
   },
-  reviewedBy: { date: new Date('2023-10-03') },
+  reviewedBy: { date: undefined },
   postmortemCertificate: {
-    address: 'Tabaco City Hospital, City of Tabaco, Albay',
-    nameInPrint: 'Dr. Jose Reyes',
-    causeOfDeath: 'Cardiac Arrest',
-    titleDesignation: 'Medical Doctor',
-    date: new Date('2023-10-02'),
+    address: '',
+    nameInPrint: '',
+    causeOfDeath: '',
+    titleDesignation: '',
+    date: undefined,
   },
   embalmerCertification: {
-    address: 'Tabaco Funeral Homes, City of Tabaco, Albay',
-    nameInPrint: 'John Doe',
-    titleDesignation: 'Licensed Embalmer',
-    nameOfDeceased: 'Juan Dela Cruz',
-    licenseNo: 'EMB-12345',
-    issuedOn: new Date('2023-09-30'),
-    issuedAt: 'City of Tabaco, Albay',
-    expiryDate: new Date('2024-09-30'),
+    address: '',
+    nameInPrint: '',
+    titleDesignation: '',
+    nameOfDeceased: '',
+    licenseNo: '',
+    issuedOn: undefined,
+    issuedAt: '',
+    expiryDate: undefined,
   },
   delayedRegistration: {
-    isDelayed: true, // Optional boolean
+    isDelayed: false,
     affiant: {
-      name: 'Juan Dela Cruz', // Required
-      civilStatus: 'Married', // Required, must be one of the enum values
-      residenceAddress: '123 Rizal Street, Barangay San Miguel, City of Tabaco, Albay', // Required
-      age: '45', // Optional
+      name: undefined,
+      civilStatus: undefined,
+      residenceAddress: undefined,
+      age: undefined,
     },
     deceased: {
-      name: 'Maria Santos Dela Cruz', // Required
-      dateOfDeath: new Date('2023-09-15'), // Optional date
-      placeOfDeath: 'Tabaco City Hospital, Albay', // Optional
+      name: undefined,
+      dateOfDeath: undefined,
+      placeOfDeath: undefined,
       burialInfo: {
-        date: new Date('2023-09-20'), // Optional date
-        place: 'Tabaco Public Cemetery, Albay', // Optional
-        method: 'Buried', // Optional, must be one of the enum values
+        date: undefined,
+        place: undefined,
+        method: undefined,
       },
     },
     attendance: {
-      wasAttended: true, // Required boolean
-      attendedBy: 'Dr. Jose Reyes', // Optional
+      wasAttended: false,
+      attendedBy: undefined,
     },
-    causeOfDeath: 'Cardiac Arrest', // Required
-    reasonForDelay: 'Delayed reporting due to family being abroad', // Required
-    affidavitDate: new Date('2023-09-25'), // Required date
-    affidavitDatePlace: 'City of Tabaco, Albay', // Required
-    adminOfficer: 'City Health Officer', // Required
+    causeOfDeath: undefined,
+    reasonForDelay: undefined,
+    affidavitDate: undefined,
+    affidavitDatePlace: undefined,
+    adminOfficer: undefined,
     ctcInfo: {
-      number: 'CTC-123456', // Required
-      issuedOn: new Date('2023-09-25'), // Required date
-      issuedAt: 'City of Tabaco, Albay', // Required
+      number: undefined,
+      issuedOn: undefined,
+      issuedAt: undefined,
     },
   },
-  corpseDisposal: 'Burial',
-  burialPermit: { number: 'BP-2023-001', dateIssued: new Date('2023-10-03') },
-  transferPermit: { number: 'TP-2023-001', dateIssued: new Date('2023-10-03') },
+  corpseDisposal: '',
+  burialPermit: { number: '', dateIssued: undefined },
+  transferPermit: { number: undefined, dateIssued: undefined },
   cemeteryOrCrematory: {
-    name: 'Tabaco Public Cemetery',
+    name: '',
     address: {
-      houseNo: 'N/A',
-      st: 'Cemetery Road',
-      barangay: 'San Roque',
-      cityMunicipality: 'City of Tabaco',
-      province: 'Albay',
-      country: 'Philippines',
+      houseNo: undefined,
+      st: undefined,
+      barangay: undefined,
+      cityMunicipality: '',
+      province: '',
+      country: '',
     },
   },
   informant: {
-    nameInPrint: 'Maria Dela Cruz',
-    relationshipToDeceased: 'Spouse',
+    nameInPrint: '',
+    relationshipToDeceased: '',
     address: {
-      houseNo: '456',
-      st: 'Luna Street',
-      barangay: 'San Roque',
-      cityMunicipality: 'City of Tabaco',
-      province: 'Albay',
-      country: 'Philippines',
+      houseNo: undefined,
+      st: undefined,
+      barangay: undefined,
+      cityMunicipality: '',
+      province: '',
+      country: '',
     },
-    date: new Date('2023-10-02'),
+    date: undefined,
   },
   preparedBy: {
-    nameInPrint: 'Clerk 1',
-    titleOrPosition: 'Clerk 1',
-    date: new Date('2023-10-02'),
+    nameInPrint: undefined,
+    titleOrPosition: '',
+    date: undefined,
   },
   receivedBy: {
-    nameInPrint: 'Clerk 2',
-    titleOrPosition: 'Clerk 2',
-    date: new Date('2023-10-03'),
+    nameInPrint: undefined,
+    titleOrPosition: '',
+    date: undefined,
   },
   registeredByOffice: {
-    nameInPrint: 'Clerk 3',
-    titleOrPosition: 'Clerk 3',
-    date: new Date('2023-10-03'),
+    nameInPrint: undefined,
+    titleOrPosition: '',
+    date: undefined,
   },
-  remarks: 'None',
-  pagination: { pageNumber: '1', bookNumber: '2023-001' },
+  remarks: undefined,
+  pagination: { pageNumber: undefined, bookNumber: undefined },
 };
 
 
 export function useDeathCertificateForm({
   onOpenChange,
   defaultValues,
+  scrollAreaRef,
 }: UseDeathCertificateFormProps = {}) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -380,26 +382,186 @@ export function useDeathCertificateForm({
     }
   };
 
-  const handleError = (errors: any) => {
-    console.log('Form Validation Errors Object:', errors);
-    const logNestedErrors = (obj: any, path: string = '') => {
-      if (!obj) return;
-      if (typeof obj === 'object') {
-        if (obj.message) {
-          console.log(`${path}: ${obj.message}`);
-        }
-        Object.keys(obj).forEach((key) => {
-          logNestedErrors(obj[key], path ? `${path}.${key}` : key);
-        });
-      }
+   // Enhanced error handler with scrolling functionality
+   const handleError = (errors: any) => {
+    console.error("❌ Form Errors:", errors);
+    
+    // Get all error field names to determine which section to scroll to
+    const errorFields = Object.keys(errors);
+    
+    if (errorFields.length === 0) return;
+    
+    // Define the field prefix to card ID mapping for scrolling
+    const fieldToCardMap: Record<string, string> = {
+      'registry': 'registry-information-card',
+      'pagination': 'pagination-inputs',
+      
+      'name': 'deceased-information-card',
+      'sex': 'deceased-information-card',
+      'dateOfDeath': 'deceased-information-card',
+      'dateOfBirth': 'deceased-information-card',
+      'ageAtDeath': 'deceased-information-card',
+      'placeOfDeath': 'deceased-information-card',
+      'civilStatus': 'deceased-information-card',
+      'religion': 'deceased-information-card',
+      'citizenship': 'deceased-information-card',
+      'residence': 'deceased-information-card',
+      'occupation': 'deceased-information-card',
+      'birthInformation': 'deceased-information-card',
+      'parents': 'deceased-information-card',
+      
+      'causesOfDeath19a': 'causes-of-death-19a-card',
+      'causesOfDeath19b': 'causes-of-death-19b-card',
+      
+      'medicalCertificate': 'causes-of-death-19b-card',
+      'maternalCondition': 'maternal-condition-card',
+      'externalCauses': 'death-by-external-causes-card',
+      'attendant': 'attendant-information-card',
+      
+      'certificationOfDeath': 'certification-of-death-card',
+      'postmortemCertificate': 'postmortem-certificate-card',
+      'embalmerCertification': 'embalmer-certification-card',
+      
+      'delayedRegistration': 'affidavit-delayed-registration-card',
+      
+      'corpseDisposal': 'disposal-information-card',
+      'burialPermit': 'disposal-information-card',
+      'transferPermit': 'disposal-information-card',
+      'cemeteryOrCrematory': 'disposal-information-card',
+      
+      'informant': 'certification-informant-card',
+      
+      'preparedBy': 'prepared-by-card',
+      'receivedBy': 'received-by-card',
+      'registeredByOffice': 'registered-at-office-card',
+      
+      'remarks': 'remarks-card',
     };
-    logNestedErrors(errors);
-    console.log(
-      'All validation errors as JSON:',
-      JSON.stringify(errors, null, 2)
-    );
-    toast.error('Please check form for errors');
+    
+    // Build a hierarchy of priority - which errors to scroll to first
+    const errorHierarchy = [
+      'registryNumber', 'province', 'cityMunicipality',
+      'name', 'sex', 'dateOfDeath', 'dateOfBirth',
+      'causesOfDeath19a', 'causesOfDeath19b',
+      // Add more fields in priority order
+    ];
+    
+    // Find the first field that has an error according to our hierarchy
+    let firstErrorField = errorHierarchy.find(field => errorFields.includes(field));
+    
+    // If no match in hierarchy, just take the first error field
+    if (!firstErrorField && errorFields.length > 0) {
+      firstErrorField = errorFields[0];
+    }
+    
+    // Determine which card to scroll to
+    let cardToScrollTo = null;
+    
+    if (firstErrorField) {
+      // First check for exact matches
+      if (fieldToCardMap[firstErrorField]) {
+        cardToScrollTo = fieldToCardMap[firstErrorField];
+      } else {
+        // If no exact match, check for prefixes
+        for (const [prefix, cardId] of Object.entries(fieldToCardMap)) {
+          if (firstErrorField.startsWith(prefix)) {
+            cardToScrollTo = cardId;
+            break;
+          }
+        }
+      }
+    }
+    
+    // Execute the scrolling after a short delay to ensure the DOM is ready
+    setTimeout(() => {
+      if (cardToScrollTo) {
+        // Try to find the corresponding card element
+        const cardElement = document.getElementById(cardToScrollTo) || 
+                          document.querySelector(`.${cardToScrollTo}`);
+        
+        if (cardElement) {
+          // Find the scrollable container - may be the ScrollArea viewport
+          const scrollContainer = scrollAreaRef?.current?.querySelector('[data-radix-scroll-area-viewport]') || 
+                              document.querySelector('[data-radix-scroll-area-viewport]') ||
+                              document.querySelector('.overflow-auto') ||
+                              window;
+          
+          // Different scrolling logic based on the container
+          if (scrollContainer === window) {
+            // Global window scrolling
+            cardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else if (scrollContainer instanceof Element) {
+            // For custom scrollable containers
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const cardRect = cardElement.getBoundingClientRect();
+            
+            // Calculate the scroll position relative to the container
+            const scrollTop = cardRect.top - containerRect.top + scrollContainer.scrollTop - 20;
+            
+            // Scroll the container
+            scrollContainer.scrollTo({
+              top: scrollTop,
+              behavior: 'smooth'
+            });
+          }
+          
+          // Flash the card to highlight it
+          cardElement.classList.add('error-flash');
+          setTimeout(() => {
+            cardElement.classList.remove('error-flash');
+          }, 1000);
+        }
+      }
+      
+      // Build error messages for toast
+      const errorMessages: string[] = [];
+      
+      // Helper function to make field names user-friendly
+      const formatFieldName = (fieldName: string) => {
+        return fieldName
+          .replace(/([A-Z])/g, " $1") // Add space before capital letters
+          .replace(/\./g, " → ") // Replace dots with arrows
+          .trim()
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter
+      };
+      
+      // Log and collect nested errors
+      const processNestedErrors = (obj: any, path: string = '') => {
+        if (!obj) return;
+        
+        if (typeof obj === 'object') {
+          if (obj.message) {
+            const formattedPath = path ? formatFieldName(path) : '';
+            const message = `${formattedPath}: ${obj.message}`;
+            console.log(message);
+            errorMessages.push(message);
+          }
+          
+          Object.keys(obj).forEach((key) => {
+            processNestedErrors(obj[key], path ? `${path}.${key}` : key);
+          });
+        }
+      };
+      
+      processNestedErrors(errors);
+      
+      if (errorMessages.length > 0) {
+        // Show only the first few errors to avoid overwhelming the user
+        const displayedErrors = errorMessages.slice(0, 3);
+        const remainingCount = errorMessages.length - 3;
+        
+        let errorMessage = displayedErrors.join('\n');
+        if (remainingCount > 0) {
+          errorMessage += `\n... and ${remainingCount} more error${remainingCount > 1 ? 's' : ''}`;
+        }
+        
+        toast.error(errorMessage);
+      } else {
+        toast.error('Please check the form for errors');
+      }
+    }, 100);
   };
 
-  return { formMethods, onSubmit, handleError };
+  return { formMethods, onSubmit, handleError, isSubmitting };
 }

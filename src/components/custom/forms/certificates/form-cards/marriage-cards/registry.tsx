@@ -22,6 +22,7 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import LocationSelector from '../shared-components/location-selector';
 
 interface RegistryInformationCardForEditProps {
+
     className?: string;
 }
 
@@ -48,7 +49,7 @@ export const RegistryInformationCardForEdit: React.FC<
     })
 
     return (
-        <Card>
+        <Card  className={` ${className}`}>
             <CardHeader>
                 <CardTitle>Marriage Registry Information</CardTitle>
             </CardHeader>

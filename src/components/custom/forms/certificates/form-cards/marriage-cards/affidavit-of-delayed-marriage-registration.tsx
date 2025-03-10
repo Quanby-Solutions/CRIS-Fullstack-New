@@ -17,6 +17,7 @@ import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/
 
 interface AffidavitForDelayedMarriageRegistrationProps {
     className?: string
+
 }
 
 export const AffidavitForDelayedMarriageRegistration: FC<

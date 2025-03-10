@@ -21,6 +21,7 @@ import { useEffect } from 'react';
 
 interface AffidavitOfSolemnizingOfficerProps {
     className?: string;
+
 }
 
 export const AffidavitOfSolemnizingOfficer: React.FC<
@@ -432,7 +433,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                     />
                                     <FormField
                                         control={control}
-                                        name='affidavitOfSolemnizingOfficer.d.atPlaceExecute.st'
+                                        name='affidavitOfSolemnizingOfficer.d.atPlaceExecute.street'
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Street</FormLabel>
@@ -507,7 +508,7 @@ export const AffidavitOfSolemnizingOfficer: React.FC<
                                     />
                                     <FormField
                                         control={control}
-                                        name='affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.st'
+                                        name='affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.street'
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Street</FormLabel>
