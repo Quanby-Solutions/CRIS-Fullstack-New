@@ -191,7 +191,7 @@ const emptyDefaults: DeathCertificateFormValues = {
       issuedAt: undefined,
     },
   },
-  corpseDisposal: '',
+  corpseDisposal: undefined,
   burialPermit: { number: '', dateIssued: undefined },
   transferPermit: { number: undefined, dateIssued: undefined },
   cemeteryOrCrematory: {

@@ -23,7 +23,7 @@ const ExternalCausesCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
 
   return (
-    <Card>
+    <Card>  
       <CardHeader>
         <CardTitle>Death by External Causes</CardTitle>
       </CardHeader>

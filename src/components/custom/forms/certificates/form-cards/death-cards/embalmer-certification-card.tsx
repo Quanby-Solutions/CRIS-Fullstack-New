@@ -13,15 +13,38 @@ import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/dea
 import { useFormContext } from 'react-hook-form';
 import SignatureUploader from '../shared-components/signature-uploader';
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+import { useEffect } from 'react';
 
 const EmbalmerCertificationCard: React.FC = () => {
-  const { control, watch } = useFormContext<DeathCertificateFormValues>();
+  const { control, watch, setValue, clearErrors, } = useFormContext<DeathCertificateFormValues>();
 
   // Conditionally render this card if corpseDisposal is "Embalming"
   const corpseDisposal = watch('corpseDisposal');
-  if (corpseDisposal !== 'Embalming') {
+  if (corpseDisposal != 'Embalming') {
     return null;
   }
+
+  // Watch the autopsy field
+
+  useEffect(() => {
+    // If autopsy is not performed, clear all postmortem certificate fields and errors
+    if (!corpseDisposal) {
+      // Clear all postmortem certificate fields
+      setValue('embalmerCertification', undefined, { shouldValidate: false });
+
+      // Clear any errors for the postmortem certificate fields
+      clearErrors([
+        'embalmerCertification.nameOfDeceased',
+        'embalmerCertification.nameInPrint',
+        'embalmerCertification.address',
+        'embalmerCertification.titleDesignation',
+        'embalmerCertification.licenseNo',
+        'embalmerCertification.issuedOn',
+        'embalmerCertification.issuedAt',
+        'embalmerCertification.expiryDate',
+      ]);
+    }
+  }, [corpseDisposal, setValue, clearErrors]);
 
   return (
     <Card>
@@ -50,23 +73,6 @@ const EmbalmerCertificationCard: React.FC = () => {
             </FormItem>
           )}
         />
-
-        {/* <FormField
-          control={control}
-          name='embalmerCertification.signature'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Signature</FormLabel>
-              <FormControl>
-                <SignatureUploader
-                  name='embalmerCertification.signature'
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <FormField
           control={control}

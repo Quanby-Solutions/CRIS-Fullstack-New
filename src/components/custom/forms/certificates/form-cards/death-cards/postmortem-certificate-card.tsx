@@ -13,15 +13,35 @@ import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
 import SignatureUploader from '../shared-components/signature-uploader';
+import { useEffect } from 'react';
 
 const PostmortemCertificateCard: React.FC = () => {
-  const { control, watch } = useFormContext<DeathCertificateFormValues>();
+  const { control, watch, setValue, clearErrors } = useFormContext<DeathCertificateFormValues>();
 
-  // Only show if autopsy is performed
+
+  // Watch the autopsy field
   const isAutopsyPerformed = watch('medicalCertificate.autopsy');
-  if (!isAutopsyPerformed) {
-    return null;
-  }
+
+  useEffect(() => {
+    // If autopsy is not performed, clear all postmortem certificate fields and errors
+    if (!isAutopsyPerformed) {
+      // Clear all postmortem certificate fields
+      setValue('postmortemCertificate', undefined, { shouldValidate: false });
+      
+      // Clear any errors for the postmortem certificate fields
+      clearErrors([
+        'postmortemCertificate.causeOfDeath',
+        'postmortemCertificate.nameInPrint',
+        'postmortemCertificate.date',
+        'postmortemCertificate.titleDesignation',
+        'postmortemCertificate.address'
+      ]);
+    }
+  }, [isAutopsyPerformed, setValue, clearErrors]);
+
+    if (!isAutopsyPerformed) {
+      return null;
+    }
 
   return (
     <Card>
@@ -51,24 +71,6 @@ const PostmortemCertificateCard: React.FC = () => {
             </FormItem>
           )}
         />
-
-        {/* Signature */}
-        {/* <FormField
-          control={control}
-          name='postmortemCertificate.signature'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Signature</FormLabel>
-              <FormControl>
-                <SignatureUploader
-                  name='postmortemCertificate.signature'
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         {/* Name in Print */}
         <FormField

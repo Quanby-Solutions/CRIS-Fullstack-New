@@ -109,6 +109,15 @@ export const mapToDeathCertificateValues = (
     return sex === 'Male' || sex === 'Female' ? sex : undefined;
   };
 
+  const validateCorpseDisposal = (corpseDisposal: any): 'Cremation' | 'Embalming' | 'Burial' | undefined => {
+    const validMethods = [
+      'Burial',
+      'Cremation',
+      'Embalming',];
+    return validMethods.includes(corpseDisposal) ? corpseDisposal as any : undefined;
+  };
+
+
   // Validate attendant type
   const validateAttendantType = (
     type: any
@@ -316,7 +325,7 @@ export const mapToDeathCertificateValues = (
     },
 
     // Disposal Information
-    corpseDisposal: ensureString(deathForm.corpseDisposal),
+    corpseDisposal: validateCorpseDisposal(deathForm.corpseDisposal),
     burialPermit: {
       number: ensureString(deathForm.burialPermit?.number),
       dateIssued: parseDateSafely(deathForm.burialPermit?.dateIssued),

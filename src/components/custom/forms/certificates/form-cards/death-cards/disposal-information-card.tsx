@@ -15,9 +15,10 @@ import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const DisposalInformationCard: React.FC = () => {
-  const { control, getValues, setValue } = useFormContext<DeathCertificateFormValues>();
+  const { control, getValues, setValue, watch, clearErrors } = useFormContext<DeathCertificateFormValues>();
   const [disposalNcrMode, setDisposalNcrMode] = useState(false);
 
   useEffect(() => {
@@ -37,6 +38,8 @@ const DisposalInformationCard: React.FC = () => {
     }
   })
 
+  
+
 
   return (
     <Card>
@@ -46,7 +49,7 @@ const DisposalInformationCard: React.FC = () => {
       <CardContent className='space-y-6'>
         {/* Disposal Method */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <FormField
+          {/* <FormField
             control={control}
             name='corpseDisposal'
             render={({ field }) => (
@@ -60,6 +63,31 @@ const DisposalInformationCard: React.FC = () => {
                     value={field.value ?? ''}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
+          <FormField
+            control={control}
+            name='corpseDisposal'
+            render={({ field }) => (
+              <FormItem className='flex flex-col'>
+                <FormLabel>Corpse Disposal Method</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value || 'Embalming'}
+                >
+                  <FormControl>
+                    <SelectTrigger ref={field.ref} className='h-8.5'>
+                      <SelectValue placeholder='Select autopsy status' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value='Embalming'>Embalming</SelectItem>
+                    <SelectItem value='Cremation'>Cremation</SelectItem>
+                    <SelectItem value='Burial'>Burial</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

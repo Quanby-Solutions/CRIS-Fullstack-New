@@ -311,7 +311,7 @@ export async function submitDeathCertificateForm(
 
 
             // Disposal Information.
-            corpseDisposal: formData.corpseDisposal,
+            corpseDisposal: formData.corpseDisposal || '',
             burialPermit: {
               number: formData.burialPermit.number,
               dateIssued: dateToJSON(formData.burialPermit.dateIssued!),

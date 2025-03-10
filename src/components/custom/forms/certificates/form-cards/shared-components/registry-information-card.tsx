@@ -31,7 +31,7 @@ interface RegistryInformationCardProps {
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
-  id,
+  id = 'registry-information-card',
   isEdit,
   forms,
   formType,
@@ -50,12 +50,10 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     error: string | null;
   }>({ exists: null, error: null });
   const [animationKey, setAnimationKey] = useState(0);
-  const [ncrMode, setNcrMode] = useState(false);
-  const { watch } = useFormContext<typeof forms>()
+  const { watch } = useFormContext<typeof forms>();
 
   const minLength = 6;
   const maxLength = 20;
-
 
   const province = watch('province');
   const rNumber = watch('registryNumber');
@@ -70,32 +68,33 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return '';
   };
 
-  useEffect(() => {
-    const provinceString = getProvinceString(province) || 'Metro Manila'
-    
-    // Determine if the province should be NCR (Metro Manila) or not
-    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
-    setNcrMode(shouldBeNCR)
-  
-    // Set the province value based on whether NCR mode is true or false
-    setValue('province', shouldBeNCR ? 'Metro Manila' : provinceString, {
-      shouldValidate: true, // Trigger validation immediately
-      shouldDirty: true,     // Mark the field as dirty to ensure validation
-    })
-  
-    // Manually trigger revalidation of the province field after setting the value
-    trigger('province')
-  }, [province]) // Runs whenever province changes
-  
-  
+  // Determine if the province is Metro Manila without auto-setting
+  const provinceString = getProvinceString(province);
+  const isNCRMode = provinceString?.trim().toLowerCase() === 'metro manila';
 
-
+  // Handle NCR mode toggle explicitly - only update when user actually toggles it
+  const handleNCRModeToggle = (newMode: boolean) => {
+    if (newMode) {
+      setValue('province', 'Metro Manila', {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } else {
+      // Only clear if currently Metro Manila
+      if (provinceString?.trim().toLowerCase() === 'metro manila') {
+        setValue('province', '', {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+    }
+    trigger('province');
+  };
 
   const generateRegistryNumber = () => {
     const year = new Date().getFullYear();
     return `${year}-${Math.floor(Math.random() * 1000000)}`;
   };
-
 
   const validateRegistryNumber = useCallback(
     (value: string): string => {
@@ -117,7 +116,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     },
     [minLength]
   );
-
 
   const checkRegistryNumber = useCallback(
     async (value: string) => {
@@ -155,7 +153,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         setIsChecking(false);
       }
     },
-    [setError, clearErrors, formType, setValue]
+    [setError, clearErrors, formType]
   );
 
   useEffect(() => {
@@ -179,7 +177,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const handleRegistryNumberChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // Removed the early return so user input always works
     let value = event.target.value.replace(/[^\d-]/g, '');
     if (value.length >= 4 && !value.includes('-')) {
       value = value.slice(0, 4) + '-' + value.slice(4);
@@ -206,7 +203,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   };
 
   const handleGenerateRegistryNumber = () => {
-    // Removed the early return so the generate button always works
     const generatedNumber = generateRegistryNumber();
     setRegistryNumber(generatedNumber);
     setValue('registryNumber', generatedNumber);
@@ -215,7 +211,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   };
 
   const getValidationIcon = () => {
-    // Use the current registryNumber instead of initialRegistryNumber for UX feedback
     if (!registryNumber) return null;
 
     if (isChecking) {
@@ -237,21 +232,24 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const description = 'Format: YYYY-numbers (e.g., 2025-123456)';
 
   return (
-    <Card id={id} className={`${id}`}>
+    <Card id={id} className={`registry-information-card ${id}`}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <Card>
           <CardContent className='p-6 flex flex-col gap-4'>
-            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+            <NCRModeSwitch 
+              isNCRMode={isNCRMode} 
+              setIsNCRMode={handleNCRModeToggle} 
+            />
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               {isEdit ? (
                 <FormField
                   name='registryNumber'
                   render={({ field }) => (
-                    <FormItem className="">
+                    <FormItem className="registry-number-field">
                       <FormLabel>Registry Number <span className='text-destructive'>(edit is forbidden)</span></FormLabel>
                       <FormControl className="">
                         <Input
@@ -272,7 +270,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                   control={control}
                   name="registryNumber"
                   render={({ field, fieldState }) => (
-                    <FormItem>
+                    <FormItem className="registry-number-field">
                       <FormLabel>Registry Number</FormLabel>
                       <div className="relative flex items-center">
                         <Button
@@ -301,6 +299,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                             maxLength={maxLength}
                             inputMode="numeric"
                             disabled={false}
+                            id="registry-number-input"
                           />
                         </FormControl>
                         <div className="absolute right-2 top-[10px]">
@@ -315,8 +314,10 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                   )}
                 />
               )}
-              {/* The LocationSelector now ensures that province is required before municipality */}
-              <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
+              <LocationSelector 
+                isNCRMode={isNCRMode} 
+                className='col-span-2' 
+              />
             </div>
           </CardContent>
         </Card>
