@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf"
 import { CertifiedCopy } from "@prisma/client"
 import path from "path"
+import fs from "fs"
 
 type CertifiedCopyData = CertifiedCopy & {
     form?: {
@@ -51,6 +52,9 @@ type CertifiedCopyData = CertifiedCopy & {
             placeOfMarriage: string
         }
     }
+    // Added for image options
+    logoUrl?: string
+    newLogoUrl?: string
 }
 
 /**
@@ -120,6 +124,56 @@ const createSignatureBlock = (
     return y + lineHeight;
 };
 
+// Helper function to load images for the PDF
+async function loadImage(url: string): Promise<string | null> {
+    try {
+        // For Node.js server environment
+        if (typeof window === 'undefined') {
+            // Try to load image from public directory
+            const publicPath = path.join(process.cwd(), 'public', url);
+
+            if (fs.existsSync(publicPath)) {
+                // Convert image to base64
+                const data = fs.readFileSync(publicPath);
+                const base64 = Buffer.from(data).toString('base64');
+                const ext = path.extname(url).substring(1).toLowerCase();
+                return `data:image/${ext};base64,${base64}`;
+            }
+        } else {
+            // For browser environment
+            return url;
+        }
+    } catch (error) {
+        console.error(`Error loading image ${url}:`, error);
+    }
+    return null;
+}
+
+// Modified function for underlinePageBookText that simplifies it to handle only one label with value
+const simplifiedUnderline = (
+    doc: jsPDF,
+    label: string,
+    value: string | number | null | undefined,
+    y: number,
+    leftMargin: number = 25
+): number => {
+    doc.text(label, leftMargin, y);
+
+    // Calculate starting position for value
+    const labelWidth = doc.getTextWidth(label + " ");
+    const valueX = leftMargin + labelWidth;
+
+    // Handle the value
+    const valueStr = value !== null && value !== undefined ? value.toString() : '';
+    doc.text(valueStr, valueX, y);
+
+    // Draw underline for value
+    const valueWidth = valueStr ? doc.getTextWidth(valueStr) : 50;
+    doc.line(valueX, y + 1, valueX + valueWidth, y + 1);
+
+    return y;
+};
+
 export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Buffer> {
     try {
         const doc = new jsPDF({
@@ -128,48 +182,60 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             format: "LEGAL"
         })
 
-        // Add the two logos to the PDF (positioned similar to the sample image)
-        // Left logo - City of Legazpi Official Seal
-        const sealLogoPath = "/images/logo.png" // Adjust path as needed
-        doc.addImage(sealLogoPath, "PNG", 25, 10, 25, 25)
+        // Add the two logos to the PDF
+        try {
+            // Set default image paths if not provided
+            const logoPath = data.logoUrl || '/images/logo.png';
+            const newLogoPath = data.newLogoUrl || '/images/new.png';
 
-        // Right logo - City Civil Registry Office logo
-        const registryLogoPath = "/images/new.png" // Adjust path as needed
-        doc.addImage(registryLogoPath, "PNG", doc.internal.pageSize.width - 50, 10, 25, 25)
+            // Left logo
+            const leftLogoData = await loadImage(logoPath);
+            if (leftLogoData) {
+                doc.addImage(leftLogoData, "PNG", 50, 10, 25, 25);
+            }
 
-        // After adding logos, continue with the document content
+            // Right logo
+            const rightLogoData = await loadImage(newLogoPath);
+            if (rightLogoData) {
+                doc.addImage(rightLogoData, "PNG", doc.internal.pageSize.width - 75, 10, 25, 25);
+            }
+        } catch (error) {
+            console.error("Error loading images:", error)
+            // Continue without images if they fail to load
+        }
+
+        // Add form type in top-left corner if needed
+        doc.setFontSize(9)
+        if (data.form?.formType === 'FORM_1A') {
+            doc.text("Civil Registry Form No. 1A", 10, 10)
+            doc.text("Birth- Available", 10, 15)
+        } else if (data.form?.formType === 'FORM_2A') {
+            doc.text("Civil Registry Form No. 2A", 10, 10)
+            doc.text("Death- Available", 10, 15)
+        } else if (data.form?.formType === 'FORM_3A') {
+            doc.text("Civil Registry Form No. 3A", 10, 10)
+            doc.text("Marriage- Available", 10, 15)
+        }
+
+        // Set up header text
+        doc.setFont("helvetica", "normal")
+        doc.setFontSize(12)
+        doc.text("Republic of the Philippines", doc.internal.pageSize.width / 2, 15, { align: "center" })
+
         doc.setFont("helvetica", "bold")
-        doc.setFontSize(14)
+        doc.text("CITY CIVIL REGISTRY OFFICE", doc.internal.pageSize.width / 2, 22, { align: "center" })
 
-        // Modified text placement to account for logos
+        doc.setFont("helvetica", "normal")
+        doc.text("City of Legazpi", doc.internal.pageSize.width / 2, 29, { align: "center" })
+
+        // Date aligned to the right
         const currentDate = new Date().toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
             year: 'numeric'
         })
-
-        doc.text("Republic of the Philippines", doc.internal.pageSize.width / 2, 15, { align: "center" })
-        doc.text("CITY CIVIL REGISTRY OFFICE", doc.internal.pageSize.width / 2, 25, { align: "center" })
-        doc.text("City of Legazpi", doc.internal.pageSize.width / 2, 35, { align: "center" })
-
-        // Date aligned to the right (as in sample)
-        doc.text(currentDate, doc.internal.pageSize.width - 25, 45, { align: "right" })
-
-        // Form Type in top-left corner
-        doc.setFontSize(10)
-        if (data.form?.formType === 'FORM_1A') {
-            doc.text("Civil Registry Form No. 1A", 20, 20)
-            doc.text("Birth- Available", 20, 25)
-        } else if (data.form?.formType === 'FORM_2A') {
-            doc.text("Civil Registry Form No. 2A", 20, 20)
-            doc.text("Death- Available", 20, 25)
-        } else if (data.form?.formType === 'FORM_3A') {
-            doc.text("Civil Registry Form No. 3A", 20, 20)
-            doc.text("Marriage- Available", 20, 25)
-        }
-
-        doc.setFont("helvetica", "normal")
         doc.setFontSize(11)
+        doc.text(currentDate, doc.internal.pageSize.width - 20, 45, { align: "right" })
 
         doc.text("TO WHOM IT MAY CONCERN:", 20, 60)
 
@@ -228,67 +294,81 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
             y += lineHeight
         }
 
-        const underlinePageBookText = (prefix?: string, page?: string | number | null | undefined, book?: string | number | null | undefined, suffix?: string) => {
-            doc.text(prefix || '', leftMargin, y)
-            let currentX = leftMargin + doc.getTextWidth(prefix + ' ')
-
-            const pageStr = page !== null && page !== undefined ? page.toString() : ''
-            doc.text(pageStr, currentX, y)
-            doc.line(currentX, y + 1, currentX + (pageStr ? doc.getTextWidth(pageStr) : 40), y + 1)
-            currentX += doc.getTextWidth(pageStr + ' ')
-
-            const bookStr = book !== null && book !== undefined ? book.toString() : ''
-            doc.text(bookStr, currentX, y)
-            doc.line(currentX, y + 1, currentX + (bookStr ? doc.getTextWidth(bookStr) : 40), y + 1)
-
-            currentX += doc.getTextWidth(bookStr)
-            doc.text(suffix || '', currentX, y)
-            y += lineHeight
-        }
-
         if (data.form) {
             // Update type checks to use specificForm
             if (data.form.formType === 'FORM_1A' && data.form.specificForm && 'nameOfChild' in data.form.specificForm) {
-                underlinePageBookText('We certify that, among others, the following facts of birth appear in our Register of Birth on', data.pageNo)
-                underlinePageBookText('page number', data.pageNo, data.bookNo, 'book number')
+                // First line - registry statement
+                doc.text('We certify that, among others, the following facts of birth appear in our Register of Birth on', leftMargin, y);
+                y += lineHeight;
+
+                // Second line - page number (on its own line)
+                simplifiedUnderline(doc, 'page number', data.pageNo, y, leftMargin);
+                y += lineHeight;
+
+                // Third line - book number (on its own line)
+                simplifiedUnderline(doc, 'book number', data.bookNo, y, leftMargin);
+                y += lineHeight;
+
                 spaceY(10)
 
-                renderField("Registry Number", data.lcrNo)
-                renderField("Date of Registration", data.form.specificForm.dateOfBirth.toLocaleDateString())
-                renderField("Name of Child", data.form.specificForm.nameOfChild)
-                renderField("Sex", data.form.specificForm.sex || '')
-                renderField("Date of Birth", data.form.specificForm.dateOfBirth.toLocaleDateString())
-                renderField("Place of Birth", data.form.specificForm.placeOfBirth)
-                renderField("Name of Mother", data.form.specificForm.nameOfMother)
-                renderField("Citizenship of Mother", data.form.specificForm.citizenshipMother || '')
-                renderField("Name of Father", data.form.specificForm.nameOfFather)
-                renderField("Citizenship of Father", data.form.specificForm.citizenshipFather || '')
+                renderField("Registry Number:", data.lcrNo)
+                renderField("Date of Registration:", data.form.specificForm.dateOfBirth.toLocaleDateString())
+                renderField("Name of Child:", data.form.specificForm.nameOfChild)
+                renderField("Sex:", data.form.specificForm.sex || '')
+                renderField("Date of Birth:", data.form.specificForm.dateOfBirth.toLocaleDateString())
+                renderField("Place of Birth:", data.form.specificForm.placeOfBirth)
+                renderField("Name of Mother:", data.form.specificForm.nameOfMother)
+                renderField("Citizenship of Mother:", data.form.specificForm.citizenshipMother || '')
+                renderField("Name of Father:", data.form.specificForm.nameOfFather)
+                renderField("Citizenship of Father:", data.form.specificForm.citizenshipFather || '')
 
                 if (data.form.specificForm.dateMarriageParents) {
-                    renderField("Date of Marriage of Parents", data.form.specificForm.dateMarriageParents.toLocaleDateString())
-                    renderField("Place of Marriage of Parents", data.form.specificForm.placeMarriageParents || '')
+                    renderField("Date of Marriage of Parents:", data.form.specificForm.dateMarriageParents.toLocaleDateString())
+                    renderField("Place of Marriage of Parents:", data.form.specificForm.placeMarriageParents || '')
                 } else {
-                    renderField("Date of Marriage of Parents", undefined)
-                    renderField("Place of Marriage of Parents", undefined)
+                    renderField("Date of Marriage of Parents:", undefined)
+                    renderField("Place of Marriage of Parents:", undefined)
                 }
             }
             else if (data.form.formType === 'FORM_2A' && data.form.specificForm && 'nameOfDeceased' in data.form.specificForm) {
-                underlinePageBookText('We certify that, among others, the following facts of death appear in our Register of Death on', data.pageNo, data.bookNo)
+                // First line - registry statement
+                doc.text('We certify that, among others, the following facts of death appear in our Register of Death on', leftMargin, y);
+                y += lineHeight;
+
+                // Second line - page number (on its own line)
+                simplifiedUnderline(doc, 'page number', data.pageNo, y, leftMargin);
+                y += lineHeight;
+
+                // Third line - book number (on its own line)
+                simplifiedUnderline(doc, 'book number', data.bookNo, y, leftMargin);
+                y += lineHeight;
+
                 spaceY(10)
 
-                renderField("Registry Number", data.lcrNo)
-                renderField("Date of Registration", data.date?.toLocaleDateString())
-                renderField("Name of Deceased", data.form.specificForm.nameOfDeceased)
-                renderField("Sex", data.form.specificForm.sex || '')
-                renderField("Age", data.form.specificForm.age?.toString() || '')
-                renderField("Civil Status", data.form.specificForm.civilStatus || '')
-                renderField("Citizenship", data.form.specificForm.citizenship || '')
-                renderField("Date of Death", data.form.specificForm.dateOfDeath.toLocaleDateString())
-                renderField("Place of Death", data.form.specificForm.placeOfDeath)
-                renderField("Cause of Death", data.form.specificForm.causeOfDeath || '')
+                renderField("Registry Number:", data.lcrNo)
+                renderField("Date of Registration:", data.date?.toLocaleDateString())
+                renderField("Name of Deceased:", data.form.specificForm.nameOfDeceased)
+                renderField("Sex:", data.form.specificForm.sex || '')
+                renderField("Age:", data.form.specificForm.age?.toString() || '')
+                renderField("Civil Status:", data.form.specificForm.civilStatus || '')
+                renderField("Citizenship:", data.form.specificForm.citizenship || '')
+                renderField("Date of Death:", data.form.specificForm.dateOfDeath.toLocaleDateString())
+                renderField("Place of Death:", data.form.specificForm.placeOfDeath)
+                renderField("Cause of Death:", data.form.specificForm.causeOfDeath || '')
             }
             else if (data.form.formType === 'FORM_3A' && data.form.specificForm && 'husbandName' in data.form.specificForm) {
-                underlinePageBookText('We certify that, among others, the following facts of marriage appear in our Register of Marriage on', data.pageNo, data.bookNo)
+                // First line - registry statement
+                doc.text('We certify that, among others, the following facts of marriage appear in our Register of Marriage on', leftMargin, y);
+                y += lineHeight;
+
+                // Second line - page number (on its own line)
+                simplifiedUnderline(doc, 'page number', data.pageNo, y, leftMargin);
+                y += lineHeight;
+
+                // Third line - book number (on its own line)
+                simplifiedUnderline(doc, 'book number', data.bookNo, y, leftMargin);
+                y += lineHeight;
+
                 spaceY(10)
 
                 doc.setFont("helvetica", "bold")
@@ -298,12 +378,12 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
 
                 doc.setFont("helvetica", "normal")
                 const marriageFields = [
-                    ["Name", data.form.specificForm.husbandName, data.form.specificForm.wifeName],
-                    ["Date of Birth/Age", data.form.specificForm.husbandDateOfBirthAge || '', data.form.specificForm.wifeDateOfBirthAge || ''],
-                    ["Citizenship", data.form.specificForm.husbandCitizenship || '', data.form.specificForm.wifeCitizenship || ''],
-                    ["Civil Status", data.form.specificForm.husbandCivilStatus || '', data.form.specificForm.wifeCivilStatus || ''],
-                    ["Father", data.form.specificForm.husbandFather || '', data.form.specificForm.wifeFather || ''],
-                    ["Mother", data.form.specificForm.husbandMother || '', data.form.specificForm.wifeMother || '']
+                    ["Name:", data.form.specificForm.husbandName, data.form.specificForm.wifeName],
+                    ["Date of Birth/Age:", data.form.specificForm.husbandDateOfBirthAge || '', data.form.specificForm.wifeDateOfBirthAge || ''],
+                    ["Citizenship:", data.form.specificForm.husbandCitizenship || '', data.form.specificForm.wifeCitizenship || ''],
+                    ["Civil Status:", data.form.specificForm.husbandCivilStatus || '', data.form.specificForm.wifeCivilStatus || ''],
+                    ["Father:", data.form.specificForm.husbandFather || '', data.form.specificForm.wifeFather || ''],
+                    ["Mother:", data.form.specificForm.husbandMother || '', data.form.specificForm.wifeMother || '']
                 ]
 
                 marriageFields.forEach(([label, husbandValue, wifeValue]) => {
@@ -328,8 +408,8 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
                 })
 
                 y += lineHeight
-                renderField("Date of Marriage", data.form.specificForm.dateOfMarriage.toLocaleDateString())
-                renderField("Place of Marriage", data.form.specificForm.placeOfMarriage)
+                renderField("Date of Marriage:", data.form.specificForm.dateOfMarriage.toLocaleDateString())
+                renderField("Place of Marriage:", data.form.specificForm.placeOfMarriage)
             }
 
             // Example usage
@@ -356,11 +436,11 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
 
             // this is the footer
             y += lineHeight + 5;
-            renderField("Amount Paid", data.amountPaid && data.amountPaid > 0 ? `₱${data.amountPaid.toFixed(2)}` : undefined)
-            renderField("O.R. Number", data.orNumber || undefined)
-            renderField("Date Paid", data.datePaid?.toLocaleDateString() || undefined)
+            renderField("Amount Paid:", data.amountPaid && data.amountPaid > 0 ? `₱${data.amountPaid.toFixed(2)}` : undefined)
+            renderField("O.R. Number:", data.orNumber || undefined)
+            renderField("Date Paid:", data.datePaid?.toLocaleDateString() || undefined)
 
-            // Add the note at the bottom (as in sample)
+            // Add note at the bottom 
             y += lineHeight + 5;
             doc.setFont("helvetica", "italic");
             doc.text("Note: A mark, erasure or alteration of any entry invalidates this certification.", leftMargin, y);
