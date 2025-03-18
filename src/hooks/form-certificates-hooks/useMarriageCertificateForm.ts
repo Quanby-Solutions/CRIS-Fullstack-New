@@ -33,360 +33,359 @@ const preparePrismaData = (data: any) => {
 
 const emptyDefaults: MarriageCertificateFormValues = {
     // Registry Information
-    registryNumber: '',
-    province: '',
-    cityMunicipality: '',
+    registryNumber: '2023-12345',
+    province: 'Metro Manila',
+    cityMunicipality: 'Quezon City',
 
     pagination: {
-        pageNumber: '',
-        bookNumber: ''
+        pageNumber: '15',
+        bookNumber: '10'
     },
 
     // Husband Information
     husbandName: {
-        first: '',
-        middle: '',
-        last: ''
+        first: 'Juan',
+        middle: 'Dela',
+        last: 'Cruz'
     },
-    husbandAge: 0,
-    husbandBirth: undefined,
+    husbandAge: 30,
+    husbandBirth: new Date('1993-05-15'),
     husbandPlaceOfBirth: {
-        houseNo: '',
-        street: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: ''
+        houseNo: '123',
+        street: 'Main Street',
+        barangay: 'Barangay 1',
+        cityMunicipality: 'Manila',
+        province: 'Metro Manila',
+        country: 'Philippines'
     },
-    husbandSex: undefined,
-    husbandCitizenship: '',
-    husbandResidence: '',
-    husbandReligion: '',
-    husbandCivilStatus: undefined,
+    husbandSex: 'Male',
+    husbandCitizenship: 'Filipino',
+    husbandResidence: 'Quezon City',
+    husbandReligion: 'Roman Catholic',
+    husbandCivilStatus: 'Single',
     husbandConsentPerson: {
         name: {
-            first: '',
-            middle: '',
-            last: ''
+            first: 'Pedro',
+            middle: 'Dela',
+            last: 'Cruz'
         },
-        relationship: '',
+        relationship: 'Father',
         residence: {
-            houseNo: '',
-            street: '',
-            barangay: '',
-            cityMunicipality: '',
-            province: '',
-            country: ''
+            houseNo: '123',
+            street: 'Main Street',
+            barangay: 'Barangay 1',
+            cityMunicipality: 'Manila',
+            province: 'Metro Manila',
+            country: 'Philippines'
         }
     },
     husbandParents: {
         fatherName: {
-            first: '',
-            middle: '',
-            last: ''
+            first: 'Pedro',
+            middle: 'Dela',
+            last: 'Cruz'
         },
-        fatherCitizenship: '',
+        fatherCitizenship: 'Filipino',
         motherName: {
-            first: '',
-            middle: '',
-            last: ''
+            first: 'Maria',
+            middle: 'Dela',
+            last: 'Cruz'
         },
-        motherCitizenship: ''
+        motherCitizenship: 'Filipino'
     },
 
     // Wife Information
     wifeName: {
-        first: '',
-        middle: '',
-        last: ''
+        first: 'Maria',
+        middle: 'Santos',
+        last: 'Reyes'
     },
-    wifeAge: 0,
-    wifeBirth: undefined,
+    wifeAge: 28,
+    wifeBirth: new Date('1995-08-20'),
     wifePlaceOfBirth: {
-        houseNo: '',
-        street: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: ''
+        houseNo: '456',
+        street: 'Second Street',
+        barangay: 'Barangay 2',
+        cityMunicipality: 'Makati',
+        province: 'Metro Manila',
+        country: 'Philippines'
     },
-    wifeSex: undefined,
-    wifeCitizenship: '',
-    wifeResidence: '',
-    wifeReligion: '',
-    wifeCivilStatus: undefined,
+    wifeSex: 'Female',
+    wifeCitizenship: 'Filipino',
+    wifeResidence: 'Makati',
+    wifeReligion: 'Roman Catholic',
+    wifeCivilStatus: 'Single',
     wifeConsentPerson: {
         name: {
-            first: '',
-            middle: '',
-            last: ''
+            first: 'Juan',
+            middle: 'Santos',
+            last: 'Reyes'
         },
-        relationship: '',
+        relationship: 'Father',
         residence: {
-            houseNo: '',
-            street: '',
-            barangay: '',
-            cityMunicipality: '',
-            province: '',
-            country: ''
+            houseNo: '456',
+            street: 'Second Street',
+            barangay: 'Barangay 2',
+            cityMunicipality: 'Makati',
+            province: 'Metro Manila',
+            country: 'Philippines'
         }
     },
     wifeParents: {
         fatherName: {
-            first: '',
-            middle: '',
-            last: ''
+            first: 'Juan',
+            middle: 'Santos',
+            last: 'Reyes'
         },
-        fatherCitizenship: '',
+        fatherCitizenship: 'Filipino',
         motherName: {
-            first: '',
-            middle: '',
-            last: ''
+            first: 'Ana',
+            middle: 'Santos',
+            last: 'Reyes'
         },
-        motherCitizenship: ''
+        motherCitizenship: 'Filipino'
     },
 
     // Marriage Details
     placeOfMarriage: {
-        houseNo: '',
-        street: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: ''
+        houseNo: '789',
+        street: 'Third Street',
+        barangay: 'Barangay 3',
+        cityMunicipality: 'Taguig',
+        province: 'Metro Manila',
+        country: 'Philippines'
     },
-    dateOfMarriage: undefined,
-    timeOfMarriage: undefined,
+    dateOfMarriage: new Date('2023-10-15'),
+    timeOfMarriage: new Date('2023-10-15T14:00:00'),
 
     // Witnesses
     husbandWitnesses: [
         {
-            name: ''
+            name: 'John Doe'
         },
         {
-            name: ''
+            name: 'Jane Doe'
         }
     ],
     wifeWitnesses: [
         {
-            name: ''
+            name: 'Alice Smith'
         },
         {
-            name: ''
+            name: 'Bob Johnson'
         }
     ],
 
     // Contract Details
-    contractDay: undefined,
+    contractDay: new Date('2023-10-15'),
 
     // Contracting Parties
     husbandContractParty: {
-        agreement: undefined
+        agreement: true
     },
     wifeContractParty: {
-        agreement: undefined
+        agreement: true
     },
 
     // Marriage License Details
     marriageLicenseDetails: {
-        dateIssued: undefined,
-        placeIssued: '',
-        licenseNumber: '',
-        marriageAgreement:  false
+        dateIssued: new Date('2023-09-01'),
+        placeIssued: 'Quezon City',
+        licenseNumber: 'LIC-12345',
+        marriageAgreement: true
     },
 
     // Marriage Article
     marriageArticle: {
-        article: '',
-        marriageArticle: false
+        article: 'Article 1',
+        marriageArticle: true
     },
 
     // Marriage Settlement
-    marriageSettlement: false,
+    marriageSettlement: true,
 
     // Solemnizing Officer
     solemnizingOfficer: {
-        name: '',
-        position: '',
-        registryNoExpiryDate: ''
+        name: 'Fr. Jose Gomez',
+        position: 'Priest',
+        registryNoExpiryDate: '2025-12-31'
     },
 
     // Registered at Civil Registrar
     preparedBy: {
-        date: undefined,
-        nameInPrint: '',
-        titleOrPosition: ''
+        date: new Date('2023-10-16'),
+        nameInPrint: 'Clerk Juan Dela Cruz',
+        titleOrPosition: 'Civil Registrar Clerk'
     },
     receivedBy: {
-        date: undefined,
-        nameInPrint: '',
-        titleOrPosition: ''
+        date: new Date('2023-10-16'),
+        nameInPrint: 'Clerk Maria Santos',
+        titleOrPosition: 'Civil Registrar Clerk'
     },
     registeredByOffice: {
-        date: undefined,
-        nameInPrint: '',
-        titleOrPosition: ''
+        date: new Date('2023-10-16'),
+        nameInPrint: 'Office of the Civil Registrar',
+        titleOrPosition: 'Civil Registrar Office'
     },
 
     // Optional Sections
-    remarks: '',
+    remarks: 'No remarks.',
 
-    // Back page data - Affidavit of Solemnizing Officer
+    // Affidavit of Solemnizing Officer
     affidavitOfSolemnizingOfficer: {
         solemnizingOfficerInformation: {
             officerName: {
-                first: '',
-                middle: '',
-                last: ''
+                first: 'Jose',
+                middle: 'Gomez',
+                last: 'Fr.'
             },
-            officeName: '',
-            address: ''
+            officeName: 'St. Peter Parish',
+            address: 'Quezon City, Philippines'
         },
-
         a: {
             nameOfHusband: {
-                first: '',
-                middle: '',
-                last: ''
+                first: 'Juan',
+                middle: 'Dela',
+                last: 'Cruz'
             },
             nameOfWife: {
-                first: '',
-                middle: '',
-                last: ''
-            },
+                first: 'Maria',
+                middle: 'Santos',
+                last: 'Reyes'
+            }
         },
         b: {
-            a: false,
-            b: false,
-            c: false,
-            d: false,
-            e: false,
+            a: true,
+            b: true,
+            c: true,
+            d: true,
+            e: true
         },
-        c: '',
+        c: 'All details are correct.',
         d: {
-            dayOf: undefined,
+            dayOf: new Date('2023-10-15'),
             atPlaceExecute: {
-                street: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
-            },
+                street: 'Third Street',
+                barangay: 'Barangay 3',
+                cityMunicipality: 'Taguig',
+                province: 'Metro Manila',
+                country: 'Philippines'
+            }
         },
         dateSworn: {
-            dayOf: undefined,
+            dayOf: new Date('2023-10-16'),
             atPlaceOfSworn: {
-                street: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
+                street: 'Third Street',
+                barangay: 'Barangay 3',
+                cityMunicipality: 'Taguig',
+                province: 'Metro Manila',
+                country: 'Philippines'
             },
             ctcInfo: {
-                number: '',
-                dateIssued: undefined,
-                placeIssued: ''
-            },
+                number: 'CTC-12345',
+                dateIssued: new Date('2023-10-16'),
+                placeIssued: 'Taguig City Hall'
+            }
         },
         administeringOfficerInformation: {
             adminName: {
-                first: '',
-                middle: '',
-                last: ''
+                first: 'Maria',
+                middle: 'Santos',
+                last: 'Reyes'
             },
-            address: '',
-            position: ''
-        },
+            address: 'Taguig City Hall',
+            position: 'Civil Registrar'
+        }
     },
 
     // Affidavit for Delayed Registration
     affidavitForDelayed: {
-        delayedRegistration: undefined,
+        delayedRegistration: 'No',
         administeringInformation: {
-            adminName: '',
-            position: '',
-            adminAddress: ''
+            adminName: 'Maria Santos',
+            position: 'Civil Registrar',
+            adminAddress: 'Taguig City Hall'
         },
         applicantInformation: {
-            nameOfApplicant: '',
-            postalCode: '',
+            nameOfApplicant: 'Juan Dela Cruz',
+            postalCode: '1630',
             applicantAddress: {
-                st: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
+                st: 'Main Street',
+                barangay: 'Barangay 1',
+                cityMunicipality: 'Quezon City',
+                province: 'Metro Manila',
+                country: 'Philippines'
             }
         },
         a: {
             a: {
-                agreement: undefined,
+                agreement: true,
                 nameOfPartner: {
-                    first: '',
-                    middle: '',
-                    last: ''
+                    first: 'Maria',
+                    middle: 'Santos',
+                    last: 'Reyes'
                 },
-                placeOfMarriage: '',
-                dateOfMarriage: undefined,
+                placeOfMarriage: 'Taguig City',
+                dateOfMarriage: new Date('2023-10-15')
             },
             b: {
-                agreement: undefined,
+                agreement: true,
                 nameOfHusband: {
-                    first: '',
-                    middle: '',
-                    last: ''
+                    first: 'Juan',
+                    middle: 'Dela',
+                    last: 'Cruz'
                 },
                 nameOfWife: {
-                    first: '',
-                    middle: '',
-                    last: ''
+                    first: 'Maria',
+                    middle: 'Santos',
+                    last: 'Reyes'
                 },
-                placeOfMarriage: '',
-                dateOfMarriage: undefined,
+                placeOfMarriage: 'Taguig City',
+                dateOfMarriage: new Date('2023-10-15')
             }
         },
         b: {
-            solemnizedBy: '',
-            sector: 'religious-ceremony',
+            solemnizedBy: 'Fr. Jose Gomez',
+            sector: 'religious-ceremony'
         },
         c: {
             a: {
-                licenseNo: '',
-                dateIssued: undefined,
-                placeOfSolemnizedMarriage: ''
+                licenseNo: 'LIC-12345',
+                dateIssued: new Date('2023-09-01'),
+                placeOfSolemnizedMarriage: 'Taguig City'
             },
             b: {
-                underArticle: ''
+                underArticle: 'Article 1'
             }
         },
         d: {
-            husbandCitizenship: '',
-            wifeCitizenship: ''
+            husbandCitizenship: 'Filipino',
+            wifeCitizenship: 'Filipino'
         },
-        e: '',
+        e: 'No additional information.',
         f: {
-            date: undefined,
+            date: new Date('2023-10-16'),
             place: {
-                st: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
+                st: 'Main Street',
+                barangay: 'Barangay 1',
+                cityMunicipality: 'Quezon City',
+                province: 'Metro Manila',
+                country: 'Philippines'
             }
         },
         dateSworn: {
-            dayOf: undefined,
+            dayOf: new Date('2023-10-16'),
             atPlaceOfSworn: {
-                st: '',
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: ''
+                st: 'Main Street',
+                barangay: 'Barangay 1',
+                cityMunicipality: 'Quezon City',
+                province: 'Metro Manila',
+                country: 'Philippines'
             },
             ctcInfo: {
-                number: '',
-                dateIssued: undefined,
-                placeIssued: ''
+                number: 'CTC-12345',
+                dateIssued: new Date('2023-10-16'),
+                placeIssued: 'Taguig City Hall'
             }
         }
     }

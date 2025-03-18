@@ -111,7 +111,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
       if (year < 1945 || year > currentYear) {
         return 'Registration year must be between 1945 and current year';
       }
-
       return '';
     },
     [minLength]
