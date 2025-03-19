@@ -127,7 +127,7 @@ export default function DynamicBirthCertificateForm({
                     <div className="p-6 space-y-4">
                       <PaginationInputs />
                       <RegistryInformationCard formType={FormType.BIRTH} />
-                      <ChildInformationCard />
+                      <ChildInformationCard />    
                       <MotherInformationCard />
                       <FatherInformationCard />
                       <MarriageInformationCard />

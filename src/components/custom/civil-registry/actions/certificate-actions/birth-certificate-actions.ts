@@ -2,7 +2,6 @@
 'use server';
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import { isFileLike } from '@/lib/utils/file-helper';
 import { fileToBase64 } from '@/lib/utils/fileToBase64';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -17,26 +16,17 @@ export async function submitBirthCertificateForm(
 
     return await prisma.$transaction(
       async (tx) => {
-        // Find the user by name
-        const preparedByUser = await tx.user.findFirst({
-          where: {
-            name: formData.preparedBy.nameInPrint,
-          },
-        });
+        // Use preparedBy name directly without user lookup
+        const preparedByName = formData.preparedBy.nameInPrint;
 
-        if (!preparedByUser) {
-          throw new Error(
-            `No user found with name: ${formData.preparedBy.nameInPrint}`
-          );
-        }
-
-        // Find the user for receivedBy and registeredBy
+        // Find the user for receivedBy
         const receivedByUser = await tx.user.findFirst({
           where: {
             name: formData.receivedBy.nameInPrint,
           },
         });
 
+        // Find the user for registeredByOffice
         const registeredByUser = await tx.user.findFirst({
           where: {
             name: formData.registeredByOffice.nameInPrint,
@@ -47,11 +37,9 @@ export async function submitBirthCertificateForm(
           throw new Error('ReceivedBy or RegisteredBy user not found');
         }
 
-        // Use pagination details directly from the form data.
         const pageNumber = formData.pagination?.pageNumber || '';
         const bookNumber = formData.pagination?.bookNumber || '';
 
-        // Create the BaseRegistryForm record
         const baseForm = await tx.baseRegistryForm.create({
           data: {
             formNumber: '102',
@@ -64,14 +52,14 @@ export async function submitBirthCertificateForm(
             dateOfRegistration: new Date(),
             isLateRegistered: formData.isDelayedRegistration,
             status: DocumentStatus.PENDING,
-            preparedById: preparedByUser.id,
+            preparedById: null, // No user association
             verifiedById: null,
-            preparedByName: formData.preparedBy.nameInPrint,
+            preparedByName: preparedByName,
             verifiedByName: null,
             receivedById: receivedByUser.id,
             receivedBy: formData.receivedBy.nameInPrint,
             receivedByPosition: formData.receivedBy.titleOrPosition,
-            receivedByDate: formData.receivedBy.date, // Correct field name used here
+            receivedByDate: formData.receivedBy.date,
             registeredById: registeredByUser.id,
             registeredBy: formData.registeredByOffice.nameInPrint,
             registeredByPosition: formData.registeredByOffice.titleOrPosition,

@@ -127,9 +127,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     const uniquePreparers = new Set<string>()
 
     table.getPreFilteredRowModel().rows.forEach((row) => {
-      if (row.original.preparedBy?.name) {
-        uniquePreparers.add(row.original.preparedBy.name)
-      }
+      // if (row.original.preparedBy?.name) {
+      //   uniquePreparers.add(row.original.preparedBy.name)
+      // }
     })
 
     return Array.from(uniquePreparers)
@@ -161,7 +161,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   }, [table.getPreFilteredRowModel().rows])
 
   const formTypeColumn = table.getColumn("formType")
-  const preparedByColumn = table.getColumn("preparedBy")
+  // const preparedByColumn = table.getColumn("preparedBy")
   const verifiedByColumn = table.getColumn("verifiedBy")
   const createdAtColumn = table.getColumn("createdAt")
   const statusColumn = table.getColumn("status")
@@ -175,7 +175,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       "formType",
       "registryDetails",
       "details",
-      "preparedBy",
+      // "preparedBy",
       "verifiedBy",
       "registeredBy",
       "status",
@@ -478,13 +478,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             />
           )}
 
-          {preparedByColumn && preparerOptions.length > 0 && (
+          {/* {preparedByColumn && preparerOptions.length > 0 && (
             <DataTableFacetedFilter
               column={preparedByColumn}
               title={t("Prepared By")}
               options={preparerOptions}
             />
-          )}
+          )} */}
 
           {verifiedByColumn && verifierOptions.length > 0 && (
             <DataTableFacetedFilter
