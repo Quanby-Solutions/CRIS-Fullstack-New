@@ -48,6 +48,9 @@ async function main() {
         Permission.FEEDBACK_READ,
         Permission.FEEDBACK_DELETE,
         Permission.FEEDBACK_EXPORT,
+        Permission.DOCUMENT_BIRTH,
+        Permission.DOCUMENT_DEATH,
+        Permission.DOCUMENT_MARRIAGE
       ],
     },
     {
