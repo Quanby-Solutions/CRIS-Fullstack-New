@@ -349,26 +349,26 @@ export const createColumns = (
         return value.some((val) => location.toLowerCase().includes(val.toLowerCase()))
       },
     },
-    {
-      id: 'preparedBy',
-      accessorFn: (row) => row.preparedBy?.name,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('preparedBy')} />
-      ),
-      cell: ({ row }) => {
-        const preparedBy = row.original.preparedBy?.name || 'N/A'
-        return (
-          <div className="flex flex-col space-y-1">
-            <span className="font-medium">{preparedBy}</span>
-          </div>
-        )
-      },
-      filterFn: (row, id, value: string[]) => {
-        const preparerName = row.original.preparedBy?.name
-        if (!value?.length) return true
-        return value.includes(preparerName || '')
-      },
-    },
+      // {
+      //   id: 'preparedBy',
+      //   accessorFn: (row) => row.preparedBy?.name,
+      //   header: ({ column }) => (
+      //     <DataTableColumnHeader column={column} title={translate('preparedBy')} />
+      //   ),
+      //   cell: ({ row }) => {
+      //     const preparedBy = row.original.preparedBy?.name || 'N/A'
+      //     return (
+      //       <div className="flex flex-col space-y-1">
+      //         <span className="font-medium">{preparedBy}</span>
+      //       </div>
+      //     )
+      //   },
+      //   filterFn: (row, id, value: string[]) => {
+      //     const preparerName = row.original.preparedBy?.name
+      //     if (!value?.length) return true
+      //     return value.includes(preparerName || '')
+      //   },
+      // },
     {
       id: 'verifiedBy',
       accessorFn: (row) => row.verifiedBy?.name,

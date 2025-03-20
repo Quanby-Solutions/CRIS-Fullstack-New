@@ -7,7 +7,9 @@
   - run migrations (`npx prisma db push`)
   - run dev migration (`npx prisma migrate dev`)
   - see prisma db (`npx prisma studio`)
+  - generate (`pnpm prisma generate`)
 - auth setup (todo)
+- Reset DB `pnpm prisma db push --force-reset` and `pnpm prisma db seed`
 
 ## Stack
 

@@ -77,6 +77,12 @@ export function DataTableRowActions({
   const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE);
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE);
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE);
+
+  const hasBirth = hasPermission(permissions, Permission.DOCUMENT_BIRTH)
+  const hasDeath = hasPermission(permissions, Permission.DOCUMENT_DEATH)
+  const hasMarriage = hasPermission(permissions, Permission.DOCUMENT_MARRIAGE)
+
+
   const canExport =
     hasPermission(permissions, Permission.DOCUMENT_EXPORT) ||
     process.env.NEXT_PUBLIC_NODE_ENV === 'development';
@@ -228,21 +234,26 @@ export function DataTableRowActions({
           <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          {canView && (
-            <DropdownMenuItem asChild>
-              <Link href={`/civil-registry/details?formId=${form.id}`}>
-                <Icons.eye className='mr-2 h-4 w-4' />
-                {t('viewDetails')}
-              </Link>
-            </DropdownMenuItem>
-          )}
+          {((form.formType === FormType.DEATH && hasDeath) ||
+            (form.formType === FormType.MARRIAGE && hasMarriage) ||
+            (form.formType === 'BIRTH' && hasBirth)) && (
+              <DropdownMenuItem asChild>
+                <Link href={`/civil-registry/details?formId=${form.id}`}>
+                  <Icons.eye className='mr-2 h-4 w-4' />
+                  {t('viewDetails')}
+                </Link>
+              </DropdownMenuItem>
+            )}
 
-          {canUpload && (
-            <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-              <Icons.printer className='mr-2 h-4 w-4' />
-              {t('uploadDocument')}
-            </DropdownMenuItem>
-          )}
+          {((form.formType === FormType.DEATH && hasDeath) ||
+            (form.formType === FormType.MARRIAGE && hasMarriage) ||
+            (form.formType === 'BIRTH' && hasBirth)) && canUpload && (
+              <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
+                <Icons.printer className='mr-2 h-4 w-4' />
+                {t('uploadDocument')}
+              </DropdownMenuItem>
+            )}
+
 
           {canEdit && hasAttachments && (
             <>
@@ -262,12 +273,15 @@ export function DataTableRowActions({
             </>
           )}
 
-          {canEdit && (
+          {(form.formType === FormType.DEATH && hasDeath) ||
+            (form.formType === FormType.MARRIAGE && hasMarriage) ||
+            (form.formType === 'BIRTH' && hasBirth) ? (
             <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
               <Icons.folder className='mr-2 h-4 w-4' />
               {t('editForm.title')}
             </DropdownMenuItem>
-          )}
+          ) : null}
+
 
           {canExport && (
             <DropdownMenuItem
