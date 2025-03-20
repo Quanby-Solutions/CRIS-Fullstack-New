@@ -51,32 +51,9 @@
   // ─────────────────────────────────────────────────────────────────────────────
   // PROCESSING DETAILS: "Prepared By", "Received By", "Registered By"
   // Each has Signature, Name in Print, Title/Position, and Date
-  // ─────────────────────────────────────────────────────────────────────────────
-  export const signatureSchema = z
-  .union([
-    z.custom<File | string | any>(
-      (val) => {
-        if (
-          typeof window !== 'undefined' &&
-          typeof File !== 'undefined' &&
-          val instanceof File
-        ) {
-          return true;
-        }
-        if (val && typeof val === 'object' && 'size' in val && 'type' in val) {
-          return true;
-        }
-        return typeof val === 'string' && val.length > 0;
-      },
-      { message: 'Invalid signature format' }
-    ),
-    z.string().min(1, 'A signature is required'),
-  ])
-  .optional()
-  .nullable();
+
   
   export const signatoryDetailsSchema = z.object({
-    // signature: signatureSchema,
     nameInPrint: z.string().optional(),
     titleOrPosition: z.string().nonempty('Title or position is required'),
     date: createDateFieldSchema({

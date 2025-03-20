@@ -340,13 +340,9 @@ export function EditBirthCivilRegistryFormInline({
       };
     }
 
-    // Validate multipleBirthOrder against allowed literals.
-    const validBirthOrders = ['First', 'Second', 'Third'] as const;
-    const rawMultipleBirthOrder = form.birthCertificateForm?.multipleBirthOrder;
-    const multipleBirthOrder: 'First' | 'Second' | 'Third' | undefined =
-      validBirthOrders.includes(rawMultipleBirthOrder as any)
-        ? (rawMultipleBirthOrder as 'First' | 'Second' | 'Third')
-        : undefined;
+   // Directly assign the value and ensure it's either string or undefined
+const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multipleBirthOrder ?? undefined;
+
 
     // Parent marriage extraction.
     const rawParentMarriage = form.birthCertificateForm?.parentMarriage;

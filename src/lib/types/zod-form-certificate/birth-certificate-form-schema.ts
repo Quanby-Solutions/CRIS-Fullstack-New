@@ -10,8 +10,7 @@ import {
   registryNumberSchema,
   religionSchema,
   remarksAnnotationsSchema,
-  residenceSchema,
-  signatureSchema,
+  residenceSchema
 } from './form-certificates-shared-schema';
 
 // Child Information Schema
@@ -41,8 +40,10 @@ const childInformationSchema = z
       cityMunicipality: cityMunicipalitySchema,
       province: provinceSchema,
     }),
-    typeOfBirth: z.enum(['Single', 'Twin', 'Triplet', 'Others']),
-    multipleBirthOrder: z.enum(['First', 'Second', 'Third']).optional(),
+    // Removed enum validation
+    typeOfBirth: z.string().optional(),
+    // Removed enum validation and changed to string
+    multipleBirthOrder: z.string().optional(),
     birthOrder: z.string().min(1, 'Birth order is required'),
     weightAtBirth: z
       .string()
@@ -166,10 +167,10 @@ const marriageInformationSchema = z
 // Attendant Information Schema
 const attendantInformationSchema = z.object({
   type: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']).optional()
-    )
+    .union([
+      z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot']),
+      z.string().min(1, 'Custom attendant type is required'),
+    ])
     .refine((val) => val !== undefined, {
       message: 'Attendant type is required',
     }),
@@ -185,7 +186,6 @@ const attendantInformationSchema = z.object({
       }
       return val;
     }, z.date({ required_error: 'Time is required' })),
-    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
     title: z.string().min(1, 'Title is required'),
     address: residenceSchema,
@@ -198,7 +198,6 @@ const attendantInformationSchema = z.object({
 
 // Informant Schema
 const informantSchema = z.object({
-  signature: signatureSchema,
   name: z.string().min(1, 'Name is required'),
   relationship: z.string().min(1, 'Relationship is required'),
   address: residenceSchema,
