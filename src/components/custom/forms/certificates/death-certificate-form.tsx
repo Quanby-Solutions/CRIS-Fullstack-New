@@ -1,42 +1,41 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-import type { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { FormProvider } from 'react-hook-form';
-import { useRef } from 'react';
+import type { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
+import { FormProvider } from "react-hook-form";
+import { useRef } from "react";
 
-import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
-import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
-import CausesOfDeath19bCard from './form-cards/death-cards/causes-of-death19b';
-import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
-import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
-import AffidavitDelayedRegistrationCard from './form-cards/death-cards/death-affidavit-elayed-registration-card';
-import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
-import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
-import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
-import EmbalmerCertificationCard from './form-cards/death-cards/embalmer-certification-card';
-import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
-import PostmortemCertificateCard from './form-cards/death-cards/postmortem-certificate-card';
-import PaginationInputs from './form-cards/shared-components/pagination-inputs';
+import AttendantInformationCard from "./form-cards/death-cards/attendant-information-card";
+import CausesOfDeath19aCard from "./form-cards/death-cards/causes-of-death19a";
+import CausesOfDeath19bCard from "./form-cards/death-cards/causes-of-death19b";
+import CertificationOfDeathCard from "./form-cards/death-cards/certification-of-death-card";
+import CertificationInformantCard from "./form-cards/death-cards/certification-of-informant-card";
+import AffidavitDelayedRegistrationCard from "./form-cards/death-cards/death-affidavit-elayed-registration-card";
+import DeathByExternalCausesCard from "./form-cards/death-cards/death-by-external-causes";
+import DeceasedInformationCard from "./form-cards/death-cards/deceased-information-card";
+import DisposalInformationCard from "./form-cards/death-cards/disposal-information-card";
+import EmbalmerCertificationCard from "./form-cards/death-cards/embalmer-certification-card";
+import MaternalConditionCard from "./form-cards/death-cards/maternal-condition-card";
+import PostmortemCertificateCard from "./form-cards/death-cards/postmortem-certificate-card";
+import PaginationInputs from "./form-cards/shared-components/pagination-inputs";
 import {
   PreparedByCard,
   ReceivedByCard,
   RegisteredAtOfficeCard,
-} from './form-cards/shared-components/processing-details-cards';
-import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
-import RemarksCard from './form-cards/shared-components/remarks-card';
-import { useDeathCertificateForm } from '@/hooks/form-certificates-hooks/useDeathCertificateForm';
-import { RegistryInformationCardForEdit } from './form-cards/death-cards/registry';
-
+} from "./form-cards/shared-components/processing-details-cards";
+import RegistryInformationCard from "./form-cards/shared-components/registry-information-card";
+import RemarksCard from "./form-cards/shared-components/remarks-card";
+import { useDeathCertificateForm } from "@/hooks/form-certificates-hooks/useDeathCertificateForm";
+import { RegistryInformationCardForEdit } from "./form-cards/death-cards/registry";
 
 export interface DeathCertificateFormProps {
   open: boolean;
@@ -54,51 +53,53 @@ export default function DeathCertificateForm({
   // Reference to the scroll area for programmatic scrolling
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const { formMethods, onSubmit, handleError, isSubmitting } = useDeathCertificateForm({
-    onOpenChange,
-    defaultValues,
-    scrollAreaRef, // Pass the ref to the hook
-  });
+  const { formMethods, onSubmit, handleError, isSubmitting } =
+    useDeathCertificateForm({
+      onOpenChange,
+      defaultValues,
+      scrollAreaRef, // Pass the ref to the hook
+    });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0'>
+      <DialogContent className="max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0">
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
-            className='space-y-6'
+            className="space-y-6"
             noValidate
           >
-            <div className='h-full flex flex-col'>
+            <div className="h-full flex flex-col">
               <DialogHeader>
-                <DialogTitle className='text-2xl font-bold text-center py-4'>
+                <DialogTitle className="text-2xl font-bold text-center py-4">
                   Certificate of Death
                 </DialogTitle>
               </DialogHeader>
-              <div className='flex flex-1 overflow-hidden'>
+              <div className="flex flex-1 overflow-hidden">
                 {/* Left Side - Form */}
-                <div className='w-full'>
-                  <ScrollArea className='h-[calc(95vh-120px)]' ref={scrollAreaRef}>
-                    <div className='p-6 space-y-4'>
+                <div className="w-full">
+                  <ScrollArea
+                    className="h-[calc(95vh-120px)]"
+                    ref={scrollAreaRef}
+                  >
+                    <div className="p-6 space-y-4">
                       <div id="pagination-inputs">
                         <PaginationInputs />
                       </div>
-                      
+
                       <div id="registry-information-card">
                         {defaultValues?.id ? (
                           <RegistryInformationCardForEdit />
                         ) : (
-                          <RegistryInformationCard
-                            formType='DEATH'
-                          />
+                          <RegistryInformationCard formType="DEATH" />
                         )}
                       </div>
-                      
+
                       <div id="deceased-information-card">
                         <DeceasedInformationCard />
                       </div>
-                      
-                      <div id="causes-of-death-19a-card">
+
+                      {/* <div id="causes-of-death-19a-card">
                         <CausesOfDeath19aCard />
                       </div>
                       
@@ -164,28 +165,28 @@ export default function DeathCertificateForm({
                           label='Additional Remarks'
                           placeholder='Enter any additional remarks or annotations'
                         />
-                      </div>
+                      </div> */}
                     </div>
                   </ScrollArea>
                 </div>
               </div>
             </div>
-            <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>
+            <DialogFooter className="absolute bottom-2 right-2 gap-2 flex items-center">
               <Button
-                type='button'
-                variant='outline'
-                className='py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent'
+                type="button"
+                variant="outline"
+                className="py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent"
                 onClick={onCancel}
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button
-                type='submit'
-                className='py-2 w-32 bg-primary/80 hover:bg-primary'
+                type="submit"
+                className="py-2 w-32 bg-primary/80 hover:bg-primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Saving...' : 'Submit'}
+                {isSubmitting ? "Saving..." : "Submit"}
               </Button>
             </DialogFooter>
           </form>
