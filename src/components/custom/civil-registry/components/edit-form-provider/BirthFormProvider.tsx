@@ -343,7 +343,6 @@ export function EditBirthCivilRegistryFormInline({
    // Directly assign the value and ensure it's either string or undefined
 const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multipleBirthOrder ?? undefined;
 
-
     // Parent marriage extraction.
     const rawParentMarriage = form.birthCertificateForm?.parentMarriage;
     let parentMarriage: ParentMarriage = {
@@ -864,6 +863,9 @@ const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multip
         religion: data.motherInfo.religion || '',
         occupation: data.motherInfo.occupation || '',
         age: data.motherInfo.age,
+        totalChildrenBornAlive: Number(data.motherInfo.totalChildrenBornAlive ?? ''),
+        childrenStillLiving: Number(data.motherInfo.childrenStillLiving ?? ''),
+        childrenNowDead: Number(data.motherInfo.childrenNowDead ?? ''),
         residence: data.motherInfo.residence || '',
       },
       fatherInfo: {
@@ -885,6 +887,7 @@ const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multip
       isDelayedRegistration: data.isDelayedRegistration,
       affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
     };
+    console.log('Mother Info Data:', data.motherInfo);
 
     try {
       const response = await fetch('/api/editForm/birth', {

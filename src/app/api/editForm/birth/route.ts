@@ -88,8 +88,6 @@ export async function PUT(request: Request) {
         })
       : { first: "", middle: "", last: "" };
 
-    
-
     const updatedForm = await prisma.baseRegistryForm.update({
       where: { id },
       data: {
@@ -123,6 +121,10 @@ export async function PUT(request: Request) {
               motherReligion: motherInfo?.religion || "",
               motherOccupation: motherInfo?.occupation || "",
               motherAge: motherInfo?.age ? Number(motherInfo.age) : 0,
+              // Added fields for children counts:
+              totalChildrenBornAlive: motherInfo?.totalChildrenBornAlive || "",
+              childrenStillLiving: motherInfo?.childrenStillLiving || "",
+              childrenNowDead: motherInfo?.childrenNowDead || "",
               motherResidence: safeMotherResidence,
               fatherName: safeFatherName,
               fatherCitizenship: fatherInfo?.citizenship || "",
@@ -154,6 +156,10 @@ export async function PUT(request: Request) {
               motherReligion: motherInfo?.religion || "",
               motherOccupation: motherInfo?.occupation || "",
               motherAge: motherInfo?.age ? Number(motherInfo.age) : 0,
+              // Added fields for children counts:
+              totalChildrenBornAlive: motherInfo?.totalChildrenBornAlive || "",
+              childrenStillLiving: motherInfo?.childrenStillLiving || "",
+              childrenNowDead: motherInfo?.childrenNowDead || "",
               motherResidence: safeMotherResidence,
               fatherName: safeFatherName,
               fatherCitizenship: fatherInfo?.citizenship || "",
