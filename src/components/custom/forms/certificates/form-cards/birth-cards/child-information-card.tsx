@@ -72,7 +72,7 @@ const ChildInformationCard: React.FC = () => {
         {/* Personal Information Section */}
         <Card>
           <CardHeader className='pb-3'>
-            <h3 className='text-sm font-semibold'>Personal Information</h3>
+            <h3 className='text-sm font-semibold'>1. Personal Information</h3>
           </CardHeader>
           <CardContent>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -144,7 +144,7 @@ const ChildInformationCard: React.FC = () => {
                 name='childInfo.sex'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sex</FormLabel>
+                    <FormLabel>2. Sex</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || ''}
@@ -172,7 +172,7 @@ const ChildInformationCard: React.FC = () => {
                 name='childInfo.weightAtBirth'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weight at Birth (kilograms)</FormLabel>
+                    <FormLabel>6. Weight at Birth (kilograms)</FormLabel>
                     <FormControl>
                       <Input
                         className='h-10'
@@ -196,7 +196,7 @@ const ChildInformationCard: React.FC = () => {
 
         <Card className='w-[49%]'>
           <CardHeader className='pb-3'>
-            <h3 className='text-sm font-semibold'>Birth Date</h3>
+            <h3 className='text-sm font-semibold'>3. Birth Date</h3>
           </CardHeader>
           <CardContent className='w-52'>
             <FormField

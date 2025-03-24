@@ -99,7 +99,7 @@ const AttendantInformationCard: React.FC = () => {
         {/* Certification Details */}
         <Card>
           <CardHeader className="pb-3">
-            <h3 className="text-sm font-semibold">Certification Details</h3>
+            <h3 className="text-sm font-semibold">21b. Certification of Attendant at Birth</h3>
           </CardHeader>
           <CardContent>
             <NCRModeSwitch
@@ -142,7 +142,7 @@ const AttendantInformationCard: React.FC = () => {
                   name="attendant.certification.name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name of Attendant</FormLabel>
+                      <FormLabel>Name in Print</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter full name" {...field} className="h-10" />
                       </FormControl>
@@ -156,7 +156,7 @@ const AttendantInformationCard: React.FC = () => {
                   name="attendant.certification.title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title/Designation</FormLabel>
+                      <FormLabel>Title/Position</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter title/designation" {...field} className="h-10" />
                       </FormControl>
