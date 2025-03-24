@@ -123,7 +123,7 @@ export async function submitBirthCertificateForm(
               middle: formData.motherInfo.middleName || '',
               last: formData.motherInfo.lastName,
             } as Prisma.JsonObject,
-            motherCitizenship: formData.motherInfo.citizenship,
+            motherCitizenship: formData.motherInfo?.citizenship || '',
             motherReligion: formData.motherInfo.religion || '',
             motherOccupation: formData.motherInfo.occupation,
             motherAge: parseInt(formData.motherInfo.age, 10),

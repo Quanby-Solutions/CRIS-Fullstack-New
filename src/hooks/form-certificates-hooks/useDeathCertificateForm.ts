@@ -37,6 +37,7 @@ const emptyDefaults: DeathCertificateFormValues = {
     months: undefined,
     days: undefined,
     hours: undefined,
+    minutes: undefined,
   },
   placeOfDeath: {
     locationType: '',
@@ -195,6 +196,7 @@ const emptyDefaults: DeathCertificateFormValues = {
     affidavitDatePlace: undefined,
     adminOfficer: undefined,
     ctcInfo: {
+
       number: undefined,
       issuedOn: undefined,
       issuedAt: undefined,
@@ -371,12 +373,7 @@ export function useDeathCertificateForm({
         }
       }
 
-      if ('error' in result) {
-        console.log('Submission error:', result.error);
-        toast.error(result.error.includes('No user found with name')
-          ? 'Invalid prepared by user. Please check the name.'
-          : result.error);
-      }
+      console.log('Submission result:', result);
     } catch (error) {
       console.error('Error in submitDeathCertificateForm:', error);
       toast.error('An error occurred. Please try again.');

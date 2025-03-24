@@ -150,8 +150,8 @@ export const residenceSchemaOptional = z.object({
 // (Father's Name, Mother's Name) - Both are nameSchema
 // ─────────────────────────────────────────────────────────────────────────────
 export const parentInfoSchema = z.object({
-  fatherName: nameSchema,
-  motherName: nameSchema,
+  fatherName: nameSchemaOptional,
+  motherName: nameSchemaOptional,
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -208,6 +208,6 @@ export const placeOfDeathSchema = z.object({
   houseNo: z.string().optional(),
   st: z.string().optional(),
   barangay: z.string().optional(),
-  cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
-  province: provinceSchema, // Reuse shared province schema
+  cityMunicipality: z.string().optional(), // Reuse shared city/municipality schema
+  province: z.string().optional(), // Reuse shared province schema
 });

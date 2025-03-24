@@ -38,14 +38,14 @@ export async function submitMarriageCertificateForm(
     return await prisma.$transaction(
       async (tx) => {
         // Find users by name.
-        const preparedByUser = await tx.user.findFirst({
-          where: { name: formData.preparedBy.nameInPrint },
-        });
-        if (!preparedByUser) {
-          throw new Error(
-            `No user found with name: ${formData.preparedBy.nameInPrint}`
-          );
-        }
+        // const preparedByUser = await tx.user.findFirst({
+        //   where: { name: formData.preparedBy.nameInPrint },
+        // });
+        // if (!preparedByUser) {
+        //   throw new Error(
+        //     `No user found with name: ${formData.preparedBy.nameInPrint}`
+        //   );
+        // }
         const receivedByUser = await tx.user.findFirst({
           where: { name: formData.receivedBy.nameInPrint },
         });
@@ -76,11 +76,11 @@ export async function submitMarriageCertificateForm(
             dateOfRegistration: new Date(),
             isLateRegistered,
             status: DocumentStatus.PENDING,
-            preparedById: preparedByUser.id,
+            preparedById: null,
             verifiedById: null,
-            preparedByName: formData.preparedBy.nameInPrint,
-            preparedByPosition: formData.preparedBy.titleOrPosition,
-            preparedByDate: formData.preparedBy.date!,
+            preparedByName: null,
+            preparedByPosition: null,
+            preparedByDate: null,
             verifiedByName: null,
             receivedById: receivedByUser.id,
             receivedBy: formData.receivedBy.nameInPrint,
@@ -131,9 +131,9 @@ export async function submitMarriageCertificateForm(
           data: {
             baseFormId: baseForm.id,
             // Husband Information
-            husbandFirstName: formData.husbandName.first,
-            husbandMiddleName: formData.husbandName.middle,
-            husbandLastName: formData.husbandName.last,
+            husbandFirstName: formData?.husbandName?.first || '',
+            husbandMiddleName: formData?.husbandName?.middle,
+            husbandLastName: formData?.husbandName?.last || '',
             husbandAge: formData.husbandAge,
             husbandDateOfBirth: dateToJSON(formData.husbandBirth || new Date()),
             husbandSex: formData.husbandSex,
@@ -158,9 +158,9 @@ export async function submitMarriageCertificateForm(
             } as Prisma.JsonObject,
 
             // Wife Information
-            wifeFirstName: formData.wifeName.first,
-            wifeMiddleName: formData.wifeName.middle,
-            wifeLastName: formData.wifeName.last,
+            wifeFirstName: formData?.wifeName?.first || '',
+            wifeMiddleName: formData.wifeName?.middle,
+            wifeLastName: formData?.wifeName?.last || '',
             wifeAge: formData.wifeAge,
             wifeDateOfBirth: dateToJSON(formData.wifeBirth || new Date()),
             wifeSex: formData.wifeSex,

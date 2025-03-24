@@ -242,13 +242,6 @@ export async function updateDeathCertificateForm(
           date: dateToJSON(formData.informant?.date!),
         } as Prisma.JsonObject,
 
-        // Add missing registeredByOffice field from defaults
-        // registeredByOffice: {
-        //   nameInPrint: formData.registeredByOffice?.nameInPrint,
-        //   titleOrPosition: formData.registeredByOffice?.titleOrPosition,
-        //   date: dateToJSON(formData.registeredByOffice?.date!)
-        // } as Prisma.JsonObject,
-
         remarks: formData.remarks,
       },
     });

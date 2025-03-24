@@ -194,6 +194,9 @@ export const mapToMarriageCertificateValues = (
             country: addressObj.country
                 ? ensureString(addressObj.country?.value ?? addressObj.country)
                 : undefined,
+            address: addressObj.address
+                ? ensureString(addressObj.address?.value ?? addressObj.address)
+                : undefined,
         };
     };
 
@@ -334,7 +337,7 @@ export const mapToMarriageCertificateValues = (
 
         receivedBy: {
             // signature: ensureString(marriageForm.receivedByOffice?.signature),
-           nameInPrint: ensureString(form.receivedBy),
+            nameInPrint: ensureString(form.receivedBy),
             titleOrPosition: ensureString(form.receivedByPosition),
             date: parseDateSafely(form.receivedByDate),
         },
