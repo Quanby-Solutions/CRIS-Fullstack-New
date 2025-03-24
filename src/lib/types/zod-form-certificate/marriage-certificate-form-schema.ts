@@ -263,21 +263,7 @@ export const marriageCertificateSchema = z.object({
   husbandCitizenship: z.string(),
   husbandResidence: z.string(),
   husbandReligion: z.string(),
-  husbandCivilStatus: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z
-        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
-        .optional()
-    )
-    .superRefine((val, ctx) => {
-      if (val === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Civil status is required',
-        });
-      }
-    }),
+  husbandCivilStatus: z.string().optional(),
   husbandConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -314,21 +300,7 @@ export const marriageCertificateSchema = z.object({
   wifeCitizenship: z.string(),
   wifeResidence: z.string(),
   wifeReligion: z.string(),
-  wifeCivilStatus: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z
-        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
-        .optional()
-    )
-    .superRefine((val, ctx) => {
-      if (val === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Civil status is required',
-        });
-      }
-    }),
+  wifeCivilStatus: z.string().optional(),
   wifeConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),

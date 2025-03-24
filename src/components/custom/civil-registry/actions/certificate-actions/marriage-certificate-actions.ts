@@ -140,7 +140,7 @@ export async function submitMarriageCertificateForm(
             husbandCitizenship: formData.husbandCitizenship,
             husbandResidence: formData.husbandResidence,
             husbandReligion: formData.husbandReligion || null,
-            husbandCivilStatus: formData.husbandCivilStatus,
+            husbandCivilStatus: formData?.husbandCivilStatus || '',
             husbandPlaceOfBirth: formData.husbandPlaceOfBirth as Prisma.JsonObject,
 
             // Husband Parents Information
@@ -167,7 +167,7 @@ export async function submitMarriageCertificateForm(
             wifeCitizenship: formData.wifeCitizenship,
             wifeResidence: formData.wifeResidence,
             wifeReligion: formData.wifeReligion || null,
-            wifeCivilStatus: formData.wifeCivilStatus,
+            wifeCivilStatus: formData.wifeCivilStatus || '',
             wifePlaceOfBirth: formData.wifePlaceOfBirth as Prisma.JsonObject,
 
             // Wife Parents Information
@@ -428,8 +428,7 @@ export async function submitMarriageCertificateForm(
                   } as Prisma.JsonObject,
                 } as Prisma.JsonObject,
               } as Prisma.JsonObject)
-              : {delayedRegistration: 'No'},
-
+              : { delayedRegistration: 'No' },
           },
         });
 
