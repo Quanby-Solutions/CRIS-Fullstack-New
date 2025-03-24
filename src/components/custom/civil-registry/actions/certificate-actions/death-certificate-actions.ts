@@ -37,18 +37,18 @@ export async function submitDeathCertificateForm(
       async (tx) => {
         // Find users by name.
         const preparedByUser = await tx.user.findFirst({
-          where: { name: formData.preparedBy.nameInPrint },
+          where: { name: formData.preparedBy?.nameInPrint },
         });
         if (!preparedByUser) {
           throw new Error(
-            `No user found with name: ${formData.preparedBy.nameInPrint}`
+            `No user found with name: ${formData.preparedBy?.nameInPrint}`
           );
         }
         const receivedByUser = await tx.user.findFirst({
-          where: { name: formData.receivedBy.nameInPrint },
+          where: { name: formData?.receivedBy?.nameInPrint },
         });
         const registeredByUser = await tx.user.findFirst({
-          where: { name: formData.registeredByOffice.nameInPrint },
+          where: { name: formData.registeredByOffice?.nameInPrint },
         });
         if (!receivedByUser || !registeredByUser) {
           throw new Error('ReceivedBy or RegisteredBy user not found');
@@ -66,9 +66,9 @@ export async function submitDeathCertificateForm(
           data: {
             formNumber: '103', // Death certificate form number.
             formType: FormType.DEATH,
-            registryNumber: formData.registryNumber,
-            province: formData.province,
-            cityMunicipality: formData.cityMunicipality,
+            registryNumber: formData.registryNumber || '',
+            province: formData?.province || '',
+            cityMunicipality: formData?.cityMunicipality || '',
             pageNumber,
             bookNumber,
             dateOfRegistration: new Date(),
@@ -76,18 +76,18 @@ export async function submitDeathCertificateForm(
             status: DocumentStatus.PENDING,
             preparedById: preparedByUser.id,
             verifiedById: null,
-            preparedByName: formData.preparedBy.nameInPrint,
-            preparedByPosition: formData.preparedBy.titleOrPosition,
-            preparedByDate: formData.preparedBy.date!,
+            preparedByName: formData.preparedBy?.nameInPrint,
+            preparedByPosition: formData.preparedBy?.titleOrPosition,
+            preparedByDate: formData.preparedBy?.date!,
             verifiedByName: null,
             receivedById: receivedByUser.id,
-            receivedBy: formData.receivedBy.nameInPrint,
-            receivedByPosition: formData.receivedBy.titleOrPosition,
-            receivedByDate: formData.receivedBy.date!,
+            receivedBy: formData.receivedBy?.nameInPrint,
+            receivedByPosition: formData.receivedBy?.titleOrPosition,
+            receivedByDate: formData.receivedBy?.date!,
             registeredById: registeredByUser.id,
-            registeredBy: formData.registeredByOffice.nameInPrint,
-            registeredByPosition: formData.registeredByOffice.titleOrPosition,
-            registeredByDate: formData.registeredByOffice.date!,
+            registeredBy: formData.registeredByOffice?.nameInPrint,
+            registeredByPosition: formData.registeredByOffice?.titleOrPosition,
+            registeredByDate: formData.registeredByOffice?.date!,
             remarks: formData.remarks,
           },
         });
@@ -130,32 +130,32 @@ export async function submitDeathCertificateForm(
             baseFormId: baseForm.id,
 
             // Deceased Information.
-            deceasedName: formData.name,
+            deceasedName: formData.name as Prisma.JsonObject,
             sex: formData.sex!,
             dateOfDeath: formData.dateOfDeath!,
             timeOfDeath: dateToJSON(formData.timeOfDeath!), // Non-null assertion.
             dateOfBirth: formData.dateOfBirth!, // Non-null assertion.
             ageAtDeath: formData.ageAtDeath as Prisma.JsonObject,
             placeOfDeath: {
-              province: formData.placeOfDeath.province,
-              cityMunicipality: formData.placeOfDeath.cityMunicipality,
-              houseNo: formData.placeOfDeath.houseNo,
-              st: formData.placeOfDeath.st,
-              barangay: formData.placeOfDeath.barangay,
-              hospitalInstitution: formData.placeOfDeath.hospitalInstitution,
+              province: formData.placeOfDeath?.province,
+              cityMunicipality: formData.placeOfDeath?.cityMunicipality,
+              houseNo: formData.placeOfDeath?.houseNo,
+              st: formData.placeOfDeath?.st,
+              barangay: formData.placeOfDeath?.barangay,
+              hospitalInstitution: formData.placeOfDeath?.hospitalInstitution,
             },
             civilStatus: formData.civilStatus!,
             religion: formData.religion || '',
-            citizenship: formData.citizenship,
+            citizenship: formData?.citizenship || '',
             residence: {
-              province: formData.residence.province,
-              cityMunicipality: formData.residence.cityMunicipality,
-              houseNo: formData.residence.houseNo,
-              st: formData.residence.st,
-              barangay: formData.residence.barangay,
-              country: formData.residence.country
+              province: formData.residence?.province,
+              cityMunicipality: formData.residence?.cityMunicipality,
+              houseNo: formData.residence?.houseNo,
+              st: formData.residence?.st,
+              barangay: formData.residence?.barangay,
+              country: formData.residence?.country
             },
-            occupation: formData.occupation,
+            occupation: formData.occupation || '',
 
             // Parent Information.
             parentInfo: formData.parents as Prisma.JsonObject,
@@ -167,13 +167,13 @@ export async function submitDeathCertificateForm(
 
             // Medical Certificate.
             medicalCertificate: {
-              causesOfDeath: formData.medicalCertificate.causesOfDeath,
+              causesOfDeath: formData.medicalCertificate?.causesOfDeath,
               maternalCondition:
-                formData.medicalCertificate.maternalCondition || null,
-              externalCauses: formData.medicalCertificate.externalCauses,
-              attendant: formData.medicalCertificate.attendant
+                formData.medicalCertificate?.maternalCondition || null,
+              externalCauses: formData.medicalCertificate?.externalCauses,
+              attendant: formData.medicalCertificate?.attendant
                 ? {
-                  ...formData.medicalCertificate.attendant,
+                  ...formData.medicalCertificate?.attendant,
                   duration: formData.medicalCertificate.attendant.duration
                     ? {
                       from: dateToJSON(
@@ -194,18 +194,15 @@ export async function submitDeathCertificateForm(
                       name: formData.medicalCertificate.attendant.certification.name!,
                       title: formData.medicalCertificate.attendant.certification.title!,
                       address: {
-                        province: formData.medicalCertificate.attendant.certification.address.province,
-                        cityMunicipality: formData.medicalCertificate.attendant.certification.address.cityMunicipality,
-                        houseNo: formData.medicalCertificate.attendant.certification.address.houseNo,
-                        st: formData.medicalCertificate.attendant.certification.address.st,
-                        barangay: formData.medicalCertificate.attendant.certification.address.barangay,
-                        country: formData.medicalCertificate.attendant.certification.address.country
+                        province: formData.medicalCertificate.attendant.certification.address?.province,
+                        cityMunicipality: formData.medicalCertificate.attendant.certification.address?.cityMunicipality,
+                        country: formData.medicalCertificate.attendant.certification.address?.country
                       },
                     }
                     : null,
                 }
                 : null,
-              autopsy: formData.medicalCertificate.autopsy,
+              autopsy: formData.medicalCertificate?.autopsy,
             } as Prisma.JsonObject,
 
             //Causes of Death (specific section).
@@ -216,22 +213,15 @@ export async function submitDeathCertificateForm(
 
             // Certification of Death.
             certificationOfDeath: {
-              hasAttended: formData.certificationOfDeath.hasAttended,
+              hasAttended: formData.certificationOfDeath?.hasAttended,
               // signature:
               //   formData.certificationOfDeath.signature instanceof File
               //     ? await fileToBase64(formData.certificationOfDeath.signature)
               //     : formData.certificationOfDeath.signature,
-              nameInPrint: formData.certificationOfDeath.nameInPrint,
-              titleOfPosition: formData.certificationOfDeath.titleOfPosition,
-              address: {
-                province: formData.certificationOfDeath.address.province,
-                cityMunicipality: formData.certificationOfDeath.address.cityMunicipality,
-                houseNo: formData.certificationOfDeath.address.houseNo,
-                st: formData.certificationOfDeath.address.st,
-                barangay: formData.certificationOfDeath.address.barangay,
-                country: formData.certificationOfDeath.address.country
-              },
-              date: dateToJSON(formData.certificationOfDeath.date!),
+              nameInPrint: formData.certificationOfDeath?.nameInPrint,
+              titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
+              address: formData.certificationOfDeath?.address,
+              date: dateToJSON(formData.certificationOfDeath?.date!),
               // healthOfficerSignature:
               //   formData.certificationOfDeath.healthOfficerSignature instanceof
               //   File
@@ -240,11 +230,11 @@ export async function submitDeathCertificateForm(
               //       )
               //     : formData.certificationOfDeath.healthOfficerSignature,
               healthOfficerNameInPrint:
-                formData.certificationOfDeath.healthOfficerNameInPrint,
+                formData.certificationOfDeath?.nameInPrint,
             } as Prisma.JsonObject,
 
             // Review Information.
-            reviewedBy: dateToJSON(formData.reviewedBy.date!),
+            reviewedBy: dateToJSON(formData.reviewedBy?.date!),
 
 
             // Optional Certificates.
@@ -265,9 +255,9 @@ export async function submitDeathCertificateForm(
               nameInPrint: formData.embalmerCertification?.nameInPrint,
               nameOfDeceased: formData.embalmerCertification?.nameOfDeceased,
               licenseNo: formData.embalmerCertification?.licenseNo,
-              issuedOn: dateToJSON(formData.embalmerCertification?.issuedOn!),
+              issuedOn: formData?.embalmerCertification?.issuedOn,
               issuedAt: formData.embalmerCertification?.issuedAt,
-              expiryDate: dateToJSON(formData.embalmerCertification?.expiryDate!),
+              expiryDate: formData?.embalmerCertification?.expiryDate,
               address: formData.embalmerCertification?.address,
               titleDesignation: formData.embalmerCertification?.titleDesignation,
             } as Prisma.JsonObject,
@@ -313,8 +303,8 @@ export async function submitDeathCertificateForm(
             // Disposal Information.
             corpseDisposal: formData.corpseDisposal || '',
             burialPermit: {
-              number: formData.burialPermit.number,
-              dateIssued: dateToJSON(formData.burialPermit.dateIssued!),
+              number: formData.burialPermit?.number,
+              dateIssued: dateToJSON(formData.burialPermit?.dateIssued!),
             } as Prisma.JsonObject,
 
             transferPermit: formData.transferPermit
@@ -325,8 +315,8 @@ export async function submitDeathCertificateForm(
               : Prisma.JsonNull,
 
             cemeteryOrCrematory: {
-              name: formData.cemeteryOrCrematory.name,
-              address: formData.cemeteryOrCrematory.address,
+              name: formData.cemeteryOrCrematory?.name,
+              address: formData.cemeteryOrCrematory?.address,
             } as Prisma.JsonObject,
 
             // Informant Information.
@@ -335,17 +325,10 @@ export async function submitDeathCertificateForm(
               //   formData.informant.signature instanceof File
               //     ? await fileToBase64(formData.informant.signature)
               //     : formData.informant.signature,
-              nameInPrint: formData.informant.nameInPrint,
-              relationshipToDeceased: formData.informant.relationshipToDeceased,
-              address: {
-                province: formData.informant.address.province,
-                cityMunicipality: formData.informant.address.cityMunicipality,
-                houseNo: formData.informant.address.houseNo,
-                st: formData.informant.address.st,
-                barangay: formData.informant.address.barangay,
-                country: formData.informant.address.country
-              },
-              date: dateToJSON(formData.informant.date!),
+              nameInPrint: formData.informant?.nameInPrint,
+              relationshipToDeceased: formData.informant?.relationshipToDeceased,
+              address: formData.informant?.address,
+              date: formData.informant?.date,
             } as Prisma.JsonObject,
 
             remarks: formData.remarks,

@@ -15,20 +15,19 @@ import { FormProvider } from "react-hook-form";
 import { useRef } from "react";
 
 import AttendantInformationCard from "./form-cards/death-cards/attendant-information-card";
-import CausesOfDeath19aCard from "./form-cards/death-cards/causes-of-death19a";
-import CausesOfDeath19bCard from "./form-cards/death-cards/causes-of-death19b";
+import CausesOfDeath19aCard from "./form-cards/death-cards/19a";
+import CausesOfDeath19bCard from "./form-cards/death-cards/19b";
 import CertificationOfDeathCard from "./form-cards/death-cards/certification-of-death-card";
 import CertificationInformantCard from "./form-cards/death-cards/certification-of-informant-card";
 import AffidavitDelayedRegistrationCard from "./form-cards/death-cards/death-affidavit-elayed-registration-card";
 import DeathByExternalCausesCard from "./form-cards/death-cards/death-by-external-causes";
-import DeceasedInformationCard from "./form-cards/death-cards/deceased-information-card";
+import DeceasedInformationCard from "./form-cards/death-cards/1";
 import DisposalInformationCard from "./form-cards/death-cards/disposal-information-card";
 import EmbalmerCertificationCard from "./form-cards/death-cards/embalmer-certification-card";
-import MaternalConditionCard from "./form-cards/death-cards/maternal-condition-card";
+import MaternalConditionCard from "./form-cards/death-cards/19c";
 import PostmortemCertificateCard from "./form-cards/death-cards/postmortem-certificate-card";
 import PaginationInputs from "./form-cards/shared-components/pagination-inputs";
 import {
-  PreparedByCard,
   ReceivedByCard,
   RegisteredAtOfficeCard,
 } from "./form-cards/shared-components/processing-details-cards";
@@ -36,6 +35,7 @@ import RegistryInformationCard from "./form-cards/shared-components/registry-inf
 import RemarksCard from "./form-cards/shared-components/remarks-card";
 import { useDeathCertificateForm } from "@/hooks/form-certificates-hooks/useDeathCertificateForm";
 import { RegistryInformationCardForEdit } from "./form-cards/death-cards/registry";
+import DynamicPreparedByCard from "./form-cards/shared-components/prepared-by";
 
 export interface DeathCertificateFormProps {
   open: boolean;
@@ -99,26 +99,62 @@ export default function DeathCertificateForm({
                         <DeceasedInformationCard />
                       </div>
 
-                      {/* <div id="causes-of-death-19a-card">
+                      <div id="causes-of-death-19a-card">
                         <CausesOfDeath19aCard />
                       </div>
-                      
+
                       <div id="causes-of-death-19b-card">
                         <CausesOfDeath19bCard />
                       </div>
-                      
+
                       <div id="maternal-condition-card">
                         <MaternalConditionCard />
                       </div>
-                      
+
                       <div id="death-by-external-causes-card">
                         <DeathByExternalCausesCard />
                       </div>
-                      
+
                       <div id="attendant-information-card">
                         <AttendantInformationCard />
                       </div>
-                      
+
+                      <div id="certification-of-death-card">
+                        <CertificationOfDeathCard />
+                      </div>
+
+                      <div id="disposal-information-card">
+                        <DisposalInformationCard />
+                      </div>
+
+                      <div id="certification-informant-card">
+                        <CertificationInformantCard />
+                      </div>
+
+                      <div id="prepared-by-card">
+                        <DynamicPreparedByCard />
+                      </div>
+
+                      <div id="received-by-card">
+                        <ReceivedByCard />
+                      </div>
+
+                      <div id="registered-at-office-card">
+                        <RegisteredAtOfficeCard
+                          fieldPrefix="registeredByOffice"
+                          cardTitle="Registered at the Office of Civil Registrar"
+                        />
+                      </div>
+
+                      <div id="remarks-card">
+                        <RemarksCard
+                          fieldName="remarks"
+                          cardTitle="Death Certificate Remarks"
+                          label="Additional Remarks"
+                          placeholder="Enter any additional remarks or annotations"
+                        />
+
+                        {/* 
                       <div id="embalmer-certification-card">
                         <EmbalmerCertificationCard />
                       </div>
@@ -130,42 +166,9 @@ export default function DeathCertificateForm({
                       <div id="affidavit-delayed-registration-card">
                         <AffidavitDelayedRegistrationCard />
                       </div>
-                      
-                      <div id="certification-of-death-card">
-                        <CertificationOfDeathCard />
-                      </div>
-                      
-                      <div id="disposal-information-card">
-                        <DisposalInformationCard />
-                      </div>
-                      
-                      <div id="certification-informant-card">
-                        <CertificationInformantCard />
-                      </div>
-                      
-                      <div id="prepared-by-card">
-                        <PreparedByCard />
-                      </div>
-                      
-                      <div id="received-by-card">
-                        <ReceivedByCard />
-                      </div>
-                      
-                      <div id="registered-at-office-card">
-                        <RegisteredAtOfficeCard
-                          fieldPrefix='registeredByOffice'
-                          cardTitle='Registered at the Office of Civil Registrar'
-                        />
-                      </div>
-                      
-                      <div id="remarks-card">
-                        <RemarksCard
-                          fieldName='remarks'
-                          cardTitle='Death Certificate Remarks'
-                          label='Additional Remarks'
-                          placeholder='Enter any additional remarks or annotations'
-                        />
+
                       </div> */}
+                      </div>
                     </div>
                   </ScrollArea>
                 </div>

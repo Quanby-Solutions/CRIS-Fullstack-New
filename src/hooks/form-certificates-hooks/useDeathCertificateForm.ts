@@ -39,6 +39,8 @@ const emptyDefaults: DeathCertificateFormValues = {
     hours: undefined,
   },
   placeOfDeath: {
+    locationType: '',
+    internationalAddress: '',
     hospitalInstitution: undefined,
     houseNo: undefined,
     st: undefined,
@@ -46,7 +48,7 @@ const emptyDefaults: DeathCertificateFormValues = {
     cityMunicipality: '',
     province: '',
   },
-  civilStatus: undefined,
+  civilStatus: '',
   religion: '',
   citizenship: '',
   residence: {
@@ -58,6 +60,17 @@ const emptyDefaults: DeathCertificateFormValues = {
     country: '',
   },
   occupation: '',
+  nameOfFather: {
+    first: '',
+    middle: '',
+    last: '',
+  },
+  nameOfMother: {
+    first: '',
+    middle: '',
+    last: '',
+  },
+
   birthInformation: {
     ageOfMother: undefined,
     methodOfDelivery: undefined,
@@ -129,16 +142,12 @@ const emptyDefaults: DeathCertificateFormValues = {
     hasAttended: false,
     nameInPrint: '',
     titleOfPosition: '',
-    address: {
-      houseNo: undefined,
-      st: undefined,
-      barangay: undefined,
-      cityMunicipality: '',
-      province: '',
-      country: '',
-    },
-    date: undefined,
-    healthOfficerNameInPrint: '',
+    address: '',
+    reviewedBy: {
+      date: undefined,
+      healthOfficerNameInPrint: '',
+    }
+
   },
   reviewedBy: { date: undefined },
   postmortemCertificate: {
@@ -197,6 +206,7 @@ const emptyDefaults: DeathCertificateFormValues = {
   cemeteryOrCrematory: {
     name: '',
     address: {
+      internationalAddress: '',
       houseNo: undefined,
       st: undefined,
       barangay: undefined,
@@ -208,14 +218,7 @@ const emptyDefaults: DeathCertificateFormValues = {
   informant: {
     nameInPrint: '',
     relationshipToDeceased: '',
-    address: {
-      houseNo: undefined,
-      st: undefined,
-      barangay: undefined,
-      cityMunicipality: '',
-      province: '',
-      country: '',
-    },
+    address: '',
     date: undefined,
   },
   preparedBy: {
@@ -382,20 +385,20 @@ export function useDeathCertificateForm({
     }
   };
 
-   // Enhanced error handler with scrolling functionality
-   const handleError = (errors: any) => {
+  // Enhanced error handler with scrolling functionality
+  const handleError = (errors: any) => {
     console.error("❌ Form Errors:", errors);
-    
+
     // Get all error field names to determine which section to scroll to
     const errorFields = Object.keys(errors);
-    
+
     if (errorFields.length === 0) return;
-    
+
     // Define the field prefix to card ID mapping for scrolling
     const fieldToCardMap: Record<string, string> = {
       'registry': 'registry-information-card',
       'pagination': 'pagination-inputs',
-      
+
       'name': 'deceased-information-card',
       'sex': 'deceased-information-card',
       'dateOfDeath': 'deceased-information-card',
@@ -409,35 +412,35 @@ export function useDeathCertificateForm({
       'occupation': 'deceased-information-card',
       'birthInformation': 'deceased-information-card',
       'parents': 'deceased-information-card',
-      
+
       'causesOfDeath19a': 'causes-of-death-19a-card',
       'causesOfDeath19b': 'causes-of-death-19b-card',
-      
+
       'medicalCertificate': 'causes-of-death-19b-card',
       'maternalCondition': 'maternal-condition-card',
       'externalCauses': 'death-by-external-causes-card',
       'attendant': 'attendant-information-card',
-      
+
       'certificationOfDeath': 'certification-of-death-card',
       'postmortemCertificate': 'postmortem-certificate-card',
       'embalmerCertification': 'embalmer-certification-card',
-      
+
       'delayedRegistration': 'affidavit-delayed-registration-card',
-      
+
       'corpseDisposal': 'disposal-information-card',
       'burialPermit': 'disposal-information-card',
       'transferPermit': 'disposal-information-card',
       'cemeteryOrCrematory': 'disposal-information-card',
-      
+
       'informant': 'certification-informant-card',
-      
+
       'preparedBy': 'prepared-by-card',
       'receivedBy': 'received-by-card',
       'registeredByOffice': 'registered-at-office-card',
-      
+
       'remarks': 'remarks-card',
     };
-    
+
     // Build a hierarchy of priority - which errors to scroll to first
     const errorHierarchy = [
       'registryNumber', 'province', 'cityMunicipality',
@@ -445,18 +448,18 @@ export function useDeathCertificateForm({
       'causesOfDeath19a', 'causesOfDeath19b',
       // Add more fields in priority order
     ];
-    
+
     // Find the first field that has an error according to our hierarchy
     let firstErrorField = errorHierarchy.find(field => errorFields.includes(field));
-    
+
     // If no match in hierarchy, just take the first error field
     if (!firstErrorField && errorFields.length > 0) {
       firstErrorField = errorFields[0];
     }
-    
+
     // Determine which card to scroll to
     let cardToScrollTo = null;
-    
+
     if (firstErrorField) {
       // First check for exact matches
       if (fieldToCardMap[firstErrorField]) {
@@ -471,21 +474,21 @@ export function useDeathCertificateForm({
         }
       }
     }
-    
+
     // Execute the scrolling after a short delay to ensure the DOM is ready
     setTimeout(() => {
       if (cardToScrollTo) {
         // Try to find the corresponding card element
-        const cardElement = document.getElementById(cardToScrollTo) || 
-                          document.querySelector(`.${cardToScrollTo}`);
-        
+        const cardElement = document.getElementById(cardToScrollTo) ||
+          document.querySelector(`.${cardToScrollTo}`);
+
         if (cardElement) {
           // Find the scrollable container - may be the ScrollArea viewport
-          const scrollContainer = scrollAreaRef?.current?.querySelector('[data-radix-scroll-area-viewport]') || 
-                              document.querySelector('[data-radix-scroll-area-viewport]') ||
-                              document.querySelector('.overflow-auto') ||
-                              window;
-          
+          const scrollContainer = scrollAreaRef?.current?.querySelector('[data-radix-scroll-area-viewport]') ||
+            document.querySelector('[data-radix-scroll-area-viewport]') ||
+            document.querySelector('.overflow-auto') ||
+            window;
+
           // Different scrolling logic based on the container
           if (scrollContainer === window) {
             // Global window scrolling
@@ -494,17 +497,17 @@ export function useDeathCertificateForm({
             // For custom scrollable containers
             const containerRect = scrollContainer.getBoundingClientRect();
             const cardRect = cardElement.getBoundingClientRect();
-            
+
             // Calculate the scroll position relative to the container
             const scrollTop = cardRect.top - containerRect.top + scrollContainer.scrollTop - 20;
-            
+
             // Scroll the container
             scrollContainer.scrollTo({
               top: scrollTop,
               behavior: 'smooth'
             });
           }
-          
+
           // Flash the card to highlight it
           cardElement.classList.add('error-flash');
           setTimeout(() => {
@@ -512,10 +515,10 @@ export function useDeathCertificateForm({
           }, 1000);
         }
       }
-      
+
       // Build error messages for toast
       const errorMessages: string[] = [];
-      
+
       // Helper function to make field names user-friendly
       const formatFieldName = (fieldName: string) => {
         return fieldName
@@ -525,11 +528,11 @@ export function useDeathCertificateForm({
           .toLowerCase()
           .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter
       };
-      
+
       // Log and collect nested errors
       const processNestedErrors = (obj: any, path: string = '') => {
         if (!obj) return;
-        
+
         if (typeof obj === 'object') {
           if (obj.message) {
             const formattedPath = path ? formatFieldName(path) : '';
@@ -537,25 +540,25 @@ export function useDeathCertificateForm({
             console.log(message);
             errorMessages.push(message);
           }
-          
+
           Object.keys(obj).forEach((key) => {
             processNestedErrors(obj[key], path ? `${path}.${key}` : key);
           });
         }
       };
-      
+
       processNestedErrors(errors);
-      
+
       if (errorMessages.length > 0) {
         // Show only the first few errors to avoid overwhelming the user
         const displayedErrors = errorMessages.slice(0, 3);
         const remainingCount = errorMessages.length - 3;
-        
+
         let errorMessage = displayedErrors.join('\n');
         if (remainingCount > 0) {
           errorMessage += `\n... and ${remainingCount} more error${remainingCount > 1 ? 's' : ''}`;
         }
-        
+
         toast.error(errorMessage);
       } else {
         toast.error('Please check the form for errors');

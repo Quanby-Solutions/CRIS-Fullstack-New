@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 interface DynamicSelectInputProps {
   name: string;
@@ -41,25 +41,40 @@ const CivilStatus: React.FC<DynamicSelectInputProps> = ({
   otherOptionValue = "Other",
   otherOptionLabel = "Other (please specify)",
 }) => {
-  const { control, setValue, getValues } = useFormContext();
+  const { control, setValue, getValues, watch, register } = useFormContext();
   const [isCustomValue, setIsCustomValue] = useState(false);
+
+  // Use a separate state for the custom input value
+  const [customInputValue, setCustomInputValue] = useState("");
+
+  // Watch the field value
+  const fieldValue = watch(name);
 
   // Check if the current value exists in the options
   useEffect(() => {
-    const currentValue = getValues(name);
+    const value = getValues(name);
     if (
-      currentValue &&
-      !options.some((option) => option.value === currentValue) &&
-      currentValue !== otherOptionValue
+      value &&
+      !options.some((option) => option.value === value) &&
+      value !== otherOptionValue
     ) {
       setIsCustomValue(true);
+      setCustomInputValue(value);
     }
   }, [getValues, name, options, otherOptionValue]);
 
   // Handle switching back to select dropdown
   const handleSwitchToSelect = () => {
     setIsCustomValue(false);
-    setValue(name, ""); // Clear the value when switching back to select
+    setCustomInputValue("");
+    setValue(name, "");
+  };
+
+  // Handle custom input change
+  const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomInputValue(value);
+    setValue(name, value);
   };
 
   return (
@@ -76,7 +91,7 @@ const CivilStatus: React.FC<DynamicSelectInputProps> = ({
               onValueChange={(value) => {
                 if (value === otherOptionValue) {
                   setIsCustomValue(true);
-                  field.onChange("");
+                  // Don't clear the field value immediately
                 } else {
                   field.onChange(value);
                 }
@@ -105,7 +120,11 @@ const CivilStatus: React.FC<DynamicSelectInputProps> = ({
               <FormControl className="flex-1">
                 <Input
                   placeholder="Enter custom value"
-                  {...field}
+                  value={customInputValue}
+                  onChange={handleCustomInputChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
                   className="h-10"
                 />
               </FormControl>

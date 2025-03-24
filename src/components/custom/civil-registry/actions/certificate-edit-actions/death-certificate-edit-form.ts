@@ -64,7 +64,7 @@ export async function updateDeathCertificateForm(
 
     // Update the death certificate form record
     const updatedDeathForm = await prisma.deathCertificateForm.update({
-      where: { id: deathCert.id },  // Use the marriage cert ID
+      where: { id: deathCert.id },  // Use the death cert ID
       select: { baseFormId: true },
       data: {
         // Deceased Information
@@ -81,7 +81,7 @@ export async function updateDeathCertificateForm(
         residence: formData.residence as Prisma.JsonObject,
         occupation: formData.occupation,
 
-        // Parent Information
+        // Parent Information - standardize to use parents field
         parentInfo: formData.parents as Prisma.JsonObject,
 
         // Birth Information (if applicable)
@@ -89,18 +89,18 @@ export async function updateDeathCertificateForm(
           ? (formData.birthInformation as Prisma.JsonObject)
           : Prisma.JsonNull,
 
-        // Medical Certificate
+        // Medical Certificate - consolidate causes of death here
         medicalCertificate: {
-          causesOfDeath: formData.medicalCertificate.causesOfDeath,
+          causesOfDeath: formData?.medicalCertificate?.causesOfDeath,
           maternalCondition:
-            formData.medicalCertificate.maternalCondition || null,
-          externalCauses: formData.medicalCertificate.externalCauses,
-          attendant: formData.medicalCertificate.attendant
+            formData.medicalCertificate?.maternalCondition || null,
+          externalCauses: formData.medicalCertificate?.externalCauses,
+          attendant: formData.medicalCertificate?.attendant
             ? {
               ...formData.medicalCertificate.attendant,
               duration: formData.medicalCertificate.attendant.duration
                 ? {
-                  from: 
+                  from:
                     formData.medicalCertificate.attendant.duration.from!
                   ,
                   to:
@@ -122,26 +122,29 @@ export async function updateDeathCertificateForm(
                 : null,
             }
             : null,
-          autopsy: formData.medicalCertificate.autopsy,
+          autopsy: formData.medicalCertificate?.autopsy,
         } as Prisma.JsonObject,
 
-        // Causes of Death (specific section)
+        // Keeping separate causes of death fields for backward compatibility
+        // or specific form sections
         causesOfDeath19a: formData.causesOfDeath19a as Prisma.JsonObject,
         causesOfDeath19b: formData.causesOfDeath19b as Prisma.JsonObject,
 
-        // Certification of Death
+        // Certification of Death - include reviewedBy data here
         certificationOfDeath: {
-          hasAttended: formData.certificationOfDeath.hasAttended,
-          nameInPrint: formData.certificationOfDeath.nameInPrint,
-          titleOfPosition: formData.certificationOfDeath.titleOfPosition,
-          address: formData.certificationOfDeath.address as Prisma.JsonObject,
-          date: dateToJSON(formData.certificationOfDeath.date!),
-          healthOfficerNameInPrint:
-            formData.certificationOfDeath.healthOfficerNameInPrint,
+          hasAttended: formData.certificationOfDeath?.hasAttended,
+          nameInPrint: formData.certificationOfDeath?.nameInPrint,
+          titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
+          address: formData?.certificationOfDeath?.address,
+          reviewedBy: {
+            date: dateToJSON(formData.certificationOfDeath?.reviewedBy?.date!),
+            healthOfficerNameInPrint:
+              formData.certificationOfDeath?.reviewedBy?.healthOfficerNameInPrint,
+          }
         } as Prisma.JsonObject,
 
-        // Review Information
-        reviewedBy: formData.reviewedBy.date!,
+        // Remove separate reviewedBy field to avoid duplication
+        // reviewedBy: dateToJSON(formData.reviewedBy?.date!),
 
         // Optional Certificates
         postmortemCertificate: formData.postmortemCertificate
@@ -162,7 +165,7 @@ export async function updateDeathCertificateForm(
           titleDesignation: formData.embalmerCertification?.titleDesignation,
         } as Prisma.JsonObject,
 
-        // In the updateDeathCertificateForm function
+        // Delayed Registration
         delayedRegistration: formData.delayedRegistration?.isDelayed
           ? ({
             isDelayed: true,
@@ -213,8 +216,8 @@ export async function updateDeathCertificateForm(
         // Disposal Information
         corpseDisposal: formData.corpseDisposal,
         burialPermit: {
-          number: formData.burialPermit.number,
-          dateIssued: dateToJSON(formData.burialPermit.dateIssued!),
+          number: formData.burialPermit?.number,
+          dateIssued: dateToJSON(formData.burialPermit?.dateIssued!),
         } as Prisma.JsonObject,
 
         transferPermit: formData.transferPermit
@@ -225,17 +228,26 @@ export async function updateDeathCertificateForm(
           : Prisma.JsonNull,
 
         cemeteryOrCrematory: {
-          name: formData.cemeteryOrCrematory.name,
-          address: formData.cemeteryOrCrematory.address,
+          name: formData.cemeteryOrCrematory?.name,
+          address: {
+            ...formData.cemeteryOrCrematory?.address
+          } as Prisma.JsonObject,
         } as Prisma.JsonObject,
 
         // Informant Information
         informant: {
-          nameInPrint: formData.informant.nameInPrint,
-          relationshipToDeceased: formData.informant.relationshipToDeceased,
-          address: formData.informant.address as Prisma.JsonObject,
-          date: dateToJSON(formData.informant.date!),
+          nameInPrint: formData.informant?.nameInPrint,
+          relationshipToDeceased: formData.informant?.relationshipToDeceased,
+          address: formData.informant?.address,
+          date: dateToJSON(formData.informant?.date!),
         } as Prisma.JsonObject,
+
+        // Add missing registeredByOffice field from defaults
+        // registeredByOffice: {
+        //   nameInPrint: formData.registeredByOffice?.nameInPrint,
+        //   titleOrPosition: formData.registeredByOffice?.titleOrPosition,
+        //   date: dateToJSON(formData.registeredByOffice?.date!)
+        // } as Prisma.JsonObject,
 
         remarks: formData.remarks,
       },
