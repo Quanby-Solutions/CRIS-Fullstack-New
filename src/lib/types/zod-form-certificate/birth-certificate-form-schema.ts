@@ -11,8 +11,25 @@ import {
   religionSchema,
   remarksAnnotationsSchema,
   residenceSchema,
-  signatureSchema,
 } from './form-certificates-shared-schema';
+
+// Helper: Preprocess any string (or Date) into a Date object.
+const datePreprocessor = z.preprocess(
+  (arg) =>
+    typeof arg === 'string' || arg instanceof Date ? new Date(arg) : arg,
+  z.date({ required_error: 'Date is required' })
+);
+
+// Helper: Wraps an existing date field schema with preprocessing.
+const createDateFieldSchemaWithPreprocess = (options: {
+  requiredError: string;
+  futureError: string;
+}) =>
+  z.preprocess(
+    (arg) =>
+      typeof arg === 'string' || arg instanceof Date ? new Date(arg) : arg,
+    createDateFieldSchema(options)
+  );
 
 // Child Information Schema
 const childInformationSchema = z
@@ -21,28 +38,19 @@ const childInformationSchema = z
     middleName: nameSchema.shape.middle,
     lastName: nameSchema.shape.last,
     sex: z
-      .preprocess(
-        (val) => (val === '' ? undefined : val),
-        z.enum(['Male', 'Female']).optional()
-      )
-      .refine((val) => val !== undefined, {
-        message: 'Sex is required',
-      }),
-
-    // Updated to use the reusable date schema:
-    dateOfBirth: createDateFieldSchema({
+      .preprocess((val) => (val === '' ? undefined : val), z.enum(['Male', 'Female']).optional())
+      .refine((val) => val !== undefined, { message: 'Sex is required' }),
+    dateOfBirth: createDateFieldSchemaWithPreprocess({
       requiredError: 'Date of birth is required',
       futureError: 'Birth date cannot be in the future',
     }),
     placeOfBirth: z.object({
-      hospital: z
-        .string()
-        .min(1, 'Hospital/Clinic/Institution name is required'),
+      hospital: z.string().min(1, 'Hospital/Clinic/Institution name is required'),
       cityMunicipality: cityMunicipalitySchema,
       province: provinceSchema,
     }),
-    typeOfBirth: z.enum(['Single', 'Twin', 'Triplet', 'Others']),
-    multipleBirthOrder: z.enum(['First', 'Second', 'Third']).optional(),
+    typeOfBirth: z.string().optional(),
+    multipleBirthOrder: z.string().optional(),
     birthOrder: z.string().min(1, 'Birth order is required'),
     weightAtBirth: z
       .string()
@@ -114,12 +122,10 @@ const motherInformationSchema = z
       const total = Number(data.totalChildrenBornAlive);
       const living = Number(data.childrenStillLiving);
       const dead = Number(data.childrenNowDead);
-
       if (total !== living + dead) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message:
-            'Total children born alive must equal sum of living and deceased children',
+          message: 'Total children born alive must equal sum of living and deceased children',
           path: ['totalChildrenBornAlive'],
         });
       }
@@ -154,8 +160,7 @@ const fatherInformationSchema = z
 // Marriage Information Schema
 const marriageInformationSchema = z
   .object({
-    // Updated to use the reusable date schema:
-    date: createDateFieldSchema({
+    date: createDateFieldSchemaWithPreprocess({
       requiredError: 'Marriage date is required',
       futureError: 'Marriage date cannot be in the future',
     }),
@@ -166,13 +171,11 @@ const marriageInformationSchema = z
 // Attendant Information Schema
 const attendantInformationSchema = z.object({
   type: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']).optional()
-    )
-    .refine((val) => val !== undefined, {
-      message: 'Attendant type is required',
-    }),
+    .union([
+      z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot']),
+      z.string().min(1, 'Custom attendant type is required'),
+    ])
+    .refine((val) => val !== undefined, { message: 'Attendant type is required' }),
   certification: z.object({
     time: z.preprocess((val) => {
       if (val == null || val === '') return undefined;
@@ -185,11 +188,10 @@ const attendantInformationSchema = z.object({
       }
       return val;
     }, z.date({ required_error: 'Time is required' })),
-    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
     title: z.string().min(1, 'Title is required'),
     address: residenceSchema,
-    date: createDateFieldSchema({
+    date: createDateFieldSchemaWithPreprocess({
       requiredError: 'Certification date is required',
       futureError: 'Certification date cannot be in the future',
     }),
@@ -198,11 +200,10 @@ const attendantInformationSchema = z.object({
 
 // Informant Schema
 const informantSchema = z.object({
-  signature: signatureSchema,
   name: z.string().min(1, 'Name is required'),
   relationship: z.string().min(1, 'Relationship is required'),
   address: residenceSchema,
-  date: createDateFieldSchema({
+  date: createDateFieldSchemaWithPreprocess({
     requiredError: 'Date is required',
     futureError: 'Informant date cannot be in the future',
   }),
@@ -216,7 +217,7 @@ const affidavitOfPaternitySchema = z.object({
   mother: z.object({
     name: z.string().min(1, 'Name is required'),
   }),
-  dateSworn: createDateFieldSchema({
+  dateSworn: createDateFieldSchemaWithPreprocess({
     requiredError: 'Date sworn is required',
     futureError: 'Date cannot be in the future',
   }),
@@ -227,7 +228,7 @@ const affidavitOfPaternitySchema = z.object({
   }),
   ctcInfo: z.object({
     number: z.string().min(1, 'CTC number is required'),
-    dateIssued: createDateFieldSchema({
+    dateIssued: createDateFieldSchemaWithPreprocess({
       requiredError: 'Date issued is required',
       futureError: 'Date cannot be in the future',
     }),
@@ -245,7 +246,7 @@ const delayedRegistrationAffidavitSchema = z.object({
   }),
   registrationType: z.enum(['SELF', 'OTHER']),
   reasonForDelay: z.string().min(1, 'Reason for delay is required'),
-  dateSworn: createDateFieldSchema({
+  dateSworn: createDateFieldSchemaWithPreprocess({
     requiredError: 'Date sworn is required',
     futureError: 'Date cannot be in the future',
   }),
@@ -256,7 +257,7 @@ const delayedRegistrationAffidavitSchema = z.object({
   }),
   ctcInfo: z.object({
     number: z.string().min(1, 'CTC number is required'),
-    dateIssued: createDateFieldSchema({
+    dateIssued: createDateFieldSchemaWithPreprocess({
       requiredError: 'Date issued is required',
       futureError: 'Date cannot be in the future',
     }),
@@ -277,17 +278,23 @@ export const birthCertificateFormSchema = z
     parentMarriage: marriageInformationSchema,
     attendant: attendantInformationSchema,
     informant: informantSchema,
+    // Use the shared schema for preparedBy
     preparedBy: processingDetailsSchema.shape.preparedBy,
-    receivedBy: processingDetailsSchema.shape.receivedBy,
-    registeredByOffice: processingDetailsSchema.shape.registeredBy,
+    // Override receivedBy and registeredByOffice with our date preprocessor.
+    receivedBy: z.object({
+      nameInPrint: processingDetailsSchema.shape.receivedBy.shape.nameInPrint,
+      titleOrPosition: processingDetailsSchema.shape.receivedBy.shape.titleOrPosition,
+      date: datePreprocessor,
+    }),
+    registeredByOffice: z.object({
+      nameInPrint: processingDetailsSchema.shape.registeredBy.shape.nameInPrint,
+      titleOrPosition: processingDetailsSchema.shape.registeredBy.shape.titleOrPosition,
+      date: datePreprocessor,
+    }),
     hasAffidavitOfPaternity: z.boolean().default(false),
-    affidavitOfPaternityDetails: affidavitOfPaternitySchema
-      .nullable()
-      .optional(),
+    affidavitOfPaternityDetails: affidavitOfPaternitySchema.nullable().optional(),
     isDelayedRegistration: z.boolean().default(false),
-    affidavitOfDelayedRegistration: delayedRegistrationAffidavitSchema
-      .nullable()
-      .optional(),
+    affidavitOfDelayedRegistration: delayedRegistrationAffidavitSchema.nullable().optional(),
     remarks: remarksAnnotationsSchema,
     pagination: paginationSchema.optional(),
   })
@@ -295,24 +302,20 @@ export const birthCertificateFormSchema = z
     if (data.hasAffidavitOfPaternity && !data.affidavitOfPaternityDetails) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          'Affidavit details are required when including paternity affidavit',
+        message: 'Affidavit details are required when including paternity affidavit',
         path: ['affidavitOfPaternityDetails'],
       });
     }
     if (data.isDelayedRegistration && !data.affidavitOfDelayedRegistration) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          'Delayed registration affidavit is required for delayed registration',
+        message: 'Delayed registration affidavit is required for delayed registration',
         path: ['affidavitOfDelayedRegistration'],
       });
     }
   });
 
-export type BirthCertificateFormValues = z.infer<
-  typeof birthCertificateFormSchema
->;
+export type BirthCertificateFormValues = z.infer<typeof birthCertificateFormSchema>;
 
 export interface BirthCertificateFormProps {
   open: boolean;

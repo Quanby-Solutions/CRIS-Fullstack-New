@@ -17,6 +17,10 @@ import BirthCertificateForm from '@/components/custom/forms/certificates/birth-c
 import DeathCertificateForm from '@/components/custom/forms/certificates/death-certificate-form';
 import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form';
 
+import { hasPermission } from "@/types/auth"
+import { Permission } from '@prisma/client';
+import { useUser } from '@/context/user-context';
+
 export function AddCivilRegistryFormDialog() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -52,6 +56,11 @@ export function AddCivilRegistryFormDialog() {
     setTimeout(() => setOpen(true), 0);
   }
 
+  const { permissions } = useUser()
+  const hasBirth = hasPermission(permissions, Permission.DOCUMENT_BIRTH)
+  const hasDeath = hasPermission(permissions, Permission.DOCUMENT_DEATH)
+  const hasMarriage = hasPermission(permissions, Permission.DOCUMENT_MARRIAGE)
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -70,12 +79,15 @@ export function AddCivilRegistryFormDialog() {
 
           <div className='flex gap-4'>
             <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('live-birth-certificate')}
+              className={`flex-1 transition-colors border dark:border-border ${hasBirth
+                  ? 'cursor-pointer hover:bg-accent'
+                  : 'opacity-50 cursor-not-allowed'
+                }`}
+              onClick={hasBirth ? () => handleFormSelect('live-birth-certificate') : undefined}
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
-                  {t('Certificate of Live Birth')}{' '}
+                  {t('Certificate of Live Birth')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='text-center'>
@@ -84,9 +96,13 @@ export function AddCivilRegistryFormDialog() {
                 </p>
               </CardContent>
             </Card>
+
             <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('death-certificate')}
+              className={`flex-1 transition-colors border dark:border-border ${hasDeath
+                ? 'cursor-pointer hover:bg-accent'
+                : 'opacity-50 cursor-not-allowed'
+              }`}
+              onClick={hasDeath ? () => handleFormSelect('death-certificate') : undefined}
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
@@ -101,8 +117,11 @@ export function AddCivilRegistryFormDialog() {
             </Card>
 
             <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('marriage-certificate')}
+             className={`flex-1 transition-colors border dark:border-border ${hasMarriage
+              ? 'cursor-pointer hover:bg-accent'
+              : 'opacity-50 cursor-not-allowed'
+            }`}
+              onClick={hasMarriage ? () => handleFormSelect('marriage-certificate') : undefined}
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>

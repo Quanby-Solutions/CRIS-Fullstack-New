@@ -21,7 +21,10 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 const AttendantInformationCard: React.FC = () => {
   const { control, setValue, watch, trigger } = useFormContext<BirthCertificateFormValues>();
   const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
+  // State to track if "Others" input should be shown
   const [showOtherInput, setShowOtherInput] = useState(false);
+  // Local state to hold the custom input value
+  const [customAttendant, setCustomAttendant] = useState('');
 
   const province = watch('attendant.certification.address.province');
 
@@ -45,6 +48,9 @@ const AttendantInformationCard: React.FC = () => {
     trigger('attendant.certification.address.province');
   }, [province, setValue, trigger]);
 
+  // Predefined attendant options
+  const attendantOptions = ['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'];
+
   return (
     <Card>
       <CardHeader>
@@ -60,38 +66,72 @@ const AttendantInformationCard: React.FC = () => {
             <FormField
               control={control}
               name="attendant.type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={(value) => {
-                        setShowOtherInput(value === 'Others');
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                      className="grid grid-cols-2 md:grid-cols-5 gap-4"
-                    >
-                      {['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'].map((type) => (
-                        <FormItem key={type} className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value={type} />
-                          </FormControl>
-                          <FormLabel className="font-normal">{type}</FormLabel>
-                        </FormItem>
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                  {showOtherInput && (
-                    <Input
-                      placeholder="Please specify other attendant type"
-                      value={field.value === 'Others' ? '' : field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="mt-2 h-10"
-                    />
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // Determine if the current field value is one of the predefined options.
+                // If not, we assume it is a custom value.
+                const isCustom = field.value && !attendantOptions.includes(field.value);
+                
+                // When field.value is custom, update local state.
+                useEffect(() => {
+                  if (isCustom) {
+                    setCustomAttendant(field.value);
+                    setShowOtherInput(true);
+                  }
+                }, [field.value, isCustom]);
+
+                // For the radio group, if the current value is custom, select "Others"
+                const radioValue =
+                  attendantOptions.includes(field.value) || field.value === 'Others'
+                    ? field.value
+                    : 'Others';
+
+                return (
+                  <FormItem>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(value) => {
+                          if (value === 'Others') {
+                            setShowOtherInput(true);
+                            // If a custom value already exists, update the field value with it.
+                            if (customAttendant) {
+                              field.onChange(customAttendant);
+                            } else {
+                              field.onChange('');
+                            }
+                          } else {
+                            setShowOtherInput(false);
+                            setCustomAttendant('');
+                            field.onChange(value);
+                          }
+                        }}
+                        value={radioValue}
+                        className="grid grid-cols-2 md:grid-cols-5 gap-4"
+                      >
+                        {attendantOptions.map((type) => (
+                          <FormItem key={type} className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={type} />
+                            </FormControl>
+                            <FormLabel className="font-normal">{type}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    {showOtherInput && (
+                      <Input
+                        placeholder="Please specify other attendant type"
+                        value={customAttendant}
+                        onChange={(e) => {
+                          setCustomAttendant(e.target.value);
+                          field.onChange(e.target.value); // Update field with custom value
+                        }}
+                        className="mt-2 h-10"
+                      />
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </CardContent>
         </Card>

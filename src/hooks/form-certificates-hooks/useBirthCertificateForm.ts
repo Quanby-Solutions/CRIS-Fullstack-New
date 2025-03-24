@@ -535,7 +535,7 @@ export function useBirthCertificateForm({
         type: 'Physician',
         certification: {
           time: new Date('2022-01-01T10:00:00'),
-          signature: null, // Changed to null for consistency
+         
           name: 'Dr. Smith',
           title: 'Chief Physician',
           address: {
@@ -550,7 +550,7 @@ export function useBirthCertificateForm({
         },
       },
       informant: {
-        signature: null, // Changed to null for consistency
+      
         name: 'Emily Doe',
         relationship: 'Mother',
         address: {

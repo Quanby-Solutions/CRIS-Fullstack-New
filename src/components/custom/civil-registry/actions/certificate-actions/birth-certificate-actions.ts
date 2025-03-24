@@ -114,7 +114,7 @@ export async function submitBirthCertificateForm(
             sex: formData.childInfo.sex,
             dateOfBirth: formData.childInfo.dateOfBirth!,
             placeOfBirth: formData.childInfo.placeOfBirth as Prisma.JsonObject,
-            typeOfBirth: formData.childInfo.typeOfBirth,
+            typeOfBirth: formData.childInfo.typeOfBirth || '',
             multipleBirthOrder: formData.childInfo.multipleBirthOrder || '',
             birthOrder: formData.childInfo.birthOrder,
             weightAtBirth: parseFloat(formData.childInfo.weightAtBirth),
@@ -139,14 +139,14 @@ export async function submitBirthCertificateForm(
             childrenNowDead: parseInt(formData.motherInfo.childrenNowDead, 10),
             fatherName:
               !formData.fatherInfo ||
-              !formData.fatherInfo.firstName ||
-              !formData.fatherInfo.lastName
+                !formData.fatherInfo.firstName ||
+                !formData.fatherInfo.lastName
                 ? Prisma.JsonNull
                 : ({
-                    first: formData.fatherInfo.firstName,
-                    middle: formData.fatherInfo.middleName || '',
-                    last: formData.fatherInfo.lastName,
-                  } as Prisma.JsonObject),
+                  first: formData.fatherInfo.firstName,
+                  middle: formData.fatherInfo.middleName || '',
+                  last: formData.fatherInfo.lastName,
+                } as Prisma.JsonObject),
 
             fatherCitizenship: formData.fatherInfo?.citizenship || '',
             fatherReligion: formData.fatherInfo?.religion || '',
@@ -160,11 +160,11 @@ export async function submitBirthCertificateForm(
             parentMarriage: !formData.parentMarriage
               ? Prisma.JsonNull
               : formData.parentMarriage.date
-              ? {
+                ? {
                   date: dateToJSON(formData.parentMarriage.date),
                   place: formData.parentMarriage.place,
                 }
-              : Prisma.JsonNull,
+                : Prisma.JsonNull,
             attendant: {
               type: formData.attendant.type,
               certification: {
@@ -184,13 +184,13 @@ export async function submitBirthCertificateForm(
             hasAffidavitOfPaternity: formData.hasAffidavitOfPaternity,
             affidavitOfPaternityDetails:
               !formData.hasAffidavitOfPaternity ||
-              !formData.affidavitOfPaternityDetails
+                !formData.affidavitOfPaternityDetails
                 ? Prisma.JsonNull
                 : (formData.affidavitOfPaternityDetails as unknown as Prisma.JsonObject),
             isDelayedRegistration: formData.isDelayedRegistration,
             affidavitOfDelayedRegistration:
               !formData.isDelayedRegistration ||
-              !formData.affidavitOfDelayedRegistration
+                !formData.affidavitOfDelayedRegistration
                 ? Prisma.JsonNull
                 : (formData.affidavitOfDelayedRegistration as unknown as Prisma.JsonObject),
             reasonForDelay:

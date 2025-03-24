@@ -1,4 +1,4 @@
-import { string, z } from 'zod'
+import { z } from 'zod'
 import {
   citizenshipSchema,
   cityMunicipalitySchema,
@@ -8,7 +8,6 @@ import {
   processingDetailsSchema,
   provinceSchema,
   registryNumberSchema,
-  signatureSchema,
 } from './form-certificates-shared-schema'
 
 /**
@@ -18,9 +17,9 @@ const locationSchema = z.object({
   houseNo: z.string().optional(),
   street: z.string().optional(),
   barangay: z.string().optional(),
-  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-  province: z.string().min(1, 'Province is required'),
-  country: z.string().min(1, 'Country is required')
+  cityMunicipality: z.string().optional(),
+  province: z.string().optional(),
+  country: z.string().optional(),
 })
 
 
@@ -50,25 +49,16 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
   }),
   c: z.string().optional(),
   d: z.object({
-    dayOf: createDateFieldSchema({
-      requiredError: 'Start date is required',
-      futureError: 'Start date cannot be in the future',
-    }),
+    dayOf: z.date().optional(),
     atPlaceExecute: locationSchema,
   }),
   dateSworn: z.object({
-    dayOf: createDateFieldSchema({
-      requiredError: 'Start date is required',
-      futureError: 'Start date cannot be in the future',
-    }),
+    dayOf: z.date().optional(),
     atPlaceOfSworn: locationSchema,
     ctcInfo: z.object({
-      number: z.string().min(1, 'CTC number is required'),
-      dateIssued: createDateFieldSchema({
-        requiredError: 'Start date is required',
-        futureError: 'Start date cannot be in the future',
-      }),
-      placeIssued: z.string().min(1, 'Place issued is required'),
+      number: z.string().optional(),
+      dateIssued: z.date().optional(),
+      placeIssued: z.string().optional(),
     }),
   }),
   solemnizingOfficerInformation: z.object({
@@ -77,9 +67,9 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
       middle: z.string().optional(), // Middle name can be optional
       last: z.string().optional(),
     }),
-    officeName: z.string().min(1, 'Office name is required'),
+    officeName: z.string().optional(),
     // Signature removed
-    address: z.string().min(1, 'Address is required'),
+    address: z.string().optional(),
   }),
   administeringOfficerInformation: z.object({
     adminName: z.object({
@@ -88,8 +78,8 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
       last: z.string().optional(),
     }),
     // Signature removed
-    address: z.string().min(1, 'Address is required'),
-    position: z.string().min(1, 'Position/Title/Designation is required'),
+    address: z.string().optional(),
+    position: z.string().optional(),
   })
 })
 
@@ -127,10 +117,7 @@ const affidavitForDelayedSchema = z.object({
           })
           .optional(),
         placeOfMarriage: z.string().optional(),
-        dateOfMarriage: createDateFieldSchema({
-          requiredError: 'Start date is required',
-          futureError: 'Start date cannot be in the future',
-        }).optional(),
+        dateOfMarriage: z.date().optional(),
       }).optional(),
 
       b: z.object({
@@ -150,15 +137,12 @@ const affidavitForDelayedSchema = z.object({
           })
           .optional(),
         placeOfMarriage: z.string().optional(),
-        dateOfMarriage: createDateFieldSchema({
-          requiredError: 'Start date is required',
-          futureError: 'Start date cannot be in the future',
-        }).optional(),
+        dateOfMarriage: z.date().optional(),
       }).optional(),
     }).optional(),
 
   b: z.object({
-    solemnizedBy: z.string().min(1, 'Name of officer is required').optional(), // Make required fields optional
+    solemnizedBy: z.string().optional(),
 
     sector: z
       .preprocess(
@@ -179,12 +163,9 @@ const affidavitForDelayedSchema = z.object({
 
   c: z.object({
     a: z.object({
-      licenseNo: z.string().min(1, 'License number is required').optional(), // Make required fields optional
-      dateIssued: createDateFieldSchema({
-        requiredError: 'Start date is required',
-        futureError: 'Start date cannot be in the future',
-      }).optional(),
-      placeOfSolemnizedMarriage: z.string().min(1, 'Place of Solemnized marriage').optional(), // Make required fields optional
+      licenseNo: z.string().optional(),
+      dateIssued: z.date().optional(),
+      placeOfSolemnizedMarriage: z.string().optional(),
     }).optional(),
     b: z.object({
       underArticle: z.string().optional(),
@@ -196,28 +177,19 @@ const affidavitForDelayedSchema = z.object({
     wifeCitizenship: citizenshipSchema.optional(), // Make required fields optional
   }).optional(),
 
-  e: z.string().nonempty('Add valid reason').optional(), // Make required fields optional
+  e: z.string().optional(),
 
   f: z.object({
-    date: createDateFieldSchema({
-      requiredError: 'Start date is required',
-      futureError: 'Start date cannot be in the future',
-    }).optional(), // Make required fields optional
+    date: z.date().optional(),// Make required fields optional
     place: residenceSchemas.optional(), // Make required fields optional
   }).optional(),
 
   dateSworn: z.object({
-    dayOf: createDateFieldSchema({
-      requiredError: 'Start date is required',
-      futureError: 'Start date cannot be in the future',
-    }).optional(),
+    dayOf: z.date().optional(),
     atPlaceOfSworn: residenceSchemas.optional(), // Make required fields optional
     ctcInfo: z.object({
-      number: z.string().min(1, 'CTC number is required').optional(), // Make required fields optional
-      dateIssued: createDateFieldSchema({
-        requiredError: 'Start date is required',
-        futureError: 'Start date cannot be in the future',
-      }).optional(),
+      number: z.string().optional(),
+      dateIssued: z.date().optional(),
       placeIssued: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -232,20 +204,14 @@ export const marriageCertificateSchema = z.object({
   registryNumber: registryNumberSchema,
   province: provinceSchema,
   cityMunicipality: cityMunicipalitySchema,
-  contractDay: createDateFieldSchema({
-    requiredError: 'Start date is required',
-    futureError: 'Start date cannot be in the future',
-  }),
+  contractDay: z.date().optional(),
 
   pagination: paginationSchema.optional(),
 
   // Husband Information
   husbandName: nameSchema,
   husbandAge: z.number().int(),
-  husbandBirth: createDateFieldSchema({
-    requiredError: 'Start date is required',
-    futureError: 'Start date cannot be in the future',
-  }),
+  husbandBirth: z.date().optional(),
   husbandPlaceOfBirth: locationSchema,
   husbandSex: z
     .preprocess(
@@ -263,21 +229,7 @@ export const marriageCertificateSchema = z.object({
   husbandCitizenship: z.string(),
   husbandResidence: z.string(),
   husbandReligion: z.string(),
-  husbandCivilStatus: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z
-        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
-        .optional()
-    )
-    .superRefine((val, ctx) => {
-      if (val === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Civil status is required',
-        });
-      }
-    }),
+  husbandCivilStatus: z.string().optional(),
   husbandConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -293,10 +245,7 @@ export const marriageCertificateSchema = z.object({
   // Wife Information
   wifeName: nameSchema,
   wifeAge: z.number().int(),
-  wifeBirth: createDateFieldSchema({
-    requiredError: 'Start date is required',
-    futureError: 'Start date cannot be in the future',
-  }),
+  wifeBirth: z.date().optional(),
   wifePlaceOfBirth: locationSchema,
   wifeSex: z
     .preprocess(
@@ -314,21 +263,7 @@ export const marriageCertificateSchema = z.object({
   wifeCitizenship: z.string(),
   wifeResidence: z.string(),
   wifeReligion: z.string(),
-  wifeCivilStatus: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z
-        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
-        .optional()
-    )
-    .superRefine((val, ctx) => {
-      if (val === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Civil status is required',
-        });
-      }
-    }),
+  wifeCivilStatus: z.string().optional(),
   wifeConsentPerson: z.object({
     name: nameSchema,
     relationship: z.string(),
@@ -345,10 +280,7 @@ export const marriageCertificateSchema = z.object({
   placeOfMarriage: z.object({
     ...locationSchema.shape
   }),
-  dateOfMarriage: createDateFieldSchema({
-    requiredError: 'Start date is required',
-    futureError: 'Start date cannot be in the future',
-  }),
+  dateOfMarriage: z.date().optional(),
   timeOfMarriage: z.preprocess((val) => {
     if (val instanceof Date) {
       // If it's already a Date object, return it directly
@@ -371,11 +303,11 @@ export const marriageCertificateSchema = z.object({
 
   // Witnesses
   husbandWitnesses: z.array(z.object({
-    name: z.string(),
+    name: z.string().optional(),
     // Signature removed
   })),
   wifeWitnesses: z.array(z.object({
-    name: z.string(),
+    name: z.string().optional(),
     // Signature removed
   })),
 
@@ -393,18 +325,15 @@ export const marriageCertificateSchema = z.object({
 
   // Marriage License Details
   marriageLicenseDetails: z.object({
-    licenseNumber: z.string(),
-    dateIssued: createDateFieldSchema({
-      requiredError: 'Start date is required',
-      futureError: 'Start date cannot be in the future',
-    }),
-    placeIssued: z.string(),
+    licenseNumber: z.string().optional(),
+    dateIssued: z.date().optional(),
+    placeIssued: z.string().optional(),
     marriageAgreement: z.boolean()
   }),
 
   // Marriage Article
   marriageArticle: z.object({
-    article: z.string(),
+    article: z.string().optional(),
     marriageArticle: z.boolean()
   }),
 
@@ -413,8 +342,8 @@ export const marriageCertificateSchema = z.object({
   executiveOrderApplied: z.boolean().optional(),
   // Solemnizing Officer
   solemnizingOfficer: z.object({
-    name: z.string(),
-    position: z.string(),
+    name: z.string().optional(),
+    position: z.string().optional(),
     // Signature removed
     registryNoExpiryDate: z.string()
   }),

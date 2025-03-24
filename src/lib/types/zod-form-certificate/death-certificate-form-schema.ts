@@ -1,93 +1,54 @@
 import { z } from 'zod';
 import {
-  citizenshipSchema,
   cityMunicipalitySchema,
   createDateFieldSchema,
   nameSchema,
+  nameSchemaOptional,
   paginationSchema,
   parentInfoSchema,
   placeOfDeathSchema,
   processingDetailsSchema,
   provinceSchema,
   registryNumberSchema,
-  religionSchema,
   remarksAnnotationsSchema,
-  residenceSchema,
+  residenceSchemaOptional,
 } from './form-certificates-shared-schema';
 
 // --- Deceased Information Schema ---
 const deceasedInformationSchema = z.object({
   // Personal Information
-  name: nameSchema,
+  name: nameSchema.optional(),
   sex: z
     .preprocess(
       (val) => (val === '' ? undefined : val),
       z.union([z.enum(['Male', 'Female']), z.undefined()])
     )
-    .superRefine((val, ctx) => {
-      if (val === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Sex is required',
-        });
-      }
-    }),
+    .optional(),
   dateOfDeath: createDateFieldSchema({
     requiredError: 'Date of death is required',
     futureError: 'Date of death cannot be in the future',
-  }),
-  timeOfDeath: z.preprocess((val) => {
-    if (val instanceof Date) {
-      // If it's already a Date object, return it directly
-      return val
-    }
-
-    if (typeof val === 'string' && val.trim() !== '') {
-      const [hours, minutes] = val.split(':')
-      const date = new Date() // Use current date
-      date.setHours(Number(hours), Number(minutes), 0, 0)
-      return date
-    }
-
-    // If no valid input, return current timestamp
-    return new Date()
-  }, createDateFieldSchema({
-    requiredError: 'Start date is required',
-    futureError: 'Start date cannot be in the future',
-  }),),
+  }).optional(),
+  timeOfDeath: z.date().optional(),
 
   dateOfBirth: createDateFieldSchema({
     requiredError: 'Date of birth is required',
     futureError: 'Date of birth cannot be in the future',
-  }),
+  }).optional(),
   ageAtDeath: z.object({
     years: z.string().optional(),
     months: z.string().optional(),
     days: z.string().optional(),
     hours: z.string().optional(),
-  }),
-  placeOfDeath: placeOfDeathSchema,
-  civilStatus: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z
-        .enum(['Single', 'Married', 'Widow', 'Widower', 'Annulled', 'Divorced'])
-        .optional()
-    )
-    .superRefine((val, ctx) => {
-      if (val === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Civil status is required',
-        });
-      }
-    }),
+  }).optional(),
+  placeOfDeath: placeOfDeathSchema.optional(),
+  civilStatus: z.string().optional(),
 
-  religion: religionSchema,
-  citizenship: citizenshipSchema,
-  residence: residenceSchema,
-  occupation: z.string().nonempty('Occupation is required'),
-
+  religion: z.string().optional(),
+  citizenship: z.string().optional(),
+  residence: residenceSchemaOptional.optional(),
+  occupation: z.string().optional(),
+  nameOfFather: nameSchemaOptional.optional(),
+  nameOfMother: nameSchemaOptional.optional(),
   // Birth Information
   birthInformation: z.object({
     ageOfMother: z.string().optional(),
@@ -103,7 +64,7 @@ const deceasedInformationSchema = z.object({
     birthOrder: z
       .enum(['First', 'Second', 'Third', 'Fourth', 'Fifth'])
       .optional(),
-  }),
+  }).optional(),
 });
 
 // --- Medical Certificate Schema ---
@@ -113,9 +74,7 @@ const medicalCertificateSchema = z.object({
   causesOfDeath: z.union([
     // Infant-style cause of death
     z.object({
-      mainDiseaseOfInfant: z
-        .string()
-        .nonempty('Main disease/condition is required'),
+      mainDiseaseOfInfant: z.string().optional(),
       otherDiseasesOfInfant: z.string().optional(),
       mainMaternalDisease: z.string().optional(),
       otherMaternalDisease: z.string().optional(),
@@ -124,20 +83,20 @@ const medicalCertificateSchema = z.object({
     // Standard cause of death
     z.object({
       immediate: z.object({
-        cause: z.string().nonempty('Immediate cause is required'),
-        interval: z.string().nonempty('Interval is required'),
-      }),
+        cause: z.string().optional(),
+        interval: z.string().optional(),
+      }).optional(),
       antecedent: z.object({
         cause: z.string().optional(),
         interval: z.string().optional(),
-      }),
+      }).optional(),
       underlying: z.object({
         cause: z.string().optional(),
         interval: z.string().optional(),
-      }),
+      }).optional(),
       otherSignificantConditions: z.string().optional(),
     }),
-  ]),
+  ]).optional(),
 
   // Maternal condition (optional)
   maternalCondition: z
@@ -154,7 +113,7 @@ const medicalCertificateSchema = z.object({
   externalCauses: z.object({
     mannerOfDeath: z.string().optional(),
     placeOfOccurrence: z.string().optional(),
-  }),
+  }).optional(),
 
   // Attendant details (ENUM approach)
   attendant: z
@@ -172,25 +131,18 @@ const medicalCertificateSchema = z.object({
             ])
             .optional()
         )
-        .superRefine((val, ctx) => {
-          if (val === undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: 'Please select an attendant type',
-            });
-          }
-        }),
+        .optional(),
       othersSpecify: z.string().optional(),
       duration: z
         .object({
           from: createDateFieldSchema({
             requiredError: 'Start date is required',
             futureError: 'Start date cannot be in the future',
-          }),
+          }).optional(),
           to: createDateFieldSchema({
             requiredError: 'End date is required',
             futureError: 'End date cannot be in the future',
-          }),
+          }).optional(),
         })
         .optional(),
       certification: z
@@ -213,63 +165,39 @@ const medicalCertificateSchema = z.object({
           }, createDateFieldSchema({
             requiredError: 'Start date is required',
             futureError: 'Start date cannot be in the future',
-          }),),
-          name: z.string().nonempty('Attendant name is required'),
-          title: z.string().nonempty('Attendant title is required'),
-          address: residenceSchema,
+          }),).optional(),
+          name: z.string().optional(),
+          title: z.string().optional(),
+          address: residenceSchemaOptional.optional(),
           date: createDateFieldSchema({
             requiredError: 'Certification date is required',
             futureError: 'Certification date cannot be in the future',
-          }),
+          }).optional(),
         })
         .optional(),
     })
-    .superRefine((data, ctx) => {
-      if (data.type === 'Others' && !data.othersSpecify) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please specify the other attendant type',
-          path: ['othersSpecify'],
-        });
-      }
-      if (data.type !== 'None' && data.type !== undefined) {
-        if (!data.duration || !data.duration.from || !data.duration.to) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Please provide the duration for the selected attendant',
-            path: ['duration'],
-          });
-        }
-      }
-      if (
-        data.duration?.from &&
-        data.duration?.to &&
-        new Date(data.duration.to) < new Date(data.duration.from)
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'End date must be after start date',
-          path: ['duration', 'to'],
-        });
-      }
-    }),
+    .optional(),
 
-  autopsy: z.boolean().default(false),
+  autopsy: z.boolean().default(false).optional(),
 });
 
 // --- Certification of Death Schema ---
 const certificationOfDeathSchema = z.object({
-  hasAttended: z.boolean(),
-  nameInPrint: z.string().nonempty('Name is required'),
-  titleOfPosition: z.string().nonempty('Title/Position is required'),
-  address: residenceSchema,
+  hasAttended: z.boolean().optional(),
+  nameInPrint: z.string().optional(),
+  titleOfPosition: z.string().optional(),
+  address: z.string().optional(),
   date: createDateFieldSchema({
     requiredError: 'Certification date is required',
     futureError: 'Certification date cannot be in the future',
-  }),
-  healthOfficerNameInPrint: z
-    .string()
-    .nonempty('Health officer name is required'),
+  }).optional(),
+  reviewedBy: z.object({
+    date: createDateFieldSchema({
+      requiredError: 'Certification date is required',
+      futureError: 'Certification date cannot be in the future',
+    }).optional(),
+    healthOfficerNameInPrint: z.string().optional(),
+  }).optional(),
 });
 
 // --- Review Schema ---
@@ -277,21 +205,21 @@ const reviewSchema = z.object({
   date: createDateFieldSchema({
     requiredError: 'Review date is required',
     futureError: 'Review date cannot be in the future',
-  }),
+  }).optional(),
 });
 
 // --- Certificates Schemas ---
 // Simple optional schema for postmortem certificate
 const postmortemCertificateSchema = z
   .object({
-    causeOfDeath: z.string().nonempty('Cause of death is required'),
-    nameInPrint: z.string().nonempty('Name is required'),
+    causeOfDeath: z.string().optional(),
+    nameInPrint: z.string().optional(),
     date: createDateFieldSchema({
       requiredError: 'Postmortem date is required',
       futureError: 'Postmortem date cannot be in the future',
-    }),
-    titleDesignation: z.string().nonempty('Title/Designation is required'),
-    address: z.string().nonempty('Address is required'),
+    }).optional(),
+    titleDesignation: z.string().optional(),
+    address: z.string().optional(),
   })
   .optional();
 
@@ -303,15 +231,14 @@ const embalmerCertificationSchema = z
     address: z.string().optional(),
     titleDesignation: z.string().optional(),
     licenseNo: z.string().optional(),
-    issuedOn: z.union([z.string(), z.date(), z.null()]).optional(),
+    issuedOn: z.date().optional(),
     issuedAt: z.string().optional(),
-    expiryDate: z.union([z.string(), z.date(), z.null()]).optional(),
+    expiryDate: z.date().optional(),
   })
   .optional();
 
-
 const delayedRegistrationSchema = z.object({
-  isDelayed: z.boolean(),
+  isDelayed: z.boolean().optional(),
   affiant: z.object({
     name: z.string().optional(),
     civilStatus: z.string().optional(),
@@ -354,71 +281,48 @@ const delayedRegistrationSchema = z.object({
     }).optional(),
     issuedAt: z.string().optional(),
   }).optional(),
-}).refine(
-  (data) => {
-    // If isDelayed is true, validate that all required fields are present
-    if (data.isDelayed) {
-      return !!(
-        data.affiant?.name &&
-        data.affiant?.residenceAddress &&
-        data.deceased?.name &&
-        data.causeOfDeath &&
-        data.reasonForDelay &&
-        data.affidavitDatePlace &&
-        data.adminOfficer &&
-        data.ctcInfo?.number &&
-        data.ctcInfo?.issuedAt
-      );
-    }
-    return true;
-  },
-  {
-    message: "All required fields must be filled when delayed registration is true",
-    path: ["isDelayed"]
-  }
-);
+}).optional();
 
 // --- Disposal Information Schema ---
 const disposalInformationSchema = z.object({
-  corpseDisposal: z.string().nonempty('Corpse disposal method is required'),
+
+  corpseDisposal: z.string().optional(),
   burialPermit: z.object({
-    number: z.string().nonempty('Permit number is required'),
+    number: z.string().optional(),
     dateIssued: createDateFieldSchema({
       requiredError: 'Date of death is required',
       futureError: 'Date of death cannot be in the future',
-    }),
-  }),
+    }).optional(),
+  }).optional(),
   transferPermit: z
     .object({
       number: z.string().optional(),
       dateIssued: createDateFieldSchema({
         requiredError: 'Burial permit date is required',
         futureError: 'Burial permit date cannot be in the future',
-      }),
+      }).optional(),
     })
     .optional(),
   cemeteryOrCrematory: z.object({
-    name: z.string().nonempty('Name is required'),
-    address: residenceSchema,
-  }),
+    name: z.string().optional(),
+    address: residenceSchemaOptional.optional(),
+  }).optional(),
 });
 
 // --- Informant Schema ---
 const informantSchema = z.object({
-  nameInPrint: z.string().nonempty('Name is required'),
-  relationshipToDeceased: z.string().nonempty('Relationship is required'),
-  address: residenceSchema,
+  nameInPrint: z.string().optional(),
+  relationshipToDeceased: z.string().optional(),
+  address: z.string().optional(),
   date: createDateFieldSchema({
     requiredError: 'Informant date is required',
     futureError: 'Informant date cannot be in the future',
-  }),
+  }).optional(),
 });
 
 // --- Section 19a: Causes of Death for Infants ---
 export const causesOfDeath19aSchema = z.object({
-  mainDiseaseOfInfant: z
-    .string()
-    .nonempty('Main disease/condition is required'),
+  mainDiseaseOfInfant: z.string().optional(),
   otherDiseasesOfInfant: z.string().optional(),
   mainMaternalDisease: z.string().optional(),
   otherMaternalDisease: z.string().optional(),
@@ -428,177 +332,77 @@ export const causesOfDeath19aSchema = z.object({
 // --- Section 19b: Causes of Death (8 days and over) ---
 const causesOfDeath19bSchema = z.object({
   immediate: z.object({
-    cause: z.string().nonempty('Immediate cause is required'),
-    interval: z.string().nonempty('Interval is required'),
-  }),
+    cause: z.string().optional(),
+    interval: z.string().optional(),
+  }).optional(),
   antecedent: z.object({
     cause: z.string().optional(),
     interval: z.string().optional(),
-  }),
+  }).optional(),
   underlying: z.object({
     cause: z.string().optional(),
     interval: z.string().optional(),
-  }),
+  }).optional(),
   otherSignificantConditions: z.string().optional(),
 });
 
 // --- Main Death Certificate Schema ---
 export const deathCertificateFormSchema = z
   .object({
-
     id: z.string().optional(),
     // Header Information
-    registryNumber: registryNumberSchema,
-    province: provinceSchema,
-    cityMunicipality: cityMunicipalitySchema,
+    registryNumber: registryNumberSchema.optional(),
+    province: provinceSchema.optional(),
+    cityMunicipality: cityMunicipalitySchema.optional(),
 
     // Deceased Information
     ...deceasedInformationSchema.shape,
 
     // Parent Information
-    parents: parentInfoSchema,
+    parents: parentInfoSchema.optional(),
 
-    //causes of death 19a
-    causesOfDeath19a: causesOfDeath19aSchema,
+    // Causes of death 19a
+    causesOfDeath19a: causesOfDeath19aSchema.optional(),
 
     // Causes of Death 19b
-    causesOfDeath19b: causesOfDeath19bSchema,
+    causesOfDeath19b: causesOfDeath19bSchema.optional(),
 
     // Medical Certificate
-    medicalCertificate: medicalCertificateSchema,
+    medicalCertificate: medicalCertificateSchema.optional(),
 
     // Certification of Death
-    certificationOfDeath: certificationOfDeathSchema,
+    certificationOfDeath: certificationOfDeathSchema.optional(),
 
     // Review
-    reviewedBy: reviewSchema,
+    reviewedBy: reviewSchema.optional(),
 
     // Certificates
-    postmortemCertificate: postmortemCertificateSchema,
-    embalmerCertification: embalmerCertificationSchema,
+    postmortemCertificate: postmortemCertificateSchema.optional(),
+    embalmerCertification: embalmerCertificationSchema.optional(),
     delayedRegistration: delayedRegistrationSchema.optional(),
 
     // Disposal Information
     ...disposalInformationSchema.shape,
 
     // Informant
-    informant: informantSchema,
+    informant: informantSchema.optional(),
 
     // Processing Information
-    preparedBy: processingDetailsSchema.shape.preparedBy,
-    receivedBy: processingDetailsSchema.shape.receivedBy,
-    registeredByOffice: processingDetailsSchema.shape.registeredBy,
+    preparedBy: processingDetailsSchema.shape.preparedBy.optional(),
+    receivedBy: processingDetailsSchema.shape.receivedBy.optional(),
+    registeredByOffice: processingDetailsSchema.shape.registeredBy.optional(),
 
     // Additional Remarks
-    remarks: remarksAnnotationsSchema,
+    remarks: remarksAnnotationsSchema.optional(),
     pagination: paginationSchema.optional(),
 
     // Also include corpseDisposal in the main schema (if not already)
     corpseDisposal: z
       .preprocess(
         (val) => (val === '' ? undefined : val),
-        z.union([z.enum(['Burial',
-          'Cremation',
-          'Embalming',]), z.undefined()])
+        z.union([z.enum(['Burial', 'Cremation', 'Embalming']), z.undefined()])
       )
-      .superRefine((val, ctx) => {
-        if (val === undefined) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Corpse disposal method is required',
-          });
-        }
-      }),
-
-  })
-  .superRefine((data, ctx) => {
-    // 1. If the deceased is an infant (ageAtDeath.days ≤ 7),
-    // then the infant-style causes (Section 19a) must be provided.
-    if (data.ageAtDeath.days && parseInt(data.ageAtDeath.days) <= 7) {
-      const causes = data.medicalCertificate.causesOfDeath;
-      if (!('mainDiseaseOfInfant' in causes)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            'Infant cause-of-death details are required for deaths within 7 days of birth',
-          path: ['medicalCertificate', 'causesOfDeath'],
-        });
-      }
-    }
-
-    // 2. For females of reproductive age (15-49), maternal condition is required.
-    if (data.sex === 'Female' && data.ageAtDeath.years) {
-      const age = parseInt(data.ageAtDeath.years);
-      if (
-        age >= 15 &&
-        age <= 49 &&
-        !data.medicalCertificate.maternalCondition
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Maternal condition is required for females aged 15-49',
-          path: ['medicalCertificate', 'maternalCondition'],
-        });
-      }
-    }
-
-    // 3. If autopsy is performed, a postmortem certificate must be provided.
-    if (data.medicalCertificate.autopsy && !data.postmortemCertificate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Postmortem certificate is required when autopsy is performed',
-        path: ['postmortemCertificate'],
-      });
-    }
-
-    // 4. If burial location differs from place of death, a transfer permit is required.
-    if (
-      data.placeOfDeath.cityMunicipality !==
-      data.cemeteryOrCrematory.address.cityMunicipality &&
-      !data.transferPermit
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Transfer permit is required when burial location differs from place of death',
-        path: ['transferPermit'],
-      });
-    }
-
-    // 5. **New:** If the corpse disposal method is "Embalming", then the embalmer certification must be provided.
-    // 5. If the corpse disposal method is "Embalming", then the embalmer certification must be provided.
-    if (data.corpseDisposal === 'Embalming') {
-      if (!data.embalmerCertification) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Embalmer certification is required for embalming',
-          path: ['embalmerCertification'],
-        });
-      } else {
-        // Define required fields with human-readable labels
-        const requiredFieldsWithLabels = [
-          { field: 'nameOfDeceased', label: 'Name of deceased' },
-          { field: 'nameInPrint', label: 'Name' },
-          { field: 'address', label: 'Address' },
-          { field: 'titleDesignation', label: 'Title/Designation' },
-          { field: 'licenseNo', label: 'License number' },
-          { field: 'issuedOn', label: 'Issue date' },
-          { field: 'issuedAt', label: 'Issue location' },
-          { field: 'expiryDate', label: 'Expiry date' },
-        ];
-
-        // Validate each field with better error messages
-        requiredFieldsWithLabels.forEach(({ field, label }) => {
-          if (data.embalmerCertification && !(data.embalmerCertification as any)[field]) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `${label} is required`,
-              path: ['embalmerCertification', field],
-            });
-          }
-        });
-      }
-    }
+      .optional(),
   });
 
 // Export the Type
