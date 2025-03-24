@@ -107,7 +107,7 @@ export const nameSchemaOptional = z.object({
 });
 
 // Citizenship
-export const citizenshipSchema = z.string().nonempty('Citizenship is required');
+export const citizenshipSchema = z.string().optional()
 
 // Religion/Religious Sect
 export const religionSchema = z
