@@ -62,7 +62,11 @@ export default function DeathCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0">
+      <DialogContent
+        className="max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}

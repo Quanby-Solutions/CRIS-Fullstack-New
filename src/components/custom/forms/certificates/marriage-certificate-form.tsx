@@ -61,7 +61,12 @@ export default function MarriageCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0">
+      <DialogContent
+        className="max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <Form {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}

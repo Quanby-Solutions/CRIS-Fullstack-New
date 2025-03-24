@@ -97,6 +97,7 @@ const HusbandInfoCard: React.FC = () => {
                     placeholder="Enter first name"
                     {...field}
                     value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -117,6 +118,7 @@ const HusbandInfoCard: React.FC = () => {
                     placeholder="Enter middle name"
                     {...field}
                     value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -137,6 +139,7 @@ const HusbandInfoCard: React.FC = () => {
                     placeholder="Enter last name"
                     {...field}
                     value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -223,6 +226,7 @@ const HusbandInfoCard: React.FC = () => {
                     placeholder="Enter citizenship"
                     {...field}
                     value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -244,6 +248,7 @@ const HusbandInfoCard: React.FC = () => {
                     placeholder="Enter religion"
                     {...field}
                     value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -315,6 +320,7 @@ const HusbandInfoCard: React.FC = () => {
                     placeholder="Enter complete address"
                     {...field}
                     value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
