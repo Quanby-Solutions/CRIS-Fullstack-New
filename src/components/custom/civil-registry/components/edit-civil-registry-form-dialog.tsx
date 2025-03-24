@@ -483,7 +483,6 @@ export function EditCivilRegistryFormDialog({
         type: 'Physician',
         certification: {
           time: new Date(),
-          signature: '',
           name: '',
           title: '',
           address: {
@@ -500,7 +499,6 @@ export function EditCivilRegistryFormDialog({
 
       // Informant information
       informant: {
-        signature: '',
         name: '',
         relationship: '',
         address: {
