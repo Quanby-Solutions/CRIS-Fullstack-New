@@ -86,7 +86,9 @@ export async function submitDeathCertificateForm(
         });
 
 
-
+        const safelyConvertDateToJSON = (date: Date | undefined | null) => {
+          return date instanceof Date ? date.toISOString() : null;
+        };
         // Helper function to convert Date to ISO string.
         const dateToJSON = (date: Date) => date.toISOString();
 
@@ -187,7 +189,7 @@ export async function submitDeathCertificateForm(
               nameInPrint: formData.certificationOfDeath?.nameInPrint,
               titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
               address: formData.certificationOfDeath?.address,
-              date: dateToJSON(formData.certificationOfDeath?.date!),
+              date: safelyConvertDateToJSON(formData.certificationOfDeath?.date),
               // healthOfficerSignature:
               //   formData.certificationOfDeath.healthOfficerSignature instanceof
               //   File
@@ -200,7 +202,7 @@ export async function submitDeathCertificateForm(
             } as Prisma.JsonObject,
 
             // Review Information.
-            reviewedBy: formData?.reviewedBy?.date!,
+            reviewedBy: safelyConvertDateToJSON(formData?.reviewedBy?.date),
 
 
             // Optional Certificates.
@@ -208,7 +210,7 @@ export async function submitDeathCertificateForm(
               ? ({
                 ...formData.postmortemCertificate,
 
-                date: dateToJSON(formData?.postmortemCertificate?.date!),
+                date: safelyConvertDateToJSON(formData?.postmortemCertificate?.date),
               } as Prisma.JsonObject)
               : Prisma.JsonNull,
 
@@ -234,10 +236,10 @@ export async function submitDeathCertificateForm(
                 } as Prisma.JsonObject,
                 deceased: {
                   name: formData.delayedRegistration?.deceased?.name,
-                  dateOfDeath: dateToJSON(formData?.delayedRegistration?.deceased?.dateOfDeath!),
+                  dateOfDeath: safelyConvertDateToJSON(formData?.delayedRegistration?.deceased?.dateOfDeath),
                   placeOfDeath: formData?.delayedRegistration?.deceased?.placeOfDeath,
                   burialInfo: {
-                    date: dateToJSON(formData.delayedRegistration?.deceased?.burialInfo?.date!),
+                    date: safelyConvertDateToJSON(formData.delayedRegistration?.deceased?.burialInfo?.date),
                     place: formData.delayedRegistration?.deceased?.burialInfo?.place,
                     method: formData.delayedRegistration?.deceased?.burialInfo?.method
                   }
@@ -248,12 +250,12 @@ export async function submitDeathCertificateForm(
                 },
                 causeOfDeath: formData.delayedRegistration?.causeOfDeath,
                 reasonForDelay: formData.delayedRegistration?.reasonForDelay,
-                affidavitDate: dateToJSON(formData?.delayedRegistration?.affidavitDate!),
+                affidavitDate: safelyConvertDateToJSON(formData?.delayedRegistration?.affidavitDate),
                 affidavitDatePlace: formData.delayedRegistration?.affidavitDatePlace,
                 adminOfficer: formData.delayedRegistration?.adminOfficer,
                 ctcInfo: {
                   number: formData.delayedRegistration?.ctcInfo?.number,
-                  issuedOn: dateToJSON(formData.delayedRegistration?.ctcInfo?.issuedOn!),
+                  issuedOn: safelyConvertDateToJSON(formData.delayedRegistration?.ctcInfo?.issuedOn),
                   issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt
                 } as Prisma.JsonObject
 
@@ -265,13 +267,13 @@ export async function submitDeathCertificateForm(
             corpseDisposal: formData.corpseDisposal || '',
             burialPermit: {
               number: formData.burialPermit?.number,
-              dateIssued: dateToJSON(formData?.burialPermit?.dateIssued!),
+              dateIssued: safelyConvertDateToJSON(formData?.burialPermit?.dateIssued),
             } as Prisma.JsonObject,
 
             transferPermit: formData.transferPermit
               ? ({
                 number: formData.transferPermit.number,
-                dateIssued: dateToJSON(formData?.transferPermit.dateIssued!),
+                dateIssued: safelyConvertDateToJSON(formData?.transferPermit.dateIssued),
               } as Prisma.JsonObject)
               : Prisma.JsonNull,
 
