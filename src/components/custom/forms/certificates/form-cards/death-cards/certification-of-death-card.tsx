@@ -117,7 +117,7 @@ const CertificationOfDeathCard: React.FC = () => {
                   <FormControl>
                     <Input
                       className="h-10"
-                      placeholder="Enter title or position"
+                      placeholder="Enter address "
                       {...field}
                       value={field.value ?? ""}
                     />
