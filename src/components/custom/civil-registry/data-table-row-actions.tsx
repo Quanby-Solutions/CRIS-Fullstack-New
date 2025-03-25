@@ -3,28 +3,28 @@ import {
   CertifiedCopy,
   FormType,
   Permission,
-} from '@prisma/client';
-import { Row } from '@tanstack/react-table';
-import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+} from "@prisma/client";
+import { Row } from "@tanstack/react-table";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
-import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action';
-import { Button } from '@/components/ui/button';
-import { useUser } from '@/context/user-context';
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
-import { hasPermission } from '@/types/auth';
+import { useDeleteFormAction } from "@/components/custom/civil-registry/actions/delete-form-action";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/context/user-context";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import { hasPermission } from "@/types/auth";
 
-import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog';
-import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload';
+import { DeleteConfirmationDialog } from "@/components/custom/civil-registry/components/delete-confirmation-dialog";
+import { FileUploadDialog } from "@/components/custom/civil-registry/components/file-upload";
 
-import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation';
-import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation';
-import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form';
-import BirthCertificateFormCTC from '@/components/custom/forms/requests/birth-request-form';
-import DeathCertificateFormCTC from '@/components/custom/forms/requests/death-request-form';
-import MarriageCertificateFormCTC from '@/components/custom/forms/requests/marriage-request-form';
-import Link from 'next/link';
+import BirthAnnotationForm from "@/components/custom/forms/annotations/birth-cert-annotation";
+import DeathAnnotationForm from "@/components/custom/forms/annotations/death-annotation";
+import MarriageAnnotationForm from "@/components/custom/forms/annotations/marriage-annotation-form";
+import BirthCertificateFormCTC from "@/components/custom/forms/requests/birth-request-form";
+import DeathCertificateFormCTC from "@/components/custom/forms/requests/death-request-form";
+import MarriageCertificateFormCTC from "@/components/custom/forms/requests/marriage-request-form";
+import Link from "next/link";
 
 import {
   DropdownMenu,
@@ -33,13 +33,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Icons } from '@/components/ui/icons';
-import { mapToDeathCertificateValues } from '@/lib/utils/map-to-death-certificate-values';
-import { mapToMarriageCertificateValues } from '@/lib/utils/map-to-marriage-certificate';
-import DeathCertificateForm from '../forms/certificates/death-certificate-form';
-import MarriageCertificateForm from '../forms/certificates/marriage-certificate-form';
-import { EditCivilRegistryFormDialog } from './components/edit-civil-registry-form-dialog';
+} from "@/components/ui/dropdown-menu";
+import { Icons } from "@/components/ui/icons";
+import { mapToDeathCertificateValues } from "@/lib/utils/map-to-death-certificate-values";
+import { mapToMarriageCertificateValues } from "@/lib/utils/map-to-marriage-certificate";
+import DeathCertificateForm from "../forms/certificates/death-certificate-form";
+import MarriageCertificateForm from "../forms/certificates/marriage-certificate-form";
+import { EditCivilRegistryFormDialog } from "./components/edit-civil-registry-form-dialog";
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>;
@@ -78,14 +78,13 @@ export function DataTableRowActions({
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE);
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE);
 
-  const hasBirth = hasPermission(permissions, Permission.DOCUMENT_BIRTH)
-  const hasDeath = hasPermission(permissions, Permission.DOCUMENT_DEATH)
-  const hasMarriage = hasPermission(permissions, Permission.DOCUMENT_MARRIAGE)
-
+  const hasBirth = hasPermission(permissions, Permission.DOCUMENT_BIRTH);
+  const hasDeath = hasPermission(permissions, Permission.DOCUMENT_DEATH);
+  const hasMarriage = hasPermission(permissions, Permission.DOCUMENT_MARRIAGE);
 
   const canExport =
     hasPermission(permissions, Permission.DOCUMENT_EXPORT) ||
-    process.env.NEXT_PUBLIC_NODE_ENV === 'development';
+    process.env.NEXT_PUBLIC_NODE_ENV === "development";
 
   // Get the latest attachment with CTC information
   const attachments: AttachmentWithCertifiedCopies[] = form.documents
@@ -109,7 +108,7 @@ export function DataTableRowActions({
     try {
       const response = await fetch(`/api/forms/${form.id}/attachments`);
       if (!response.ok) {
-        throw new Error('Failed to refresh attachments');
+        throw new Error("Failed to refresh attachments");
       }
       const updatedAttachments = await response.json();
       // Update form with new attachments if needed
@@ -126,27 +125,27 @@ export function DataTableRowActions({
         });
       }
     } catch (error) {
-      console.error('Error refreshing attachments:', error);
-      toast.error(t('Failed to refresh attachments'));
+      console.error("Error refreshing attachments:", error);
+      toast.error(t("Failed to refresh attachments"));
     }
   }, [form, onUpdateForm, t]);
 
   // Handle Export
   const handleExport = async () => {
     if (!canExport) {
-      toast.error(t('You do not have permission to export documents'));
+      toast.error(t("You do not have permission to export documents"));
       return;
     }
 
     if (!latestAttachment) {
-      toast.error(t('No attachment found'));
+      toast.error(t("No attachment found"));
       return;
     }
 
     if (!hasCTC) {
       toast.error(
         t(
-          'Latest attachment needs a certified true copy (CTC) before you can export'
+          "Latest attachment needs a certified true copy (CTC) before you can export"
         )
       );
       return;
@@ -159,15 +158,15 @@ export function DataTableRowActions({
       );
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Export failed');
+        throw new Error(error.error || "Export failed");
       }
 
       const blob = await response.blob();
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const filename = `${form.registryNumber}-${timestamp}-export.zip`;
 
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
@@ -175,11 +174,11 @@ export function DataTableRowActions({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success(t('Export completed successfully'));
+      toast.success(t("Export completed successfully"));
     } catch (error) {
-      console.error('Export error:', error);
+      console.error("Export error:", error);
       toast.error(
-        error instanceof Error ? error.message : t('Failed to export files')
+        error instanceof Error ? error.message : t("Failed to export files")
       );
     } finally {
       setIsLoading(false);
@@ -195,19 +194,19 @@ export function DataTableRowActions({
   // Handle Annotation (Issue Certificate)
   const handleAnnotationClick = () => {
     if (!latestAttachment) {
-      toast.error(t('No attachment found'));
+      toast.error(t("No attachment found"));
       return;
     }
 
     if (!hasCTC) {
-      toast.error(t('You need to issue a CTC first'));
+      toast.error(t("You need to issue a CTC first"));
       return;
     }
 
     if (hasCTC) {
       toast.info(
         t(
-          'A certified true copy (CTC) already exists. You can add another issue certificate if needed.'
+          "A certified true copy (CTC) already exists. You can add another issue certificate if needed."
         )
       );
     }
@@ -225,72 +224,71 @@ export function DataTableRowActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='h-8 w-8 p-0'>
-            <Icons.moreHorizontal className='h-4 w-4' />
-            <span className='sr-only'>{t('openMenu')}</span>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <Icons.moreHorizontal className="h-4 w-4" />
+            <span className="sr-only">{t("openMenu")}</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align='end' className='w-[200px]'>
-          <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-[200px]">
+          <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           {((form.formType === FormType.DEATH && hasDeath) ||
             (form.formType === FormType.MARRIAGE && hasMarriage) ||
-            (form.formType === 'BIRTH' && hasBirth)) && (
-              <DropdownMenuItem asChild>
-                <Link href={`/civil-registry/details?formId=${form.id}`}>
-                  <Icons.eye className='mr-2 h-4 w-4' />
-                  {t('viewDetails')}
-                </Link>
-              </DropdownMenuItem>
-            )}
+            (form.formType === "BIRTH" && hasBirth)) && (
+            <DropdownMenuItem asChild>
+              <Link href={`/civil-registry/details?formId=${form.id}`}>
+                <Icons.eye className="mr-2 h-4 w-4" />
+                {t("viewDetails")}
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           {((form.formType === FormType.DEATH && hasDeath) ||
             (form.formType === FormType.MARRIAGE && hasMarriage) ||
-            (form.formType === 'BIRTH' && hasBirth)) && canUpload && (
+            (form.formType === "BIRTH" && hasBirth)) &&
+            canUpload && (
               <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-                <Icons.printer className='mr-2 h-4 w-4' />
-                {t('uploadDocument')}
+                <Icons.printer className="mr-2 h-4 w-4" />
+                {t("uploadDocument")}
               </DropdownMenuItem>
             )}
-
 
           {canEdit && hasAttachments && (
             <>
               <DropdownMenuItem onClick={() => handleCtc(latestAttachment)}>
-                <Icons.files className='mr-2 h-4 w-4' />
-                {t('Issue CTC')}
+                <Icons.files className="mr-2 h-4 w-4" />
+                {t("Issue CTC")}
               </DropdownMenuItem>
 
               <DropdownMenuItem
                 onClick={handleAnnotationClick}
                 disabled={!hasCTC}
-                className={!hasCTC ? 'text-muted-foreground' : ''}
+                className={!hasCTC ? "text-muted-foreground" : ""}
               >
-                <Icons.files className='mr-2 h-4 w-4' />
-                {t('Issue Annotation')}
+                <Icons.files className="mr-2 h-4 w-4" />
+                {t("Issue Annotation")}
               </DropdownMenuItem>
             </>
           )}
 
           {(form.formType === FormType.DEATH && hasDeath) ||
-            (form.formType === FormType.MARRIAGE && hasMarriage) ||
-            (form.formType === 'BIRTH' && hasBirth) ? (
+          (form.formType === FormType.MARRIAGE && hasMarriage) ||
+          (form.formType === "BIRTH" && hasBirth) ? (
             <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-              <Icons.folder className='mr-2 h-4 w-4' />
-              {t('editForm.title')}
+              <Icons.folder className="mr-2 h-4 w-4" />
+              {t("editForm.title")}
             </DropdownMenuItem>
           ) : null}
-
 
           {canExport && (
             <DropdownMenuItem
               onClick={handleExport}
               disabled={!hasCTC || isLoading}
-              className={!hasCTC ? 'text-muted-foreground' : ''}
+              className={!hasCTC ? "text-muted-foreground" : ""}
             >
-              <Icons.download className='mr-2 h-4 w-4' />
-              {isLoading ? t('Exporting...') : t('Export')}
+              <Icons.download className="mr-2 h-4 w-4" />
+              {isLoading ? t("Exporting...") : t("Export")}
             </DropdownMenuItem>
           )}
 
@@ -299,10 +297,10 @@ export function DataTableRowActions({
               onSelect={(e) => e.preventDefault()}
               onClick={() => setDeletionAlertOpen(true)}
               disabled={isDeleteLoading}
-              className='text-destructive focus:text-destructive'
+              className="text-destructive focus:text-destructive"
             >
-              <Icons.trash className='mr-2 h-4 w-4' />
-              {isDeleteLoading ? t('deleting') : t('delete')}
+              <Icons.trash className="mr-2 h-4 w-4" />
+              {isDeleteLoading ? t("deleting") : t("delete")}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
@@ -343,13 +341,13 @@ export function DataTableRowActions({
               );
             })()}
 
-          {form.formType === 'BIRTH' && (
+          {form.formType === "BIRTH" && (
             <EditCivilRegistryFormDialog
               form={form}
               open={editDialogOpen}
               onOpenChangeAction={setEditDialogOpen}
               onSaveAction={async (updatedForm) => {
-                toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
+                toast.success(`${t("formUpdated")} ${updatedForm.id}!`);
                 onUpdateForm?.(updatedForm);
                 setEditDialogOpen(false);
                 return Promise.resolve();
@@ -389,7 +387,7 @@ export function DataTableRowActions({
       {/* CTC Forms */}
       {currentAttachment && (
         <>
-          {form.formType === 'BIRTH' && (
+          {form.formType === "BIRTH" && (
             <BirthCertificateFormCTC
               formData={form}
               open={ctcFormOpen}
@@ -407,7 +405,7 @@ export function DataTableRowActions({
               onAttachmentUpdated={handleAttachmentsRefresh}
             />
           )}
-          {form.formType === 'DEATH' && (
+          {form.formType === "DEATH" && (
             <DeathCertificateFormCTC
               formData={form}
               open={ctcFormOpen}
@@ -425,7 +423,7 @@ export function DataTableRowActions({
               onAttachmentUpdated={handleAttachmentsRefresh}
             />
           )}
-          {form.formType === 'MARRIAGE' && (
+          {form.formType === "MARRIAGE" && (
             <MarriageCertificateFormCTC
               formData={form}
               open={ctcFormOpen}
@@ -449,7 +447,7 @@ export function DataTableRowActions({
       {/* Annotation Forms */}
       {currentAttachment && currentAttachment.certifiedCopies.length > 0 && (
         <>
-          {form.formType === 'BIRTH' && (
+          {form.formType === "BIRTH" && (
             <BirthAnnotationForm
               open={annotationFormOpen}
               onOpenChange={(open) => {
@@ -470,7 +468,7 @@ export function DataTableRowActions({
               certifiedCopyId={currentAttachment.certifiedCopies[0].id}
             />
           )}
-          {form.formType === 'DEATH' && (
+          {form.formType === "DEATH" && (
             <DeathAnnotationForm
               open={annotationFormOpen}
               onOpenChange={(open) => {
@@ -491,7 +489,7 @@ export function DataTableRowActions({
               certifiedCopyId={currentAttachment.certifiedCopies[0].id}
             />
           )}
-          {form.formType === 'MARRIAGE' && (
+          {form.formType === "MARRIAGE" && (
             <MarriageAnnotationForm
               open={annotationFormOpen}
               onOpenChange={(open) => {

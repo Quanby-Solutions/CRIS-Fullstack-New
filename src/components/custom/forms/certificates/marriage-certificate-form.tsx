@@ -89,8 +89,6 @@ export default function MarriageCertificateForm({
                     ref={scrollAreaRef}
                   >
                     <div className="p-6 space-y-4" id="form-content">
-                      <span>{defaultValues?.id}</span>
-
                       <div id="pagination-inputs">
                         <PaginationInputs />
                       </div>
