@@ -157,26 +157,17 @@ export default function DeathCertificateForm({
                           label="Additional Remarks"
                           placeholder="Enter any additional remarks or annotations"
                         />
+                      </div>
+                      <div id="postmortem-certificate-card">
+                        <PostmortemCertificateCard />
+                      </div>
 
-                        <div id="postmortem-certificate-card">
-                          <PostmortemCertificateCard />
-                        </div>
+                      <div id="embalmer-certification-card">
+                        <EmbalmerCertificationCard />
+                      </div>
 
-                        <div id="embalmer-certification-card">
-                          <EmbalmerCertificationCard />
-                        </div>
-
-                        <div id="affidavit-delayed-registration-card">
-                          <AffidavitDelayedRegistrationCard />
-                        </div>
-                        {/* 
-                    
-                      
-                      
-                      
-                      
-
-                      </div> */}
+                      <div id="affidavit-delayed-registration-card">
+                        <AffidavitDelayedRegistrationCard />
                       </div>
                     </div>
                   </ScrollArea>
