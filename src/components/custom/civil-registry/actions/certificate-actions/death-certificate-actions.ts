@@ -237,6 +237,7 @@ export async function submitDeathCertificateForm(
                 deceased: {
                   name: formData.delayedRegistration?.deceased?.name,
                   dateOfDeath: safelyConvertDateToJSON(formData?.delayedRegistration?.deceased?.dateOfDeath),
+                  diedOn: safelyConvertDateToJSON(formData.delayedRegistration?.deceased?.diedOn),
                   placeOfDeath: formData?.delayedRegistration?.deceased?.placeOfDeath,
                   burialInfo: {
                     date: safelyConvertDateToJSON(formData.delayedRegistration?.deceased?.burialInfo?.date),
@@ -252,8 +253,14 @@ export async function submitDeathCertificateForm(
                 reasonForDelay: formData.delayedRegistration?.reasonForDelay,
                 affidavitDate: safelyConvertDateToJSON(formData?.delayedRegistration?.affidavitDate),
                 affidavitDatePlace: formData.delayedRegistration?.affidavitDatePlace,
-                adminOfficer: formData.delayedRegistration?.adminOfficer,
+                adminOfficer: {
+                  name: formData.delayedRegistration?.adminOfficer?.name,
+                  address: formData.delayedRegistration?.adminOfficer?.address,
+                  position: formData.delayedRegistration?.adminOfficer?.position,
+                },
                 ctcInfo: {
+                  dayOf: formData.delayedRegistration?.ctcInfo?.dayOf,
+                  placeAt: formData.delayedRegistration?.ctcInfo?.placeAt,
                   number: formData.delayedRegistration?.ctcInfo?.number,
                   issuedOn: safelyConvertDateToJSON(formData.delayedRegistration?.ctcInfo?.issuedOn),
                   issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt

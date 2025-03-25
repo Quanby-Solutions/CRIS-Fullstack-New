@@ -207,12 +207,14 @@ const delayedRegistrationSchema = z.object({
   }).optional(),
   deceased: z.object({
     name: z.string().optional(),
+    diedOn: z.date().optional(),
     dateOfDeath: z.date().optional(),
     placeOfDeath: z.string().optional(),
     burialInfo: z.object({
       date: z.date().optional(),
       place: z.string().optional(),
       method: z.string().optional(),
+
     }).optional(),
   }).optional(),
   attendance: z.object({
@@ -223,8 +225,14 @@ const delayedRegistrationSchema = z.object({
   reasonForDelay: z.string().optional(),
   affidavitDate: z.date().optional(),
   affidavitDatePlace: z.string().optional(),
-  adminOfficer: z.string().optional(),
+  adminOfficer: z.object({
+    name: z.string().optional(),
+    address: z.string().optional(),
+    position: z.string().optional(),
+  }),
   ctcInfo: z.object({
+    dayOf: z.date().optional(),
+    placeAt: z.string().optional(),
     number: z.string().optional(),
     issuedOn: z.date().optional(),
     issuedAt: z.string().optional(),

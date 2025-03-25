@@ -178,6 +178,7 @@ const emptyDefaults: DeathCertificateFormValues = {
     },
     deceased: {
       name: undefined,
+      diedOn: undefined,
       dateOfDeath: undefined,
       placeOfDeath: undefined,
       burialInfo: {
@@ -194,9 +195,14 @@ const emptyDefaults: DeathCertificateFormValues = {
     reasonForDelay: undefined,
     affidavitDate: undefined,
     affidavitDatePlace: undefined,
-    adminOfficer: undefined,
+    adminOfficer: {
+      name: undefined,
+      position: undefined,
+      address: undefined,
+    },
     ctcInfo: {
-
+      dayOf: undefined,
+      placeAt: undefined,
       number: undefined,
       issuedOn: undefined,
       issuedAt: undefined,
