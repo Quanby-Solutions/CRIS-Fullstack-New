@@ -24,7 +24,7 @@ import SignatureUploader from './signature-uploader';
 
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   fieldPrefix: string;
-  cardTitle: string;
+  cardTitle: React.ReactNode;
   hideDate?: boolean;
   showSignature?: boolean;
   showNameInPrint?: boolean;
@@ -169,24 +169,22 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
 }
 
 export function PreparedByCard<T extends FieldValues = FieldValues>(
-  props: Omit<ProcessingCardProps<T>, 'fieldPrefix' | 'cardTitle'>
+  props: Omit<ProcessingCardProps<T>, 'fieldPrefix'> 
 ) {
   return (
     <ProcessingDetailsCard<T>
-      fieldPrefix='preparedBy'
-      cardTitle='Prepared By'
+      fieldPrefix="preparedBy"
       {...props}
     />
   );
 }
 
 export function ReceivedByCard<T extends FieldValues = FieldValues>(
-  props: Omit<ProcessingCardProps<T>, 'fieldPrefix' | 'cardTitle'>
+  props: Omit<ProcessingCardProps<T>, 'fieldPrefix'>
 ) {
   return (
     <ProcessingDetailsCard<T>
       fieldPrefix='receivedBy'
-      cardTitle='Received By'
       {...props}
     />
   );

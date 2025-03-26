@@ -48,34 +48,39 @@ export default function MarriageInformationCard() {
     <Card className='mb-6'>
       <CardHeader>
         <CardTitle className='text-2xl font-semibold'>
-          Marriage Information
+          Marriage of Parents
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Marriage Place */}
-        <Card className='border'>
-          <CardHeader>
-            <CardTitle className='text-lg font-medium'>
-              Marriage Place
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4'>
+        <Card className='border p-4'> {/* Adjusted padding for better card size */}
+          <CardContent className='space-y-6'>
+            {/* Marriage Date */}
+            <div className='text-lg'>
+              <strong>20a.</strong> Marriage Date
+            </div>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
                 name='parentMarriage.date'
                 render={({ field }) => (
                   <DatePickerField
-                  field={{
-                    value: field.value ?? null,
-                    onChange: field.onChange,
-                  }}
-                  label='Marriage Date'
-                  placeholder='Select marriage date'
-                  ref={field.ref}
-                />
+                    field={{
+                      value: field.value ?? null,
+                      onChange: field.onChange,
+                    }}
+                    label='Date'
+                    placeholder='Select marriage date'
+                    ref={field.ref}
+                  />
                 )}
               />
+            </div>
+
+            {/* Marriage Place */}
+            <div className='text-lg'>
+              <strong>20b.</strong> Marriage Place
+            </div>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
                 name='parentMarriage.place.houseNo'

@@ -60,7 +60,7 @@ const AttendantInformationCard: React.FC = () => {
         {/* Type of Attendant */}
         <Card>
           <CardHeader className="pb-3">
-            <h3 className="text-sm font-semibold">Type of Attendant</h3>
+            <h3 className="text-sm font-semibold">21a. Attendant</h3>
           </CardHeader>
           <CardContent>
             <FormField

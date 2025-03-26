@@ -45,7 +45,7 @@ const CertificationOfInformantCard: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Certification of Informant</CardTitle>
+        <CardTitle>22. Certification of Informant</CardTitle>
       </CardHeader>
       <CardContent>
         <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />

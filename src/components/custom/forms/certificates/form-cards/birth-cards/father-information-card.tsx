@@ -68,7 +68,7 @@ const FatherInformationCard: React.FC = () => {
         <Card className='border'>
           <CardHeader>
             <CardTitle className='text-lg font-medium'>
-              Personal Information
+              <strong>14.</strong> Personal Information
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -132,7 +132,7 @@ const FatherInformationCard: React.FC = () => {
                 name='fatherInfo.citizenship'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Citizenship</FormLabel>
+                    <FormLabel><strong>15.</strong> Citizenship</FormLabel>
                     <FormControl>
                       <Input
                         className='h-10'
@@ -149,7 +149,7 @@ const FatherInformationCard: React.FC = () => {
                 name='fatherInfo.religion'
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel>Religion</FormLabel>
+                    <FormLabel><strong>16.</strong> Religion/Religious Sect</FormLabel>
                     <FormControl>
                       <ReligionSelector
                         value={field.value}
@@ -168,7 +168,7 @@ const FatherInformationCard: React.FC = () => {
                 name='fatherInfo.occupation'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Occupation</FormLabel>
+                    <FormLabel><strong>17.</strong> Occupation</FormLabel>
                     <FormControl>
                       <Input
                         className='h-10'
@@ -187,7 +187,7 @@ const FatherInformationCard: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Age at time of this birth (in completed years)
+                      <strong>18.</strong> Age at time of this birth (in completed years)
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -214,7 +214,7 @@ const FatherInformationCard: React.FC = () => {
         <Card className='border'>
           <CardHeader>
             <CardTitle className='text-lg font-medium'>
-              Residence Information
+             <strong>19.</strong> Residence Information
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>

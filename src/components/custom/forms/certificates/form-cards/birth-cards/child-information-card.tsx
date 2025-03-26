@@ -144,7 +144,7 @@ const ChildInformationCard: React.FC = () => {
                   name='childInfo.sex'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sex</FormLabel>
+                      <FormLabel><strong>2.</strong> Sex</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value || ''}
@@ -172,7 +172,7 @@ const ChildInformationCard: React.FC = () => {
                   name='childInfo.weightAtBirth'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Weight at Birth (kilograms)</FormLabel>
+                      <FormLabel><strong>6.</strong> Weight at Birth (kilograms)</FormLabel>
                       <FormControl>
                         <Input
                           className='h-10'
@@ -196,7 +196,7 @@ const ChildInformationCard: React.FC = () => {
 
           <Card className='w-[49%]'>
             <CardHeader className='pb-3'>
-              <h3 className='text-sm font-semibold'>Birth Date</h3>
+              <h3 className='text-sm font-semibold'>3. Birth Date</h3>
             </CardHeader>
             <CardContent className='w-52'>
               <FormField
@@ -220,7 +220,7 @@ const ChildInformationCard: React.FC = () => {
         {/* Place of Birth */}
         <Card>
           <CardHeader className='pb-3'>
-            <h3 className='text-sm font-semibold'>Place of Birth</h3>
+            <h3 className='text-sm font-semibold'>4. Place of Birth</h3>
           </CardHeader>
           <CardContent>
             <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
@@ -267,7 +267,7 @@ const ChildInformationCard: React.FC = () => {
                 name='childInfo.typeOfBirth'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Type of Birth</FormLabel>
+                    <FormLabel><strong>5a.</strong> Type of Birth</FormLabel>
                     <FormControl>
                       <Input
                         className='h-10'
@@ -285,7 +285,7 @@ const ChildInformationCard: React.FC = () => {
                 name='childInfo.multipleBirthOrder'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>If Multiple Birth</FormLabel>
+                    <FormLabel><strong>5b.</strong> If Multiple Birth</FormLabel>
                     <FormControl>
                       <Input
                         className='h-10'
@@ -303,7 +303,7 @@ const ChildInformationCard: React.FC = () => {
                 name='childInfo.birthOrder'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Birth Order</FormLabel>
+                    <FormLabel><strong>5c.</strong> Birth Order</FormLabel>
                     <FormControl>
                       <Input
                         className='h-10'

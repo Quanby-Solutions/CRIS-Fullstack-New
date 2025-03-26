@@ -150,11 +150,15 @@ export default function DynamicBirthCertificateForm({
                       <MarriageInformationCard />
                       <AttendantInformationCard />
                       <CertificationOfInformantCard />
-                      <PreparedByCard />
-                      <ReceivedByCard />
+                      <PreparedByCard
+                        cardTitle={<span className="font-large">23. Prepared By</span>} // Custom title for Prepared By
+                      />
+                      <ReceivedByCard
+                        cardTitle={<span className="font-large">24. Received By</span>} // Custom title for Received By
+                      />
                       <RegisteredAtOfficeCard
                         fieldPrefix="registeredByOffice"
-                        cardTitle="Registered at the Office of Civil Registrar"
+                        cardTitle={<span className="font-large">25. Registered at the Office of Civil Registrar</span>}
                       />
                       <RemarksCard
                         fieldName="remarks"

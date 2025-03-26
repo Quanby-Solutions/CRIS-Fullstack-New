@@ -95,7 +95,7 @@ const MotherInformationCard: React.FC = () => {
         <Card className='border'>
           <CardHeader>
             <CardTitle className='text-lg font-medium'>
-              Personal Information
+              <strong>7.</strong> Personal Information
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -157,7 +157,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.citizenship'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Citizenship</FormLabel>
+                    <FormLabel><strong>8.</strong> Citizenship</FormLabel>
                     <FormControl>
                       <Input className='h-10' placeholder='Enter citizenship' {...field} />
                     </FormControl>
@@ -170,7 +170,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.religion'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Religion</FormLabel>
+                    <FormLabel><strong>9.</strong> Religion/Religious Sect</FormLabel>
                     <FormControl>
                       <ReligionSelector
                         value={field.value}
@@ -189,7 +189,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.occupation'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Occupation</FormLabel>
+                    <FormLabel><strong>11.</strong> Occupation</FormLabel>
                     <FormControl>
                       <Input className='h-10' placeholder='Enter occupation' {...field} />
                     </FormControl>
@@ -202,7 +202,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.age'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Age</FormLabel>
+                    <FormLabel><strong>12.</strong> Age</FormLabel>
                     <FormControl>
                       <Input className='h-10' placeholder='Enter age' {...field} />
                     </FormControl>
@@ -228,7 +228,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.totalChildrenBornAlive'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Total Children Born Alive</FormLabel>
+                    <FormLabel><strong>10a.</strong> Total Children Born Alive</FormLabel>
                     <FormControl>
                       <Input className='h-10' placeholder='Enter total' {...field} />
                     </FormControl>
@@ -241,7 +241,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.childrenStillLiving'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Children Still Living</FormLabel>
+                    <FormLabel><strong>10b.</strong> Children Still Living</FormLabel>
                     <FormControl>
                       <Input className='h-10' placeholder='Enter number' {...field} />
                     </FormControl>
@@ -254,7 +254,7 @@ const MotherInformationCard: React.FC = () => {
                 name='motherInfo.childrenNowDead'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Children Now Dead</FormLabel>
+                    <FormLabel><strong>10c.</strong> Children Now Dead</FormLabel>
                     <FormControl>
                       <Input className='h-10' placeholder='Enter number' {...field} />
                     </FormControl>
@@ -269,7 +269,7 @@ const MotherInformationCard: React.FC = () => {
         {/* Residence */}
         <Card className='border'>
           <CardHeader>
-            <CardTitle className='text-lg font-medium'>Residence</CardTitle>
+            <CardTitle className='text-lg font-medium'><strong>13.</strong> Residence</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
             {/* NCRModeSwitch reflects the updated ncrMode state */}
