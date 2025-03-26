@@ -38,14 +38,14 @@ export async function submitMarriageCertificateForm(
     return await prisma.$transaction(
       async (tx) => {
         // Find users by name.
-        const preparedByUser = await tx.user.findFirst({
-          where: { name: formData.preparedBy.nameInPrint },
-        });
-        if (!preparedByUser) {
-          throw new Error(
-            `No user found with name: ${formData.preparedBy.nameInPrint}`
-          );
-        }
+        // const preparedByUser = await tx.user.findFirst({
+        //   where: { name: formData.preparedBy.nameInPrint },
+        // });
+        // if (!preparedByUser) {
+        //   throw new Error(
+        //     `No user found with name: ${formData.preparedBy.nameInPrint}`
+        //   );
+        // }
         const receivedByUser = await tx.user.findFirst({
           where: { name: formData.receivedBy.nameInPrint },
         });
@@ -76,11 +76,11 @@ export async function submitMarriageCertificateForm(
             dateOfRegistration: new Date(),
             isLateRegistered,
             status: DocumentStatus.PENDING,
-            preparedById: preparedByUser.id,
+            preparedById: null,
             verifiedById: null,
-            preparedByName: formData.preparedBy.nameInPrint,
-            preparedByPosition: formData.preparedBy.titleOrPosition,
-            preparedByDate: formData.preparedBy.date!,
+            preparedByName: null,
+            preparedByPosition: null,
+            preparedByDate: null,
             verifiedByName: null,
             receivedById: receivedByUser.id,
             receivedBy: formData.receivedBy.nameInPrint,
@@ -122,7 +122,9 @@ export async function submitMarriageCertificateForm(
         //         : formData.registeredByOffice.signature,
         //   },
         // });
-
+        const safelyConvertDateToJSON = (date: Date | undefined | null) => {
+          return date instanceof Date ? date.toISOString() : null;
+        };
         // Helper function to convert Date to ISO string.
         const dateToJSON = (date: Date) => date.toISOString();
 
@@ -131,9 +133,9 @@ export async function submitMarriageCertificateForm(
           data: {
             baseFormId: baseForm.id,
             // Husband Information
-            husbandFirstName: formData.husbandName.first,
-            husbandMiddleName: formData.husbandName.middle,
-            husbandLastName: formData.husbandName.last,
+            husbandFirstName: formData?.husbandName?.first || '',
+            husbandMiddleName: formData?.husbandName?.middle,
+            husbandLastName: formData?.husbandName?.last || '',
             husbandAge: formData.husbandAge,
             husbandDateOfBirth: dateToJSON(formData.husbandBirth || new Date()),
             husbandSex: formData.husbandSex,
@@ -158,9 +160,9 @@ export async function submitMarriageCertificateForm(
             } as Prisma.JsonObject,
 
             // Wife Information
-            wifeFirstName: formData.wifeName.first,
-            wifeMiddleName: formData.wifeName.middle,
-            wifeLastName: formData.wifeName.last,
+            wifeFirstName: formData?.wifeName?.first || '',
+            wifeMiddleName: formData.wifeName?.middle,
+            wifeLastName: formData?.wifeName?.last || '',
             wifeAge: formData.wifeAge,
             wifeDateOfBirth: dateToJSON(formData.wifeBirth || new Date()),
             wifeSex: formData.wifeSex,
@@ -222,7 +224,7 @@ export async function submitMarriageCertificateForm(
             marriageLicenseDetails: {
               ...formData.marriageLicenseDetails,
               licenseNumber: formData.marriageLicenseDetails.licenseNumber,
-              dateIssued: dateToJSON(formData.marriageLicenseDetails.dateIssued || new Date()),
+              dateIssued: safelyConvertDateToJSON(formData.marriageLicenseDetails.dateIssued || new Date()),
               placeIssued: formData.marriageLicenseDetails.placeIssued,
               marriageAgreement: formData.marriageLicenseDetails.marriageAgreement,
             } as Prisma.JsonObject,
@@ -303,7 +305,7 @@ export async function submitMarriageCertificateForm(
               } as Prisma.JsonObject,
               c: formData.affidavitOfSolemnizingOfficer.c, //wala pa ata to
               d: {
-                dayOf: dateToJSON(formData.affidavitOfSolemnizingOfficer.d.dayOf || new Date()),
+                dayOf: safelyConvertDateToJSON(formData.affidavitOfSolemnizingOfficer.d.dayOf || new Date()),
                 atPlaceExecute: {
                   st: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.street,
                   barangay: formData.affidavitOfSolemnizingOfficer.d.atPlaceExecute.barangay,
@@ -313,7 +315,7 @@ export async function submitMarriageCertificateForm(
                 } as Prisma.JsonObject,
               } as Prisma.JsonObject,
               dateSworn: {
-                dayOf: dateToJSON(formData.affidavitOfSolemnizingOfficer.dateSworn.dayOf || new Date()),
+                dayOf: safelyConvertDateToJSON(formData.affidavitOfSolemnizingOfficer.dateSworn.dayOf || new Date()),
                 atPlaceOfSworn: {
                   st: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.street,
                   barangay: formData.affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.barangay,
@@ -323,7 +325,7 @@ export async function submitMarriageCertificateForm(
                 } as Prisma.JsonObject,
                 ctcInfo: {
                   number: formData.affidavitOfSolemnizingOfficer.dateSworn.ctcInfo.number,
-                  dateIssued: dateToJSON(formData.affidavitOfSolemnizingOfficer.dateSworn.ctcInfo.dateIssued || new Date()),
+                  dateIssued: safelyConvertDateToJSON(formData.affidavitOfSolemnizingOfficer.dateSworn.ctcInfo.dateIssued || new Date()),
                   placeIssued: formData.affidavitOfSolemnizingOfficer.dateSworn.ctcInfo.placeIssued,
                 } as Prisma.JsonObject,
               } as Prisma.JsonObject,
@@ -384,7 +386,7 @@ export async function submitMarriageCertificateForm(
                 c: {
                   a: {
                     licenseNo: formData.affidavitForDelayed?.c?.a?.licenseNo,
-                    dateIssued: dateToJSON(formData.affidavitForDelayed?.c?.a?.dateIssued || new Date()),
+                    dateIssued: safelyConvertDateToJSON(formData.affidavitForDelayed?.c?.a?.dateIssued || new Date()),
                     placeOfSolemnizedMarriage: formData.affidavitForDelayed?.c?.a?.placeOfSolemnizedMarriage,
                   } as Prisma.JsonObject,
                   b: {
@@ -401,7 +403,7 @@ export async function submitMarriageCertificateForm(
                 // Section F
                 f: {
                   date: formData.affidavitForDelayed?.f?.date
-                    ? dateToJSON(formData.affidavitForDelayed?.f?.date || new Date())
+                    ? safelyConvertDateToJSON(formData.affidavitForDelayed?.f?.date || new Date())
                     : null,
                   place: {
                     cityMunicipality: formData.affidavitForDelayed?.f?.place?.cityMunicipality,
@@ -413,7 +415,7 @@ export async function submitMarriageCertificateForm(
                 } as Prisma.JsonObject,
                 // Date Sworn
                 dateSworn: {
-                  dayOf: dateToJSON(formData.affidavitForDelayed?.dateSworn?.dayOf || new Date()),
+                  dayOf: safelyConvertDateToJSON(formData.affidavitForDelayed?.dateSworn?.dayOf || new Date()),
                   atPlaceOfSworn: {
                     cityMunicipality: formData.affidavitForDelayed?.dateSworn?.atPlaceOfSworn?.cityMunicipality,
                     province: formData.affidavitForDelayed?.dateSworn?.atPlaceOfSworn?.province,
@@ -423,7 +425,7 @@ export async function submitMarriageCertificateForm(
                   } as Prisma.JsonObject,
                   ctcInfo: {
                     number: formData.affidavitForDelayed?.dateSworn?.ctcInfo?.number,
-                    dateIssued: dateToJSON(formData.affidavitForDelayed?.dateSworn?.ctcInfo?.dateIssued || new Date()),
+                    dateIssued: safelyConvertDateToJSON(formData.affidavitForDelayed?.dateSworn?.ctcInfo?.dateIssued || new Date()),
                     placeIssued: formData.affidavitForDelayed?.dateSworn?.ctcInfo?.placeIssued,
                   } as Prisma.JsonObject,
                 } as Prisma.JsonObject,

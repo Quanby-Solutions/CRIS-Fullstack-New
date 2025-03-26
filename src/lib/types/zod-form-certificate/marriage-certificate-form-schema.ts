@@ -3,7 +3,7 @@ import {
   citizenshipSchema,
   cityMunicipalitySchema,
   createDateFieldSchema,
-  nameSchema,
+  nameSchemaOptional,
   paginationSchema,
   processingDetailsSchema,
   provinceSchema,
@@ -20,6 +20,9 @@ const locationSchema = z.object({
   cityMunicipality: z.string().optional(),
   province: z.string().optional(),
   country: z.string().optional(),
+  address: z.string().optional(),
+  residence: z.string().optional(),
+  internationalAddress: z.string().optional(),
 })
 
 
@@ -37,8 +40,8 @@ const residenceSchemas = z.object({
 const affidavitOfSolemnizingOfficerSchema = z.object({
 
   a: z.object({
-    nameOfHusband: nameSchema,
-    nameOfWife: nameSchema
+    nameOfHusband: nameSchemaOptional,
+    nameOfWife: nameSchemaOptional
   }),
   b: z.object({
     a: z.boolean().default(false),
@@ -209,7 +212,7 @@ export const marriageCertificateSchema = z.object({
   pagination: paginationSchema.optional(),
 
   // Husband Information
-  husbandName: nameSchema,
+  husbandName: nameSchemaOptional,
   husbandAge: z.number().int(),
   husbandBirth: z.date().optional(),
   husbandPlaceOfBirth: locationSchema,
@@ -231,19 +234,19 @@ export const marriageCertificateSchema = z.object({
   husbandReligion: z.string(),
   husbandCivilStatus: z.string().optional(),
   husbandConsentPerson: z.object({
-    name: nameSchema,
+    name: nameSchemaOptional,
     relationship: z.string(),
     residence: locationSchema
   }),
   husbandParents: z.object({
-    fatherName: nameSchema,
+    fatherName: nameSchemaOptional,
     fatherCitizenship: z.string(),
-    motherName: nameSchema,
+    motherName: nameSchemaOptional,
     motherCitizenship: z.string()
   }),
 
   // Wife Information
-  wifeName: nameSchema,
+  wifeName: nameSchemaOptional,
   wifeAge: z.number().int(),
   wifeBirth: z.date().optional(),
   wifePlaceOfBirth: locationSchema,
@@ -265,14 +268,14 @@ export const marriageCertificateSchema = z.object({
   wifeReligion: z.string(),
   wifeCivilStatus: z.string().optional(),
   wifeConsentPerson: z.object({
-    name: nameSchema,
+    name: nameSchemaOptional,
     relationship: z.string(),
     residence: locationSchema
   }),
   wifeParents: z.object({
-    fatherName: nameSchema,
+    fatherName: nameSchemaOptional,
     fatherCitizenship: z.string(),
-    motherName: nameSchema,
+    motherName: nameSchemaOptional,
     motherCitizenship: z.string()
   }),
 
@@ -349,7 +352,7 @@ export const marriageCertificateSchema = z.object({
   }),
 
   // Registered at Civil Registrar
-  preparedBy: processingDetailsSchema.shape.preparedBy,
+  // preparedBy: processingDetailsSchema.shape.preparedBy,
   receivedBy: processingDetailsSchema.shape.receivedBy,
   registeredByOffice: processingDetailsSchema.shape.registeredBy,
 

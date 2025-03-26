@@ -1,58 +1,59 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { MarriageCertificateFormValues, MarriageProps } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import LocationSelector from '../shared-components/location-selector';
+} from "@/components/ui/select";
+import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+import {
+  MarriageCertificateFormValues,
+  MarriageProps,
+} from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
+import NCRModeSwitch from "../shared-components/ncr-mode-switch";
+import LocationSelector from "../shared-components/location-selector";
+import LocationSelectorNew from "../shared-components/location-selector-new";
+import CivilStatus from "../shared-components/civil-status";
 
-const HusbandInfoCard: React.FC =() => {
-  const { control, setValue, getValues } = useFormContext<MarriageCertificateFormValues>();
+const HusbandInfoCard: React.FC = () => {
+  const { control, setValue, getValues } =
+    useFormContext<MarriageCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
 
   // Auto-calculate and set age when birthdate changes
-  const birthDate = useWatch({ control, name: 'husbandBirth' });
+  const birthDate = useWatch({ control, name: "husbandBirth" });
 
   // Watch place of birth province to detect NCR
   const birthProvince = useWatch({
     control,
-    name: 'husbandPlaceOfBirth.province'
+    name: "husbandPlaceOfBirth.province",
   });
 
   useEffect(() => {
     // Detect NCR mode from fetched data on component mount
-    const province = getValues('husbandPlaceOfBirth.province');
-    if (province === 'Metro Manila' || province === 'NCR') {
+    const province = getValues("husbandPlaceOfBirth.province");
+    if (province === "Metro Manila" || province === "NCR") {
       setNcrMode(true);
     }
   }, [getValues]);
 
-
-  
-
   useEffect(() => {
     if (ncrMode === true) {
-      setValue('husbandPlaceOfBirth.province', 'Metro Manila')
+      setValue("husbandPlaceOfBirth.province", "Metro Manila");
     }
-  })
-
-
+  });
 
   useEffect(() => {
     if (birthDate) {
@@ -64,36 +65,39 @@ const HusbandInfoCard: React.FC =() => {
       // Check if the birth month and day have not yet occurred in the current year
       const isBirthdayNotPassed =
         today.getMonth() < birth.getMonth() ||
-        (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+        (today.getMonth() === birth.getMonth() &&
+          today.getDate() < birth.getDate());
 
       if (isBirthdayNotPassed) {
         age -= 1; // Subtract 1 year if the birthday hasn't occurred yet this year
       }
 
-      setValue('husbandAge', age); // Update the age field
+      setValue("husbandAge", age); // Update the age field
     }
   }, [birthDate, setValue]);
 
   return (
-    <Card className='border dark:border-border'>
+    <Card className="border dark:border-border">
       <CardHeader>
         <CardTitle>Husband&apos;s Information</CardTitle>
       </CardHeader>
-      <CardContent className='p-6 space-y-4'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
+      <CardContent className="p-6 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
           {/* First Name */}
           <FormField
             control={control}
-            name='husbandName.first'
+            name="husbandName.first"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
-                  <Input type='text'
-                    className='h-10'
-                    placeholder='Enter first name'
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter first name"
                     {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -103,16 +107,18 @@ const HusbandInfoCard: React.FC =() => {
           {/* Middle Name */}
           <FormField
             control={control}
-            name='husbandName.middle'
+            name="husbandName.middle"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Middle Name</FormLabel>
                 <FormControl>
-                  <Input type='text'
-                    className='h-10'
-                    placeholder='Enter middle name'
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter middle name"
                     {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -122,16 +128,18 @@ const HusbandInfoCard: React.FC =() => {
           {/* Last Name */}
           <FormField
             control={control}
-            name='husbandName.last'
+            name="husbandName.last"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input type='text'
-                    className='h-10'
-                    placeholder='Enter last name'
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter last name"
                     {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -140,26 +148,26 @@ const HusbandInfoCard: React.FC =() => {
           />
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
           {/* Sex */}
           <FormField
             control={control}
-            name='husbandSex'
+            name="husbandSex"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sex</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value || 'Male'}
+                  defaultValue={field.value || "Male"}
                 >
                   <FormControl>
-                    <SelectTrigger className='h-10'>
-                      <SelectValue placeholder='Select sex' />
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Select sex" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value='Female'>Female</SelectItem>
-                    <SelectItem value='Male'>Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Male">Male</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -169,49 +177,56 @@ const HusbandInfoCard: React.FC =() => {
           {/* Date of Birth */}
           <FormField
             control={control}
-            name='husbandBirth'
+            name="husbandBirth"
             render={({ field }) => (
               <DatePickerField
                 field={{
-                  value: field.value || '',
+                  value: field.value || "",
                   onChange: field.onChange,
                 }}
                 ref={field.ref}
-                label='Date of Birth'
-                placeholder='Select date of birth'
+                label="Date of Birth"
+                placeholder="Select date of birth"
               />
             )}
           />
           {/* Age - Auto-filled */}
           <FormField
             control={control}
-            name='husbandAge'
+            name="husbandAge"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Age</FormLabel>
                 <FormControl>
-                  <Input className='h-10' type='number' placeholder='Enter age' {...field}
-                    value={field.value ?? ''} disabled />
+                  <Input
+                    className="h-10"
+                    type="number"
+                    placeholder="Enter age"
+                    {...field}
+                    value={field.value ?? ""}
+                    disabled
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-
           {/* Citizenship */}
           <FormField
             control={control}
-            name='husbandCitizenship'
+            name="husbandCitizenship"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Citizenship</FormLabel>
                 <FormControl>
-                  <Input type='text'
-                    className='h-10'
-                    placeholder='Enter citizenship'
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter citizenship"
                     {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -222,16 +237,18 @@ const HusbandInfoCard: React.FC =() => {
           {/* Religion */}
           <FormField
             control={control}
-            name='husbandReligion'
+            name="husbandReligion"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Religion/Religious Sect</FormLabel>
                 <FormControl>
-                  <Input type='text'
-                    className='h-10'
-                    placeholder='Enter religion'
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter religion"
                     {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? ""}
+                    tabIndex={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -239,85 +256,91 @@ const HusbandInfoCard: React.FC =() => {
             )}
           />
           {/* Civil Status */}
-          <FormField
-            control={control}
-            name='husbandCivilStatus'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Civil Status</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className='h-10'>
-                      <SelectValue placeholder='Select civil status' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value='Single'>Single</SelectItem>
-                    <SelectItem value='Widowed'>Widowed</SelectItem>
-                    <SelectItem value='Divorced'>Divorced</SelectItem>
-                    <SelectItem value='Married'>Married</SelectItem>
-                    <SelectItem value='Widower'>Widower</SelectItem>
-                    <SelectItem value='Annulled'>Annulled</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+          <CivilStatus
+            name="husbandCivilStatus"
+            label="Civil Status"
+            placeholder="Select civil status"
+            options={[
+              { value: "Single", label: "Single" },
+              { value: "Married", label: "Married" },
+              { value: "Widow", label: "Widow" },
+              { value: "Widower", label: "Widower" },
+              { value: "Annulled", label: "Annulled" },
+              { value: "Divorced", label: "Divorced" },
+            ]}
+            otherOptionValue="Other"
+            otherOptionLabel="Other (please specify)"
           />
         </div>
 
         {/* Place of Birth */}
-        <div className='col-span-3 py-4'>
-          <CardTitle >Place Of Birth</CardTitle>
+        <div className="col-span-3 py-4">
+          <CardTitle>Place Of Birth</CardTitle>
         </div>
-        <div className='col-span-1 md:col-span-3'>
+        <div className="col-span-1 md:col-span-3">
           <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
           {/* Place of Birth */}
-          <LocationSelector
-            provinceFieldName='husbandPlaceOfBirth.province'
-            municipalityFieldName='husbandPlaceOfBirth.cityMunicipality'
-            barangayFieldName='husbandPlaceOfBirth.barangay'
-            provinceLabel='Province'
-            municipalityLabel='City/Municipality'
-            barangayLabel='Barangay'
+
+          <LocationSelectorNew
+            countryFieldName="husbandPlaceOfBirth.country"
+            provinceFieldName="husbandPlaceOfBirth.province"
+            municipalityFieldName="husbandPlaceOfBirth.cityMunicipality"
+            barangayFieldName="husbandPlaceOfBirth.barangay"
+            internationalAddressFieldName="husbandPlaceOfBirth.internationalAddress"
+            provinceLabel="Province"
+            municipalityLabel="City/Municipality"
+            barangayLabel="Barangay"
             isNCRMode={ncrMode}
             showBarangay={true}
-            provincePlaceholder='Select province'
-            municipalityPlaceholder='Select city/municipality'
-            barangayPlaceholder='Select barangay'
+            countryPlaceholder="Select country"
+            provincePlaceholder="Select province"
+            municipalityPlaceholder="Select city/municipality"
+            barangayPlaceholder="Select barangay"
+            internationalAddressPlaceholder="Enter complete address including street, city, province/state, and postal code"
+            defaultCountry="Philippines"
+            onCountryChange={(country) => {
+              // Optional: Add any additional logic you need when country changes
+              console.log("Country changed to:", country);
+            }}
           />
+
+          {/* Residence */}
           <FormField
             control={control}
-            name='husbandPlaceOfBirth.country'
+            name="husbandPlaceOfBirth.street"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Country</FormLabel>
+                <FormLabel>Street (optional)</FormLabel>
                 <FormControl>
-                  <Input type='text' className='h-10' placeholder='Enter complete address' {...field}
-                    value={field.value ?? ''} />
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter complete address"
+                    {...field}
+                    value={field.value ?? ""}
+                    tabIndex={0}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {/* Residence */}
+
           <FormField
             control={control}
-            name='husbandPlaceOfBirth.street'
+            name="husbandPlaceOfBirth.residence"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Street</FormLabel>
+                <FormLabel>Residence</FormLabel>
                 <FormControl>
-                  <Input type='text'
-                    className='h-10'
-                    placeholder='Enter complete address'
+                  <Input
+                    type="text"
+                    className="h-10"
+                    placeholder="Enter complete address"
                     {...field}
-                    value={field.value ?? ''}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -325,7 +348,6 @@ const HusbandInfoCard: React.FC =() => {
             )}
           />
         </div>
-
       </CardContent>
     </Card>
   );

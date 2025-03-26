@@ -244,7 +244,7 @@ const DeceasedInformationCard: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               <FormField
                 control={control}
                 name="ageAtDeath.years"
@@ -326,6 +326,31 @@ const DeceasedInformationCard: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Hours</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        min={0}
+                        className="h-10 pr-8"
+                        placeholder="Hours"
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? "" : value);
+                        }}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="ageAtDeath.minutes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minutes/Seconds</FormLabel>
                     <FormControl>
                       <Input
                         {...field}

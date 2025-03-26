@@ -185,6 +185,7 @@ export async function updateDeathCertificateForm(
                 } as Prisma.JsonObject,
                 deceased: {
                   name: formData.delayedRegistration?.deceased?.name,
+                  diedOn: dateToJSON(formData.delayedRegistration?.deceased?.diedOn!),
                   dateOfDeath: dateToJSON(formData.delayedRegistration?.deceased?.dateOfDeath!),
                   placeOfDeath: formData.delayedRegistration?.deceased?.placeOfDeath,
                   burialInfo: {
@@ -201,8 +202,14 @@ export async function updateDeathCertificateForm(
                 reasonForDelay: formData.delayedRegistration?.reasonForDelay,
                 affidavitDate: formData.delayedRegistration?.affidavitDate!,
                 affidavitDatePlace: formData.delayedRegistration?.affidavitDatePlace,
-                adminOfficer: formData.delayedRegistration?.adminOfficer,
+                adminOfficer: {
+                  name: formData.delayedRegistration?.adminOfficer?.name,
+                  address: formData.delayedRegistration?.adminOfficer?.address,
+                  position: formData.delayedRegistration?.adminOfficer?.position,
+                },
                 ctcInfo: {
+                  dayOf: formData.delayedRegistration?.ctcInfo?.dayOf,
+                  placeAt: formData.delayedRegistration?.ctcInfo?.placeAt,
                   number: formData.delayedRegistration?.ctcInfo?.number,
                   issuedOn: dateToJSON(formData.delayedRegistration?.ctcInfo?.issuedOn!),
                   issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt
@@ -241,13 +248,6 @@ export async function updateDeathCertificateForm(
           address: formData.informant?.address,
           date: dateToJSON(formData.informant?.date!),
         } as Prisma.JsonObject,
-
-        // Add missing registeredByOffice field from defaults
-        // registeredByOffice: {
-        //   nameInPrint: formData.registeredByOffice?.nameInPrint,
-        //   titleOrPosition: formData.registeredByOffice?.titleOrPosition,
-        //   date: dateToJSON(formData.registeredByOffice?.date!)
-        // } as Prisma.JsonObject,
 
         remarks: formData.remarks,
       },

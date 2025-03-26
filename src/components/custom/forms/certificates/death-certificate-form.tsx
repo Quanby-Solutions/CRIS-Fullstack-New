@@ -62,7 +62,11 @@ export default function DeathCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0">
+      <DialogContent
+        className="max-w-[70dvw] w-[70dvw] h-[95dvh] max-h-[95dvh] p-0"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <FormProvider {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
@@ -153,21 +157,17 @@ export default function DeathCertificateForm({
                           label="Additional Remarks"
                           placeholder="Enter any additional remarks or annotations"
                         />
-
-                        {/* 
-                      <div id="embalmer-certification-card">
-                        <EmbalmerCertificationCard />
                       </div>
-                      
                       <div id="postmortem-certificate-card">
                         <PostmortemCertificateCard />
                       </div>
-                      
-                      <div id="affidavit-delayed-registration-card">
-                        <AffidavitDelayedRegistrationCard />
+
+                      <div id="embalmer-certification-card">
+                        <EmbalmerCertificationCard />
                       </div>
 
-                      </div> */}
+                      <div id="affidavit-delayed-registration-card">
+                        <AffidavitDelayedRegistrationCard />
                       </div>
                     </div>
                   </ScrollArea>

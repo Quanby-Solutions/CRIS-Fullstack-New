@@ -1,7 +1,7 @@
 "use client";
 
 import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
@@ -12,10 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
 import { useFormContext } from "react-hook-form";
-import { useState, useEffect } from "react";
-import LocationSelector from "../shared-components/location-selector";
-import SignatureUploader from "../shared-components/signature-uploader";
-import NCRModeSwitch from "../shared-components/ncr-mode-switch";
+
+
 
 const CertificationInformantCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
@@ -23,7 +21,7 @@ const CertificationInformantCard: React.FC = () => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <h3 className="text-sm font-semibold">Certification of Informant</h3>
+        <CardTitle>26. Certification of Informant</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4 p-6">

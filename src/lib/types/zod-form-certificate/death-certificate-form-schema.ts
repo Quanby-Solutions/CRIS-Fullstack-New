@@ -24,21 +24,17 @@ const deceasedInformationSchema = z.object({
       z.union([z.enum(['Male', 'Female']), z.undefined()])
     )
     .optional(),
-  dateOfDeath: createDateFieldSchema({
-    requiredError: 'Date of death is required',
-    futureError: 'Date of death cannot be in the future',
-  }).optional(),
+  dateOfDeath: z.date().optional(),
   timeOfDeath: z.date().optional(),
 
-  dateOfBirth: createDateFieldSchema({
-    requiredError: 'Date of birth is required',
-    futureError: 'Date of birth cannot be in the future',
-  }).optional(),
+  dateOfBirth: z.date().optional(),
   ageAtDeath: z.object({
     years: z.string().optional(),
     months: z.string().optional(),
     days: z.string().optional(),
     hours: z.string().optional(),
+    minutes: z.string().optional(),
+
   }).optional(),
   placeOfDeath: placeOfDeathSchema.optional(),
   civilStatus: z.string().optional(),
@@ -135,10 +131,7 @@ const medicalCertificateSchema = z.object({
       othersSpecify: z.string().optional(),
       duration: z
         .object({
-          from: createDateFieldSchema({
-            requiredError: 'Start date is required',
-            futureError: 'Start date cannot be in the future',
-          }).optional(),
+          from: z.date().optional(),
           to: createDateFieldSchema({
             requiredError: 'End date is required',
             futureError: 'End date cannot be in the future',
@@ -147,32 +140,11 @@ const medicalCertificateSchema = z.object({
         .optional(),
       certification: z
         .object({
-          time: z.preprocess((val) => {
-            if (val instanceof Date) {
-              // If it's already a Date object, return it directly
-              return val
-            }
-
-            if (typeof val === 'string' && val.trim() !== '') {
-              const [hours, minutes] = val.split(':')
-              const date = new Date() // Use current date
-              date.setHours(Number(hours), Number(minutes), 0, 0)
-              return date
-            }
-
-            // If no valid input, return current timestamp
-            return new Date()
-          }, createDateFieldSchema({
-            requiredError: 'Start date is required',
-            futureError: 'Start date cannot be in the future',
-          }),).optional(),
+          time: z.date().optional(),
           name: z.string().optional(),
           title: z.string().optional(),
           address: residenceSchemaOptional.optional(),
-          date: createDateFieldSchema({
-            requiredError: 'Certification date is required',
-            futureError: 'Certification date cannot be in the future',
-          }).optional(),
+          date: z.date().optional(),
         })
         .optional(),
     })
@@ -187,25 +159,16 @@ const certificationOfDeathSchema = z.object({
   nameInPrint: z.string().optional(),
   titleOfPosition: z.string().optional(),
   address: z.string().optional(),
-  date: createDateFieldSchema({
-    requiredError: 'Certification date is required',
-    futureError: 'Certification date cannot be in the future',
-  }).optional(),
+  date: z.date().optional(),
   reviewedBy: z.object({
-    date: createDateFieldSchema({
-      requiredError: 'Certification date is required',
-      futureError: 'Certification date cannot be in the future',
-    }).optional(),
+    date: z.date().optional(),
     healthOfficerNameInPrint: z.string().optional(),
   }).optional(),
 });
 
 // --- Review Schema ---
 const reviewSchema = z.object({
-  date: createDateFieldSchema({
-    requiredError: 'Review date is required',
-    futureError: 'Review date cannot be in the future',
-  }).optional(),
+  date: z.date().optional(),
 });
 
 // --- Certificates Schemas ---
@@ -214,10 +177,7 @@ const postmortemCertificateSchema = z
   .object({
     causeOfDeath: z.string().optional(),
     nameInPrint: z.string().optional(),
-    date: createDateFieldSchema({
-      requiredError: 'Postmortem date is required',
-      futureError: 'Postmortem date cannot be in the future',
-    }).optional(),
+    date: z.date().optional(),
     titleDesignation: z.string().optional(),
     address: z.string().optional(),
   })
@@ -247,18 +207,14 @@ const delayedRegistrationSchema = z.object({
   }).optional(),
   deceased: z.object({
     name: z.string().optional(),
-    dateOfDeath: createDateFieldSchema({
-      requiredError: "Date of burial is required",
-      futureError: "Date of burial cannot be in the future",
-    }).optional(),
+    diedOn: z.date().optional(),
+    dateOfDeath: z.date().optional(),
     placeOfDeath: z.string().optional(),
     burialInfo: z.object({
-      date: createDateFieldSchema({
-        requiredError: "Date of burial is required",
-        futureError: "Date of burial cannot be in the future",
-      }).optional(),
+      date: z.date().optional(),
       place: z.string().optional(),
       method: z.string().optional(),
+
     }).optional(),
   }).optional(),
   attendance: z.object({
@@ -267,18 +223,18 @@ const delayedRegistrationSchema = z.object({
   }).optional(),
   causeOfDeath: z.string().optional(),
   reasonForDelay: z.string().optional(),
-  affidavitDate: createDateFieldSchema({
-    requiredError: "Date of burial is required",
-    futureError: "Date of burial cannot be in the future",
-  }).optional(),
+  affidavitDate: z.date().optional(),
   affidavitDatePlace: z.string().optional(),
-  adminOfficer: z.string().optional(),
+  adminOfficer: z.object({
+    name: z.string().optional(),
+    address: z.string().optional(),
+    position: z.string().optional(),
+  }),
   ctcInfo: z.object({
+    dayOf: z.date().optional(),
+    placeAt: z.string().optional(),
     number: z.string().optional(),
-    issuedOn: createDateFieldSchema({
-      requiredError: "Date of burial is required",
-      futureError: "Date of burial cannot be in the future",
-    }).optional(),
+    issuedOn: z.date().optional(),
     issuedAt: z.string().optional(),
   }).optional(),
 }).optional();
@@ -289,18 +245,12 @@ const disposalInformationSchema = z.object({
   corpseDisposal: z.string().optional(),
   burialPermit: z.object({
     number: z.string().optional(),
-    dateIssued: createDateFieldSchema({
-      requiredError: 'Date of death is required',
-      futureError: 'Date of death cannot be in the future',
-    }).optional(),
+    dateIssued: z.date().optional(),
   }).optional(),
   transferPermit: z
     .object({
       number: z.string().optional(),
-      dateIssued: createDateFieldSchema({
-        requiredError: 'Burial permit date is required',
-        futureError: 'Burial permit date cannot be in the future',
-      }).optional(),
+      dateIssued: z.date().optional(),
     })
     .optional(),
   cemeteryOrCrematory: z.object({
@@ -314,10 +264,7 @@ const informantSchema = z.object({
   nameInPrint: z.string().optional(),
   relationshipToDeceased: z.string().optional(),
   address: z.string().optional(),
-  date: createDateFieldSchema({
-    requiredError: 'Informant date is required',
-    futureError: 'Informant date cannot be in the future',
-  }).optional(),
+  date: z.date().optional(),
 });
 
 // --- Section 19a: Causes of Death for Infants ---

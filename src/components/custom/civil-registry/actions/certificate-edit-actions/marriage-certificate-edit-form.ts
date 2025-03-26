@@ -45,9 +45,9 @@ export async function updateMarriageCertificateForm(
                 pageNumber: data.pagination?.pageNumber,
                 bookNumber: data.pagination?.bookNumber,
                 remarks: data.remarks,
-                preparedByName: data.preparedBy?.nameInPrint,
-                preparedByPosition: data.preparedBy?.titleOrPosition,
-                preparedByDate: data.preparedBy?.date,
+                // preparedByName: data.preparedBy?.nameInPrint,
+                // preparedByPosition: data.preparedBy?.titleOrPosition,
+                // preparedByDate: data.preparedBy?.date,
                 receivedBy: data.receivedBy?.nameInPrint,
                 receivedByPosition: data.receivedBy?.titleOrPosition,
                 receivedByDate: data.receivedBy?.date,
@@ -120,7 +120,7 @@ export async function updateMarriageCertificateForm(
 
                 affidavitOfdelayedRegistration: data.affidavitForDelayed?.delayedRegistration === 'Yes'
                     ? data.affidavitForDelayed
-                    : {delayedRegistration: 'No'},
+                    : { delayedRegistration: 'No' },
             }
         });
 

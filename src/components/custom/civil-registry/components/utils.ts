@@ -15,7 +15,7 @@ export const renderName = (name: any): string => {
 export const formatLocation = (loc: any): string => {
     if (!loc) return ''
     if (typeof loc === 'string') return loc
-    const { houseNo, street, barangay, cityMunicipality, province, country, place } = loc
+    const { houseNo, street, barangay, cityMunicipality, province, country, place, internationalAddress, residence } = loc
     const parts = []
     if (houseNo || street) parts.push([houseNo, street].filter(Boolean).join(' '))
     if (barangay) parts.push(barangay)
@@ -23,6 +23,8 @@ export const formatLocation = (loc: any): string => {
     if (province) parts.push(province)
     if (country) parts.push(country)
     if (place) parts.push(place)
+    if (internationalAddress) parts.push(internationalAddress)
+    if (residence) parts.push(residence)
     return parts.join(', ')
 }
 
