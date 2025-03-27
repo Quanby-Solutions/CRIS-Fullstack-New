@@ -340,8 +340,8 @@ export function EditBirthCivilRegistryFormInline({
       };
     }
 
-   // Directly assign the value and ensure it's either string or undefined
-const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multipleBirthOrder ?? undefined;
+    // Directly assign the value and ensure it's either string or undefined
+    const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multipleBirthOrder ?? undefined;
 
     // Parent marriage extraction.
     const rawParentMarriage = form.birthCertificateForm?.parentMarriage;
@@ -970,8 +970,9 @@ const multipleBirthOrder: string | undefined = form.birthCertificateForm?.multip
                 <MarriageInformationCard />
                 <AttendantInformationCard />
                 <CertificationOfInformantCard />
-                <PreparedByCard />
-                <ReceivedByCard isEdit="BIRTH" />
+                <PreparedByCard cardTitle="Prepared By" isEdit="BIRTH" />
+                <ReceivedByCard cardTitle="Received By" isEdit="BIRTH" />
+
                 <RegisteredAtOfficeCard
                   fieldPrefix='registeredByOffice'
                   cardTitle='Registered at the Office of Civil Registrar'
