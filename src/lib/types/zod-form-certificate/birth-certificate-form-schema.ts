@@ -158,15 +158,24 @@ const fatherInformationSchema = z
   .optional();
 
 // Marriage Information Schema
+const marriageDateSchema = z.union([
+  createDateFieldSchemaWithPreprocess({
+    requiredError: 'Marriage date is required',
+    futureError: 'Marriage date cannot be in the future',
+  }),
+  z.literal("Not Married"),
+  z.literal("Forgotten")
+]);
+
+
+
 const marriageInformationSchema = z
   .object({
-    date: createDateFieldSchemaWithPreprocess({
-      requiredError: 'Marriage date is required',
-      futureError: 'Marriage date cannot be in the future',
-    }),
+    date: marriageDateSchema,
     place: residenceSchema,
   })
   .optional();
+
 
 // Attendant Information Schema
 const attendantInformationSchema = z.object({

@@ -69,8 +69,6 @@ export async function submitBirthCertificateForm(
           },
         });
 
-        // (Optional) Update signatures if provided; code omitted for brevity
-
         // Helper function to convert Date to ISO string for JSON
         const dateToJSON = (date: Date) => date.toISOString();
 
@@ -132,7 +130,10 @@ export async function submitBirthCertificateForm(
               ? Prisma.JsonNull
               : formData.parentMarriage.date
               ? {
-                  date: dateToJSON(formData.parentMarriage.date),
+                  date:
+                    formData.parentMarriage.date instanceof Date
+                      ? dateToJSON(formData.parentMarriage.date)
+                      : formData.parentMarriage.date,
                   place: formData.parentMarriage.place,
                 }
               : Prisma.JsonNull,

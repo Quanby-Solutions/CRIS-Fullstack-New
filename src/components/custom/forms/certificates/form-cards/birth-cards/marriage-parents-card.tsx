@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useFormContext } from 'react-hook-form'
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -11,17 +13,26 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
-import { useState, useEffect } from 'react'
-import { useFormContext } from 'react-hook-form'
 import LocationSelector from '../shared-components/location-selector'
 import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 export default function MarriageInformationCard() {
-  const { control, watch, setValue, trigger} = useFormContext<BirthCertificateFormValues>()
+  const { control, watch, setValue, trigger } = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
 
-  // Watch the province field for marriage place
+  // Watch the province field for marriage place and the marriage date field
   const province = watch('parentMarriage.place.province')
+  const parentMarriageDate = watch('parentMarriage.date')
+
+  // Derive the date option from parentMarriage.date.
+  // If the value is exactly "Not Married" or "Forgotten", use that string.
+  // If it's a Date or undefined, default to "Date".
+  let dateOption = "Date"
+  if (parentMarriageDate === "Not Married" || parentMarriageDate === "Forgotten") {
+    dateOption = parentMarriageDate
+  } else if (parentMarriageDate instanceof Date) {
+    dateOption = "Date"
+  }
 
   const getProvinceString = (provinceValue: any): string => {
     if (typeof provinceValue === 'string') {
@@ -32,27 +43,42 @@ export default function MarriageInformationCard() {
     return ''
   }
 
-
-
-
   useEffect(() => {
     const provinceString = getProvinceString(province) || 'Metro Manila'
-    
+
     // Determine if the province should be NCR (Metro Manila) or not
     const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
     setNcrMode(shouldBeNCR)
-  
+
     // Set the province value based on whether NCR mode is true or false
     setValue('parentMarriage.place.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
-      shouldValidate: true, // Trigger validation immediately
-      shouldDirty: true,     // Mark the field as dirty to ensure validation
+      shouldValidate: true,
+      shouldDirty: true,
     })
-  
+
     // Manually trigger revalidation of the province field after setting the value
     trigger('parentMarriage.place.province')
-  }, [province]) // Runs whenever province changes
+  }, [province, setValue, trigger])
 
-  
+  // Handle changes to the select dropdown.
+  // The selected option is now directly tied to parentMarriage.date.
+  const handleDateOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOption = e.target.value
+
+    if (selectedOption !== "Date") {
+      // Immediately set the form value for parentMarriage.date to the selected option
+      setValue('parentMarriage.date', selectedOption as "Not Married" | "Forgotten", {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    } else {
+      // Clear the value when returning to "Date" by setting it to undefined (not null)
+      setValue('parentMarriage.date', undefined, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    }
+  }
 
   return (
     <Card className='mb-6'>
@@ -62,28 +88,47 @@ export default function MarriageInformationCard() {
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
-        <Card className='border p-4'> {/* Adjusted padding for better card size */}
+        <Card className='border p-4'>
           <CardContent className='space-y-6'>
             {/* Marriage Date */}
             <div className='text-lg'>
               <strong>20a.</strong> Marriage Date
             </div>
+            {/* Marriage Date Option Select */}
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <FormField
-                control={control}
-                name='parentMarriage.date'
-                render={({ field }) => (
-                  <DatePickerField
-                    field={{
-                      value: field.value ?? null,
-                      onChange: field.onChange,
-                    }}
-                    label='Date'
-                    placeholder='Select marriage date'
-                    ref={field.ref}
-                  />
-                )}
-              />
+              <FormItem>
+                <FormLabel>Marriage Date Option</FormLabel>
+                <select
+                  value={dateOption}
+                  onChange={handleDateOptionChange}
+                  className="border rounded p-2 ml-2"
+                >
+                  <option value="Date">Date</option>
+                  <option value="Not Married">Not Married</option>
+                  <option value="Forgotten">Forgotten</option>
+                </select>
+              </FormItem>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              {dateOption === "Date" && (
+                <FormField
+                  control={control}
+                  name='parentMarriage.date'
+                  render={({ field }) => (
+                    <DatePickerField
+                      field={{
+                        // If field.value is a Date, pass it; otherwise pass null.
+                        value: field.value instanceof Date ? field.value : null,
+                        onChange: field.onChange,
+                      }}
+                      label='Date'
+                      placeholder='Select marriage date'
+                      ref={field.ref}
+                    />
+                  )}
+                />
+              )}
             </div>
 
             {/* Marriage Place */}
