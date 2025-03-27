@@ -739,13 +739,13 @@ export function EditBirthCivilRegistryFormInline({
         occupation: form.birthCertificateForm?.motherOccupation || '',
         age: String(form.birthCertificateForm?.motherAge || ''),
         totalChildrenBornAlive: String(
-          form.birthCertificateForm?.totalChildrenBornAlive || ''
+          form.birthCertificateForm?.totalChildrenBornAlive ?? 0
         ),
         childrenStillLiving: String(
-          form.birthCertificateForm?.childrenStillLiving || ''
+          form.birthCertificateForm?.childrenStillLiving ?? 0
         ),
         childrenNowDead: String(
-          form.birthCertificateForm?.childrenNowDead || ''
+          form.birthCertificateForm?.childrenNowDead ?? 0
         ),
         // Output residence with key "st" from the mapped "street" value.
         residence: {
@@ -863,9 +863,9 @@ export function EditBirthCivilRegistryFormInline({
         religion: data.motherInfo.religion || '',
         occupation: data.motherInfo.occupation || '',
         age: data.motherInfo.age,
-        totalChildrenBornAlive: Number(data.motherInfo.totalChildrenBornAlive ?? ''),
-        childrenStillLiving: Number(data.motherInfo.childrenStillLiving ?? ''),
-        childrenNowDead: Number(data.motherInfo.childrenNowDead ?? ''),
+        totalChildrenBornAlive: Number(data.motherInfo.totalChildrenBornAlive ?? 0),
+        childrenStillLiving: Number(data.motherInfo.childrenStillLiving ?? 0),
+        childrenNowDead: Number(data.motherInfo.childrenNowDead ?? 0),
         residence: data.motherInfo.residence || '',
       },
       fatherInfo: {
@@ -887,7 +887,7 @@ export function EditBirthCivilRegistryFormInline({
       isDelayedRegistration: data.isDelayedRegistration,
       affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
     };
-    console.log('Mother Info Data:', data.motherInfo);
+    console.log(JSON.stringify(updatedForm, null, 2));
 
     try {
       const response = await fetch('/api/editForm/birth', {

@@ -10,17 +10,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useCivilRegistrarStaff } from '@/hooks/use-civil-registrar-staff';
-import { useEffect } from 'react';
-import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form';
-import SignatureUploader from './signature-uploader';
+import { FieldValues, Path, useFormContext } from 'react-hook-form';
 
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   fieldPrefix: string;
@@ -39,31 +29,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
   showNameInPrint = true,
   showTitleOrPosition = true,
 }: ProcessingCardProps<T>) {
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { isSubmitted },
-  } = useFormContext<T>();
-
-  const { staff, loading } = useCivilRegistrarStaff();
-  const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>);
-  const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>;
-
-  useEffect(() => {
-    // Only auto-fill title for non-preparedBy fields
-    if (fieldPrefix !== 'preparedBy') {
-      const selectedStaff = staff.find((s) => s.name === selectedName);
-      if (selectedStaff) {
-        setValue(titleFieldName, selectedStaff.title as PathValue<T, Path<T>>, {
-          shouldValidate: isSubmitted,
-          shouldDirty: true,
-        });
-      }
-    }
-  }, [selectedName, staff, setValue, isSubmitted, titleFieldName, fieldPrefix]);
-
-  const isPreparedBy = fieldPrefix === 'preparedBy';
+  const { control } = useFormContext<T>();
 
   return (
     <Card>
@@ -79,40 +45,15 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name in Print</FormLabel>
-                  {isPreparedBy ? (
-                    <FormControl>
-                      <Input
-                        placeholder='Enter staff name'
-                        {...field}
-                        value={field.value || ''}
-                        className='h-10'
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Select
-                      onValueChange={field.onChange}
+                  <FormControl>
+                    <Input
+                      placeholder='Enter staff name'
+                      {...field}
                       value={field.value || ''}
-                      disabled={loading}
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10'>
-                          <SelectValue
-                            placeholder={
-                              loading ? 'Loading...' : 'Select staff name'
-                            }
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {staff.map((s) => (
-                          <SelectItem key={s.id} value={s.name}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                      className='h-10'
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -137,24 +78,17 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
           {showTitleOrPosition && (
             <FormField
               control={control}
-              name={titleFieldName}
+              name={`${fieldPrefix}.titleOrPosition` as Path<T>}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title or Position</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={
-                        isPreparedBy
-                          ? 'Enter title or position'
-                          : 'Title will auto-fill'
-                      }
+                      placeholder='Enter title or position'
                       {...field}
                       value={field.value || ''}
                       className='h-10'
-                      onChange={
-                        isPreparedBy ? (e) => field.onChange(e.target.value) : undefined
-                      }
-                      disabled={!isPreparedBy}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -169,7 +103,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
 }
 
 export function PreparedByCard<T extends FieldValues = FieldValues>(
-  props: Omit<ProcessingCardProps<T>, 'fieldPrefix'> 
+  props: Omit<ProcessingCardProps<T>, 'fieldPrefix'>
 ) {
   return (
     <ProcessingDetailsCard<T>

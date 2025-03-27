@@ -17,13 +17,12 @@ import LocationSelector from '../shared-components/location-selector'
 import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 export default function MarriageInformationCard() {
-  const { control, watch, setValue} = useFormContext<BirthCertificateFormValues>()
+  const { control, watch, setValue, trigger} = useFormContext<BirthCertificateFormValues>()
   const [ncrMode, setNcrMode] = useState(false)
 
   // Watch the province field for marriage place
   const province = watch('parentMarriage.place.province')
 
-  // Helper function to extract province string if it comes as an object
   const getProvinceString = (provinceValue: any): string => {
     if (typeof provinceValue === 'string') {
       return provinceValue
@@ -33,15 +32,26 @@ export default function MarriageInformationCard() {
     return ''
   }
 
-  // Update ncrMode based on the province value
+
+
+
   useEffect(() => {
-    const provinceString = getProvinceString(province)
-    const shouldBeNcr = provinceString.trim().toLowerCase() === 'metro manila'
-    if (shouldBeNcr !== ncrMode) {
-      setNcrMode(shouldBeNcr)
-      setValue('parentMarriage.place.province', 'Metro Manila')
-    }
-  }, [province, ncrMode])
+    const provinceString = getProvinceString(province) || 'Metro Manila'
+    
+    // Determine if the province should be NCR (Metro Manila) or not
+    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
+    setNcrMode(shouldBeNCR)
+  
+    // Set the province value based on whether NCR mode is true or false
+    setValue('parentMarriage.place.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
+      shouldValidate: true, // Trigger validation immediately
+      shouldDirty: true,     // Mark the field as dirty to ensure validation
+    })
+  
+    // Manually trigger revalidation of the province field after setting the value
+    trigger('parentMarriage.place.province')
+  }, [province]) // Runs whenever province changes
+
   
 
   return (

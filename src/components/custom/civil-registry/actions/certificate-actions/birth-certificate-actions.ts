@@ -1,4 +1,4 @@
-// src\app\actions\certificate-actions\birth-certificate-actions.ts
+// src/app/actions/certificate-actions/birth-certificate-actions.ts
 'use server';
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
@@ -33,9 +33,11 @@ export async function submitBirthCertificateForm(
           },
         });
 
-        if (!receivedByUser || !registeredByUser) {
-          throw new Error('ReceivedBy or RegisteredBy user not found');
-        }
+        // Instead of throwing an error when a user is not found,
+        // we set the corresponding user ID to null.
+        // You may log a warning here if needed.
+        const receivedById = receivedByUser ? receivedByUser.id : null;
+        const registeredById = registeredByUser ? registeredByUser.id : null;
 
         const pageNumber = formData.pagination?.pageNumber || '';
         const bookNumber = formData.pagination?.bookNumber || '';
@@ -51,16 +53,15 @@ export async function submitBirthCertificateForm(
             bookNumber,
             dateOfRegistration: new Date(),
             isLateRegistered: formData.isDelayedRegistration,
-            status: DocumentStatus.PENDING,
             preparedById: null, // No user association
             verifiedById: null,
             preparedByName: preparedByName,
             verifiedByName: null,
-            receivedById: receivedByUser.id,
+            receivedById: receivedById,
             receivedBy: formData.receivedBy.nameInPrint,
             receivedByPosition: formData.receivedBy.titleOrPosition,
             receivedByDate: formData.receivedBy.date,
-            registeredById: registeredByUser.id,
+            registeredById: registeredById,
             registeredBy: formData.registeredByOffice.nameInPrint,
             registeredByPosition: formData.registeredByOffice.titleOrPosition,
             registeredByDate: formData.registeredByOffice.date,
@@ -68,36 +69,7 @@ export async function submitBirthCertificateForm(
           },
         });
 
-        // For prepared by
-        // if (isFileLike(formData.preparedBy.signature)) {
-        //   await tx.user.update({
-        //     where: { id: preparedByUser.id },
-        //     data: {
-        //       eSignature: await fileToBase64(formData.preparedBy.signature),
-        //     },
-        //   });
-        // }
-
-        // // For received by
-        // if (isFileLike(formData.receivedBy.signature)) {
-        //   await tx.user.update({
-        //     where: { id: receivedByUser.id },
-        //     data: {
-        //       eSignature: await fileToBase64(formData.receivedBy.signature),
-        //     },
-        //   });
-        // }
-        // // For registered by
-        // if (isFileLike(formData.registeredByOffice.signature)) {
-        //   await tx.user.update({
-        //     where: { id: registeredByUser.id },
-        //     data: {
-        //       eSignature: await fileToBase64(
-        //         formData.registeredByOffice.signature
-        //       ),
-        //     },
-        //   });
-        // }
+        // (Optional) Update signatures if provided; code omitted for brevity
 
         // Helper function to convert Date to ISO string for JSON
         const dateToJSON = (date: Date) => date.toISOString();
@@ -139,15 +111,14 @@ export async function submitBirthCertificateForm(
             childrenNowDead: parseInt(formData.motherInfo.childrenNowDead, 10),
             fatherName:
               !formData.fatherInfo ||
-                !formData.fatherInfo.firstName ||
-                !formData.fatherInfo.lastName
+              !formData.fatherInfo.firstName ||
+              !formData.fatherInfo.lastName
                 ? Prisma.JsonNull
                 : ({
-                  first: formData.fatherInfo.firstName,
-                  middle: formData.fatherInfo.middleName || '',
-                  last: formData.fatherInfo.lastName,
-                } as Prisma.JsonObject),
-
+                    first: formData.fatherInfo.firstName,
+                    middle: formData.fatherInfo.middleName || '',
+                    last: formData.fatherInfo.lastName,
+                  } as Prisma.JsonObject),
             fatherCitizenship: formData.fatherInfo?.citizenship || '',
             fatherReligion: formData.fatherInfo?.religion || '',
             fatherOccupation: formData.fatherInfo?.occupation || '',
@@ -160,11 +131,11 @@ export async function submitBirthCertificateForm(
             parentMarriage: !formData.parentMarriage
               ? Prisma.JsonNull
               : formData.parentMarriage.date
-                ? {
+              ? {
                   date: dateToJSON(formData.parentMarriage.date),
                   place: formData.parentMarriage.place,
                 }
-                : Prisma.JsonNull,
+              : Prisma.JsonNull,
             attendant: {
               type: formData.attendant.type,
               certification: {
@@ -184,13 +155,13 @@ export async function submitBirthCertificateForm(
             hasAffidavitOfPaternity: formData.hasAffidavitOfPaternity,
             affidavitOfPaternityDetails:
               !formData.hasAffidavitOfPaternity ||
-                !formData.affidavitOfPaternityDetails
+              !formData.affidavitOfPaternityDetails
                 ? Prisma.JsonNull
                 : (formData.affidavitOfPaternityDetails as unknown as Prisma.JsonObject),
             isDelayedRegistration: formData.isDelayedRegistration,
             affidavitOfDelayedRegistration:
               !formData.isDelayedRegistration ||
-                !formData.affidavitOfDelayedRegistration
+              !formData.affidavitOfDelayedRegistration
                 ? Prisma.JsonNull
                 : (formData.affidavitOfDelayedRegistration as unknown as Prisma.JsonObject),
             reasonForDelay:
