@@ -121,6 +121,29 @@ export function EditBirthCivilRegistryFormInline({
     return rawResidence;
   };
 
+  // Helper to conditionally merge original and updated residence objects.
+  const mergeResidence = (
+    original: Record<string, string>,
+    updated: Record<string, string>
+  ): Record<string, string> => {
+    return {
+      houseNo: updated.houseNo?.trim() ? updated.houseNo : original.houseNo,
+      // For the street field, try both "st" and "street"
+      street:
+        updated.st?.trim() ||
+        updated.street?.trim() ||
+        original.street ||
+        original.st ||
+        '',
+      barangay: updated.barangay?.trim() ? updated.barangay : original.barangay,
+      cityMunicipality: updated.cityMunicipality?.trim()
+        ? updated.cityMunicipality
+        : original.cityMunicipality,
+      province: updated.province?.trim() ? updated.province : original.province,
+      country: updated.country?.trim() ? updated.country : original.country,
+    };
+  };
+
   // Map the form data to the certificate values with proper type guarding.
   const mapToBirthCertificateValues = (
     form: BaseRegistryFormWithRelations
@@ -222,9 +245,7 @@ export function EditBirthCivilRegistryFormInline({
 
     // Date of birth
     const rawDateOfBirth = form.birthCertificateForm?.dateOfBirth;
-    const dateOfBirth: Date = rawDateOfBirth
-      ? new Date(rawDateOfBirth)
-      : new Date();
+    const dateOfBirth: Date = rawDateOfBirth ? new Date(rawDateOfBirth) : new Date();
 
     // Type of birth
     const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth;
@@ -752,9 +773,23 @@ export function EditBirthCivilRegistryFormInline({
 
   const initialData = mapToBirthCertificateValues(form);
 
-  // BirthFormProvider.tsx
   const handleEditSubmit = async (data: BirthCertificateFormValues): Promise<void> => {
     setIsUpdating(true);
+
+    // Ensure we have valid object values for the residences
+    const originalMotherResidence =
+      (typeof form.birthCertificateForm?.motherResidence === 'object' &&
+        form.birthCertificateForm?.motherResidence !== null &&
+        !Array.isArray(form.birthCertificateForm?.motherResidence))
+        ? form.birthCertificateForm?.motherResidence as Record<string, string>
+        : {};
+
+    const originalFatherResidence =
+      (typeof form.birthCertificateForm?.fatherResidence === 'object' &&
+        form.birthCertificateForm?.fatherResidence !== null &&
+        !Array.isArray(form.birthCertificateForm?.fatherResidence))
+        ? form.birthCertificateForm?.fatherResidence as Record<string, string>
+        : {};
 
     const updatedForm = {
       id: form.id,
@@ -793,7 +828,11 @@ export function EditBirthCivilRegistryFormInline({
         totalChildrenBornAlive: Number(data.motherInfo.totalChildrenBornAlive ?? 0),
         childrenStillLiving: Number(data.motherInfo.childrenStillLiving ?? 0),
         childrenNowDead: Number(data.motherInfo.childrenNowDead ?? 0),
-        residence: data.motherInfo.residence || '',
+        // Merge original and updated residence using mergeResidence
+        residence: mergeResidence(
+          originalMotherResidence,
+          data.motherInfo.residence as Record<string, string>
+        ),
       },
       fatherInfo: {
         firstName: data.fatherInfo!.firstName || '',
@@ -803,7 +842,10 @@ export function EditBirthCivilRegistryFormInline({
         religion: data.fatherInfo!.religion || '',
         occupation: data.fatherInfo!.occupation || '',
         age: data.fatherInfo!.age,
-        residence: data.fatherInfo!.residence || '',
+        residence: mergeResidence(
+          originalFatherResidence,
+          data.fatherInfo!.residence as Record<string, string>
+        ),
       },
       parentMarriage: data.parentMarriage,
       attendant: data.attendant,

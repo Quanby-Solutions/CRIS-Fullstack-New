@@ -1,4 +1,3 @@
-// src\hooks\civil-registry-action.tsx
 "use server"
 
 import { prisma } from "@/lib/prisma"
@@ -14,7 +13,7 @@ import {
 } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
-
+// Updated type: allow the `document` property to be null
 export type BaseRegistryFormWithRelations = BaseRegistryForm & {
   preparedBy: { name: string } | null
   verifiedBy: { name: string } | null
@@ -22,11 +21,11 @@ export type BaseRegistryFormWithRelations = BaseRegistryForm & {
   birthCertificateForm?: BirthCertificateForm | null
   deathCertificateForm?: DeathCertificateForm | null
   documents: {
-    document: Document & {
+    document: (Document & {
       attachments: (Attachment & {
         certifiedCopies: CertifiedCopy[]
       })[]
-    }
+    }) | null
   }[]
 }
 
@@ -47,11 +46,11 @@ export async function getBaseRegistryForms(): Promise<BaseRegistryFormWithRelati
           document: {
             include: {
               attachments: {
-                include: { certifiedCopies: true }
-              }
-            }
-          }
-        }
+                include: { certifiedCopies: true },
+              },
+            },
+          },
+        },
       },
     },
   })
@@ -77,11 +76,11 @@ export async function getBaseRegistryForm(
           document: {
             include: {
               attachments: {
-                include: { certifiedCopies: true }
-              }
-            }
-          }
-        }
+                include: { certifiedCopies: true },
+              },
+            },
+          },
+        },
       },
     },
   })
@@ -123,6 +122,17 @@ export async function updateBaseRegistryForm(
         marriageCertificateForm: true,
         birthCertificateForm: true,
         deathCertificateForm: true,
+        documents: {
+          include: {
+            document: {
+              include: {
+                attachments: {
+                  include: { certifiedCopies: true },
+                },
+              },
+            },
+          },
+        },
       },
     })
 
@@ -172,6 +182,17 @@ export async function createBaseRegistryForm(data: {
         marriageCertificateForm: true,
         birthCertificateForm: true,
         deathCertificateForm: true,
+        documents: {
+          include: {
+            document: {
+              include: {
+                attachments: {
+                  include: { certifiedCopies: true },
+                },
+              },
+            },
+          },
+        },
       },
     })
 
