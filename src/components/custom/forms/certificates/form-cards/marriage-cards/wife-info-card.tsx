@@ -270,11 +270,11 @@ const WifeInfoCard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
           {/* Place of Birth */}
           <LocationSelectorNew
-            countryFieldName="wifePlaceOfBirth.country"
-            provinceFieldName="wifePlaceOfBirth.province"
-            municipalityFieldName="wifePlaceOfBirth.cityMunicipality"
-            barangayFieldName="wifePlaceOfBirth.barangay"
-            internationalAddressFieldName="wifePlaceOfBirth.internationalAddress"
+            countryFieldName2="wifePlaceOfBirth.country"
+            provinceFieldName2="wifePlaceOfBirth.province"
+            municipalityFieldName2="wifePlaceOfBirth.cityMunicipality"
+            barangayFieldName2="wifePlaceOfBirth.barangay"
+            internationalAddressFieldName2="wifePlaceOfBirth.internationalAddress"
             countryLabel="Country"
             provinceLabel="Province"
             municipalityLabel="City/Municipality"

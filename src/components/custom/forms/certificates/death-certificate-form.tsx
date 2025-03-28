@@ -140,7 +140,7 @@ export default function DeathCertificateForm({
                       </div>
 
                       <div id="received-by-card">
-                        <ReceivedByCard />
+                        <ReceivedByCard cardTitle="28. Received by" />
                       </div>
 
                       <div id="registered-at-office-card">

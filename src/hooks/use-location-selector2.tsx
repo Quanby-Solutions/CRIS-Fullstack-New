@@ -10,9 +10,9 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useFormContext } from "react-hook-form";
 
 interface UseLocationSelectorProps {
-  provinceFieldName: string;
-  municipalityFieldName: string;
-  barangayFieldName?: string;
+  provinceFieldName2: string;
+  municipalityFieldName2: string;
+  barangayFieldName2?: string;
   isNCRMode: boolean;
   showBarangay?: boolean;
   setValue: (name: string, value: any) => void;
@@ -25,10 +25,10 @@ interface UseLocationSelectorProps {
 const NCR_PROVINCE_ID = "metro-manila";
 const NCR_PROVINCE_DISPLAY = "Metro Manila";
 
-export const useLocationSelector = ({
-  provinceFieldName,
-  municipalityFieldName,
-  barangayFieldName,
+export const useLocationSelector2 = ({
+  provinceFieldName2,
+  municipalityFieldName2,
+  barangayFieldName2,
   isNCRMode,
   showBarangay,
   setValue,
@@ -60,7 +60,7 @@ export const useLocationSelector = ({
   }, [isNCRMode]);
 
   // Read default province value from RHF.
-  const defaultProvinceValue = getValues(provinceFieldName) || "";
+  const defaultProvinceValue = getValues(provinceFieldName2) || "";
   // If not in NCR mode and no default is provided, leave province empty.
   const defaultProvinceId = isNCRMode
     ? NCR_PROVINCE_ID
@@ -80,7 +80,7 @@ export const useLocationSelector = ({
   }, [selectedProvince, isNCRMode]);
 
   // Read default municipality value.
-  const defaultMunicipalityValue = getValues(municipalityFieldName) || "";
+  const defaultMunicipalityValue = getValues(municipalityFieldName2) || "";
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>("");
 
   // Comprehensive function to find and set municipality
@@ -112,8 +112,8 @@ export const useLocationSelector = ({
         // })
 
         setSelectedMunicipality(matchedMunicipality.id);
-        setValue(municipalityFieldName, matchedMunicipality.displayName);
-        clearErrors(municipalityFieldName);
+        setValue(municipalityFieldName2, matchedMunicipality.displayName);
+        clearErrors(municipalityFieldName2);
         return true;
       }
 
@@ -123,14 +123,14 @@ export const useLocationSelector = ({
       });
 
       // Set error if no match found
-      setError(municipalityFieldName, {
+      setError(municipalityFieldName2, {
         type: "manual",
         message: "Invalid city/municipality",
       });
 
       return false;
     },
-    [setValue, clearErrors, setError, municipalityFieldName]
+    [setValue, clearErrors, setError, municipalityFieldName2]
   );
 
   // When province or municipality list changes, update the municipality state if a default exists.
@@ -158,8 +158,8 @@ export const useLocationSelector = ({
   }, [selectedMunicipality]);
 
   // Read default barangay value.
-  const defaultBarangayValue = barangayFieldName
-    ? getValues(barangayFieldName) || ""
+  const defaultBarangayValue = barangayFieldName2
+    ? getValues(barangayFieldName2) || ""
     : "";
   const [selectedBarangay, setSelectedBarangay] = useState<string>("");
 
@@ -174,8 +174,8 @@ export const useLocationSelector = ({
       const defaultBar = barangays.find((b) => b.name === defaultBarangayValue);
       if (defaultBar) {
         setSelectedBarangay(defaultBar.id);
-        if (barangayFieldName) {
-          setValue(barangayFieldName, defaultBar.name);
+        if (barangayFieldName2) {
+          setValue(barangayFieldName2, defaultBar.name);
         }
       }
     }
@@ -184,7 +184,7 @@ export const useLocationSelector = ({
     barangays,
     defaultBarangayValue,
     selectedBarangay,
-    barangayFieldName,
+    barangayFieldName2,
     setValue,
   ]);
 
@@ -192,31 +192,31 @@ export const useLocationSelector = ({
   useEffect(() => {
     if (isNCRMode) {
       setSelectedProvince(NCR_PROVINCE_ID);
-      setValue(provinceFieldName, NCR_PROVINCE_DISPLAY);
-      clearErrors(provinceFieldName);
+      setValue(provinceFieldName2, NCR_PROVINCE_DISPLAY);
+      clearErrors(provinceFieldName2);
     }
-  }, [isNCRMode, provinceFieldName, setValue, clearErrors]);
+  }, [isNCRMode, provinceFieldName2, setValue, clearErrors]);
 
   // When province changes, clear municipality and barangay.
   useEffect(() => {
     setSelectedMunicipality("");
     setSelectedBarangay("");
-    setValue(municipalityFieldName, "");
-    if (barangayFieldName) {
-      setValue(barangayFieldName, "");
+    setValue(municipalityFieldName2, "");
+    if (barangayFieldName2) {
+      setValue(barangayFieldName2, "");
     }
     if (trigger) {
-      const fieldsToTrigger = [provinceFieldName, municipalityFieldName];
-      if (barangayFieldName) fieldsToTrigger.push(barangayFieldName);
+      const fieldsToTrigger = [provinceFieldName2, municipalityFieldName2];
+      if (barangayFieldName2) fieldsToTrigger.push(barangayFieldName2);
       void trigger(fieldsToTrigger);
     }
   }, [
     selectedProvince,
-    municipalityFieldName,
-    barangayFieldName,
+    municipalityFieldName2,
+    barangayFieldName2,
     setValue,
     trigger,
-    provinceFieldName,
+    provinceFieldName2,
   ]);
 
   const handleProvinceChange = async (value: string) => {
@@ -229,14 +229,14 @@ export const useLocationSelector = ({
       provinces.find((p) => p.psgc_id === value)?.name === undefined
         ? NCR_PROVINCE_DISPLAY
         : provinces.find((p) => p.psgc_id === value)?.name || "";
-    setValue(provinceFieldName, selectedProvinceName);
-    setValue(municipalityFieldName, "");
-    if (barangayFieldName) {
-      setValue(barangayFieldName, "");
+    setValue(provinceFieldName2, selectedProvinceName);
+    setValue(municipalityFieldName2, "");
+    if (barangayFieldName2) {
+      setValue(barangayFieldName2, "");
     }
     if (trigger) {
-      const fieldsToTrigger = [provinceFieldName, municipalityFieldName];
-      if (barangayFieldName) fieldsToTrigger.push(barangayFieldName);
+      const fieldsToTrigger = [provinceFieldName2, municipalityFieldName2];
+      if (barangayFieldName2) fieldsToTrigger.push(barangayFieldName2);
       await trigger(fieldsToTrigger);
     }
     onProvinceChange?.(selectedProvinceName);
@@ -258,15 +258,15 @@ export const useLocationSelector = ({
     setSelectedMunicipality(foundMunicipality.id);
     setSelectedBarangay("");
 
-    setValue(municipalityFieldName, foundMunicipality.displayName);
+    setValue(municipalityFieldName2, foundMunicipality.displayName);
 
-    if (barangayFieldName) {
-      setValue(barangayFieldName, "");
+    if (barangayFieldName2) {
+      setValue(barangayFieldName2, "");
     }
 
     if (trigger) {
-      const fieldsToTrigger = [municipalityFieldName];
-      if (barangayFieldName) fieldsToTrigger.push(barangayFieldName);
+      const fieldsToTrigger = [municipalityFieldName2];
+      if (barangayFieldName2) fieldsToTrigger.push(barangayFieldName2);
       await trigger(fieldsToTrigger);
     }
 
@@ -281,24 +281,21 @@ export const useLocationSelector = ({
     setSelectedBarangay(value);
 
     // Only update the form if the field name exists
-    if (barangayFieldName) {
+    if (barangayFieldName2) {
       // Get the current form value before changing it
-      const currentValue = getValues(barangayFieldName);
+      const currentValue = getValues(barangayFieldName2);
 
       // Only update if different to minimize form triggers
       if (currentValue !== value) {
         // Just use the two parameters version
-        setValue(barangayFieldName, value);
-
-        // Instead of using options, we'll be more selective about when to trigger
-        // This can help prevent cascading updates
+        setValue(barangayFieldName2, value);
       }
     }
 
     // Only trigger validation if we explicitly want to
     // Consider if this is necessary every time
-    if (trigger && barangayFieldName) {
-      await trigger(barangayFieldName);
+    if (trigger && barangayFieldName2) {
+      await trigger(barangayFieldName2);
     }
 
     // Call callback if provided

@@ -147,7 +147,7 @@ export default function MarriageCertificateForm({
                       </div> */}
 
                       <div id="received-by-card">
-                        <ReceivedByCard />
+                        <ReceivedByCard cardTitle="Received by" />
                       </div>
 
                       <div id="registered-at-office-card">

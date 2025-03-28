@@ -216,11 +216,11 @@ const DisposalInformationCard: React.FC = () => {
             /> */}
 
             <LocationSelectorNew
-              countryFieldName="cemeteryOrCrematory.address.country"
-              provinceFieldName="cemeteryOrCrematory.address.province"
-              municipalityFieldName="cemeteryOrCrematory.address.cityMunicipality"
-              barangayFieldName="cemeteryOrCrematory.address.barangay"
-              internationalAddressFieldName="cemeteryOrCrematory.address.internationalAddress"
+              countryFieldName2="cemeteryOrCrematory.address.country"
+              provinceFieldName2="cemeteryOrCrematory.address.province"
+              municipalityFieldName2="cemeteryOrCrematory.address.cityMunicipality"
+              barangayFieldName2="cemeteryOrCrematory.address.barangay"
+              internationalAddressFieldName2="cemeteryOrCrematory.address.internationalAddress"
               countryLabel="Country"
               provinceLabel="Province"
               municipalityLabel="City/Municipality"

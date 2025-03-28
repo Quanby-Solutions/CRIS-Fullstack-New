@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   FormControl,
@@ -6,44 +6,45 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useLocationSelector } from '@/hooks/use-location-selector';
-import { LocationSelectorProps } from '@/lib/types/location-selector';
-import React, { useEffect, useState } from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
+} from "@/components/ui/select";
+import { useLocationSelector } from "@/hooks/use-location-selector";
+import { LocationSelectorProps } from "@/lib/types/location-selector";
+import React, { useEffect, useState } from "react";
+import { Controller, useFormContext } from "react-hook-form";
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({
-  provinceFieldName = 'province',
-  municipalityFieldName = 'cityMunicipality',
-  barangayFieldName = 'barangay',
-  provinceLabel = 'Province',
-  municipalityLabel = 'City/Municipality',
-  barangayLabel = 'Barangay',
+  provinceFieldName = "province",
+  municipalityFieldName = "cityMunicipality",
+  barangayFieldName = "barangay",
+  provinceLabel = "Province",
+  municipalityLabel = "City/Municipality",
+  barangayLabel = "Barangay",
   isNCRMode = false,
   showBarangay = false,
-  provincePlaceholder = 'Select a province...',
-  municipalityPlaceholder = 'Select a city/municipality...',
-  barangayPlaceholder = 'Select a barangay...',
+  provincePlaceholder = "Select a province...",
+  municipalityPlaceholder = "Select a city/municipality...",
+  barangayPlaceholder = "Select a barangay...",
   onProvinceChange,
   onMunicipalityChange,
   onBarangayChange,
-  formItemClassName = '',
-  formLabelClassName = '',
+  formItemClassName = "",
+  formLabelClassName = "",
 }) => {
   const {
     control,
     trigger,
     setValue,
     getValues,
+    setError,
     clearErrors,
-    formState: { isSubmitted },
+    formState: { errors, isSubmitted },
   } = useFormContext();
 
   const {
@@ -71,10 +72,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   // State to track initial municipality value and loading status
   const [initialMunicipalityValue] = useState(
-    getValues(municipalityFieldName) || ''
+    getValues(municipalityFieldName) || ""
   );
-  const [isInitialMunicipalityLoadComplete, setIsInitialMunicipalityLoadComplete] =
-    useState(false);
+  const [
+    isInitialMunicipalityLoadComplete,
+    setIsInitialMunicipalityLoadComplete,
+  ] = useState(false);
 
   // Effect to handle initial loading for municipality in edit scenarios
   useEffect(() => {
@@ -85,7 +88,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     ) {
       const matchingMunicipality = municipalities.find(
         (mun) =>
-          mun.displayName.toLowerCase() === initialMunicipalityValue.toLowerCase()
+          mun.displayName.toLowerCase() ===
+          initialMunicipalityValue.toLowerCase()
       );
 
       if (matchingMunicipality) {
@@ -100,14 +104,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     handleMunicipalityChange,
   ]);
 
-  // State to track initial barangay value and loading status
-  const [initialBarangayValue] = useState(
-    getValues(barangayFieldName) || ''
-  );
+  // NEW: State to track initial barangay value and loading status
+  const [initialBarangayValue] = useState(getValues(barangayFieldName) || "");
   const [isInitialBarangayLoadComplete, setIsInitialBarangayLoadComplete] =
     useState(false);
 
-  // Effect to handle initial loading for barangay in edit scenarios
+  // NEW: Effect to handle initial loading for barangay in edit scenarios
   useEffect(() => {
     if (
       initialBarangayValue &&
@@ -115,11 +117,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       !isInitialBarangayLoadComplete
     ) {
       const matchingBarangay = barangays.find(
-        (bar) =>
-          bar.name.toLowerCase() === initialBarangayValue.toLowerCase()
+        (bar) => bar.name.toLowerCase() === initialBarangayValue.toLowerCase()
       );
 
       if (matchingBarangay) {
+        // If your state or hook expects an ID, you might call:
+        // handleBarangayChange(matchingBarangay.id);
+        // If it expects the name, use matchingBarangay.name
         handleBarangayChange(matchingBarangay.name);
         setIsInitialBarangayLoadComplete(true);
       }
@@ -133,7 +137,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   // Styling classes for select triggers.
   const selectTriggerClasses =
-    'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
+    "h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800";
 
   const isMunicipalityDisabled = !selectedProvince;
 
@@ -142,25 +146,25 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     children: React.ReactNode;
     className?: string;
   }> = ({ children, className }) => (
-    <FormLabel className={className} style={{ color: 'inherit' }}>
+    <FormLabel className={className} style={{ color: "inherit" }}>
       {children}
     </FormLabel>
   );
 
   return (
     <>
-      {/* Province/Region Field - Made Optional */}
+      {/* Province/Region Field */}
       <FormField
         control={control}
         name={provinceFieldName}
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
             <CustomFormLabel className={formLabelClassName}>
-              {isNCRMode ? 'Region' : provinceLabel}
+              {isNCRMode ? "Region" : provinceLabel}
             </CustomFormLabel>
             <FormControl>
               <Select
-                value={selectedProvince || undefined}
+                value={selectedProvince}
                 onValueChange={(value: string) => {
                   field.onChange(value);
                   handleProvinceChange(value);
@@ -170,13 +174,15 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               >
                 <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue
-                    placeholder={isNCRMode ? 'Metro Manila' : provincePlaceholder}
+                    placeholder={
+                      isNCRMode ? "Metro Manila" : provincePlaceholder
+                    }
                   />
                 </SelectTrigger>
                 <SelectContent>
                   {provinces.map((prov) => (
                     <SelectItem key={prov.psgc_id} value={prov.psgc_id}>
-                      {isNCRMode ? 'Metro Manila' : prov.name}
+                      {isNCRMode ? "Metro Manila" : prov.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -189,11 +195,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         )}
       />
 
-      {/* Municipality/City Field - Made Optional */}
+      {/* Municipality/City Field */}
       <Controller
         control={control}
         name={municipalityFieldName}
-        // Removed validation rules to make field optional
+        rules={{
+          validate: {
+            required: (value) => {
+              if (isMunicipalityDisabled || !selectedProvince) return true;
+              return !!value || "City/Municipality is required";
+            },
+          },
+        }}
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
             <CustomFormLabel className={formLabelClassName}>
@@ -201,7 +214,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             </CustomFormLabel>
             <FormControl>
               <Select
-                value={selectedMunicipality || undefined}
+                value={selectedMunicipality}
                 onValueChange={(value: string) => {
                   const selectedMun = municipalities.find(
                     (m) => m.id === value
@@ -226,14 +239,14 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {isSubmitted && fieldState.error && (
+            {isSubmitted && selectedProvince && fieldState.error && (
               <FormMessage>{fieldState.error.message}</FormMessage>
             )}
           </FormItem>
         )}
       />
 
-      {/* Barangay Field - Made Optional */}
+      {/* Barangay Field (if applicable) */}
       {showBarangay && (
         <FormField
           control={control}
@@ -245,7 +258,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               </CustomFormLabel>
               <FormControl>
                 <Select
-                  value={selectedBarangay || undefined}
+                  value={selectedBarangay}
                   onValueChange={(value: string) => {
                     field.onChange(value);
                     handleBarangayChange(value);
@@ -253,7 +266,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   }}
                   disabled={!selectedMunicipality}
                 >
-                  <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
+                  <SelectTrigger
+                    ref={field.ref}
+                    className={selectTriggerClasses}
+                  >
                     <SelectValue placeholder={barangayPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>

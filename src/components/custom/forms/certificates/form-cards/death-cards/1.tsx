@@ -489,11 +489,11 @@ const DeceasedInformationCard: React.FC = () => {
               {/* Location Selector is shown in both cases */}
 
               <LocationSelectorNew
-                countryFieldName="placeOfDeath.country"
-                provinceFieldName="placeOfDeath.province"
-                municipalityFieldName="placeOfDeath.cityMunicipality"
-                barangayFieldName="placeOfDeath.barangay"
-                internationalAddressFieldName="placeOfDeath.internationalAddress"
+                countryFieldName2="placeOfDeath.country"
+                provinceFieldName2="placeOfDeath.province"
+                municipalityFieldName2="placeOfDeath.cityMunicipality"
+                barangayFieldName2="placeOfDeath.barangay"
+                internationalAddressFieldName2="placeOfDeath.internationalAddress"
                 countryLabel="Country"
                 provinceLabel="Province"
                 municipalityLabel="City/Municipality"
@@ -646,11 +646,11 @@ const DeceasedInformationCard: React.FC = () => {
 
             {/* Location Selector is shown in both cases */}
             <LocationSelectorNew
-              countryFieldName="placeOfDeath.country"
-              provinceFieldName="placeOfDeath.province"
-              municipalityFieldName="placeOfDeath.cityMunicipality"
-              barangayFieldName="placeOfDeath.barangay"
-              internationalAddressFieldName="placeOfDeath.internationalAddress"
+              countryFieldName2="placeOfDeath.country"
+              provinceFieldName2="placeOfDeath.province"
+              municipalityFieldName2="placeOfDeath.cityMunicipality"
+              barangayFieldName2="placeOfDeath.barangay"
+              internationalAddressFieldName2="placeOfDeath.internationalAddress"
               countryLabel="Country"
               provinceLabel="Province"
               municipalityLabel="City/Municipality"

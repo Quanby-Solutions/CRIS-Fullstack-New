@@ -178,25 +178,32 @@ export const mapToMarriageCertificateValues = (
                 : '', // Always a string
             barangay: addressObj.barangay
                 ? ensureString(addressObj.barangay?.value ?? addressObj.barangay)
-                : undefined,
+                : '',
             cityMunicipality: addressObj.cityMunicipality
                 ? ensureString(addressObj.cityMunicipality?.value ?? addressObj.cityMunicipality)
                 : '', // Always a string
             houseNo: addressObj.houseNo
                 ? ensureString(addressObj.houseNo?.value ?? addressObj.houseNo)
-                : undefined,
+                : '',
             street: addressObj.street
                 ? ensureString(addressObj.street?.value ?? addressObj.street)
-                : undefined,
+                : '',
             st: addressObj.st
                 ? ensureString(addressObj.st?.value ?? addressObj.st)
-                : undefined,
+                : '',
             country: addressObj.country
                 ? ensureString(addressObj.country?.value ?? addressObj.country)
-                : undefined,
+                : '',
             address: addressObj.address
                 ? ensureString(addressObj.address?.value ?? addressObj.address)
-                : undefined,
+                : '',
+            internationalAddress: addressObj.internationalAddress
+                ? ensureString(addressObj.internationalAddress?.value ?? addressObj.internationalAddress)
+                : '',
+            residence: addressObj.residence
+                ? ensureString(addressObj.residence?.value ?? addressObj.residence)
+                : ''
+
         };
     };
 
@@ -328,12 +335,12 @@ export const mapToMarriageCertificateValues = (
             }))
             : [{ name: '', signature: '' }, { name: '', signature: '' }],
 
-        preparedBy: {
-            // signature: ensureString(marriageForm.preparedByOffice?.signature),
-            nameInPrint: ensureString(form.preparedByName),
-            titleOrPosition: ensureString(form.preparedByPosition),
-            date: parseDateSafely(form.preparedByDate),
-        },
+        // preparedBy: {
+        //     // signature: ensureString(marriageForm.preparedByOffice?.signature),
+        //     nameInPrint: ensureString(form.preparedByName),
+        //     titleOrPosition: ensureString(form.preparedByPosition),
+        //     date: parseDateSafely(form.preparedByDate),
+        // },
 
         receivedBy: {
             // signature: ensureString(marriageForm.receivedByOffice?.signature),

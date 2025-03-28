@@ -3,6 +3,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function updateMarriageCertificateForm(
@@ -66,7 +67,16 @@ export async function updateMarriageCertificateForm(
                 husbandLastName: data.husbandName?.last,
                 husbandDateOfBirth: data.husbandBirth,
                 husbandAge: data.husbandAge,
-                husbandPlaceOfBirth: data.husbandPlaceOfBirth,
+                husbandPlaceOfBirth: {
+                    barangay: data.husbandPlaceOfBirth?.barangay,
+                    houseNo: data.husbandPlaceOfBirth?.houseNo,
+                    street: data.husbandPlaceOfBirth?.street,
+                    cityMunicipality: data.husbandPlaceOfBirth?.cityMunicipality,
+                    province: data.husbandPlaceOfBirth?.province,
+                    country: data.husbandPlaceOfBirth?.country,
+                    internationalAddress: data.husbandPlaceOfBirth?.internationalAddress,
+                    residence: data.husbandPlaceOfBirth?.residence,
+                },
                 husbandSex: data.husbandSex,
                 husbandCitizenship: data.husbandCitizenship,
                 husbandResidence: data.husbandResidence,
@@ -76,14 +86,31 @@ export async function updateMarriageCertificateForm(
                 husbandFatherCitizenship: data.husbandParents?.fatherCitizenship,
                 husbandMotherMaidenName: data.husbandParents?.motherName,
                 husbandMotherCitizenship: data.husbandParents?.motherCitizenship,
-                husbandConsentPerson: data.husbandConsentPerson,
-
+                husbandConsentPerson: {
+                    residence: {
+                        barangay: data.husbandConsentPerson?.residence?.barangay,
+                        houseNo: data.husbandConsentPerson?.residence?.houseNo,
+                        street: data.husbandConsentPerson?.residence?.street,
+                        cityMunicipality: data.husbandConsentPerson?.residence?.cityMunicipality,
+                        province: data.husbandConsentPerson?.residence?.province,
+                        country: data.husbandConsentPerson?.residence?.country,
+                    },
+                },
                 wifeFirstName: data.wifeName?.first,
                 wifeMiddleName: data.wifeName?.middle,
                 wifeLastName: data.wifeName?.last,
                 wifeDateOfBirth: data.wifeBirth,
                 wifeAge: data.wifeAge,
-                wifePlaceOfBirth: data.wifePlaceOfBirth,
+                wifePlaceOfBirth: {
+                    barangay: data.wifePlaceOfBirth?.barangay,
+                    houseNo: data.wifePlaceOfBirth?.houseNo,
+                    street: data.wifePlaceOfBirth?.street,
+                    cityMunicipality: data.wifePlaceOfBirth?.cityMunicipality,
+                    province: data.wifePlaceOfBirth?.province,
+                    country: data.wifePlaceOfBirth?.country,
+                    internationalAddress: data.wifePlaceOfBirth?.internationalAddress,
+                    residence: data.wifePlaceOfBirth?.residence,
+                },
                 wifeSex: data.wifeSex,
                 wifeCitizenship: data.wifeCitizenship,
                 wifeResidence: data.wifeResidence,
@@ -93,9 +120,24 @@ export async function updateMarriageCertificateForm(
                 wifeFatherCitizenship: data.wifeParents?.fatherCitizenship,
                 wifeMotherMaidenName: data.wifeParents?.motherName,
                 wifeMotherCitizenship: data.wifeParents?.motherCitizenship,
-                wifeConsentPerson: data.wifeConsentPerson,
-
-                placeOfMarriage: data.placeOfMarriage,
+                wifeConsentPerson: {
+                    residence: {
+                        barangay: data.wifeConsentPerson?.residence?.barangay,
+                        houseNo: data.wifeConsentPerson?.residence?.houseNo,
+                        street: data.wifeConsentPerson?.residence?.street,
+                        cityMunicipality: data.wifeConsentPerson?.residence?.cityMunicipality,
+                        province: data.wifeConsentPerson?.residence?.province,
+                        country: data.wifeConsentPerson?.residence?.country,
+                    },
+                },
+                placeOfMarriage: {
+                    barangay: data.placeOfMarriage?.barangay,
+                    houseNo: data.placeOfMarriage?.houseNo,
+                    street: data.placeOfMarriage?.street,
+                    cityMunicipality: data.placeOfMarriage?.cityMunicipality,
+                    province: data.placeOfMarriage?.province,
+                    country: data.placeOfMarriage?.country,
+                },
                 dateOfMarriage: data.dateOfMarriage,
                 timeOfMarriage: data.timeOfMarriage,
                 contractDay: data.contractDay,

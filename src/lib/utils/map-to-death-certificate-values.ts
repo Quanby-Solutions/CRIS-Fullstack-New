@@ -75,33 +75,43 @@ export const mapToDeathCertificateValues = (
   // Helper to create address object
   const createAddressObject = (addressObj?: any) => {
     if (!addressObj || typeof addressObj !== 'object') {
-      return { cityMunicipality: '', province: '', barangay: '', houseNo: '', street: '', st: '', country: '' };
+      return {
+        locationType: '',
+        province: '',
+        barangay: '',
+        cityMunicipality: '',
+        houseNo: '',
+        st: '',
+        hospitalInstitution: '',
+        internationalAddress: ''
+      };
     }
 
     const ensureString = (value: any) => (typeof value === 'string' ? value : value?.toString() ?? '');
 
     return {
+      locationType: ensureString(addressObj.locationType?.value ?? addressObj.locationType ?? 'Hospital'),
       province: addressObj.province
         ? ensureString(addressObj.province?.value ?? addressObj.province)
-        : '', // Always a string
+        : undefined,
       barangay: addressObj.barangay
         ? ensureString(addressObj.barangay?.value ?? addressObj.barangay)
         : undefined,
       cityMunicipality: addressObj.cityMunicipality
         ? ensureString(addressObj.cityMunicipality?.value ?? addressObj.cityMunicipality)
-        : '', // Always a string
+        : undefined,
       houseNo: addressObj.houseNo
         ? ensureString(addressObj.houseNo?.value ?? addressObj.houseNo)
-        : undefined,
-      street: addressObj.street
-        ? ensureString(addressObj.street?.value ?? addressObj.street)
         : undefined,
       st: addressObj.st
         ? ensureString(addressObj.st?.value ?? addressObj.st)
         : undefined,
-      country: addressObj.country
-        ? ensureString(addressObj.country?.value ?? addressObj.country)
+      hospitalInstitution: addressObj.hospitalInstitution
+        ? ensureString(addressObj.hospitalInstitution?.value ?? addressObj.hospitalInstitution)
         : undefined,
+      internationalAddress: addressObj.internationalAddress
+        ? ensureString(addressObj.internationalAddress?.value ?? addressObj.internationalAddress)
+        : undefined
     };
   };
   // Validate sex
@@ -185,7 +195,7 @@ export const mapToDeathCertificateValues = (
       days: '',
       hours: '',
     },
-    placeOfDeath: createAddressObject(deathForm.placeOfDeath),
+    placeOfDeath: createAddressObject(deathForm?.placeOfDeath),
     civilStatus: validateCivilStatus(deathForm.civilStatus) || 'Single',
     religion: ensureString(deathForm.religion),
     citizenship: ensureString(deathForm.citizenship),
@@ -286,9 +296,8 @@ export const mapToDeathCertificateValues = (
       hasAttended: Boolean(deathForm.certificationOfDeath?.hasAttended),
       nameInPrint: ensureString(deathForm.certificationOfDeath?.nameInPrint),
       titleOfPosition: ensureString(deathForm.certificationOfDeath?.titleOfPosition),
-      address: createAddressObject(deathForm.certificationOfDeath?.address),
+      address: ensureString(deathForm.certificationOfDeath?.address),
       date: parseDateSafely(deathForm.certificationOfDeath?.date),
-      healthOfficerNameInPrint: ensureString(deathForm.certificationOfDeath?.healthOfficerNameInPrint),
     },
 
     // Review Information
@@ -348,7 +357,7 @@ export const mapToDeathCertificateValues = (
     informant: {
       nameInPrint: ensureString(deathForm.informant?.nameInPrint),
       relationshipToDeceased: ensureString(deathForm.informant?.relationshipToDeceased),
-      address: createAddressObject(deathForm.informant?.address),
+      address: ensureString(deathForm.informant?.address),
       date: parseDateSafely(deathForm.informant?.date),
     },
 
@@ -412,7 +421,11 @@ export const mapToDeathCertificateValues = (
       reasonForDelay: ensureString(deathForm.delayedRegistration?.reasonForDelay),
       affidavitDate: parseDateSafely(deathForm.delayedRegistration?.affidavitDate),
       affidavitDatePlace: ensureString(deathForm.delayedRegistration?.affidavitDatePlace),
-      adminOfficer: ensureString(deathForm.delayedRegistration?.adminOfficer),
+      adminOfficer: {
+        name: ensureString(deathForm.delayedRegistration?.adminOfficer?.name),
+        address: ensureString(deathForm.delayedRegistration?.adminOfficer?.address),
+        position: ensureString(deathForm.delayedRegistration?.adminOfficer?.position),
+      },
       ctcInfo: {
         number: ensureString(deathForm.delayedRegistration?.ctcInfo?.number),
         issuedOn: parseDateSafely(deathForm.delayedRegistration?.ctcInfo?.issuedOn),
@@ -447,7 +460,11 @@ export const mapToDeathCertificateValues = (
       reasonForDelay: '',
       affidavitDate: undefined,
       affidavitDatePlace: '',
-      adminOfficer: '',
+      adminOfficer: {
+        name: '',
+        address: '',
+        position: '',
+      },
       ctcInfo: {
         number: '',
         issuedOn: undefined,

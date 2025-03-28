@@ -1162,7 +1162,7 @@ const generateDeathCertificate = (
           'Parent',
           'Other Relative',
         ]),
-        address: generatePhLocation(),
+        address: faker.location.streetAddress(),
         date: randomDate(
           deathDate,
           new Date(deathDate.getTime() + 86400000 * 3)

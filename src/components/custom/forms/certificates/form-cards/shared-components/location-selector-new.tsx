@@ -22,26 +22,32 @@ import { LocationSelectorProps } from "@/lib/types/location-selector";
 import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { countries } from "@/lib/countries";
+import { useLocationSelector2 } from "@/hooks/use-location-selector2";
 
 // Extended props interface with additional properties
 interface ExtendedLocationSelectorProps extends LocationSelectorProps {
-  countryFieldName?: string;
+  countryFieldName2?: string;
   countryLabel?: string;
   countryPlaceholder?: string;
   onCountryChange?: (country: string) => void;
   defaultCountry?: string;
   // New field for international address
-  internationalAddressFieldName?: string;
+  internationalAddressFieldName2?: string;
   internationalAddressLabel?: string;
   internationalAddressPlaceholder?: string;
+  provinceFieldName2?: string;
+  municipalityFieldName2?: string;
+  barangayFieldName2?: string;
+  showBarangay?: boolean;
+  isNCRMode?: boolean;
 }
 
 const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
-  provinceFieldName = "province",
-  municipalityFieldName = "cityMunicipality",
-  barangayFieldName = "barangay",
-  countryFieldName = "country",
-  internationalAddressFieldName = "internationalAddress",
+  provinceFieldName2 = "province2",
+  municipalityFieldName2 = "cityMunicipality2",
+  barangayFieldName2 = "barangay2",
+  countryFieldName2 = "country2",
+  internationalAddressFieldName2 = "internationalAddress2",
   provinceLabel = "Province",
   municipalityLabel = "City/Municipality",
   barangayLabel = "Barangay",
@@ -76,7 +82,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
 
   // State to track selected country
   const [selectedCountry, setSelectedCountry] = useState<string>(
-    getValues(countryFieldName) || defaultCountry
+    getValues(countryFieldName2) || defaultCountry
   );
 
   // Check if Philippines is selected
@@ -92,10 +98,10 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
     handleProvinceChange,
     handleMunicipalityChange,
     handleBarangayChange,
-  } = useLocationSelector({
-    provinceFieldName,
-    municipalityFieldName,
-    barangayFieldName,
+  } = useLocationSelector2({
+    provinceFieldName2,
+    municipalityFieldName2,
+    barangayFieldName2,
     isNCRMode,
     showBarangay,
     setValue,
@@ -107,7 +113,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
 
   // State to track initial municipality value and loading status
   const [initialMunicipalityValue] = useState(
-    getValues(municipalityFieldName) || ""
+    getValues(municipalityFieldName2) || ""
   );
   const [
     isInitialMunicipalityLoadComplete,
@@ -142,7 +148,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
   ]);
 
   // State to track initial barangay value and loading status
-  const [initialBarangayValue] = useState(getValues(barangayFieldName) || "");
+  const [initialBarangayValue] = useState(getValues(barangayFieldName2) || "");
   const [isInitialBarangayLoadComplete, setIsInitialBarangayLoadComplete] =
     useState(false);
 
@@ -175,7 +181,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
   const handleCountryChange = (value: string) => {
     if (value === "Other") {
       setIsCustomCountry(true);
-      setValue(countryFieldName, "");
+      setValue(countryFieldName2, "");
     } else {
       setIsCustomCountry(false);
       setSelectedCountry(value);
@@ -183,14 +189,14 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
       // Clear fields based on country selection
       if (value !== "Philippines") {
         // Clear Philippine-specific fields
-        setValue(provinceFieldName, "");
-        setValue(municipalityFieldName, "");
+        setValue(provinceFieldName2, "");
+        setValue(municipalityFieldName2, "");
         if (showBarangay) {
-          setValue(barangayFieldName, "");
+          setValue(barangayFieldName2, "");
         }
       } else {
         // Clear international address field
-        setValue(internationalAddressFieldName, "");
+        setValue(internationalAddressFieldName2, "");
       }
 
       // Call the onCountryChange callback if provided
@@ -221,7 +227,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
       {/* Country Field with Other option */}
       <FormField
         control={control}
-        name={countryFieldName}
+        name={countryFieldName2}
         render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
             <CustomFormLabel className={formLabelClassName}>
@@ -234,7 +240,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
                   onValueChange={(value: string) => {
                     field.onChange(value);
                     handleCountryChange(value);
-                    trigger(countryFieldName);
+                    trigger(countryFieldName2);
                   }}
                 >
                   <SelectTrigger
@@ -271,7 +277,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
                     size="icon"
                     onClick={() => {
                       setIsCustomCountry(false);
-                      setValue(countryFieldName, "Philippines");
+                      setValue(countryFieldName2, "Philippines");
                       setSelectedCountry("Philippines");
                     }}
                     className="h-10 w-10"
@@ -294,7 +300,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
           {/* Province/Region Field */}
           <FormField
             control={control}
-            name={provinceFieldName}
+            name={provinceFieldName2}
             render={({ field, fieldState }) => (
               <FormItem className={formItemClassName}>
                 <CustomFormLabel className={formLabelClassName}>
@@ -306,7 +312,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
                     onValueChange={(value: string) => {
                       field.onChange(value);
                       handleProvinceChange(value);
-                      trigger(provinceFieldName);
+                      trigger(provinceFieldName2);
                     }}
                     disabled={isNCRMode}
                   >
@@ -339,7 +345,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
           {/* Municipality/City Field */}
           <Controller
             control={control}
-            name={municipalityFieldName}
+            name={municipalityFieldName2}
             render={({ field, fieldState }) => (
               <FormItem className={formItemClassName}>
                 <CustomFormLabel className={formLabelClassName}>
@@ -355,7 +361,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
                       if (selectedMun) {
                         field.onChange(selectedMun.displayName);
                         handleMunicipalityChange(value);
-                        clearErrors(municipalityFieldName);
+                        clearErrors(municipalityFieldName2);
                       }
                     }}
                     disabled={isMunicipalityDisabled}
@@ -386,7 +392,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
           {showBarangay && (
             <FormField
               control={control}
-              name={barangayFieldName}
+              name={barangayFieldName2}
               render={({ field, fieldState }) => (
                 <FormItem className={formItemClassName}>
                   <CustomFormLabel className={formLabelClassName}>
@@ -398,7 +404,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
                       onValueChange={(value: string) => {
                         field.onChange(value);
                         handleBarangayChange(value);
-                        trigger(barangayFieldName);
+                        trigger(barangayFieldName2);
                       }}
                       disabled={!selectedMunicipality}
                     >
@@ -429,7 +435,7 @@ const LocationSelectorNew: React.FC<ExtendedLocationSelectorProps> = ({
         // International Address Format (Single Input for Complete Address)
         <FormField
           control={control}
-          name={internationalAddressFieldName}
+          name={internationalAddressFieldName2}
           render={({ field, fieldState }) => (
             <FormItem className={formItemClassName}>
               <CustomFormLabel className={formLabelClassName}>

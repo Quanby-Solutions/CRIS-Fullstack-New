@@ -284,11 +284,11 @@ const HusbandInfoCard: React.FC = () => {
           {/* Place of Birth */}
 
           <LocationSelectorNew
-            countryFieldName="husbandPlaceOfBirth.country"
-            provinceFieldName="husbandPlaceOfBirth.province"
-            municipalityFieldName="husbandPlaceOfBirth.cityMunicipality"
-            barangayFieldName="husbandPlaceOfBirth.barangay"
-            internationalAddressFieldName="husbandPlaceOfBirth.internationalAddress"
+            countryFieldName2="husbandPlaceOfBirth.country"
+            provinceFieldName2="husbandPlaceOfBirth.province"
+            municipalityFieldName2="husbandPlaceOfBirth.cityMunicipality"
+            barangayFieldName2="husbandPlaceOfBirth.barangay"
+            internationalAddressFieldName2="husbandPlaceOfBirth.internationalAddress"
             provinceLabel="Province"
             municipalityLabel="City/Municipality"
             barangayLabel="Barangay"

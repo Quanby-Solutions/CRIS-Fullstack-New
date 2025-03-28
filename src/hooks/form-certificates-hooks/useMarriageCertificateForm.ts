@@ -57,7 +57,9 @@ const emptyDefaults: MarriageCertificateFormValues = {
         barangay: '',
         cityMunicipality: '',
         province: '',
-        country: ''
+        country: '',
+        internationalAddress: '',
+        residence: ''
     },
     husbandSex: 'Male',
     husbandCitizenship: '',
@@ -109,7 +111,9 @@ const emptyDefaults: MarriageCertificateFormValues = {
         barangay: '',
         cityMunicipality: '',
         province: '',
-        country: ''
+        country: '',
+        internationalAddress: '',
+        residence: ''
     },
     wifeSex: 'Female',
     wifeCitizenship: '',
