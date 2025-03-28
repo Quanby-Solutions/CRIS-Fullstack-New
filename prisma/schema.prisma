@@ -176,7 +176,7 @@ model BaseRegistryFormDocument {
   id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseRegistryFormId String           @db.Uuid
   documentId         String           @db.Uuid
-  baseRegistryForm   BaseRegistryForm @relation(fields: [baseRegistryFormId], references: [id])
+  baseRegistryForm   BaseRegistryForm @relation(fields: [baseRegistryFormId], references: [id], onDelete: Cascade)
   document           Document         @relation(fields: [documentId], references: [id])
 
   @@map("base_registry_form_document")
@@ -224,7 +224,6 @@ model MarriageCertificateForm {
   wifeConsentPerson           Json?
   wifeContractParty           Json
 
-
   remarks                     String?
 
   placeOfMarriage             Json
@@ -244,7 +243,7 @@ model MarriageCertificateForm {
 
   affidavitOfSolemnizingOfficer Json?
   affidavitOfdelayedRegistration Json?
-  baseForm                    BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
+  baseForm                    BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([husbandLastName, husbandFirstName])
   @@index([wifeLastName, wifeFirstName])
@@ -290,7 +289,7 @@ model BirthCertificateForm {
   affidavitOfDelayedRegistration Json?
   isDelayedRegistration          Boolean           @default(false)
   reasonForDelay                 String?
-  baseForm                       BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
+  baseForm                       BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfBirth])
   @@map("birth_certificate_form")
@@ -305,7 +304,7 @@ model DeathCertificateForm {
 
   // Deceased Information
   deceasedName Json // nameSchema structure (first, middle, last)
-  sex          Sex?// Enum: Male, Female
+  sex          Sex? // Enum: Male, Female
   dateOfDeath  DateTime?
   timeOfDeath  DateTime?
   dateOfBirth  DateTime?
@@ -355,7 +354,7 @@ model DeathCertificateForm {
   remarks String? // Additional remarks or annotations
 
   // Relationships
-  baseForm BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
+  baseForm BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfDeath])
   @@map("death_certificate_form")
@@ -895,5 +894,5 @@ enum Sex {
 
 // pnpm prisma db push --force-reset
 // pnpm prisma generate                       # for generate the Prisma Client with new models
-// pnpm prisma migrate dev --name NAME_HERE   # for ceate and run the migration
+// pnpm prisma migrate dev --name NAME_HERE   # for create and run the migration
 // pnpm prisma db seed                        # for seeding our seed and seed-data
