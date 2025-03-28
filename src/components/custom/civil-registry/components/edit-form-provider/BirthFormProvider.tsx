@@ -251,9 +251,9 @@ export function EditBirthCivilRegistryFormInline({
     const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth;
     const typeOfBirth: 'Single' | 'Twin' | 'Triplet' | 'Others' =
       rawTypeOfBirth === 'Single' ||
-      rawTypeOfBirth === 'Twin' ||
-      rawTypeOfBirth === 'Triplet' ||
-      rawTypeOfBirth === 'Others'
+        rawTypeOfBirth === 'Twin' ||
+        rawTypeOfBirth === 'Triplet' ||
+        rawTypeOfBirth === 'Others'
         ? rawTypeOfBirth
         : 'Single';
 
@@ -289,8 +289,8 @@ export function EditBirthCivilRegistryFormInline({
           typeof rawMotherResidence.street === 'string'
             ? rawMotherResidence.street
             : typeof rawMotherResidence.st === 'string'
-            ? rawMotherResidence.st
-            : '',
+              ? rawMotherResidence.st
+              : '',
         barangay:
           typeof rawMotherResidence.barangay === 'string'
             ? rawMotherResidence.barangay
@@ -335,8 +335,8 @@ export function EditBirthCivilRegistryFormInline({
           typeof rawFatherResidence.street === 'string'
             ? rawFatherResidence.street
             : typeof rawFatherResidence.st === 'string'
-            ? rawFatherResidence.st
-            : '',
+              ? rawFatherResidence.st
+              : '',
         barangay:
           typeof rawFatherResidence.barangay === 'string'
             ? rawFatherResidence.barangay
@@ -534,15 +534,15 @@ export function EditBirthCivilRegistryFormInline({
         date?: string;
         name?: string;
         address?:
-          | string
-          | {
-              province: string;
-              cityMunicipality: string;
-              country: string;
-              houseNo?: string;
-              st?: string;
-              barangay?: string;
-            };
+        | string
+        | {
+          province: string;
+          cityMunicipality: string;
+          country: string;
+          houseNo?: string;
+          st?: string;
+          barangay?: string;
+        };
         signature?: string;
         relationship?: string;
       };
@@ -553,16 +553,16 @@ export function EditBirthCivilRegistryFormInline({
         address:
           typeof inf.address === 'string'
             ? {
-                province: '',
-                cityMunicipality: '',
-                country: '',
-                houseNo: inf.address,
-              }
+              province: '',
+              cityMunicipality: '',
+              country: '',
+              houseNo: inf.address,
+            }
             : inf.address || {
-                province: '',
-                cityMunicipality: '',
-                country: '',
-              },
+              province: '',
+              cityMunicipality: '',
+              country: '',
+            },
         relationship:
           typeof inf.relationship === 'string' ? inf.relationship : '',
       };
@@ -742,13 +742,51 @@ export function EditBirthCivilRegistryFormInline({
       },
 
       // Parent marriage information
-      parentMarriage: parentMarriage,
+      parentMarriage: {
+        date: parentMarriage?.date || '',
+        place: {
+          houseNo: parentMarriage?.place.houseNo || '',
+          st: parentMarriage?.place.st || '',
+          barangay: parentMarriage?.place.barangay || '',
+          cityMunicipality: parentMarriage?.place.cityMunicipality || '',
+          province: parentMarriage?.place.province || '',
+          country: parentMarriage?.place.country || ''
+        }
+      },
 
       // Attendant information
-      attendant: attendant,
+      attendant: {
+        type: attendant.type,
+        certification: {
+          time: parseDateSafely(attendant.certification.time),
+          name: attendant.certification.name,
+          title: attendant.certification.title,
+          date: parseDateSafely(attendant.certification.date),
+          address: {
+            st: attendant.certification.address.st,
+            country: attendant.certification.address.country,
+            houseNo: attendant.certification.address.houseNo,
+            barangay: attendant.certification.address.barangay,
+            province: attendant.certification.address.province,
+            cityMunicipality: attendant.certification.address.cityMunicipality   
+          },
+        }
+      },
 
       // Informant information
-      informant: informant,
+      informant:{
+        name: informant.name,
+        relationship: informant.relationship,
+        address: {
+          houseNo: informant.address.houseNo,
+          st: informant.address.st,
+          barangay: informant.address.barangay,
+          cityMunicipality: informant.address.cityMunicipality,
+          province: informant.address.province,
+          country: informant.address.country
+        },
+        date: informant.date,
+      },
 
       preparedBy: preparedBy,
 
@@ -764,7 +802,30 @@ export function EditBirthCivilRegistryFormInline({
       },
 
       hasAffidavitOfPaternity: form.birthCertificateForm?.hasAffidavitOfPaternity,
-      affidavitOfPaternityDetails: affidavitOfPaternityDetails,
+      affidavitOfPaternityDetails: {
+        father: {
+          name: affidavitOfPaternityDetails?.father?.name || ''
+        },
+        mother: {
+          name:affidavitOfPaternityDetails?.mother?.name || ''
+        },
+        adminOfficer: {
+          nameInPrint: affidavitOfPaternityDetails?.adminOfficer?.nameInPrint || '',
+          titleOrPosition: affidavitOfPaternityDetails?.adminOfficer?.titleOrPosition || '',
+          address: {
+            country: affidavitOfPaternityDetails?.adminOfficer?.address?.country || '',
+            barangay: affidavitOfPaternityDetails?.adminOfficer?.address?.barangay || '',
+            province: affidavitOfPaternityDetails?.adminOfficer?.address?.province || '',
+            cityMunicipality: affidavitOfPaternityDetails?.adminOfficer?.address?.cityMunicipality || ''
+          }
+        },
+        ctcInfo: {
+          number: affidavitOfPaternityDetails?.ctcInfo?.number || '',
+          dateIssued: parseDateSafely(affidavitOfPaternityDetails?.ctcInfo?.dateIssued) || '',
+          placeIssued: affidavitOfPaternityDetails?.ctcInfo?.placeIssued || ''
+        }
+      },
+      
 
       isDelayedRegistration: form.birthCertificateForm?.isDelayedRegistration,
       affidavitOfDelayedRegistration: affidavitOfDelayedRegistration,
@@ -790,6 +851,82 @@ export function EditBirthCivilRegistryFormInline({
         !Array.isArray(form.birthCertificateForm?.fatherResidence))
         ? form.birthCertificateForm?.fatherResidence as Record<string, string>
         : {};
+        const originalParentMarriage = (() => {
+          const pm = form.birthCertificateForm?.parentMarriage;
+          if (
+            typeof pm === 'object' &&
+            pm !== null &&
+            !Array.isArray(pm) &&
+            'place' in pm &&
+            typeof pm.place === 'object' &&
+            pm.place !== null &&
+            !Array.isArray(pm.place)
+          ) {
+            return pm.place as Record<string, string>;
+          }
+          return {};
+        }
+        
+      )();
+        
+      const originalAttendantAddress = (() => {
+        const att = form.birthCertificateForm?.attendant;
+        if (
+          typeof att === 'object' &&
+          att !== null &&
+          !Array.isArray(att) &&
+          'certification' in att &&
+          typeof att.certification === 'object' &&
+          att.certification !== null &&
+          !Array.isArray(att.certification) &&
+          'address' in att.certification &&
+          typeof att.certification.address === 'object' &&
+          att.certification.address !== null &&
+          !Array.isArray(att.certification.address)
+        ) {
+          return att.certification.address as Record<string, string>;
+        }
+        return {};
+      })();
+      
+      const originalInformantAddress = (() => {
+        const inf = form.birthCertificateForm?.informant;
+        if (
+          typeof inf === 'object' &&
+          inf !== null &&
+          !Array.isArray(inf) &&
+          'address' in inf &&
+          typeof inf.address === 'object' &&
+          inf.address !== null &&
+          !Array.isArray(inf.address)
+        ) {
+          return inf.address as Record<string, string>;
+        }
+        return {};
+      })();
+
+
+      const originalAdminOfficerAddress = (() => {
+        const details = form.birthCertificateForm?.affidavitOfPaternityDetails;
+        if (
+          typeof details === 'object' &&
+          details !== null &&
+          !Array.isArray(details) &&
+          'adminOfficer' in details &&
+          typeof details.adminOfficer === 'object' &&
+          details.adminOfficer !== null &&
+          !Array.isArray(details.adminOfficer) &&
+          'address' in details.adminOfficer &&
+          typeof details.adminOfficer.address === 'object' &&
+          details.adminOfficer.address !== null &&
+          !Array.isArray(details.adminOfficer.address)
+        ) {
+          return details.adminOfficer.address as Record<string, string>;
+        }
+        return {};
+      })();
+      
+      
 
     const updatedForm = {
       id: form.id,
@@ -847,12 +984,64 @@ export function EditBirthCivilRegistryFormInline({
           data.fatherInfo!.residence as Record<string, string>
         ),
       },
-      parentMarriage: data.parentMarriage,
-      attendant: data.attendant,
-      informant: data.informant,
+      parentMarriage: {
+        date: data.parentMarriage?.date || '',
+        place: mergeResidence(
+          originalParentMarriage,
+          data.parentMarriage?.place as Record<string, string>
+        ),
+      },
+      attendant: {
+        type: data.attendant.type,
+        certification: {
+          time: data.attendant.certification.time,
+          name: data.attendant.certification.name,
+          title: data.attendant.certification.title,
+          date: data.attendant.certification.date,
+          address: mergeResidence(
+            originalAttendantAddress,
+            data.attendant.certification?.address as Record<string, string>
+          ),
+        }
+      },
+
+      informant:{
+        name: data.informant.name,
+        relationship: data.informant.relationship,
+        address: mergeResidence(
+          originalInformantAddress,
+          data.informant.address as Record<string, string>
+        ),
+        date: data.informant.date,
+      },
+
       preparedBy: data.preparedBy,
       hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
-      affidavitOfPaternityDetails: data.affidavitOfPaternityDetails,
+      
+      
+      affidavitOfPaternityDetails: {
+        father: {
+          name: data.affidavitOfPaternityDetails?.father?.name || ''
+        },
+        mother: {
+          name: data.affidavitOfPaternityDetails?.mother?.name || ''
+        },
+        adminOfficer: {
+          nameInPrint: data.affidavitOfPaternityDetails?.adminOfficer?.nameInPrint || '',
+          titleOrPosition: data.affidavitOfPaternityDetails?.adminOfficer?.titleOrPosition || '',
+          address:  mergeResidence(
+            originalAdminOfficerAddress,
+            data.affidavitOfPaternityDetails?.adminOfficer?.address as Record<string, string>
+          ),
+        },
+        ctcInfo: {
+          number: data.affidavitOfPaternityDetails?.ctcInfo?.number || '',
+          dateIssued: data.affidavitOfPaternityDetails?.ctcInfo?.dateIssued || '',
+          placeIssued: data.affidavitOfPaternityDetails?.ctcInfo?.placeIssued || ''
+        }
+      },
+      
+
       isDelayedRegistration: data.isDelayedRegistration,
       affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
     };
@@ -886,7 +1075,7 @@ export function EditBirthCivilRegistryFormInline({
   };
 
   const { formMethods, handleError } = useBirthCertificateForm({
-    onOpenChange: () => {},
+    onOpenChange: () => { },
     defaultValues: initialData,
   });
 
