@@ -27,6 +27,7 @@ const locationSchema = z.object({
 
 
 const residenceSchemas = z.object({
+  
   st: z.string().optional(),
   barangay: z.string().optional(),
   cityMunicipality: z.string().optional(), // Reuse shared city/municipality schema

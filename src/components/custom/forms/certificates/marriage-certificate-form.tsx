@@ -113,6 +113,7 @@ export default function MarriageCertificateForm({
                       <div id="husband-parents-info-card">
                         <HusbandParentsInfoCard />
                       </div>
+                      
 
                       {/* Wife Information Section */}
                       <div id="wife-info-card">

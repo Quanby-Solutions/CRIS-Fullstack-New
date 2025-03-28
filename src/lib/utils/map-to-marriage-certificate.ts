@@ -484,6 +484,7 @@ export const mapToMarriageCertificateValues = (
     }
 
     return result;
+
 };
 
 

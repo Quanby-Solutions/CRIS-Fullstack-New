@@ -9,15 +9,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { MarriageCertificateFormValues } from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import LocationSelector from "../shared-components/location-selector";
-import NCRModeSwitch from "../shared-components/ncr-mode-switch";
+
 import TimePicker from "@/components/custom/time/time-picker";
+import PlaceOfMarriageCard from "./locations/place-of-marriage";
 
 const MarriageDetailsCard: React.FC = () => {
   const { control, getValues, setValue, watch } =
@@ -88,20 +87,26 @@ const MarriageDetailsCard: React.FC = () => {
     }
   }, [useFullAddressInput, fullAddress, province, cityMunicipality, setValue]);
 
+  // Clear the full address when switching to location selector mode
+  const handleAddressInputModeChange = (newValue: boolean) => {
+    setUseFullAddressInput(newValue);
+
+    // If turning OFF the single address input, clear the address field
+    if (!newValue) {
+      setValue("placeOfMarriage.address", "");
+    }
+  };
+
   return (
     <Card className="border dark:border-border">
       <CardHeader>
         <CardTitle>Marriage Details</CardTitle>
       </CardHeader>
       <CardContent className="p-6 space-y-4">
-        <div className="col-span-1 md:col-span-3">
-          <NCRModeSwitch isNCRMode={marriageNcr} setIsNCRMode={setNcrMode} />
-        </div>
-
         <div className="flex items-center space-x-2">
           <Switch
             checked={useFullAddressInput}
-            onCheckedChange={setUseFullAddressInput}
+            onCheckedChange={handleAddressInputModeChange}
             id="address-type-switch"
           />
           <FormLabel htmlFor="address-type-switch" className="cursor-pointer">
@@ -134,39 +139,8 @@ const MarriageDetailsCard: React.FC = () => {
             </div>
           ) : (
             /* Location Selector */
-            <LocationSelector
-              provinceFieldName="placeOfMarriage.province"
-              municipalityFieldName="placeOfMarriage.cityMunicipality"
-              barangayFieldName="placeOfMarriage.barangay"
-              provinceLabel="Province"
-              municipalityLabel="City/Municipality"
-              barangayLabel="Barangay"
-              isNCRMode={marriageNcr}
-              showBarangay={true}
-              provincePlaceholder="Select province"
-              municipalityPlaceholder="Select city/municipality"
-              barangayPlaceholder="Select barangay"
-            />
+            <PlaceOfMarriageCard  />
           )}
-
-          <FormField
-            control={control}
-            name="placeOfMarriage.country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <FormControl>
-                  <Input
-                    className="h-10"
-                    placeholder="Enter country"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           {/* Date of Marriage */}
           <FormField

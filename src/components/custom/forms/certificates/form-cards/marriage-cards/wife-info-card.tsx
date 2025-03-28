@@ -27,6 +27,7 @@ import LocationSelector from "../shared-components/location-selector";
 import NCRModeSwitch from "../shared-components/ncr-mode-switch";
 import LocationSelectorNew from "../shared-components/location-selector-new";
 import CivilStatus from "../shared-components/civil-status";
+import WifePlaceOfBirth from "./locations/wife-place-birth";
 
 const WifeInfoCard: React.FC = () => {
   const { control, setValue, getValues } =
@@ -263,76 +264,9 @@ const WifeInfoCard: React.FC = () => {
         <div className="col-span-3 py-4">
           <CardTitle>Place Of Birth</CardTitle>
         </div>
-        <div className="col-span-1 md:col-span-3">
-          <NCRModeSwitch isNCRMode={wifeNcrMode} setIsNCRMode={setNcrMode} />
-        </div>
         {/* Place of Birth */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-          {/* Place of Birth */}
-          <LocationSelectorNew
-            countryFieldName2="wifePlaceOfBirth.country"
-            provinceFieldName2="wifePlaceOfBirth.province"
-            municipalityFieldName2="wifePlaceOfBirth.cityMunicipality"
-            barangayFieldName2="wifePlaceOfBirth.barangay"
-            internationalAddressFieldName2="wifePlaceOfBirth.internationalAddress"
-            countryLabel="Country"
-            provinceLabel="Province"
-            municipalityLabel="City/Municipality"
-            barangayLabel="Barangay"
-            isNCRMode={wifeNcrMode}
-            showBarangay={true}
-            countryPlaceholder="Select country"
-            provincePlaceholder="Select province"
-            municipalityPlaceholder="Select city/municipality"
-            barangayPlaceholder="Select barangay"
-            internationalAddressPlaceholder="Enter complete address including street, city, province/state, and postal code"
-            defaultCountry="Philippines"
-            onCountryChange={(country) => {
-              // Optional: Add any additional logic you need when country changes
-              console.log("Country changed to:", country);
-            }}
-          />
-
-          {/* Residence */}
-
-          <FormField
-            control={control}
-            name="wifePlaceOfBirth.street"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Street (optional)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    className="h-10"
-                    placeholder="Enter complete address"
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="wifePlaceOfBirth.residence"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Residence</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    className="h-10"
-                    placeholder="Enter complete address"
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <WifePlaceOfBirth />
         </div>
       </CardContent>
     </Card>

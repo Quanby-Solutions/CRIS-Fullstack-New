@@ -79,7 +79,9 @@ const emptyDefaults: MarriageCertificateFormValues = {
             barangay: '',
             cityMunicipality: '',
             province: '',
-            country: ''
+            country: '',
+            internationalAddress: '',
+            residence: ''
         }
     },
     husbandParents: {
@@ -133,7 +135,9 @@ const emptyDefaults: MarriageCertificateFormValues = {
             barangay: '',
             cityMunicipality: '',
             province: '',
-            country: ''
+            country: '',
+            internationalAddress: '',
+            residence: ''
         }
     },
     wifeParents: {
@@ -153,12 +157,15 @@ const emptyDefaults: MarriageCertificateFormValues = {
 
     // Marriage Details
     placeOfMarriage: {
+        address: '',
         houseNo: '',
         street: '',
         barangay: '',
         cityMunicipality: '',
         province: '',
-        country: ''
+        country: '',
+        internationalAddress: '',
+        residence: ''
     },
     dateOfMarriage: undefined,
     timeOfMarriage: undefined,
@@ -251,7 +258,9 @@ const emptyDefaults: MarriageCertificateFormValues = {
                 barangay: '',
                 cityMunicipality: '',
                 province: '',
-                country: ''
+                country: '',
+                internationalAddress: '',
+                residence: ''
             }
         },
         dateSworn: {
@@ -262,7 +271,9 @@ const emptyDefaults: MarriageCertificateFormValues = {
                 barangay: '',
                 cityMunicipality: '',
                 province: '',
-                country: ''
+                country: '',
+                internationalAddress: '',
+                residence: ''
             },
             ctcInfo: {
                 number: '',
