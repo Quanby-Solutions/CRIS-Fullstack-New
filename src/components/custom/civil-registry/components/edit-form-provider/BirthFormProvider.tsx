@@ -802,7 +802,30 @@ export function EditBirthCivilRegistryFormInline({
       },
 
       hasAffidavitOfPaternity: form.birthCertificateForm?.hasAffidavitOfPaternity,
-      affidavitOfPaternityDetails: affidavitOfPaternityDetails,
+      affidavitOfPaternityDetails: {
+        father: {
+          name: affidavitOfPaternityDetails?.father?.name || ''
+        },
+        mother: {
+          name:affidavitOfPaternityDetails?.mother?.name || ''
+        },
+        adminOfficer: {
+          nameInPrint: affidavitOfPaternityDetails?.adminOfficer?.nameInPrint || '',
+          titleOrPosition: affidavitOfPaternityDetails?.adminOfficer?.titleOrPosition || '',
+          address: {
+            country: affidavitOfPaternityDetails?.adminOfficer?.address?.country || '',
+            barangay: affidavitOfPaternityDetails?.adminOfficer?.address?.barangay || '',
+            province: affidavitOfPaternityDetails?.adminOfficer?.address?.province || '',
+            cityMunicipality: affidavitOfPaternityDetails?.adminOfficer?.address?.cityMunicipality || ''
+          }
+        },
+        ctcInfo: {
+          number: affidavitOfPaternityDetails?.ctcInfo?.number || '',
+          dateIssued: parseDateSafely(affidavitOfPaternityDetails?.ctcInfo?.dateIssued) || '',
+          placeIssued: affidavitOfPaternityDetails?.ctcInfo?.placeIssued || ''
+        }
+      },
+      
 
       isDelayedRegistration: form.birthCertificateForm?.isDelayedRegistration,
       affidavitOfDelayedRegistration: affidavitOfDelayedRegistration,
@@ -881,6 +904,28 @@ export function EditBirthCivilRegistryFormInline({
         }
         return {};
       })();
+
+
+      const originalAdminOfficerAddress = (() => {
+        const details = form.birthCertificateForm?.affidavitOfPaternityDetails;
+        if (
+          typeof details === 'object' &&
+          details !== null &&
+          !Array.isArray(details) &&
+          'adminOfficer' in details &&
+          typeof details.adminOfficer === 'object' &&
+          details.adminOfficer !== null &&
+          !Array.isArray(details.adminOfficer) &&
+          'address' in details.adminOfficer &&
+          typeof details.adminOfficer.address === 'object' &&
+          details.adminOfficer.address !== null &&
+          !Array.isArray(details.adminOfficer.address)
+        ) {
+          return details.adminOfficer.address as Record<string, string>;
+        }
+        return {};
+      })();
+      
       
 
     const updatedForm = {
@@ -972,7 +1017,31 @@ export function EditBirthCivilRegistryFormInline({
 
       preparedBy: data.preparedBy,
       hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
-      affidavitOfPaternityDetails: data.affidavitOfPaternityDetails,
+      
+      
+      affidavitOfPaternityDetails: {
+        father: {
+          name: data.affidavitOfPaternityDetails?.father?.name || ''
+        },
+        mother: {
+          name: data.affidavitOfPaternityDetails?.mother?.name || ''
+        },
+        adminOfficer: {
+          nameInPrint: data.affidavitOfPaternityDetails?.adminOfficer?.nameInPrint || '',
+          titleOrPosition: data.affidavitOfPaternityDetails?.adminOfficer?.titleOrPosition || '',
+          address:  mergeResidence(
+            originalAdminOfficerAddress,
+            data.affidavitOfPaternityDetails?.adminOfficer?.address as Record<string, string>
+          ),
+        },
+        ctcInfo: {
+          number: data.affidavitOfPaternityDetails?.ctcInfo?.number || '',
+          dateIssued: data.affidavitOfPaternityDetails?.ctcInfo?.dateIssued || '',
+          placeIssued: data.affidavitOfPaternityDetails?.ctcInfo?.placeIssued || ''
+        }
+      },
+      
+
       isDelayedRegistration: data.isDelayedRegistration,
       affidavitOfDelayedRegistration: data.affidavitOfDelayedRegistration,
     };
