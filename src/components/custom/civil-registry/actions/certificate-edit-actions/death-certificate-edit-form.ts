@@ -117,7 +117,7 @@ export async function updateDeathCertificateForm(
                   date: formData.medicalCertificate.attendant.certification.date!,
                   name: formData.medicalCertificate.attendant.certification.name!,
                   title: formData.medicalCertificate.attendant.certification.title!,
-                  address: formData.medicalCertificate.attendant.certification.address as Prisma.JsonObject,
+                  address: formData.medicalCertificate.attendant.certification.address,
                 }
                 : null,
             }

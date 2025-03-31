@@ -14,10 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useFormContext } from "react-hook-form";
-import LocationSelector from "../shared-components/location-selector";
-import NCRModeSwitch from "../shared-components/ncr-mode-switch";
 
 const CertificationOfDeathCard: React.FC = () => {
   const { control, watch, setValue, getValues } =

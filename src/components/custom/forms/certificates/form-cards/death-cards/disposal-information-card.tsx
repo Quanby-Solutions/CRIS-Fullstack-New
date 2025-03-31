@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import LocationSelectorNew from "../shared-components/location-selector-new";
+import CemeteryOrCrematoryCards from "./locations/cemetery-crematory-place";
 
 const DisposalInformationCard: React.FC = () => {
   const { control, getValues, setValue, watch, clearErrors } =
@@ -175,10 +175,6 @@ const DisposalInformationCard: React.FC = () => {
             </CardTitle>
           </CardHeader>
 
-          <NCRModeSwitch
-            isNCRMode={disposalNcrMode}
-            setIsNCRMode={setDisposalNcrMode}
-          />
           <CardContent className="grid md:grid-cols-3 grid-cols-1 gap-4 p-0">
             <FormField
               control={control}
@@ -199,46 +195,7 @@ const DisposalInformationCard: React.FC = () => {
               )}
             />
 
-            {/* Use LocationSelector for the cemetery/crematory address */}
-            {/* <LocationSelectorNew
-              
-              provinceFieldName="cemeteryOrCrematory.address.province"
-              municipalityFieldName="cemeteryOrCrematory.address.cityMunicipality"
-              barangayFieldName="cemeteryOrCrematory.address.barangay"
-              provinceLabel="Province"
-              municipalityLabel="City/Municipality"
-              barangayLabel="Barangay"
-              provincePlaceholder="Select province..."
-              municipalityPlaceholder="Select city/municipality..."
-              barangayPlaceholder="Select barangay..."
-              showBarangay={true}
-              isNCRMode={false}
-            /> */}
-
-            <LocationSelectorNew
-              countryFieldName2="cemeteryOrCrematory.address.country"
-              provinceFieldName2="cemeteryOrCrematory.address.province"
-              municipalityFieldName2="cemeteryOrCrematory.address.cityMunicipality"
-              barangayFieldName2="cemeteryOrCrematory.address.barangay"
-              internationalAddressFieldName2="cemeteryOrCrematory.address.internationalAddress"
-              countryLabel="Country"
-              provinceLabel="Province"
-              municipalityLabel="City/Municipality"
-              barangayLabel="Barangay"
-              internationalAddressLabel="Complete Address"
-              isNCRMode={disposalNcrMode}
-              showBarangay={true}
-              countryPlaceholder="Select country"
-              provincePlaceholder="Select province"
-              municipalityPlaceholder="Select city/municipality"
-              barangayPlaceholder="Select barangay"
-              internationalAddressPlaceholder="Enter complete address including street, city, province/state, and postal code"
-              defaultCountry="Philippines"
-              onCountryChange={(country) => {
-                // Optional: Add any additional logic you need when country changes
-                console.log("Country changed to:", country);
-              }}
-            />
+            <CemeteryOrCrematoryCards />
           </CardContent>
         </Card>
       </CardContent>

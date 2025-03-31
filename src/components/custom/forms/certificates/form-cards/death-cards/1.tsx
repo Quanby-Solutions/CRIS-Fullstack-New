@@ -1,7 +1,6 @@
 "use client";
 
 import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
-import TimePicker from "@/components/custom/time/time-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -19,22 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
-import { differenceInDays } from "date-fns";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import NCRModeSwitch from "../shared-components/ncr-mode-switch";
 import CivilStatus from "../shared-components/civil-status";
-import LocationSelectorNew from "../shared-components/location-selector-new";
 import { Switch } from "@/components/ui/switch";
-import { use } from "i18next";
+import PlaceOfDeathCards from "./locations/place-of-death-place";
+import ResidenceCards from "./locations/residence-place";
 
 const DeceasedInformationCard: React.FC = () => {
   const { control, setValue, getValues } =
@@ -420,114 +412,66 @@ const DeceasedInformationCard: React.FC = () => {
               setIsNCRMode={setDeceasedNCRMode}
             />
 
-            <div className="grid grid-cols-4 gap-4 mt-6">
+            <div
+              className={` ${
+                locationType === "hospital"
+                  ? "flex gap-4 items-center"
+                  : "grid gap-4 mt-6 grid-cols-4"
+              }`}
+            >
               {/* Conditional Fields Based on Location Type */}
               {locationType === "hospital" ? (
                 // Hospital/Institution Fields
-                <FormField
-                  control={control}
-                  name="placeOfDeath.hospitalInstitution"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Hospital / Clinic / Institution Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="h-10"
-                          placeholder="Enter the name of the hospital or institution"
-                          {...field}
-                          value={field.value ?? ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div
+                  className={`${locationType === "hospital" ? "flex-1" : ""}`}
+                >
+                  <FormField
+                    control={control}
+                    name="placeOfDeath.hospitalInstitution"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Hospital / Clinic / Institution Name
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-10"
+                            placeholder="Enter the name of the hospital or institution"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               ) : (
                 // Specific Address Fields
                 <>
-                  <FormField
-                    control={control}
-                    name="placeOfDeath.houseNo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>House No.</FormLabel>
-                        <FormControl>
-                          <Input
-                            className="h-10"
-                            placeholder="Enter house number"
-                            {...field}
-                            value={field.value ?? ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="placeOfDeath.st"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Street</FormLabel>
-                        <FormControl>
-                          <Input
-                            className="h-10"
-                            placeholder="Enter street"
-                            {...field}
-                            value={field.value ?? ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <PlaceOfDeathCards />
                 </>
               )}
 
-              {/* Location Selector is shown in both cases */}
-
-              <LocationSelectorNew
-                countryFieldName2="placeOfDeath.country"
-                provinceFieldName2="placeOfDeath.province"
-                municipalityFieldName2="placeOfDeath.cityMunicipality"
-                barangayFieldName2="placeOfDeath.barangay"
-                internationalAddressFieldName2="placeOfDeath.internationalAddress"
-                countryLabel="Country"
-                provinceLabel="Province"
-                municipalityLabel="City/Municipality"
-                barangayLabel="Barangay"
-                internationalAddressLabel="Complete Address"
-                isNCRMode={deceasedNCRMode}
-                showBarangay={true}
-                countryPlaceholder="Select country"
-                provincePlaceholder="Select province"
-                municipalityPlaceholder="Select city/municipality"
-                barangayPlaceholder="Select barangay"
-                internationalAddressPlaceholder="Enter complete address including street, city, province/state, and postal code"
-                defaultCountry="Philippines"
-                onCountryChange={(country) => {
-                  // Optional: Add any additional logic you need when country changes
-                  console.log("Country changed to:", country);
-                }}
-              />
-
-              <CivilStatus
-                name="civilStatus"
-                label="7. Civil Status"
-                placeholder="Select civil status"
-                options={[
-                  { value: "Single", label: "Single" },
-                  { value: "Married", label: "Married" },
-                  { value: "Widow", label: "Widow" },
-                  { value: "Widower", label: "Widower" },
-                  { value: "Annulled", label: "Annulled" },
-                  { value: "Divorced", label: "Divorced" },
-                ]}
-                otherOptionValue="Other"
-                otherOptionLabel="Other (please specify)"
-              />
+              <div
+                className={`${locationType === "hospital" ? "flex-none" : ""}`}
+              >
+                <CivilStatus
+                  name="civilStatus"
+                  label="7. Civil Status"
+                  placeholder="Select civil status"
+                  options={[
+                    { value: "Single", label: "Single" },
+                    { value: "Married", label: "Married" },
+                    { value: "Widow", label: "Widow" },
+                    { value: "Widower", label: "Widower" },
+                    { value: "Annulled", label: "Annulled" },
+                    { value: "Divorced", label: "Divorced" },
+                  ]}
+                  otherOptionValue="Other"
+                  otherOptionLabel="Other (please specify)"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -605,70 +549,7 @@ const DeceasedInformationCard: React.FC = () => {
             <CardTitle>10. Residence</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <>
-              <FormField
-                control={control}
-                name="placeOfDeath.houseNo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Residence (House No.)</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="h-10"
-                        placeholder="Enter house number"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="placeOfDeath.st"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="h-10"
-                        placeholder="Enter street"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-
-            {/* Location Selector is shown in both cases */}
-            <LocationSelectorNew
-              countryFieldName2="placeOfDeath.country"
-              provinceFieldName2="placeOfDeath.province"
-              municipalityFieldName2="placeOfDeath.cityMunicipality"
-              barangayFieldName2="placeOfDeath.barangay"
-              internationalAddressFieldName2="placeOfDeath.internationalAddress"
-              countryLabel="Country"
-              provinceLabel="Province"
-              municipalityLabel="City/Municipality"
-              barangayLabel="Barangay"
-              internationalAddressLabel="Complete Address"
-              isNCRMode={deceasedNCRMode}
-              showBarangay={true}
-              countryPlaceholder="Select country"
-              provincePlaceholder="Select province"
-              municipalityPlaceholder="Select city/municipality"
-              barangayPlaceholder="Select barangay"
-              internationalAddressPlaceholder="Enter complete address including street, city, province/state, and postal code"
-              defaultCountry="Philippines"
-              onCountryChange={(country) => {
-                // Optional: Add any additional logic you need when country changes
-                console.log("Country changed to:", country);
-              }}
-            />
+            <ResidenceCards />
           </CardContent>
         </Card>
 

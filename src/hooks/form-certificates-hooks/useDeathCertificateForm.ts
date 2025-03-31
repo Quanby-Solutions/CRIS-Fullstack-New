@@ -130,11 +130,7 @@ const emptyDefaults: DeathCertificateFormValues = {
         name: '',
         title: '',
         time: undefined,
-        address: {
-          province: '',
-          cityMunicipality: '',
-          country: '',
-        },
+        address: ''
       },
     },
     autopsy: false,

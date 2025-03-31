@@ -284,7 +284,7 @@ export const mapToDeathCertificateValues = (
             date: parseDateSafely(deathForm.medicalCertificate.attendant.certification.date),
             name: ensureString(deathForm.medicalCertificate.attendant.certification.name),
             title: ensureString(deathForm.medicalCertificate.attendant.certification.title),
-            address: createAddressObject(deathForm.medicalCertificate.attendant.certification.address),
+            address: ensureString(deathForm.medicalCertificate.attendant.certification.address),
           }
           : undefined,
       },

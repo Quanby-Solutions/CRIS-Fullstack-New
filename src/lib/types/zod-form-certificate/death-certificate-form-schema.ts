@@ -143,7 +143,7 @@ const medicalCertificateSchema = z.object({
           time: z.date().optional(),
           name: z.string().optional(),
           title: z.string().optional(),
-          address: residenceSchemaOptional.optional(),
+          address: z.string().optional(),
           date: z.date().optional(),
         })
         .optional(),
