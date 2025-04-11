@@ -393,14 +393,9 @@ const PlaceOfMarriageCard = () => {
                       setSelectedProvince(value);
                       handleProvinceSelection(value);
                     }}
-                  
                   >
                     <SelectTrigger className="h-10">
-                      <SelectValue
-                        placeholder={
-                        "Select province"
-                        }
-                      />
+                      <SelectValue placeholder={"Select province"} />
                     </SelectTrigger>
                     <SelectContent>
                       {provinces.map((province) => (
@@ -539,27 +534,6 @@ const PlaceOfMarriageCard = () => {
                 {...field}
                 value={field.value ?? ""}
                 tabIndex={0}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Residence Field (always shown) */}
-      <FormField
-        control={control}
-        name="placeOfMarriage.residence"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Residence (optional)</FormLabel>
-            <FormControl>
-              <Input
-                type="text"
-                className="h-10"
-                placeholder="Enter residence"
-                {...field}
-                value={field.value ?? ""}
               />
             </FormControl>
             <FormMessage />

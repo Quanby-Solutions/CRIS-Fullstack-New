@@ -17,6 +17,7 @@ import { useFormContext } from "react-hook-form";
 
 import TimePicker from "@/components/custom/time/time-picker";
 import PlaceOfMarriageCard from "./locations/place-of-marriage";
+import { Input } from "@/components/ui/input";
 
 const MarriageDetailsCard: React.FC = () => {
   const { control, getValues, setValue, watch } =
@@ -103,45 +104,25 @@ const MarriageDetailsCard: React.FC = () => {
         <CardTitle>Marriage Details</CardTitle>
       </CardHeader>
       <CardContent className="p-6 space-y-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={useFullAddressInput}
-            onCheckedChange={handleAddressInputModeChange}
-            id="address-type-switch"
-          />
-          <FormLabel htmlFor="address-type-switch" className="cursor-pointer">
-            Use single address input
-          </FormLabel>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-          {/* Conditional rendering based on address input mode */}
-          {useFullAddressInput ? (
-            <div className="col-span-full md:col-span-3">
-              <FormField
-                control={control}
-                name="placeOfMarriage.address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Complete Address</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="resize-none min-h-24"
-                        placeholder="Enter complete address of marriage"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          ) : (
-            /* Location Selector */
-            <PlaceOfMarriageCard />
-          )}
-
+          <PlaceOfMarriageCard />
+          <FormField
+            control={control}
+            name="placeOfMarriage.address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Venue/Address</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter complete address of marriage"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Date of Marriage */}
           <FormField
             control={control}
@@ -158,7 +139,6 @@ const MarriageDetailsCard: React.FC = () => {
               />
             )}
           />
-
           {/* Time of Marriage */}
           <FormField
             control={control}

@@ -158,14 +158,12 @@ const emptyDefaults: MarriageCertificateFormValues = {
     // Marriage Details
     placeOfMarriage: {
         address: '',
-        houseNo: '',
         street: '',
         barangay: '',
         cityMunicipality: '',
         province: '',
         country: '',
         internationalAddress: '',
-        residence: ''
     },
     dateOfMarriage: undefined,
     timeOfMarriage: undefined,
