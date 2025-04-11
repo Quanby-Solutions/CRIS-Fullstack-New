@@ -344,13 +344,8 @@ export const deathCertificateFormSchema = z
     pagination: paginationSchema.optional(),
 
     // Also include corpseDisposal in the main schema (if not already)
-    corpseDisposal: z
-      .preprocess(
-        (val) => (val === '' ? undefined : val),
-        z.union([z.enum(['Burial', 'Cremation', 'Embalming']), z.undefined()])
-      )
-      .optional(),
-  });
+    corpseDisposal: z.string().optional(),
+  })
 
 // Export the Type
 export type DeathCertificateFormValues = z.infer<

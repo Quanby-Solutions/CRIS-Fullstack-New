@@ -119,12 +119,19 @@ export const mapToDeathCertificateValues = (
     return sex === 'Male' || sex === 'Female' ? sex : undefined;
   };
 
-  const validateCorpseDisposal = (corpseDisposal: any): 'Cremation' | 'Embalming' | 'Burial' | undefined => {
+  const validateCorpseDisposal = (corpseDisposal: any): string | undefined => {
     const validMethods = [
       'Burial',
       'Cremation',
-      'Embalming',];
-    return validMethods.includes(corpseDisposal) ? corpseDisposal as any : undefined;
+      'Embalming',
+    ];
+
+    // Accept standard methods plus any custom text entry (non-empty string)
+    if (validMethods.includes(corpseDisposal) || (typeof corpseDisposal === 'string' && corpseDisposal.trim() !== '')) {
+      return corpseDisposal;
+    }
+
+    return undefined;
   };
 
 

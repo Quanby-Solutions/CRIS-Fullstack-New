@@ -27,6 +27,8 @@ import CivilStatus from "../shared-components/civil-status";
 import { Switch } from "@/components/ui/switch";
 import PlaceOfDeathCards from "./locations/place-of-death-place";
 import ResidenceCards from "./locations/residence-place";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 const DeceasedInformationCard: React.FC = () => {
   const { control, setValue, getValues } =
@@ -77,6 +79,30 @@ const DeceasedInformationCard: React.FC = () => {
       setValue("birthInformation.ageOfMother", undefined);
     }
   }, [shouldShowBirthInfo, setValue]); // Include dependencies
+
+  useEffect(() => {
+    const birthInfoFields = [
+      getValues("birthInformation.typeOfBirth"),
+      getValues("birthInformation.birthOrder"),
+      getValues("birthInformation.lengthOfPregnancy"),
+      getValues("birthInformation.methodOfDelivery"),
+      getValues("birthInformation.ageOfMother"),
+    ];
+
+    // Check if any birth information field has a value
+    const hasAnyValue = birthInfoFields.some(
+      (value) =>
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        !(typeof value === "string" && value.trim() === "")
+    );
+
+    // If any field has a value, show the birth info section
+    if (hasAnyValue) {
+      setShouldShowBirthInfo(true);
+    }
+  }, [getValues]);
 
   return (
     <Card className="w-full">
@@ -710,39 +736,126 @@ const DeceasedInformationCard: React.FC = () => {
                   )}
                 />
 
-                {/* Method of Delivery */}
+                {/* Method of Delivery with Custom Input */}
                 <FormField
                   control={control}
                   name="birthInformation.methodOfDelivery"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>15. Method of Delivery</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || ""}
-                      >
-                        <FormControl>
-                          <SelectTrigger ref={field.ref} className="h-10">
-                            <SelectValue placeholder="Select delivery method" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Normal spontaneous vertex">
-                            Normal spontaneous vertex
-                          </SelectItem>
-                          <SelectItem value="Caesarean section">
-                            Caesarean section
-                          </SelectItem>
-                          <SelectItem value="Forceps">Forceps</SelectItem>
-                          <SelectItem value="Vacuum extraction">
-                            Vacuum extraction
-                          </SelectItem>
-                          <SelectItem value="Others">Others</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field, fieldState }) => {
+                    // State to track if custom input is active
+                    const [isCustomValue, setIsCustomValue] = useState(false);
+                    // State to store custom input value
+                    const [customInputValue, setCustomInputValue] =
+                      useState("");
+
+                    // Watch the field value and initialize correctly
+                    useEffect(() => {
+                      const value = field.value;
+                      if (value) {
+                        // If the value is not one of the predefined options, it's a custom value
+                        if (
+                          ![
+                            "Normal spontaneous vertex",
+                            "Caesarean section",
+                            "Forceps",
+                            "Vacuum extraction",
+                            "Others",
+                          ].includes(value)
+                        ) {
+                          setIsCustomValue(true);
+                          setCustomInputValue(value);
+                        } else if (value === "Others") {
+                          // If the value is explicitly "Others", show the input field but keep it empty
+                          setIsCustomValue(true);
+                          setCustomInputValue("");
+                        }
+                      }
+                    }, [field.value]);
+
+                    // Handle switching back to select dropdown
+                    const handleSwitchToSelect = () => {
+                      setIsCustomValue(false);
+                      setCustomInputValue("");
+                      field.onChange("");
+                    };
+
+                    // Handle custom input change
+                    const handleCustomInputChange = (e: {
+                      target: { value: any };
+                    }) => {
+                      const value = e.target.value;
+                      setCustomInputValue(value);
+                      field.onChange(value);
+                    };
+
+                    return (
+                      <FormItem>
+                        <FormLabel>15. Method of Delivery</FormLabel>
+
+                        {!isCustomValue ? (
+                          // Dropdown Select
+                          <Select
+                            onValueChange={(value) => {
+                              if (value === "Others") {
+                                setIsCustomValue(true);
+                                // Important: Still update the form value to "Others"
+                                field.onChange("Others");
+                              } else {
+                                field.onChange(value);
+                              }
+                            }}
+                            value={field.value || ""}
+                          >
+                            <FormControl>
+                              <SelectTrigger ref={field.ref} className="h-10">
+                                <SelectValue placeholder="Select delivery method" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Normal spontaneous vertex">
+                                Normal spontaneous vertex
+                              </SelectItem>
+                              <SelectItem value="Caesarean section">
+                                Caesarean section
+                              </SelectItem>
+                              <SelectItem value="Forceps">Forceps</SelectItem>
+                              <SelectItem value="Vacuum extraction">
+                                Vacuum extraction
+                              </SelectItem>
+                              <SelectItem value="Others">
+                                Others (please specify)
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          // Custom Input with close button
+                          <div className="flex space-x-2">
+                            <FormControl className="flex-1">
+                              <Input
+                                placeholder="Enter custom delivery method"
+                                value={customInputValue}
+                                onChange={handleCustomInputChange}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                                className="h-10"
+                              />
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={handleSwitchToSelect}
+                              className="h-10 w-10"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+
+                        <FormMessage>{fieldState?.error?.message}</FormMessage>
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 {/* Length of Pregnancy */}
@@ -809,33 +922,32 @@ const DeceasedInformationCard: React.FC = () => {
                 />
 
                 {/* Only show Birth Order for multiple births */}
-                {typeOfBirth !== "Single" && (
-                  <FormField
-                    control={control}
-                    name="birthInformation.birthOrder"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>18. Birth Order</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value || ""}
-                        >
-                          <FormControl>
-                            <SelectTrigger ref={field.ref} className="h-10">
-                              <SelectValue placeholder="Select birth order" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="First">First</SelectItem>
-                            <SelectItem value="Second">Second</SelectItem>
-                            <SelectItem value="Third">Third</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+
+                <FormField
+                  control={control}
+                  name="birthInformation.birthOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>18. Birth Order</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger ref={field.ref} className="h-10">
+                            <SelectValue placeholder="Select birth order" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="First">First</SelectItem>
+                          <SelectItem value="Second">Second</SelectItem>
+                          <SelectItem value="Third">Third</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             )}
           </CardContent>

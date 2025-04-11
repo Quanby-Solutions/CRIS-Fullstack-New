@@ -476,33 +476,13 @@ const HusbandConsentPlace = () => {
               <FormItem>
                 <FormLabel>Barangay</FormLabel>
                 <FormControl>
-                  <Select
-                    value={field.value || ""}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedBarangay(value);
-                    }}
-                    disabled={!selectedMunicipality}
-                  >
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Select barangay" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {barangays.length > 0 ? (
-                        barangays.map((barangay) => (
-                          <SelectItem key={barangay.name} value={barangay.name}>
-                            {barangay.displayName}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="loading" disabled>
-                          {selectedMunicipality
-                            ? "No barangays found"
-                            : "Select a city/municipality first"}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    placeholder="Enter barangay name"
+                    type="text"
+                    {...field}
+                    value={field.value ?? ""}
+                    className="h-10"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

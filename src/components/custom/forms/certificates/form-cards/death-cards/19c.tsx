@@ -80,7 +80,7 @@ const MaternalConditionCard: React.FC = () => {
                   <SelectItem value="42_days_to_1_year">
                     d. 42 days to 1 year after delivery
                   </SelectItem>
-                  <SelectItem value="none">e. None of the above</SelectItem>
+                  <SelectItem value="none">e. None of the choices</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

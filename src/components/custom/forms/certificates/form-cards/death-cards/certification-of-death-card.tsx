@@ -93,11 +93,11 @@ const CertificationOfDeathCard: React.FC = () => {
               name="certificationOfDeath.titleOfPosition"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title or Position</FormLabel>
+                  <FormLabel>Title of Position</FormLabel>
                   <FormControl>
                     <Input
                       className="h-10"
-                      placeholder="Enter title or position"
+                      placeholder="Enter title of position"
                       {...field}
                       value={field.value ?? ""}
                     />
