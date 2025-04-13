@@ -28,7 +28,7 @@ export default function MarriageInformationCard() {
   // If the value is exactly "Not Married" or "Forgotten", use that string.
   // If it's a Date or undefined, default to "Date".
   let dateOption = "Date"
-  if (parentMarriageDate === "Not Married" || parentMarriageDate === "Forgotten") {
+  if (parentMarriageDate === "Not Married" || parentMarriageDate === "Forgotten" || parentMarriageDate === "Don't Know") {
     dateOption = parentMarriageDate
   } else if (parentMarriageDate instanceof Date) {
     dateOption = "Date"
@@ -106,6 +106,7 @@ export default function MarriageInformationCard() {
                   <option value="Date">Date</option>
                   <option value="Not Married">Not Married</option>
                   <option value="Forgotten">Forgotten</option>
+                  <option value="Don't Know">Don't Know</option>
                 </select>
               </FormItem>
             </div>
