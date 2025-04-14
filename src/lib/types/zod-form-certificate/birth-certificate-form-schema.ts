@@ -164,6 +164,7 @@ const marriageDateSchema = z.union([
     futureError: 'Marriage date cannot be in the future',
   }),
   z.literal("Not Married"),
+  z.literal("Don't Know"),
   z.literal("Forgotten")
 ]);
 
@@ -272,7 +273,7 @@ const delayedRegistrationAffidavitSchema = z.object({
     }),
     placeIssued: z.string().min(1, 'Place issued is required'),
   }),
-  parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']).optional(),
+  parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED', "Don't Know"]).optional(),
 });
 
 // Main Birth Certificate Schema

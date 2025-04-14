@@ -90,7 +90,7 @@ interface MarriagePlace {
 }
 
 interface ParentMarriage {
-  date: Date | "Not Married" | "Forgotten";
+  date: Date | "Not Married" | "Forgotten" | "Don't Know";
   place: MarriagePlace;
 }
 
@@ -393,9 +393,9 @@ const mergeResidence = (
       'place' in rawParentMarriage
     ) {
       const pm = rawParentMarriage as any;
-      let pmDate: Date | "Not Married" | "Forgotten";
+      let pmDate: Date | "Not Married" | "Forgotten" | "Don't Know";
       if (typeof pm.date === 'string') {
-        if (pm.date === 'Not Married' || pm.date === 'Forgotten') {
+        if (pm.date === 'Not Married' || pm.date === 'Forgotten' || pm.date === "Don't Know") {
           pmDate = pm.date;
         } else {
           pmDate = new Date(pm.date);

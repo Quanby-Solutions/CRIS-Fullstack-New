@@ -13,6 +13,18 @@
   },
   "cities": [
     {
+      "psgc_id": "138060201241",
+      "name": "Manila City",
+      "correspondence_code": "322151251",
+      "geographic_level": "City",
+      "old_names": "",
+      "city_class": "",
+      "income_classification": "",
+      "urban_rural": "",
+      "population": " 20,491 ",
+      "status": ""
+    },
+    {
       "psgc_id": "1380602000",
       "name": "Binondo",
       "correspondence_code": "133902000",
