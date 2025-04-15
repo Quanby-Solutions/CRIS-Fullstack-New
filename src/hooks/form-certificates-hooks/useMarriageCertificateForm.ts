@@ -52,18 +52,20 @@ const emptyDefaults: MarriageCertificateFormValues = {
     husbandAge: 0,
     husbandBirth: undefined,
     husbandPlaceOfBirth: {
-        houseNo: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+    },
+    husbandSex: 'Male',
+    husbandCitizenship: '',
+    husbandResidence: {
         street: '',
         barangay: '',
         cityMunicipality: '',
         province: '',
         country: '',
         internationalAddress: '',
-        residence: ''
     },
-    husbandSex: 'Male',
-    husbandCitizenship: '',
-    husbandResidence: '',
     husbandReligion: '',
     husbandCivilStatus: '',
     husbandConsentPerson: {
@@ -108,18 +110,20 @@ const emptyDefaults: MarriageCertificateFormValues = {
     wifeAge: 0,
     wifeBirth: undefined,
     wifePlaceOfBirth: {
-        houseNo: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+    },
+    wifeSex: 'Female',
+    wifeCitizenship: '',
+    wifeResidence: {
         street: '',
         barangay: '',
         cityMunicipality: '',
         province: '',
         country: '',
         internationalAddress: '',
-        residence: ''
     },
-    wifeSex: 'Female',
-    wifeCitizenship: '',
-    wifeResidence: '',
     wifeReligion: '',
     wifeCivilStatus: '',
     wifeConsentPerson: {

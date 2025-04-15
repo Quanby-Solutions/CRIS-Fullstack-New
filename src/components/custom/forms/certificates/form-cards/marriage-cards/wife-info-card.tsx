@@ -28,6 +28,7 @@ import NCRModeSwitch from "../shared-components/ncr-mode-switch";
 import LocationSelectorNew from "../shared-components/location-selector-new";
 import CivilStatus from "../shared-components/civil-status";
 import WifePlaceOfBirth from "./locations/wife-place-birth";
+import WifeResidenceCard from "./locations/wife-residence-place";
 
 const WifeInfoCard: React.FC = () => {
   const { control, setValue, getValues } =
@@ -261,12 +262,21 @@ const WifeInfoCard: React.FC = () => {
             otherOptionLabel="Other (please specify)"
           />
         </div>
-        <div className="col-span-3 py-4">
+        <div className="col-span-3 py-4 flex flex-col gap-4">
           <CardTitle>Place Of Birth</CardTitle>
+
+          {/* Place of Birth */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+            <WifePlaceOfBirth />
+          </div>
         </div>
-        {/* Place of Birth */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-          <WifePlaceOfBirth />
+
+        <div className="col-span-3 py-4 flex flex-col gap-4">
+          <CardTitle>Residence</CardTitle>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+            <WifeResidenceCard />
+          </div>
         </div>
       </CardContent>
     </Card>

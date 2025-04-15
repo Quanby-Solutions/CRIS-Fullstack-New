@@ -299,8 +299,13 @@ const WifeParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+        </div>
 
-          <WifeConsentPlace />
+        <div className="flex flex-col gap-4">
+          <CardTitle>Consent Person Residence</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <WifeConsentPlace />
+          </div>
         </div>
       </CardContent>
     </Card>

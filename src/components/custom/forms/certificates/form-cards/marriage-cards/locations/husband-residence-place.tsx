@@ -108,7 +108,7 @@ const formatWithParentheses = (text: string): string => {
   });
 };
 
-const ResidenceCards = () => {
+const HusbandResidenceCard = () => {
   const {
     control,
     setValue,
@@ -132,9 +132,9 @@ const ResidenceCards = () => {
 
   // Set default country to Philippines on component mount
   useEffect(() => {
-    const currentCountry = watch("residence.country");
+    const currentCountry = watch("husbandResidence.country");
     if (!currentCountry) {
-      setValue("residence.country", "Philippines");
+      setValue("husbandResidence.country", "Philippines");
     }
   }, [setValue, watch]);
 
@@ -169,9 +169,11 @@ const ResidenceCards = () => {
   // Load initial values if they exist
   useEffect(() => {
     if (provinces.length > 0 && !initialized) {
-      const currentProvince = getValues("residence.province");
-      const currentMunicipality = getValues("residence.cityMunicipality");
-      const currentBarangay = getValues("residence.barangay");
+      const currentProvince = getValues("husbandResidence.province");
+      const currentMunicipality = getValues(
+        "husbandResidence.cityMunicipality"
+      );
+      const currentBarangay = getValues("husbandResidence.barangay");
 
       if (currentProvince) {
         console.log("Found province:", currentProvince);
@@ -282,8 +284,8 @@ const ResidenceCards = () => {
     // Clear municipality and barangay selections
     setSelectedMunicipality("");
     setSelectedBarangay("");
-    setValue("residence.cityMunicipality", "");
-    setValue("residence.barangay", "");
+    setValue("husbandResidence.cityMunicipality", "");
+    setValue("husbandResidence.barangay", "");
     setBarangays([]);
   };
 
@@ -324,11 +326,11 @@ const ResidenceCards = () => {
 
     // Clear barangay selection
     setSelectedBarangay("");
-    setValue("residence.barangay", "");
+    setValue("husbandResidence.barangay", "");
   };
 
   // Watch for country selection
-  const selectedCountry = watch("residence.country");
+  const selectedCountry = watch("husbandResidence.country");
   const isPhilippines = selectedCountry === "Philippines" || !selectedCountry;
 
   return (
@@ -336,7 +338,7 @@ const ResidenceCards = () => {
       {/* Country Field */}
       <FormField
         control={control}
-        name="residence.country"
+        name="husbandResidence.country"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Country</FormLabel>
@@ -347,14 +349,14 @@ const ResidenceCards = () => {
                   field.onChange(value);
                   // Clear other fields if country changes
                   if (value !== "Philippines") {
-                    setValue("residence.province", "");
-                    setValue("residence.cityMunicipality", "");
-                    setValue("residence.barangay", "");
+                    setValue("husbandResidence.province", "");
+                    setValue("husbandResidence.cityMunicipality", "");
+                    setValue("husbandResidence.barangay", "");
                     setSelectedProvince("");
                     setSelectedMunicipality("");
                     setSelectedBarangay("");
                   } else {
-                    setValue("residence.internationalAddress", "");
+                    setValue("husbandResidence.internationalAddress", "");
                   }
                 }}
               >
@@ -381,7 +383,7 @@ const ResidenceCards = () => {
           {/* Province Field */}
           <FormField
             control={control}
-            name="residence.province"
+            name="husbandResidence.province"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Province</FormLabel>
@@ -414,7 +416,7 @@ const ResidenceCards = () => {
           {/* City/Municipality Field */}
           <FormField
             control={control}
-            name="residence.cityMunicipality"
+            name="husbandResidence.cityMunicipality"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>City/Municipality</FormLabel>
@@ -459,7 +461,7 @@ const ResidenceCards = () => {
           {/* Barangay Field */}
           <FormField
             control={control}
-            name="residence.barangay"
+            name="husbandResidence.barangay"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Barangay</FormLabel>
@@ -481,7 +483,7 @@ const ResidenceCards = () => {
         // International address field for non-Philippines countries
         <FormField
           control={control}
-          name="residence.internationalAddress"
+          name="husbandResidence.internationalAddress"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Complete Address</FormLabel>
@@ -502,7 +504,7 @@ const ResidenceCards = () => {
       {/* Street Field (always shown) */}
       <FormField
         control={control}
-        name="residence.street"
+        name="husbandResidence.street"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Street (optional)</FormLabel>
@@ -521,28 +523,9 @@ const ResidenceCards = () => {
         )}
       />
 
-      {/* residence Field (always shown) */}
-      <FormField
-        control={control}
-        name="residence.residence"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>residence (optional)</FormLabel>
-            <FormControl>
-              <Input
-                type="text"
-                className="h-10"
-                placeholder="Enter residence"
-                {...field}
-                value={field.value ?? ""}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {/* Residence Field (always shown) */}
     </>
   );
 };
 
-export default ResidenceCards;
+export default HusbandResidenceCard;

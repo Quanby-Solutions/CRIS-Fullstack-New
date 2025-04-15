@@ -1,5 +1,3 @@
-// src/components/custom/civil-registry/components/marriage-details-card.tsx
-
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
@@ -9,6 +7,62 @@ import {
   formatLocation,
   renderName,
 } from "./utils";
+
+/**
+ * Format Place of Birth function
+ */
+function formatPlaceOfBirth(placeOfBirth: any): string {
+  if (!placeOfBirth || typeof placeOfBirth !== "object") {
+    return "";
+  }
+
+  // Check if it's an international address
+  if (
+    placeOfBirth.internationalAddress &&
+    typeof placeOfBirth.internationalAddress === "string" &&
+    placeOfBirth.internationalAddress.trim() !== ""
+  ) {
+    return placeOfBirth.internationalAddress;
+  }
+
+  // Build local address with the specified format
+  const addressParts = [];
+
+  // Add house number and street if available
+  if (placeOfBirth.houseNo && placeOfBirth.houseNo.trim() !== "") {
+    addressParts.push(placeOfBirth.houseNo);
+  }
+
+  if (placeOfBirth.street && placeOfBirth.street.trim() !== "") {
+    addressParts.push(placeOfBirth.street);
+  }
+
+  // Add barangay if available
+  if (placeOfBirth.barangay && placeOfBirth.barangay.trim() !== "") {
+    addressParts.push(placeOfBirth.barangay);
+  }
+
+  // Add city/municipality if available
+  if (
+    placeOfBirth.cityMunicipality &&
+    placeOfBirth.cityMunicipality.trim() !== ""
+  ) {
+    addressParts.push(placeOfBirth.cityMunicipality);
+  }
+
+  // Add province if available
+  if (placeOfBirth.province && placeOfBirth.province.trim() !== "") {
+    addressParts.push(placeOfBirth.province);
+  }
+
+  // Add country if available
+  if (placeOfBirth.country && placeOfBirth.country.trim() !== "") {
+    addressParts.push(placeOfBirth.country);
+  }
+
+  // Join all available address parts with commas
+  return addressParts.join(", ");
+}
 
 /**
  * Interface for Contracting Parties Signature.
@@ -123,7 +177,7 @@ export const MarriageDetailsCard: React.FC<MarriageDetailsCardProps> = ({
             </div>
             <div>
               <p className="font-medium">{t("Place of Birth")}</p>
-              <div>{formatLocation(m.husbandPlaceOfBirth)}</div>
+              <div>{formatPlaceOfBirth(m.husbandPlaceOfBirth)}</div>
             </div>
             <div>
               <p className="font-medium">{t("Religion")}</p>
@@ -170,7 +224,7 @@ export const MarriageDetailsCard: React.FC<MarriageDetailsCardProps> = ({
             </div>
             <div>
               <p className="font-medium">{t("Place of Birth")}</p>
-              <div>{formatLocation(m.wifePlaceOfBirth)}</div>
+              <div>{formatPlaceOfBirth(m.wifePlaceOfBirth)}</div>
             </div>
             <div>
               <p className="font-medium">{t("Religion")}</p>

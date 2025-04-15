@@ -217,6 +217,7 @@ export const marriageCertificateSchema = z.object({
   husbandAge: z.number().int(),
   husbandBirth: z.date().optional(),
   husbandPlaceOfBirth: locationSchema,
+  husbandResidence: locationSchema,
   husbandSex: z
     .preprocess(
       (val) => (val === '' ? undefined : val),
@@ -231,7 +232,6 @@ export const marriageCertificateSchema = z.object({
       }
     }),
   husbandCitizenship: z.string(),
-  husbandResidence: z.string(),
   husbandReligion: z.string(),
   husbandCivilStatus: z.string().optional(),
   husbandConsentPerson: z.object({
@@ -265,7 +265,7 @@ export const marriageCertificateSchema = z.object({
       }
     }),
   wifeCitizenship: z.string(),
-  wifeResidence: z.string(),
+  wifeResidence: locationSchema,
   wifeReligion: z.string(),
   wifeCivilStatus: z.string().optional(),
   wifeConsentPerson: z.object({

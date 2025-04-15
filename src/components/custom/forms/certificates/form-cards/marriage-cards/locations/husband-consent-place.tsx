@@ -533,26 +533,6 @@ const HusbandConsentPlace = () => {
         )}
       />
 
-      {/* Residence Field (always shown) */}
-      <FormField
-        control={control}
-        name="husbandConsentPerson.residence.residence"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Residence (optional)</FormLabel>
-            <FormControl>
-              <Input
-                type="text"
-                className="h-10"
-                placeholder="Enter residence"
-                {...field}
-                value={field.value ?? ""}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </>
   );
 };

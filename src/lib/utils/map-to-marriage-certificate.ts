@@ -203,7 +203,6 @@ export const mapToMarriageCertificateValues = (
             residence: addressObj.residence
                 ? ensureString(addressObj.residence?.value ?? addressObj.residence)
                 : ''
-
         };
     };
 
@@ -239,7 +238,7 @@ export const mapToMarriageCertificateValues = (
         husbandPlaceOfBirth: createAddressObject(marriageForm.husbandPlaceOfBirth),
         husbandSex: validateHusbandSex(marriageForm?.husbandSex) || 'Male',
         husbandCitizenship: ensureString(marriageForm.husbandCitizenship),
-        husbandResidence: ensureString(marriageForm.husbandResidence),
+        husbandResidence: createAddressObject(marriageForm.husbandResidence),
         husbandReligion: ensureString(marriageForm.husbandReligion),
         husbandCivilStatus: validateCivilStatus(marriageForm.husbandCivilStatus) || 'Single',
         husbandParents: {
@@ -271,7 +270,7 @@ export const mapToMarriageCertificateValues = (
         wifePlaceOfBirth: createAddressObject(marriageForm.wifePlaceOfBirth),
         wifeSex: validateWifeSex(marriageForm?.wifeSex) || 'Female',
         wifeCitizenship: ensureString(marriageForm.wifeCitizenship),
-        wifeResidence: ensureString(marriageForm.wifeResidence),
+        wifeResidence: createAddressObject(marriageForm.wifeResidence),
         wifeReligion: ensureString(marriageForm.wifeReligion),
         wifeCivilStatus: validateCivilStatus(marriageForm.wifeCivilStatus) || 'Single',
         wifeParents: {
