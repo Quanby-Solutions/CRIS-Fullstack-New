@@ -457,27 +457,6 @@ const WifePlaceOfBirth = () => {
               </FormItem>
             )}
           />
-
-          {/* Barangay Field */}
-          <FormField
-            control={control}
-            name="wifePlaceOfBirth.barangay"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Barangay</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter barangay name"
-                    type="text"
-                    {...field}
-                    value={field.value ?? ""}
-                    className="h-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </>
       ) : (
         // International address field for non-Philippines countries
@@ -500,49 +479,6 @@ const WifePlaceOfBirth = () => {
           )}
         />
       )}
-
-      {/* Street Field (always shown) */}
-      <FormField
-        control={control}
-        name="wifePlaceOfBirth.street"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Street (optional)</FormLabel>
-            <FormControl>
-              <Input
-                type="text"
-                className="h-10"
-                placeholder="Enter street address"
-                {...field}
-                value={field.value ?? ""}
-                tabIndex={0}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Residence Field (always shown) */}
-      <FormField
-        control={control}
-        name="wifePlaceOfBirth.residence"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Residence (optional)</FormLabel>
-            <FormControl>
-              <Input
-                type="text"
-                className="h-10"
-                placeholder="Enter residence"
-                {...field}
-                value={field.value ?? ""}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </>
   );
 };

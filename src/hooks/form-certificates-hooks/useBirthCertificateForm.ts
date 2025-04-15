@@ -385,21 +385,21 @@
 //       if (data.informant.signature instanceof File) {
 //         data.informant.signature = await fileToBase64(data.informant.signature)
 //       }
-      // if (data.preparedBy.signature instanceof File) {
-      //   data.preparedBy.signature = await fileToBase64(
-      //     data.preparedBy.signature
-      //   )
-      // }
-      // if (data.receivedBy.signature instanceof File) {
-      //   data.receivedBy.signature = await fileToBase64(
-      //     data.receivedBy.signature
-      //   )
-      // }
-      // if (data.registeredByOffice.signature instanceof File) {
-      //   data.registeredByOffice.signature = await fileToBase64(
-      //     data.registeredByOffice.signature
-      //   )
-      // }
+// if (data.preparedBy.signature instanceof File) {
+//   data.preparedBy.signature = await fileToBase64(
+//     data.preparedBy.signature
+//   )
+// }
+// if (data.receivedBy.signature instanceof File) {
+//   data.receivedBy.signature = await fileToBase64(
+//     data.receivedBy.signature
+//   )
+// }
+// if (data.registeredByOffice.signature instanceof File) {
+//   data.registeredByOffice.signature = await fileToBase64(
+//     data.registeredByOffice.signature
+//   )
+// }
 
 //       const result = await submitBirthCertificateForm(data)
 
@@ -535,7 +535,7 @@ export function useBirthCertificateForm({
         type: 'Physician',
         certification: {
           time: new Date('2022-01-01T10:00:00'),
-         
+
           name: 'Dr. Smith',
           title: 'Chief Physician',
           address: {
@@ -550,7 +550,7 @@ export function useBirthCertificateForm({
         },
       },
       informant: {
-      
+
         name: 'Emily Doe',
         relationship: 'Mother',
         address: {
@@ -579,9 +579,9 @@ export function useBirthCertificateForm({
         date: new Date('2022-01-03'),
       },
       hasAffidavitOfPaternity: false,
-      affidavitOfPaternityDetails: null,
+      affidavitOfPaternityDetails: undefined,
       isDelayedRegistration: false,
-      affidavitOfDelayedRegistration: null,
+      affidavitOfDelayedRegistration: undefined,
       remarks: 'No remarks',
       pagination: {
         pageNumber: '1',
@@ -597,9 +597,9 @@ export function useBirthCertificateForm({
       const updatedData = {
         ...data,
         attendant: {
-          ...data.attendant,
+          ...(data.attendant || {}),
           certification: {
-            ...data.attendant.certification,
+            ...(data.attendant?.certification || {}),
             signature: null,
           },
         },

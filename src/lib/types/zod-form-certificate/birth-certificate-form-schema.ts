@@ -34,7 +34,7 @@ const createDateFieldSchemaWithPreprocess = (options: {
 // Child Information Schema
 const childInformationSchema = z
   .object({
-    firstName: nameSchema.shape.first,
+    firstName: z.string().optional(),
     middleName: nameSchema.shape.middle,
     lastName: nameSchema.shape.last,
     sex: z
@@ -54,16 +54,15 @@ const childInformationSchema = z
     birthOrder: z.string().min(1, 'Birth order is required'),
     weightAtBirth: z
       .string()
-      .min(1, 'Weight at birth is required')
       .superRefine((weight, ctx) => {
         const num = parseFloat(weight);
-        if (isNaN(num) || num <= 0 || num >= 10) {
+        if (isNaN(num) || num <= 0) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: 'Weight must be a valid number between 0-10 kg',
+            message: 'Weight must be a valid number greater than 0 kg',
           });
         }
-      }),
+      }).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.typeOfBirth !== 'Single' && !data.multipleBirthOrder) {
@@ -78,7 +77,7 @@ const childInformationSchema = z
 // Mother Information Schema
 const motherInformationSchema = z
   .object({
-    firstName: nameSchema.shape.first,
+    firstName: z.string().optional(),
     middleName: nameSchema.shape.middle,
     lastName: nameSchema.shape.last,
     citizenship: citizenshipSchema,
@@ -135,7 +134,7 @@ const motherInformationSchema = z
 // Father Information Schema
 const fatherInformationSchema = z
   .object({
-    firstName: nameSchema.shape.first,
+    firstName: z.string().optional(),
     middleName: nameSchema.shape.middle,
     lastName: nameSchema.shape.last,
     citizenship: citizenshipSchema,
