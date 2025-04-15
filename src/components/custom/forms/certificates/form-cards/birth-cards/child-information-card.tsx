@@ -172,7 +172,7 @@ const ChildInformationCard: React.FC = () => {
                   name='childInfo.weightAtBirth'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel><strong>6.</strong> Weight at Birth (kilograms)</FormLabel>
+                      <FormLabel><strong>6.</strong> Weight at Birth (grams)</FormLabel>
                       <FormControl>
                         <Input
                           className='h-10'
