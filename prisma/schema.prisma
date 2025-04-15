@@ -196,7 +196,7 @@ model MarriageCertificateForm {
   husbandPlaceOfBirth         Json?
   husbandSex                  Sex?
   husbandCitizenship          String
-  husbandResidence            String
+  husbandResidence            Json?
   husbandReligion             String?
   husbandCivilStatus          String
   husbandFatherName           Json
@@ -214,7 +214,7 @@ model MarriageCertificateForm {
   wifePlaceOfBirth            Json
   wifeSex                     Sex?
   wifeCitizenship             String
-  wifeResidence               String
+  wifeResidence               Json?
   wifeReligion                String?
   wifeCivilStatus             String
   wifeFatherName              Json

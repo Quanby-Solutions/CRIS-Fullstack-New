@@ -27,6 +27,7 @@ import LocationSelector from "../shared-components/location-selector";
 import LocationSelectorNew from "../shared-components/location-selector-new";
 import CivilStatus from "../shared-components/civil-status";
 import HusbandPlaceOfBirth from "./locations/husband-place-birth";
+import HusbandResidenceCard from "./locations/husband-residence-place";
 
 const HusbandInfoCard: React.FC = () => {
   const { control, setValue, getValues } =
@@ -275,12 +276,18 @@ const HusbandInfoCard: React.FC = () => {
         </div>
 
         {/* Place of Birth */}
-        <div className="col-span-3 py-4">
+        <div className="col-span-3 py-4 flex flex-col gap-4">
           <CardTitle>Place Of Birth</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+            <HusbandPlaceOfBirth />
+          </div>
         </div>
-   
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-          <HusbandPlaceOfBirth  />
+
+        <div className="col-span-3 py-4 flex flex-col gap-4">
+          <CardTitle>Residence</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+            <HusbandResidenceCard />
+          </div>
         </div>
       </CardContent>
     </Card>
