@@ -24,10 +24,16 @@ const deceasedInformationSchema = z.object({
       z.union([z.enum(['Male', 'Female']), z.undefined()])
     )
     .optional(),
-  dateOfDeath: z.date().optional(),
-  timeOfDeath: z.date().optional(),
+  dateOfDeath: z.union([
+    z.string(),
+    z.date()
+  ]).optional(),
+  timeOfDeath: z.string().optional(),
 
-  dateOfBirth: z.date().optional(),
+  dateOfBirth: z.union([
+    z.string(),
+    z.date()
+  ]).optional(),
   ageAtDeath: z.object({
     years: z.string().optional(),
     months: z.string().optional(),
@@ -159,16 +165,25 @@ const certificationOfDeathSchema = z.object({
   nameInPrint: z.string().optional(),
   titleOfPosition: z.string().optional(),
   address: z.string().optional(),
-  date: z.date().optional(),
+  date: z.union([
+    z.string(),
+    z.date()
+  ]).optional(),
   reviewedBy: z.object({
-    date: z.date().optional(),
+    date: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
     healthOfficerNameInPrint: z.string().optional(),
   }).optional(),
 });
 
 // --- Review Schema ---
 const reviewSchema = z.object({
-  date: z.date().optional(),
+  date: z.union([
+    z.string(),
+    z.date()
+  ]).optional(),
 });
 
 // --- Certificates Schemas ---
@@ -177,7 +192,10 @@ const postmortemCertificateSchema = z
   .object({
     causeOfDeath: z.string().optional(),
     nameInPrint: z.string().optional(),
-    date: z.date().optional(),
+    date: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
     titleDesignation: z.string().optional(),
     address: z.string().optional(),
   })
@@ -191,9 +209,15 @@ const embalmerCertificationSchema = z
     address: z.string().optional(),
     titleDesignation: z.string().optional(),
     licenseNo: z.string().optional(),
-    issuedOn: z.date().optional(),
+    issuedOn: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
     issuedAt: z.string().optional(),
-    expiryDate: z.date().optional(),
+    expiryDate: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
   })
   .optional();
 
@@ -207,11 +231,17 @@ const delayedRegistrationSchema = z.object({
   }).optional(),
   deceased: z.object({
     name: z.string().optional(),
-    diedOn: z.date().optional(),
-    dateOfDeath: z.date().optional(),
+    diedOn: z.string().optional(),
+    dateOfDeath: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
     placeOfDeath: z.string().optional(),
     burialInfo: z.object({
-      date: z.date().optional(),
+      date: z.union([
+        z.string().optional(),
+        z.date().optional()
+      ]).optional(),
       place: z.string().optional(),
       method: z.string().optional(),
 
@@ -223,7 +253,10 @@ const delayedRegistrationSchema = z.object({
   }).optional(),
   causeOfDeath: z.string().optional(),
   reasonForDelay: z.string().optional(),
-  affidavitDate: z.date().optional(),
+  affidavitDate: z.union([
+    z.string(),
+    z.date()
+  ]).optional(),
   affidavitDatePlace: z.string().optional(),
   adminOfficer: z.object({
     name: z.string().optional(),
@@ -231,10 +264,10 @@ const delayedRegistrationSchema = z.object({
     position: z.string().optional(),
   }),
   ctcInfo: z.object({
-    dayOf: z.date().optional(),
+    dayOf: z.string().optional(),
     placeAt: z.string().optional(),
     number: z.string().optional(),
-    issuedOn: z.date().optional(),
+    issuedOn: z.string().optional(),
     issuedAt: z.string().optional(),
   }).optional(),
 }).optional();
@@ -245,12 +278,18 @@ const disposalInformationSchema = z.object({
   corpseDisposal: z.string().optional(),
   burialPermit: z.object({
     number: z.string().optional(),
-    dateIssued: z.date().optional(),
+    dateIssued: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
   }).optional(),
   transferPermit: z
     .object({
       number: z.string().optional(),
-      dateIssued: z.date().optional(),
+      dateIssued: z.union([
+        z.string().optional(),
+        z.date().optional()
+      ]).optional(),
     })
     .optional(),
   cemeteryOrCrematory: z.object({
@@ -264,7 +303,10 @@ const informantSchema = z.object({
   nameInPrint: z.string().optional(),
   relationshipToDeceased: z.string().optional(),
   address: z.string().optional(),
-  date: z.date().optional(),
+  date: z.union([
+    z.string(),
+    z.date()
+  ]).optional(),
 });
 
 // --- Section 19a: Causes of Death for Infants ---

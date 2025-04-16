@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   FormControl,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import { forwardRef, useEffect, useState } from 'react';
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { forwardRef, useEffect, useState } from "react";
 
 interface DatePickerFieldProps {
   field: {
@@ -35,22 +35,22 @@ interface DatePickerFieldProps {
 }
 
 const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
-  ({ field, label, placeholder = 'Please select a date' }, ref) => {
+  ({ field, label, placeholder = "Please select a date" }, ref) => {
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
     const [calendarOpen, setCalendarOpen] = useState(false);
 
@@ -58,7 +58,7 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
       let date: Date;
       if (field.value) {
         date =
-          typeof field.value === 'string' ? new Date(field.value) : field.value;
+          typeof field.value === "string" ? new Date(field.value) : field.value;
         if (!isNaN(date.getTime())) {
           setCurrentDate(date);
           return;
@@ -97,33 +97,33 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
     return (
       <FormItem>
         <FormLabel>{label}</FormLabel>
-        <div className='relative'>
+        <div className="relative">
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
                   ref={ref}
-                  variant='outline'
-                  role='combobox'
+                  variant="outline"
+                  role="combobox"
                   className={cn(
                     // Replicating the select trigger focus styling
-                    'w-full h-8.5 flex items-center justify-between rounded-md border border-muted-foreground/90 bg-background px-3 py-2 text-sm ring-offset-background',
-                    'hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                    !field.value && 'text-muted-foreground'
+                    "w-full h-8.5 flex items-center justify-between rounded-md border border-muted-foreground/90 bg-background px-3 py-2 text-sm ring-offset-background",
+                    "hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                    !field.value && "text-muted-foreground"
                   )}
                 >
                   {field.value && !isNaN(new Date(field.value).getTime()) ? (
-                    format(new Date(field.value), 'MM/dd/yyyy')
+                    format(new Date(field.value), "MM/dd/yyyy")
                   ) : (
                     <span>{placeholder}</span>
                   )}
-                  <CalendarIcon className='h-4 w-4 opacity-50 shrink-0 ml-auto' />
+                  <CalendarIcon className="h-4 w-4 opacity-50 shrink-0 ml-auto" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className='w-auto p-0' align='start'>
-              <div className='border-b border-border p-3'>
-                <div className='flex items-center justify-between space-x-2'>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="border-b border-border p-3">
+                <div className="flex items-center justify-between space-x-2">
                   {/* Month Selector */}
                   <Select
                     value={currentMonth.toString()}
@@ -131,10 +131,10 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
                       handleMonthChange(parseInt(value))
                     }
                   >
-                    <SelectTrigger className='w-[140px] h-8'>
+                    <SelectTrigger className="w-[140px] h-8">
                       <SelectValue>{MONTHS[currentMonth]}</SelectValue>
                     </SelectTrigger>
-                    <SelectContent position='popper'>
+                    <SelectContent position="popper">
                       {MONTHS.map((month, index) => (
                         <SelectItem key={index} value={index.toString()}>
                           {month}
@@ -147,10 +147,10 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
                     value={currentYear.toString()}
                     onValueChange={(value) => handleYearChange(parseInt(value))}
                   >
-                    <SelectTrigger className='w-[95px] h-8'>
+                    <SelectTrigger className="w-[95px] h-8">
                       <SelectValue>{currentYear}</SelectValue>
                     </SelectTrigger>
-                    <SelectContent position='popper'>
+                    <SelectContent position="popper">
                       {years.map((year) => (
                         <SelectItem key={year} value={year.toString()}>
                           {year}
@@ -161,9 +161,9 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
                 </div>
               </div>
               <Calendar
-                mode='single'
+                mode="single"
                 selected={
-                  typeof field.value === 'string'
+                  typeof field.value === "string"
                     ? new Date(field.value)
                     : field.value || undefined
                 }
@@ -174,10 +174,10 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
                   setCalendarOpen(false);
                 }}
                 disabled={(date) =>
-                  date > new Date() || date < new Date('1900-01-01')
+                  date > new Date() || date < new Date("1900-01-01")
                 }
                 initialFocus
-                className='rounded-b-md'
+                className="rounded-b-md"
               />
             </PopoverContent>
           </Popover>
@@ -188,5 +188,5 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
   }
 );
 
-DatePickerField.displayName = 'DatePickerField';
+DatePickerField.displayName = "DatePickerField";
 export default DatePickerField;

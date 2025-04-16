@@ -1,6 +1,5 @@
 "use client";
 
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -29,6 +28,7 @@ import PlaceOfDeathCards from "./locations/place-of-death-place";
 import ResidenceCards from "./locations/residence-place";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 
 const DeceasedInformationCard: React.FC = () => {
   const { control, setValue, getValues } =
@@ -220,7 +220,7 @@ const DeceasedInformationCard: React.FC = () => {
                 name="dateOfDeath"
                 render={({ field }) => (
                   <FormItem>
-                    <DatePickerField
+                    <DatePickerString
                       field={{
                         value: field.value ?? "",
                         onChange: field.onChange,
@@ -238,7 +238,7 @@ const DeceasedInformationCard: React.FC = () => {
                 name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem>
-                    <DatePickerField
+                    <DatePickerString
                       field={{
                         value: field.value ?? "",
                         onChange: field.onChange,

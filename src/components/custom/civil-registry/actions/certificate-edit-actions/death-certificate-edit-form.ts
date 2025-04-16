@@ -71,7 +71,7 @@ export async function updateDeathCertificateForm(
         deceasedName: formData.name,
         sex: formData.sex!,
         dateOfDeath: formData.dateOfDeath!,
-        timeOfDeath: dateToJSON(formData.timeOfDeath!),
+        timeOfDeath: formData.timeOfDeath!,
         dateOfBirth: formData.dateOfBirth!,
         ageAtDeath: formData.ageAtDeath as Prisma.JsonObject,
         placeOfDeath: formData.placeOfDeath as Prisma.JsonObject,

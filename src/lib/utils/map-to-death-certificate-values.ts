@@ -44,7 +44,8 @@ export const mapToDeathCertificateValues = (
     (form.deathCertificateForm as DeathCertificateFormData) || {};
 
   // Helper for parsing dates safely
-  const parseDateSafely = (
+  // Helper for parsing dates safely as strings to match the Zod schema
+  const parseDate = (
     dateValue: Date | string | null | undefined
   ): Date | undefined => {
     if (!dateValue) return undefined;
@@ -54,6 +55,39 @@ export const mapToDeathCertificateValues = (
       console.error('Error parsing date:', error);
       return undefined;
     }
+  };
+
+  const parseDateSafely = (
+    dateValue: Date | string | null | undefined
+  ): string | undefined => {
+    if (dateValue === null || dateValue === undefined) return undefined;
+
+    // If it's already a Date object, verify it's valid and format it as string
+    if (dateValue instanceof Date) {
+      return !isNaN(dateValue.getTime())
+        ? dateValue.toISOString().split('T')[0] // Return YYYY-MM-DD format
+        : undefined;
+    }
+
+    // If it's a string already, return as is if not a valid date
+    if (typeof dateValue === 'string') {
+      try {
+        const parsedDate = new Date(dateValue);
+        // If it parses as a valid date, standardize the format
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+        } else {
+          // Return original string for values like "Unknown", "1950s", etc.
+          return dateValue;
+        }
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        return dateValue; // Return original string on error
+      }
+    }
+
+    // For any other data type, convert to string
+    return String(dateValue);
   };
 
   // Helper to ensure non-null string values
@@ -281,14 +315,14 @@ export const mapToDeathCertificateValues = (
         othersSpecify: ensureString(deathForm.medicalCertificate?.attendant?.othersSpecify),
         duration: deathForm.medicalCertificate?.attendant?.duration
           ? {
-            from: parseDateSafely(deathForm.medicalCertificate.attendant.duration.from),
-            to: parseDateSafely(deathForm.medicalCertificate.attendant.duration.to),
+            from: parseDate(deathForm.medicalCertificate.attendant.duration.from) || undefined,
+            to: parseDate(deathForm.medicalCertificate.attendant.duration.to) || undefined,
           }
           : undefined,
         certification: deathForm.medicalCertificate?.attendant?.certification
           ? {
-            time: parseDateSafely(deathForm.medicalCertificate.attendant.certification.time),
-            date: parseDateSafely(deathForm.medicalCertificate.attendant.certification.date),
+            time: parseDate(deathForm.medicalCertificate.attendant.certification.time),
+            date: parseDate(deathForm.medicalCertificate.attendant.certification.date),
             name: ensureString(deathForm.medicalCertificate.attendant.certification.name),
             title: ensureString(deathForm.medicalCertificate.attendant.certification.title),
             address: ensureString(deathForm.medicalCertificate.attendant.certification.address),
@@ -381,7 +415,7 @@ export const mapToDeathCertificateValues = (
               ? ensureString(form.preparedBy.name)
               : '',
       titleOrPosition: ensureString(form.preparedByPosition),
-      date: parseDateSafely(form.preparedByDate),
+      date: parseDate(form.preparedByDate),
     },
     receivedBy: {
       nameInPrint:
@@ -389,7 +423,7 @@ export const mapToDeathCertificateValues = (
           ? form.receivedBy
           : ensureString(form.receivedBy),
       titleOrPosition: ensureString(form.receivedByPosition),
-      date: parseDateSafely(form.receivedByDate),
+      date: parseDate(form.receivedByDate),
     },
     registeredByOffice: {
       nameInPrint:
@@ -397,7 +431,7 @@ export const mapToDeathCertificateValues = (
           ? form.registeredBy
           : ensureString(form.registeredBy),
       titleOrPosition: ensureString(form.registeredByPosition),
-      date: parseDateSafely(form.registeredByDate),
+      date: parseDate(form.registeredByDate),
     }
   };
 

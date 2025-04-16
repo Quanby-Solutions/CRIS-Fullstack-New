@@ -52,6 +52,7 @@ const emptyDefaults: MarriageCertificateFormValues = {
     husbandAge: 0,
     husbandBirth: undefined,
     husbandPlaceOfBirth: {
+        address: '',
         cityMunicipality: '',
         province: '',
         country: '',
@@ -110,6 +111,7 @@ const emptyDefaults: MarriageCertificateFormValues = {
     wifeAge: 0,
     wifeBirth: undefined,
     wifePlaceOfBirth: {
+        address: '',
         cityMunicipality: '',
         province: '',
         country: '',
@@ -170,7 +172,7 @@ const emptyDefaults: MarriageCertificateFormValues = {
         internationalAddress: '',
     },
     dateOfMarriage: undefined,
-    timeOfMarriage: undefined,
+    timeOfMarriage: '',
 
     // Witnesses
     husbandWitnesses: [

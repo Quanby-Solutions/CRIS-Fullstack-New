@@ -1,8 +1,6 @@
 "use client";
 
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
-import TimePicker from "@/components/custom/time/time-picker";
-
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -59,10 +57,11 @@ const CertificationOfDeathCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Time of Death Occured At</FormLabel>
                   <FormControl>
-                    <TimePicker
-                      value={field.value ?? null}
-                      onChange={(value) => field.onChange(value)}
-                      ref={field.ref}
+                    <Input
+                      className="h-10"
+                      placeholder="Enter name time of death "
+                      {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -127,10 +126,10 @@ const CertificationOfDeathCard: React.FC = () => {
 
             <FormField
               control={control}
-              name="certificationOfDeath.reviewedBy.date"
+              name="certificationOfDeath.date"
               render={({ field }) => (
                 <FormItem>
-                  <DatePickerField
+                  <DatePickerString
                     field={{
                       value: field.value ?? "",
                       onChange: field.onChange,
@@ -174,7 +173,7 @@ const CertificationOfDeathCard: React.FC = () => {
               name="certificationOfDeath.reviewedBy.date"
               render={({ field }) => (
                 <FormItem>
-                  <DatePickerField
+                  <DatePickerString
                     field={{
                       value: field.value ?? "",
                       onChange: field.onChange,

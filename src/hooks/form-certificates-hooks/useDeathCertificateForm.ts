@@ -29,7 +29,7 @@ const emptyDefaults: DeathCertificateFormValues = {
   },
   sex: undefined,
   dateOfDeath: undefined,
-  timeOfDeath: undefined,
+  timeOfDeath: '',
   dateOfBirth: undefined,
   ageAtDeath: {
     years: undefined,

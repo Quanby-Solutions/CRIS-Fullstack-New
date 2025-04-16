@@ -27,8 +27,24 @@ export const formatLocation = (loc: any): string => {
     if (residence) parts.push(residence)
     return parts.join(', ')
 }
-
 export const formatDate = (date: string | number | Date | null | undefined): string => {
-    if (!date) return ''
-    return new Date(date).toLocaleDateString()
+    // Return empty string for null/undefined values
+    if (date === null || date === undefined) return '';
+
+    // For strings, check if it's a valid date first
+    if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+
+        // Check if parsing resulted in a valid date
+        if (isNaN(parsedDate.getTime())) {
+            // Not a valid date, return the original string
+            return date;
+        }
+
+        // Valid date, format it
+        return parsedDate.toLocaleDateString();
+    }
+
+    // For dates and numbers, convert and format
+    return new Date(date).toLocaleDateString();
 }

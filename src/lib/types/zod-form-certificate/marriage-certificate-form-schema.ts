@@ -214,7 +214,7 @@ export const marriageCertificateSchema = z.object({
 
   // Husband Information
   husbandName: nameSchemaOptional,
-  husbandAge: z.number().int(),
+  husbandAge: z.number().int().optional(),
   husbandBirth: z.date().optional(),
   husbandPlaceOfBirth: locationSchema,
   husbandResidence: locationSchema,
@@ -248,7 +248,7 @@ export const marriageCertificateSchema = z.object({
 
   // Wife Information
   wifeName: nameSchemaOptional,
-  wifeAge: z.number().int(),
+  wifeAge: z.number().int().optional(),
   wifeBirth: z.date().optional(),
   wifePlaceOfBirth: locationSchema,
   wifeSex: z
@@ -285,7 +285,7 @@ export const marriageCertificateSchema = z.object({
     ...locationSchema.shape
   }),
   dateOfMarriage: z.date().optional(),
-  timeOfMarriage: z.date().optional(),
+  timeOfMarriage: z.string().optional(),
 
   // Witnesses
   husbandWitnesses: z.array(z.object({

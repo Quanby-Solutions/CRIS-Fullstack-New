@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { countries } from "@/lib/countries";
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 // Define TypeScript interfaces for location data
 interface BarangayData {
@@ -121,6 +123,7 @@ const WifePlaceOfBirth = () => {
   const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>("");
   const [selectedBarangay, setSelectedBarangay] = useState<string>("");
+  const [useSimpleAddress, setUseSimpleAddress] = useState<boolean>(false);
 
   // Track if data has been initialized
   const [initialized, setInitialized] = useState<boolean>(false);
@@ -129,6 +132,14 @@ const WifePlaceOfBirth = () => {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
+
+  // Check if there's an address value on component mount and set switch accordingly
+  useEffect(() => {
+    const address = getValues("wifePlaceOfBirth.address");
+    if (address) {
+      setUseSimpleAddress(true);
+    }
+  }, [getValues]);
 
   // Extract and organize provinces from the JSON data
   useEffect(() => {
@@ -161,14 +172,14 @@ const WifePlaceOfBirth = () => {
   // Set default country to Philippines on component mount
   useEffect(() => {
     const currentCountry = watch("wifePlaceOfBirth.country");
-    if (!currentCountry) {
+    if (!currentCountry && !useSimpleAddress) {
       setValue("wifePlaceOfBirth.country", "Philippines");
     }
-  }, [setValue, watch]);
+  }, [setValue, watch, useSimpleAddress]);
 
   // Load initial values if they exist
   useEffect(() => {
-    if (provinces.length > 0 && !initialized) {
+    if (provinces.length > 0 && !initialized && !useSimpleAddress) {
       const currentProvince = getValues("wifePlaceOfBirth.province");
       const currentMunicipality = getValues(
         "wifePlaceOfBirth.cityMunicipality"
@@ -250,7 +261,7 @@ const WifePlaceOfBirth = () => {
 
       setInitialized(true);
     }
-  }, [provinces, getValues, initialized]);
+  }, [provinces, getValues, initialized, useSimpleAddress]);
 
   // Handler for province selection
   const handleProvinceSelection = (provinceName: string) => {
@@ -333,76 +344,96 @@ const WifePlaceOfBirth = () => {
   const selectedCountry = watch("wifePlaceOfBirth.country");
   const isPhilippines = selectedCountry === "Philippines" || !selectedCountry;
 
+  // Handler for switch toggle
+  const handleSwitchToggle = (checked: boolean) => {
+    setUseSimpleAddress(checked);
+
+    if (checked) {
+      // Clear location-based fields when switching to simple address
+      setValue("wifePlaceOfBirth.country", "");
+      setValue("wifePlaceOfBirth.province", "");
+      setValue("wifePlaceOfBirth.cityMunicipality", "");
+      setValue("wifePlaceOfBirth.barangay", "");
+      setValue("wifePlaceOfBirth.internationalAddress", "");
+    } else {
+      // Clear simple address when switching to location-based fields
+      setValue("wifePlaceOfBirth.address", "");
+      // Set default country to Philippines
+      setValue("wifePlaceOfBirth.country", "Philippines");
+    }
+  };
+
   return (
     <>
-      {/* Country Field */}
-      <FormField
-        control={control}
-        name="wifePlaceOfBirth.country"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Country</FormLabel>
-            <FormControl>
-              <Select
-                value={field.value || "Philippines"}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  // Clear other fields if country changes
-                  if (value !== "Philippines") {
-                    setValue("wifePlaceOfBirth.province", "");
-                    setValue("wifePlaceOfBirth.cityMunicipality", "");
-                    setValue("wifePlaceOfBirth.barangay", "");
-                    setSelectedProvince("");
-                    setSelectedMunicipality("");
-                    setSelectedBarangay("");
-                  } else {
-                    setValue("wifePlaceOfBirth.internationalAddress", "");
-                  }
-                }}
-              >
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.name}>
-                      {country.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {/* Toggle Switch */}
+      <div className="flex items-center space-x-2 col-span-3 mb-4">
+        <Switch
+          id="wife-address-switch"
+          checked={useSimpleAddress}
+          onCheckedChange={handleSwitchToggle}
+        />
+        <Label htmlFor="wife-address-switch">
+          {useSimpleAddress
+            ? "Using simple place of birth (e.g., hospital, home)"
+            : "Using detailed address"}
+        </Label>
+      </div>
 
-      {/* Conditional fields based on country selection */}
-      {isPhilippines ? (
+      {useSimpleAddress ? (
+        // Simple address input (hospital, home, etc.)
+        <FormField
+          control={control}
+          name="wifePlaceOfBirth.address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Place of Birth</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter place of birth (e.g., General Hospital, Home, etc.)"
+                  {...field}
+                  value={field.value || ""}
+                  className="h-10"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ) : (
+        // Detailed address fields
         <>
-          {/* Province Field */}
+          {/* Country Field */}
           <FormField
             control={control}
-            name="wifePlaceOfBirth.province"
+            name="wifePlaceOfBirth.country"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Province</FormLabel>
+                <FormLabel>Country</FormLabel>
                 <FormControl>
                   <Select
-                    value={field.value || ""}
+                    value={field.value || "Philippines"}
                     onValueChange={(value) => {
                       field.onChange(value);
-                      setSelectedProvince(value);
-                      handleProvinceSelection(value);
+                      // Clear other fields if country changes
+                      if (value !== "Philippines") {
+                        setValue("wifePlaceOfBirth.province", "");
+                        setValue("wifePlaceOfBirth.cityMunicipality", "");
+                        setValue("wifePlaceOfBirth.barangay", "");
+                        setSelectedProvince("");
+                        setSelectedMunicipality("");
+                        setSelectedBarangay("");
+                      } else {
+                        setValue("wifePlaceOfBirth.internationalAddress", "");
+                      }
                     }}
                   >
                     <SelectTrigger className="h-10">
-                      <SelectValue placeholder={"Select province"} />
+                      <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      {provinces.map((province) => (
-                        <SelectItem key={province.name} value={province.name}>
-                          {province.displayName}
+                      {countries.map((country) => (
+                        <SelectItem key={country.code} value={country.name}>
+                          {country.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -413,71 +444,112 @@ const WifePlaceOfBirth = () => {
             )}
           />
 
-          {/* City/Municipality Field */}
-          <FormField
-            control={control}
-            name="wifePlaceOfBirth.cityMunicipality"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City/Municipality</FormLabel>
-                <FormControl>
-                  <Select
-                    value={field.value || ""}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedMunicipality(value);
-                      handleMunicipalitySelection(selectedProvince, value);
-                    }}
-                    disabled={!selectedProvince}
-                  >
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Select city/municipality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {municipalities.length > 0 ? (
-                        municipalities.map((municipality) => (
-                          <SelectItem
-                            key={municipality.name}
-                            value={municipality.name}
-                          >
-                            {municipality.displayName}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="loading" disabled>
-                          {selectedProvince
-                            ? "No municipalities found"
-                            : "Select a province first"}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </>
-      ) : (
-        // International address field for non-Philippines countries
-        <FormField
-          control={control}
-          name="wifePlaceOfBirth.internationalAddress"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Complete Address</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter complete address including street, city, province/state, and postal code"
-                  {...field}
-                  value={field.value ?? ""}
-                  className="h-10"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          {/* Conditional fields based on country selection */}
+          {isPhilippines ? (
+            <>
+              {/* Province Field */}
+              <FormField
+                control={control}
+                name="wifePlaceOfBirth.province"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Province</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value || ""}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedProvince(value);
+                          handleProvinceSelection(value);
+                        }}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder={"Select province"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {provinces.map((province) => (
+                            <SelectItem
+                              key={province.name}
+                              value={province.name}
+                            >
+                              {province.displayName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* City/Municipality Field */}
+              <FormField
+                control={control}
+                name="wifePlaceOfBirth.cityMunicipality"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City/Municipality</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value || ""}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedMunicipality(value);
+                          handleMunicipalitySelection(selectedProvince, value);
+                        }}
+                        disabled={!selectedProvince}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select city/municipality" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {municipalities.length > 0 ? (
+                            municipalities.map((municipality) => (
+                              <SelectItem
+                                key={municipality.name}
+                                value={municipality.name}
+                              >
+                                {municipality.displayName}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="loading" disabled>
+                              {selectedProvince
+                                ? "No municipalities found"
+                                : "Select a province first"}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          ) : (
+            // International address field for non-Philippines countries
+            <FormField
+              control={control}
+              name="wifePlaceOfBirth.internationalAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Complete Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter complete address including street, city, province/state, and postal code"
+                      {...field}
+                      value={field.value ?? ""}
+                      className="h-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
-        />
+        </>
       )}
     </>
   );

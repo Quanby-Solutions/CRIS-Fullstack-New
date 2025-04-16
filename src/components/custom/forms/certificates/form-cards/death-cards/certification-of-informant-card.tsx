@@ -1,6 +1,6 @@
 "use client";
 
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -12,8 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
 import { useFormContext } from "react-hook-form";
-
-
 
 const CertificationInformantCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
@@ -92,7 +90,7 @@ const CertificationInformantCard: React.FC = () => {
             name="informant.date"
             render={({ field }) => (
               <FormItem>
-                <DatePickerField
+                <DatePickerString
                   field={{
                     value: field.value ?? "",
                     onChange: field.onChange,

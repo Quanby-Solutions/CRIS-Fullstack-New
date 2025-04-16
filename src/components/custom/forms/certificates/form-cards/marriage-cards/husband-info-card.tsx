@@ -34,9 +34,6 @@ const HusbandInfoCard: React.FC = () => {
     useFormContext<MarriageCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
 
-  // Auto-calculate and set age when birthdate changes
-  const birthDate = useWatch({ control, name: "husbandBirth" });
-
   // Watch place of birth province to detect NCR
   const birthProvince = useWatch({
     control,
@@ -57,26 +54,7 @@ const HusbandInfoCard: React.FC = () => {
     }
   });
 
-  useEffect(() => {
-    if (birthDate) {
-      const birth = new Date(birthDate);
-      const today = new Date();
-
-      let age = today.getFullYear() - birth.getFullYear();
-
-      // Check if the birth month and day have not yet occurred in the current year
-      const isBirthdayNotPassed =
-        today.getMonth() < birth.getMonth() ||
-        (today.getMonth() === birth.getMonth() &&
-          today.getDate() < birth.getDate());
-
-      if (isBirthdayNotPassed) {
-        age -= 1; // Subtract 1 year if the birthday hasn't occurred yet this year
-      }
-
-      setValue("husbandAge", age); // Update the age field
-    }
-  }, [birthDate, setValue]);
+  // Removed the useEffect for auto-calculating age
 
   return (
     <Card className="border dark:border-border">
@@ -192,7 +170,7 @@ const HusbandInfoCard: React.FC = () => {
               />
             )}
           />
-          {/* Age - Auto-filled */}
+          {/* Age - Now manually inputtable */}
           <FormField
             control={control}
             name="husbandAge"
@@ -204,9 +182,22 @@ const HusbandInfoCard: React.FC = () => {
                     className="h-10"
                     type="number"
                     placeholder="Enter age"
-                    {...field}
-                    value={field.value ?? ""}
-                    disabled
+                    onChange={(e) => {
+                      // Convert string value to number before setting
+                      const value =
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value);
+                      field.onChange(value);
+                    }}
+                    // Display empty string instead of 0
+                    value={
+                      field.value === 0 ||
+                      field.value === undefined ||
+                      field.value === null
+                        ? ""
+                        : field.value
+                    }
                   />
                 </FormControl>
                 <FormMessage />

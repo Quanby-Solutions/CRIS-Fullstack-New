@@ -147,10 +147,10 @@ const MarriageDetailsCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Time of Marriage</FormLabel>
                 <FormControl>
-                  <TimePicker
-                    value={field.value ?? null}
-                    onChange={(value) => field.onChange(value)}
-                    ref={field.ref}
+                  <Input
+                    placeholder="Enter time of marriage"
+                    {...field}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />

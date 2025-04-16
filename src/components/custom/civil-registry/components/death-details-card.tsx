@@ -187,11 +187,11 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
             </div>
             <div>
               <p className="font-medium">{t("Date of Death")}</p>
-              <div>{formatDate(d.dateOfDeath)}</div>
+              <div>{formatDate(d.dateOfDeath as any)}</div>
             </div>
             <div>
               <p className="font-medium">{t("Date of Birth")}</p>
-              <div>{formatDate(d.dateOfBirth)}</div>
+              <div>{formatDate(d.dateOfBirth as any)}</div>
             </div>
           </div>
         </section>

@@ -43,29 +43,7 @@ const WifeInfoCard: React.FC = () => {
     }
   }, [getValues]);
 
-  // Auto-calculate and set age when birthdate changes
-  const birthDate = useWatch({ control, name: "wifeBirth" });
-
-  useEffect(() => {
-    if (birthDate) {
-      const birth = new Date(birthDate);
-      const today = new Date();
-
-      let age = today.getFullYear() - birth.getFullYear();
-
-      // Check if the birth month and day have not yet occurred in the current year
-      const isBirthdayNotPassed =
-        today.getMonth() < birth.getMonth() ||
-        (today.getMonth() === birth.getMonth() &&
-          today.getDate() < birth.getDate());
-
-      if (isBirthdayNotPassed) {
-        age -= 1; // Subtract 1 year if the birthday hasn't occurred yet this year
-      }
-
-      setValue("wifeAge", age); // Update the age field
-    }
-  }, [birthDate, setValue]);
+  // Removed the auto-calculation of age based on birthdate
 
   useEffect(() => {
     if (wifeNcrMode === true) {
@@ -182,7 +160,7 @@ const WifeInfoCard: React.FC = () => {
               />
             )}
           />
-          {/* Age - Auto-filled */}
+          {/* Age - Manual input now, not auto-filled */}
           <FormField
             control={control}
             name="wifeAge"
@@ -194,9 +172,22 @@ const WifeInfoCard: React.FC = () => {
                     className="h-10"
                     type="number"
                     placeholder="Enter age"
-                    {...field}
-                    value={field.value || ""}
-                    disabled
+                    onChange={(e) => {
+                      // Convert string value to number before setting
+                      const value =
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value);
+                      field.onChange(value);
+                    }}
+                    // Display empty string instead of 0
+                    value={
+                      field.value === 0 ||
+                      field.value === undefined ||
+                      field.value === null
+                        ? ""
+                        : field.value
+                    }
                   />
                 </FormControl>
                 <FormMessage />

@@ -71,7 +71,7 @@ export const mapToMarriageCertificateValues = (
 ): Partial<MarriageCertificateFormValues> => {
     // Extract the Marriage certificate form data with proper typing
     const marriageForm =
-        (form.marriageCertificateForm as MarriageCertificateFormData) || {};
+        (form.marriageCertificateForm as unknown as MarriageCertificateFormData) || {};
 
     // Helper for parsing dates safely
     const parseDateSafely = (
@@ -288,7 +288,7 @@ export const mapToMarriageCertificateValues = (
         // Marriage details
         placeOfMarriage: createAddressObject(marriageForm.placeOfMarriage),
         dateOfMarriage: parseDateSafely(marriageForm.dateOfMarriage),
-        timeOfMarriage: parseDateSafely(marriageForm.timeOfMarriage),
+        timeOfMarriage: ensureString(marriageForm.timeOfMarriage),
         contractDay: parseDateSafely(marriageForm.contractDay),
         marriageSettlement: marriageForm.marriageSettlement || false,
         husbandContractParty: {

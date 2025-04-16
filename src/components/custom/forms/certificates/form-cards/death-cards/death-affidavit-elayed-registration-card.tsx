@@ -1,6 +1,5 @@
 "use client";
 
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -16,6 +15,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import SignatureUploader from "../shared-components/signature-uploader";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 
 const AffidavitDelayedRegistrationCard: React.FC = () => {
   const { control, setValue, watch, getValues } =
@@ -61,7 +61,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
     monthAndYear = format(date, "MMMM yyyy"); // e.g. "January 2025"
   }
 
-  const displayPlace = affidavitPlace || "";
+  const displayPlace = affidavitPlace ? String(affidavitPlace) : "";
 
   return (
     <Card>
@@ -202,12 +202,14 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <DatePickerField
+                        <DatePickerString
                           field={{
                             value: field.value ?? "",
                             onChange: (date) =>
                               field.onChange(
-                                date ? format(date, "MM/dd/yyyy") : ""
+                                date instanceof Date
+                                  ? format(date, "MM/dd/yyyy")
+                                  : ""
                               ),
                           }}
                           label="Died on"
@@ -261,12 +263,14 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <DatePickerField
+                        <DatePickerString
                           field={{
                             value: field.value ?? "",
                             onChange: (date) =>
                               field.onChange(
-                                date ? format(date, "MM/dd/yyyy") : ""
+                                date instanceof Date
+                                  ? format(date, "MM/dd/yyyy")
+                                  : ""
                               ),
                           }}
                           label="Was burial/cremated on"
@@ -403,7 +407,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <DatePickerField
+                        <DatePickerString
                           field={{
                             value: field.value ?? "",
                             onChange: (date) => field.onChange(date),
@@ -447,7 +451,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <DatePickerField
+                        <DatePickerString
                           field={{
                             value: field.value ?? "",
                             onChange: (date) => field.onChange(date),
@@ -501,7 +505,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <DatePickerField
+                        <DatePickerString
                           field={{
                             value: field.value ?? "",
                             onChange: (date) => field.onChange(date),

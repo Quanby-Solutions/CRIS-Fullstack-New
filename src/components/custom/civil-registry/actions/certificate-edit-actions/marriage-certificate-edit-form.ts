@@ -68,6 +68,7 @@ export async function updateMarriageCertificateForm(
                 husbandDateOfBirth: data.husbandBirth,
                 husbandAge: data.husbandAge,
                 husbandPlaceOfBirth: {
+                    address: data.husbandPlaceOfBirth?.address,
                     cityMunicipality: data.husbandPlaceOfBirth?.cityMunicipality,
                     province: data.husbandPlaceOfBirth?.province,
                     country: data.husbandPlaceOfBirth?.country,
@@ -115,14 +116,11 @@ export async function updateMarriageCertificateForm(
                 wifeDateOfBirth: data.wifeBirth,
                 wifeAge: data.wifeAge,
                 wifePlaceOfBirth: {
-                    barangay: data.wifePlaceOfBirth?.barangay,
-                    houseNo: data.wifePlaceOfBirth?.houseNo,
-                    street: data.wifePlaceOfBirth?.street,
+                    address: data.wifePlaceOfBirth?.address,
                     cityMunicipality: data.wifePlaceOfBirth?.cityMunicipality,
                     province: data.wifePlaceOfBirth?.province,
                     country: data.wifePlaceOfBirth?.country,
                     internationalAddress: data.wifePlaceOfBirth?.internationalAddress,
-                    residence: data.wifePlaceOfBirth?.residence,
                 },
                 wifeSex: data.wifeSex,
                 wifeCitizenship: data.wifeCitizenship,

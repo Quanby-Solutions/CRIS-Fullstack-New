@@ -1,6 +1,6 @@
 "use client";
 
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 import {
   Card,
   CardContent,
@@ -80,7 +80,7 @@ const PostmortemCertificateCard: React.FC = () => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <DatePickerField
+                <DatePickerString
                   field={{
                     value: field.value ?? "",
                     onChange: field.onChange,

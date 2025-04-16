@@ -1,9 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useFormContext, useWatch } from "react-hook-form";
-import { format } from "date-fns";
-
+import { useFormContext } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -11,12 +9,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { MarriageCertificateFormValues } from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
 import { useEffect, useState } from "react";
 import NCRModeSwitch from "../shared-components/ncr-mode-switch";
 import LocationSelector from "../shared-components/location-selector";

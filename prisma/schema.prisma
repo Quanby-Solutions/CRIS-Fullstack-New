@@ -228,7 +228,7 @@ model MarriageCertificateForm {
 
   placeOfMarriage             Json
   dateOfMarriage              DateTime
-  timeOfMarriage              DateTime            
+  timeOfMarriage              String?            
   contractDay                 DateTime
 
   marriageSettlement          Boolean           @default(false)
@@ -305,9 +305,9 @@ model DeathCertificateForm {
   // Deceased Information
   deceasedName Json // nameSchema structure (first, middle, last)
   sex          Sex? // Enum: Male, Female
-  dateOfDeath  DateTime?
-  timeOfDeath  DateTime?
-  dateOfBirth  DateTime?
+  dateOfDeath  Json?
+  timeOfDeath  Json?
+  dateOfBirth  Json?
   ageAtDeath   Json? // Object with years, months, days, hours
   placeOfDeath Json? // residenceSchema structure
   civilStatus  String
@@ -334,7 +334,7 @@ model DeathCertificateForm {
   certificationOfDeath Json? // Contains hasAttended, signature, nameInPrint, titleOfPosition, address, date, healthOfficerSignature, healthOfficerNameInPrint
 
   // Review Information
-  reviewedBy DateTime? // Contains signature and date
+  reviewedBy String? // Contains signature and date
 
   // Optional Certificates
   postmortemCertificate Json? // For autopsy cases

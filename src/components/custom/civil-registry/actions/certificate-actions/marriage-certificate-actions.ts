@@ -103,7 +103,7 @@ export async function submitMarriageCertificateForm(
             husbandFirstName: formData?.husbandName?.first || '',
             husbandMiddleName: formData?.husbandName?.middle,
             husbandLastName: formData?.husbandName?.last || '',
-            husbandAge: formData.husbandAge,
+            husbandAge: formData?.husbandAge ?? 0,
             husbandDateOfBirth: dateToJSON(formData.husbandBirth || new Date()),
             husbandSex: formData.husbandSex,
             husbandCitizenship: formData.husbandCitizenship,
@@ -136,7 +136,7 @@ export async function submitMarriageCertificateForm(
             wifeFirstName: formData?.wifeName?.first || '',
             wifeMiddleName: formData.wifeName?.middle,
             wifeLastName: formData?.wifeName?.last || '',
-            wifeAge: formData.wifeAge,
+            wifeAge: formData?.wifeAge ?? 0,
             wifeDateOfBirth: dateToJSON(formData.wifeBirth || new Date()),
             wifeSex: formData.wifeSex,
             wifeCitizenship: formData.wifeCitizenship,
@@ -174,7 +174,7 @@ export async function submitMarriageCertificateForm(
             // Marriage Details
             placeOfMarriage: formData.placeOfMarriage as Prisma.JsonObject,
             dateOfMarriage: dateToJSON(formData.dateOfMarriage || new Date()),
-            timeOfMarriage: dateToJSON(formData.timeOfMarriage || new Date()),
+            timeOfMarriage: formData.timeOfMarriage || '',
 
             // Witnesses
             witnesses: formData.husbandWitnesses as InputJsonValue[],

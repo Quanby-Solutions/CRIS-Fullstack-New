@@ -1,6 +1,6 @@
 "use client";
 
-import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CemeteryOrCrematoryCards from "./locations/cemetery-crematory-place";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 
 const DisposalInformationCard: React.FC = () => {
   const { control, getValues, setValue, watch, clearErrors } =
@@ -185,7 +186,7 @@ const DisposalInformationCard: React.FC = () => {
               name="burialPermit.dateIssued"
               render={({ field }) => (
                 <FormItem>
-                  <DatePickerField
+                  <DatePickerString
                     field={{
                       value: field.value ?? "",
                       onChange: field.onChange,
@@ -228,7 +229,7 @@ const DisposalInformationCard: React.FC = () => {
               name="transferPermit.dateIssued"
               render={({ field }) => (
                 <FormItem>
-                  <DatePickerField
+                  <DatePickerString
                     field={{
                       value: field.value ?? "",
                       onChange: field.onChange,

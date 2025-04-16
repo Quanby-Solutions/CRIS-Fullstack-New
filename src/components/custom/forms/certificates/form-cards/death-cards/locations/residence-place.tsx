@@ -455,7 +455,25 @@ const ResidenceCards = () => {
               </FormItem>
             )}
           />
-
+          <FormField
+            control={control}
+            name="residence.houseNo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>House Number</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter house number"
+                    type="text"
+                    {...field}
+                    value={field.value ?? ""}
+                    className="h-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Barangay Field */}
           <FormField
             control={control}
