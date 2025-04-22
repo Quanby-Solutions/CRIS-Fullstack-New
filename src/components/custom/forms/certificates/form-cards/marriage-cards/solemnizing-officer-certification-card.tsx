@@ -123,7 +123,7 @@ export const SolemnizingOfficerCertification: React.FC<
                   </FormControl>
                   <FormLabel className="text-sm font-normal">
                     c. The marriage was solemnized in accordance with the
-                    provisions of Executive Order No. 209.
+                    provisions of Presidential decree No. 1083.
                   </FormLabel>
                 </FormItem>
               )}

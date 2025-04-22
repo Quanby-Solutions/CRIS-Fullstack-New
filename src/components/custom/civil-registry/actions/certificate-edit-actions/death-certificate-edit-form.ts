@@ -11,10 +11,6 @@ export async function updateDeathCertificateForm(
   formData: DeathCertificateFormValues
 ) {
 
-  const dateToJSON = (date: Date | any) => {
-    if (!date) return null;
-    return date.toISOString();
-  }
 
   try {
     console.log('Looking for marriage certificate with baseFormId:', baseFormId);
@@ -137,7 +133,7 @@ export async function updateDeathCertificateForm(
           titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
           address: formData?.certificationOfDeath?.address,
           reviewedBy: {
-            date: dateToJSON(formData.certificationOfDeath?.reviewedBy?.date!),
+            date: formData.certificationOfDeath?.reviewedBy?.date!,
             healthOfficerNameInPrint:
               formData.certificationOfDeath?.reviewedBy?.healthOfficerNameInPrint,
           }
@@ -150,7 +146,7 @@ export async function updateDeathCertificateForm(
         postmortemCertificate: formData.postmortemCertificate
           ? ({
             ...formData.postmortemCertificate,
-            date: dateToJSON(formData.postmortemCertificate.date!),
+            date: formData.postmortemCertificate.date!,
           } as Prisma.JsonObject)
           : Prisma.JsonNull,
 
@@ -158,9 +154,9 @@ export async function updateDeathCertificateForm(
           nameInPrint: formData.embalmerCertification?.nameInPrint,
           nameOfDeceased: formData.embalmerCertification?.nameOfDeceased,
           licenseNo: formData.embalmerCertification?.licenseNo,
-          issuedOn: dateToJSON(formData.embalmerCertification?.issuedOn!),
+          issuedOn: formData.embalmerCertification?.issuedOn!,
           issuedAt: formData.embalmerCertification?.issuedAt,
-          expiryDate: dateToJSON(formData.embalmerCertification?.expiryDate!),
+          expiryDate: formData.embalmerCertification?.expiryDate!,
           address: formData.embalmerCertification?.address,
           titleDesignation: formData.embalmerCertification?.titleDesignation,
         } as Prisma.JsonObject,
@@ -185,11 +181,11 @@ export async function updateDeathCertificateForm(
                 } as Prisma.JsonObject,
                 deceased: {
                   name: formData.delayedRegistration?.deceased?.name,
-                  diedOn: dateToJSON(formData.delayedRegistration?.deceased?.diedOn!),
-                  dateOfDeath: dateToJSON(formData.delayedRegistration?.deceased?.dateOfDeath!),
+                  diedOn: formData.delayedRegistration?.deceased?.diedOn!,
+                  dateOfDeath: formData.delayedRegistration?.deceased?.dateOfDeath!,
                   placeOfDeath: formData.delayedRegistration?.deceased?.placeOfDeath,
                   burialInfo: {
-                    date: dateToJSON(formData.delayedRegistration?.deceased?.burialInfo?.date!),
+                    date: formData.delayedRegistration?.deceased?.burialInfo?.date!,
                     place: formData.delayedRegistration?.deceased?.burialInfo?.place,
                     method: formData.delayedRegistration?.deceased?.burialInfo?.method,
                   }
@@ -211,7 +207,7 @@ export async function updateDeathCertificateForm(
                   dayOf: formData.delayedRegistration?.ctcInfo?.dayOf,
                   placeAt: formData.delayedRegistration?.ctcInfo?.placeAt,
                   number: formData.delayedRegistration?.ctcInfo?.number,
-                  issuedOn: dateToJSON(formData.delayedRegistration?.ctcInfo?.issuedOn!),
+                  issuedOn: formData.delayedRegistration?.ctcInfo?.issuedOn!,
                   issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt
                 } as Prisma.JsonObject
               }
@@ -224,13 +220,13 @@ export async function updateDeathCertificateForm(
         corpseDisposal: formData.corpseDisposal,
         burialPermit: {
           number: formData.burialPermit?.number,
-          dateIssued: dateToJSON(formData.burialPermit?.dateIssued!),
+          dateIssued: formData.burialPermit?.dateIssued!,
         } as Prisma.JsonObject,
 
         transferPermit: formData.transferPermit
           ? ({
             number: formData.transferPermit.number,
-            dateIssued: dateToJSON(formData.transferPermit.dateIssued!),
+            dateIssued: formData.transferPermit.dateIssued!,
           } as Prisma.JsonObject)
           : Prisma.JsonNull,
 
@@ -246,7 +242,7 @@ export async function updateDeathCertificateForm(
           nameInPrint: formData.informant?.nameInPrint,
           relationshipToDeceased: formData.informant?.relationshipToDeceased,
           address: formData.informant?.address,
-          date: dateToJSON(formData.informant?.date!),
+          date: formData.informant?.date!,
         } as Prisma.JsonObject,
 
         remarks: formData.remarks,

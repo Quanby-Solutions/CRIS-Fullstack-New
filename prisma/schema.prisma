@@ -334,7 +334,7 @@ model DeathCertificateForm {
   certificationOfDeath Json? // Contains hasAttended, signature, nameInPrint, titleOfPosition, address, date, healthOfficerSignature, healthOfficerNameInPrint
 
   // Review Information
-  reviewedBy String? // Contains signature and date
+  reviewedBy Json? // Contains signature and date
 
   // Optional Certificates
   postmortemCertificate Json? // For autopsy cases

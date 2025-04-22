@@ -85,10 +85,6 @@ export async function submitDeathCertificateForm(
           },
         });
 
-        const safelyConvertDateToJSON = (date: Date | undefined | null) => {
-          return date instanceof Date ? date.toISOString() : null;
-        };
-
         // Create the death certificate form record.
         await tx.deathCertificateForm.create({
           data: {
@@ -192,21 +188,19 @@ export async function submitDeathCertificateForm(
               nameInPrint: formData.certificationOfDeath?.nameInPrint,
               titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
               address: formData.certificationOfDeath?.address,
-              date: safelyConvertDateToJSON(formData.certificationOfDeath?.date),
+              date: formData.certificationOfDeath?.date,
               healthOfficerNameInPrint:
                 formData.certificationOfDeath?.nameInPrint,
             } as Prisma.JsonObject,
 
             // Review Information.
-            reviewedBy: safelyConvertDateToJSON(formData?.reviewedBy?.date),
+            reviewedBy: formData?.reviewedBy?.date,
 
             // Optional Certificates.
             postmortemCertificate: formData.postmortemCertificate
               ? ({
                 ...formData.postmortemCertificate,
-                date: safelyConvertDateToJSON(
-                  formData?.postmortemCertificate?.date
-                ),
+                date: formData?.postmortemCertificate?.date,
               } as Prisma.JsonObject)
               : Prisma.JsonNull,
 
@@ -234,18 +228,15 @@ export async function submitDeathCertificateForm(
                 } as Prisma.JsonObject,
                 deceased: {
                   name: formData.delayedRegistration?.deceased?.name,
-                  dateOfDeath: safelyConvertDateToJSON(
-                    formData?.delayedRegistration?.deceased?.dateOfDeath
-                  ),
-                  diedOn: safelyConvertDateToJSON(
-                    formData.delayedRegistration?.deceased?.diedOn
-                  ),
+                  dateOfDeath:
+                    formData?.delayedRegistration?.deceased?.dateOfDeath,
+                  diedOn:
+                    formData.delayedRegistration?.deceased?.diedOn,
                   placeOfDeath: formData?.delayedRegistration?.deceased
                     ?.placeOfDeath,
                   burialInfo: {
-                    date: safelyConvertDateToJSON(
-                      formData.delayedRegistration?.deceased?.burialInfo?.date
-                    ),
+                    date:
+                      formData.delayedRegistration?.deceased?.burialInfo?.date,
                     place: formData.delayedRegistration?.deceased?.burialInfo
                       ?.place,
                     method:
@@ -261,9 +252,8 @@ export async function submitDeathCertificateForm(
                 },
                 causeOfDeath: formData.delayedRegistration?.causeOfDeath,
                 reasonForDelay: formData.delayedRegistration?.reasonForDelay,
-                affidavitDate: safelyConvertDateToJSON(
-                  formData?.delayedRegistration?.affidavitDate
-                ),
+                affidavitDate:
+                  formData?.delayedRegistration?.affidavitDate,
                 affidavitDatePlace: formData.delayedRegistration
                   ?.affidavitDatePlace,
                 adminOfficer: {
@@ -275,9 +265,8 @@ export async function submitDeathCertificateForm(
                   dayOf: formData.delayedRegistration?.ctcInfo?.dayOf,
                   placeAt: formData.delayedRegistration?.ctcInfo?.placeAt,
                   number: formData.delayedRegistration?.ctcInfo?.number,
-                  issuedOn: safelyConvertDateToJSON(
-                    formData.delayedRegistration?.ctcInfo?.issuedOn
-                  ),
+                  issuedOn:
+                    formData.delayedRegistration?.ctcInfo?.issuedOn,
                   issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt,
                 } as Prisma.JsonObject,
               } as Prisma.JsonObject)
@@ -287,17 +276,15 @@ export async function submitDeathCertificateForm(
             corpseDisposal: formData.corpseDisposal || '',
             burialPermit: {
               number: formData.burialPermit?.number,
-              dateIssued: safelyConvertDateToJSON(
-                formData?.burialPermit?.dateIssued
-              ),
+              dateIssued:
+                formData?.burialPermit?.dateIssued,
             } as Prisma.JsonObject,
 
             transferPermit: formData.transferPermit
               ? ({
                 number: formData.transferPermit.number,
-                dateIssued: safelyConvertDateToJSON(
-                  formData?.transferPermit.dateIssued
-                ),
+                dateIssued:
+                  formData?.transferPermit.dateIssued,
               } as Prisma.JsonObject)
               : Prisma.JsonNull,
 
