@@ -36,7 +36,19 @@ export async function updateDeathCertificateForm(
 
       return { error: 'Marriage certificate not found. ID format might be incorrect.' };
     }
-
+    // Helper function to convert date objects to ISO strings
+    const dateToJSON = (date: Date | any) => {
+      if (!date) return null;
+      // Check if date is a Date object
+      if (date instanceof Date) {
+        return date.toISOString();
+      }
+      // If it's already a string, return it
+      if (typeof date === 'string') {
+        return date;
+      }
+      return null;
+    };
 
     // Update the base form using the baseFormId from the marriage certificate
     const updatedBaseForm = await prisma.baseRegistryForm.update({
@@ -163,58 +175,67 @@ export async function updateDeathCertificateForm(
 
         // Delayed Registration
         delayedRegistration: formData.delayedRegistration?.isDelayed
-          ? ({
+          ? {
             isDelayed: true,
-            // Only include fields if isDelayed is true and all required fields are present
-            ...(formData.delayedRegistration.affiant?.name &&
-              formData.delayedRegistration.deceased?.name &&
-              formData.delayedRegistration.causeOfDeath &&
-              formData.delayedRegistration.reasonForDelay &&
-              formData.delayedRegistration.affidavitDate &&
-              formData.delayedRegistration.affidavitDatePlace
-              ? {
-                affiant: {
-                  name: formData.delayedRegistration.affiant.name,
-                  civilStatus: formData.delayedRegistration?.affiant?.civilStatus,
-                  residenceAddress: formData.delayedRegistration?.affiant?.residenceAddress,
-                  age: formData.delayedRegistration?.affiant?.age,
-                } as Prisma.JsonObject,
-                deceased: {
-                  name: formData.delayedRegistration?.deceased?.name,
-                  diedOn: formData.delayedRegistration?.deceased?.diedOn!,
-                  dateOfDeath: formData.delayedRegistration?.deceased?.dateOfDeath!,
-                  placeOfDeath: formData.delayedRegistration?.deceased?.placeOfDeath,
-                  burialInfo: {
-                    date: formData.delayedRegistration?.deceased?.burialInfo?.date!,
-                    place: formData.delayedRegistration?.deceased?.burialInfo?.place,
-                    method: formData.delayedRegistration?.deceased?.burialInfo?.method,
-                  }
-                } as Prisma.JsonObject,
-                attendance: {
-                  wasAttended: formData.delayedRegistration?.attendance?.wasAttended,
-                  attendedBy: formData.delayedRegistration?.attendance?.attendedBy,
-                },
-                causeOfDeath: formData.delayedRegistration?.causeOfDeath,
-                reasonForDelay: formData.delayedRegistration?.reasonForDelay,
-                affidavitDate: formData.delayedRegistration?.affidavitDate!,
-                affidavitDatePlace: formData.delayedRegistration?.affidavitDatePlace,
-                adminOfficer: {
-                  name: formData.delayedRegistration?.adminOfficer?.name,
-                  address: formData.delayedRegistration?.adminOfficer?.address,
-                  position: formData.delayedRegistration?.adminOfficer?.position,
-                },
-                ctcInfo: {
-                  dayOf: formData.delayedRegistration?.ctcInfo?.dayOf,
-                  placeAt: formData.delayedRegistration?.ctcInfo?.placeAt,
-                  number: formData.delayedRegistration?.ctcInfo?.number,
-                  issuedOn: formData.delayedRegistration?.ctcInfo?.issuedOn!,
-                  issuedAt: formData.delayedRegistration?.ctcInfo?.issuedAt
-                } as Prisma.JsonObject
+            ...(formData.delayedRegistration.affiant ? {
+              affiant: {
+                name: formData.delayedRegistration.affiant.name || null,
+                civilStatus: formData.delayedRegistration.affiant.civilStatus || null,
+                residenceAddress: formData.delayedRegistration.affiant.residenceAddress || null,
+                age: formData.delayedRegistration.affiant.age || null,
               }
-              : {}
-            ) as Prisma.JsonObject
-          } as Prisma.JsonObject)
-          : {},
+            } : {}),
+            ...(formData.delayedRegistration.deceased ? {
+              deceased: {
+                name: formData.delayedRegistration.deceased.name || null,
+                diedOn: formData.delayedRegistration.deceased.diedOn || null,
+                dateOfDeath: dateToJSON(formData.delayedRegistration.deceased.dateOfDeath) || null,
+                placeOfDeath: formData.delayedRegistration.deceased.placeOfDeath || null,
+                ...(formData.delayedRegistration.deceased.burialInfo ? {
+                  burialInfo: {
+                    date: dateToJSON(formData.delayedRegistration.deceased.burialInfo.date) || null,
+                    place: formData.delayedRegistration.deceased.burialInfo.place || null,
+                    method: formData.delayedRegistration.deceased.burialInfo.method || null,
+                  }
+                } : {})
+              }
+            } : {}),
+            ...(formData.delayedRegistration.attendance ? {
+              attendance: {
+                wasAttended: formData.delayedRegistration.attendance.wasAttended || null,
+                attendedBy: formData.delayedRegistration.attendance.attendedBy || null,
+              }
+            } : {}),
+            ...(formData.delayedRegistration.causeOfDeath ? {
+              causeOfDeath: formData.delayedRegistration.causeOfDeath
+            } : {}),
+            ...(formData.delayedRegistration.reasonForDelay ? {
+              reasonForDelay: formData.delayedRegistration.reasonForDelay
+            } : {}),
+            ...(formData.delayedRegistration.affidavitDate ? {
+              affidavitDate: dateToJSON(formData.delayedRegistration.affidavitDate) || null
+            } : {}),
+            ...(formData.delayedRegistration.affidavitDatePlace ? {
+              affidavitDatePlace: formData.delayedRegistration.affidavitDatePlace
+            } : {}),
+            ...(formData.delayedRegistration.adminOfficer ? {
+              adminOfficer: {
+                name: formData.delayedRegistration.adminOfficer.name || null,
+                address: formData.delayedRegistration.adminOfficer.address || null,
+                position: formData.delayedRegistration.adminOfficer.position || null,
+              }
+            } : {}),
+            ...(formData.delayedRegistration.ctcInfo ? {
+              ctcInfo: {
+                dayOf: dateToJSON(formData.delayedRegistration.ctcInfo.dayOf) || null,
+                placeAt: formData.delayedRegistration.ctcInfo.placeAt || null,
+                number: formData.delayedRegistration.ctcInfo.number || null,
+                issuedOn: dateToJSON(formData.delayedRegistration.ctcInfo.issuedOn) || null,
+                issuedAt: formData.delayedRegistration.ctcInfo.issuedAt || null
+              }
+            } : {})
+          }
+          : { isDelayed: false },
 
         // Disposal Information
         corpseDisposal: formData.corpseDisposal,

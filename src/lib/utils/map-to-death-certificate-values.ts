@@ -468,6 +468,7 @@ export const mapToDeathCertificateValues = (
         position: ensureString(deathForm.delayedRegistration?.adminOfficer?.position),
       },
       ctcInfo: {
+        dayOf: parseDateSafely(deathForm.delayedRegistration?.ctcInfo?.dayOf),
         number: ensureString(deathForm.delayedRegistration?.ctcInfo?.number),
         issuedOn: parseDateSafely(deathForm.delayedRegistration?.ctcInfo?.issuedOn),
         issuedAt: ensureString(deathForm.delayedRegistration?.ctcInfo?.issuedAt),

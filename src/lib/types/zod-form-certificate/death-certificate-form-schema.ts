@@ -273,7 +273,10 @@ const delayedRegistrationSchema = z.object({
     ]).optional(),
     placeAt: z.string().optional(),
     number: z.string().optional(),
-    issuedOn: z.string().optional(),
+    issuedOn: z.union([
+      z.string().optional(),
+      z.date().optional()
+    ]).optional(),
     issuedAt: z.string().optional(),
   }).optional(),
 }).optional();
