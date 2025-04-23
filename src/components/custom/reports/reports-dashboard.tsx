@@ -48,7 +48,7 @@ export const ReportsDashboard = () => {
   };
 
   return (
-    <Card className="w-full ml-0 mr-auto relative h-screen ">
+    <div className="w-full ml-0 mr-auto relative h-screen ">
       <CardHeader>
         <CardTitle>{t("reports_dashboard")}</CardTitle>
       </CardHeader>
@@ -80,6 +80,6 @@ export const ReportsDashboard = () => {
           ))}
         </Tabs>
       </CardContent>
-    </Card>
+    </div>
   );
 };
