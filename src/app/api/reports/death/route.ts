@@ -12,20 +12,16 @@ export async function GET(request: Request) {
         console.log(`Fetching death data from ${startYear} to ${endYear}`)
 
         // Adjust query to safely handle dateOfDeath
+        // Adjust query to handle dateOfDeath as JSON
         const allDeaths = await prisma.deathCertificateForm.findMany({
-            where: {
-                dateOfDeath: {
-                    gte: new Date(`${startYear}-01-01T00:00:00Z`),
-                    lte: new Date(`${endYear}-12-31T23:59:59Z`),
-                },
-            },
+            // Remove the date filtering initially to get ALL records
             select: {
                 dateOfDeath: true,
                 sex: true,
             },
-        })
+        });
 
-        console.log(`Found ${allDeaths.length} death records`)
+        console.log(`Found ${allDeaths.length} total death records before filtering`);
 
         // If no records found, return empty array with structure
         if (allDeaths.length === 0) {
@@ -68,26 +64,114 @@ export async function GET(request: Request) {
 
                 // Get year from date, handling potential date format issues
                 let year: number;
+
                 try {
-                    // Convert the dateOfDeath to an actual Date object
-                    let dateObj;
+                    // First try to extract years from strings directly
                     if (typeof death.dateOfDeath === 'string') {
-                        dateObj = new Date(death.dateOfDeath);
+                        // Look for year pattern (4 digits that might be a year)
+                        const yearMatch = death.dateOfDeath.match(/\b(19|20)\d{2}\b/);
+                        if (yearMatch) {
+                            year = parseInt(yearMatch[0]);
+
+                            // Check if extracted year is within range
+                            if (year >= startYear && year <= endYear) {
+                                console.log(`Extracted year ${year} directly from string: ${death.dateOfDeath}`);
+
+                                // Process sex data with this year
+                                let sexValue = null;
+                                if (death.sex !== null && death.sex !== undefined) {
+                                    sexValue = String(death.sex).toLowerCase();
+                                }
+
+                                if (sexValue === 'male') {
+                                    yearlyData[year].male++;
+                                } else if (sexValue === 'female') {
+                                    yearlyData[year].female++;
+                                } else {
+                                    yearlyData[year].unknown++;
+                                }
+
+                                processedCount++;
+                                return; // Skip the rest of the processing
+                            } else {
+                                skippedCount++;
+                                return; // Year outside range
+                            }
+                        }
+                    }
+
+                    // If no year found directly in string, proceed with normal date parsing
+                    let dateObj;
+
+                    if (typeof death.dateOfDeath === 'string') {
+                        // If it looks like a JSON string with a date inside
+                        if (death.dateOfDeath.includes('"dateOfDeath"')) {
+                            try {
+                                const parsed = JSON.parse(death.dateOfDeath);
+                                dateObj = new Date(parsed.dateOfDeath);
+                            } catch {
+                                // Fallback to direct parsing if JSON parsing fails
+                                dateObj = new Date(death.dateOfDeath);
+                            }
+                        } else {
+                            // Direct parsing for ISO date strings
+                            dateObj = new Date(death.dateOfDeath);
+                        }
                     } else if (death.dateOfDeath instanceof Date) {
+                        // Already a Date object
                         dateObj = death.dateOfDeath;
                     } else if (typeof death.dateOfDeath === 'object' && death.dateOfDeath !== null) {
-                        // Handle potential JSON date representation
-                        const dateStr = JSON.stringify(death.dateOfDeath);
-                        dateObj = new Date(dateStr.replace(/["\\]/g, ''));
+                        // Handle JSON object with date property
+                        const deathObj = death.dateOfDeath as Record<string, any>;
+
+                        if ('dateOfDeath' in deathObj && deathObj.dateOfDeath) {
+                            // Make sure the nested dateOfDeath is a valid value for Date constructor
+                            const nestedValue = deathObj.dateOfDeath;
+                            if (typeof nestedValue === 'string' ||
+                                typeof nestedValue === 'number' ||
+                                nestedValue instanceof Date) {
+                                dateObj = new Date(nestedValue);
+                            } else {
+                                // Handle case where nested value isn't a valid date input
+                                console.warn(`Nested dateOfDeath has invalid type: ${typeof nestedValue}`);
+                                const nestedStr = String(nestedValue);
+                                dateObj = new Date(nestedStr);
+                            }
+                        } else {
+                            // Attempt to stringify and parse the object
+                            const dateStr = JSON.stringify(death.dateOfDeath);
+                            dateObj = new Date(dateStr.replace(/["\\]/g, ''));
+                        }
                     } else {
                         throw new Error(`Unsupported date type: ${typeof death.dateOfDeath}`);
                     }
 
+                    // Check if we have a valid date
                     if (isNaN(dateObj.getTime())) {
-                        throw new Error('Invalid date');
-                    }
+                        // Try to extract year directly using regex if date is invalid (as a fallback)
+                        if (typeof death.dateOfDeath === 'string') {
+                            // Look for year pattern (4 digits that might be a year)
+                            const yearMatch = death.dateOfDeath.match(/\b(19|20)\d{2}\b/);
+                            if (yearMatch) {
+                                year = parseInt(yearMatch[0]);
 
-                    year = dateObj.getFullYear();
+                                // Check if extracted year is within range
+                                if (year >= startYear && year <= endYear) {
+                                    // Valid year found
+                                    console.log(`Extracted year ${year} from invalid date: ${death.dateOfDeath}`);
+                                } else {
+                                    throw new Error(`Extracted year ${year} is outside range ${startYear}-${endYear}`);
+                                }
+                            } else {
+                                throw new Error('No valid year found in string');
+                            }
+                        } else {
+                            throw new Error('Invalid date');
+                        }
+                    } else {
+                        // Valid date, extract year
+                        year = dateObj.getFullYear();
+                    }
 
                     // Skip if the year is outside our range
                     if (year < startYear || year > endYear) {
