@@ -2,9 +2,8 @@
 'use server';
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import { fileToBase64 } from '@/lib/utils/fileToBase64';
-import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { FormType, Prisma } from '@prisma/client';
 
 export async function submitBirthCertificateForm(
   formData: BirthCertificateFormValues
@@ -14,181 +13,199 @@ export async function submitBirthCertificateForm(
       throw new Error('No form data provided');
     }
 
+    // Destructure formData with safe nested defaults for dates
+    const {
+      registryNumber = '',
+      province = '',
+      cityMunicipality = '',
+      pagination: { pageNumber = '', bookNumber = '' } = {},
+      preparedBy: {
+        nameInPrint: preparedByName = '',
+        titleOrPosition: preparedByTitle = '',
+        date: preparedByDate = new Date(),
+      } = {},
+      receivedBy: {
+        nameInPrint: receivedByName = '',
+        titleOrPosition: receivedByTitle = '',
+        date: receivedByDate = new Date(),
+      } = {},
+      registeredByOffice: {
+        nameInPrint: registeredByName = '',
+        titleOrPosition: registeredByTitle = '',
+        date: registeredByDate = new Date(),
+      } = {},
+      remarks = '',
+      isDelayedRegistration = false,
+      hasAffidavitOfPaternity = false,
+    } = formData;
+
+    // JSON helpers
+    const toJsonDate = (d: Date) => d.toISOString();
+    const asJson = (obj: unknown) => obj as Prisma.JsonObject;
+
     return await prisma.$transaction(
       async (tx) => {
-        // Use preparedBy name directly without user lookup
-        const preparedByName = formData.preparedBy.nameInPrint;
+        // Lookup optional users by name
+        const [receivedUser, registeredUser] = await Promise.all([
+          tx.user.findFirst({ where: { name: receivedByName } }),
+          tx.user.findFirst({ where: { name: registeredByName } }),
+        ]);
+        const receivedById = receivedUser?.id ?? null;
+        const registeredById = registeredUser?.id ?? null;
 
-        // Find the user for receivedBy
-        const receivedByUser = await tx.user.findFirst({
-          where: {
-            name: formData.receivedBy.nameInPrint,
-          },
-        });
-
-        // Find the user for registeredByOffice
-        const registeredByUser = await tx.user.findFirst({
-          where: {
-            name: formData.registeredByOffice.nameInPrint,
-          },
-        });
-
-        // Instead of throwing an error when a user is not found,
-        // we set the corresponding user ID to null.
-        // You may log a warning here if needed.
-        const receivedById = receivedByUser ? receivedByUser.id : null;
-        const registeredById = registeredByUser ? registeredByUser.id : null;
-
-        const pageNumber = formData.pagination?.pageNumber || '';
-        const bookNumber = formData.pagination?.bookNumber || '';
-
+        // Create the base registry form
         const baseForm = await tx.baseRegistryForm.create({
           data: {
             formNumber: '102',
             formType: FormType.BIRTH,
-            registryNumber: formData.registryNumber,
-            province: formData.province,
-            cityMunicipality: formData.cityMunicipality,
+            registryNumber,
+            province,
+            cityMunicipality,
             pageNumber,
             bookNumber,
             dateOfRegistration: new Date(),
-            isLateRegistered: formData.isDelayedRegistration,
-            preparedById: null, // No user association
+            isLateRegistered: isDelayedRegistration,
+            // We leave verifiedBy* as null for now
+            preparedById: null,
             verifiedById: null,
-            preparedByName: preparedByName,
+            preparedByName,
             verifiedByName: null,
-            receivedById: receivedById,
-            receivedBy: formData.receivedBy.nameInPrint,
-            receivedByPosition: formData.receivedBy.titleOrPosition,
-            receivedByDate: formData.receivedBy.date,
-            registeredById: registeredById,
-            registeredBy: formData.registeredByOffice.nameInPrint,
-            registeredByPosition: formData.registeredByOffice.titleOrPosition,
-            registeredByDate: formData.registeredByOffice.date,
-            remarks: formData.remarks,
+            receivedById,
+            receivedBy: receivedByName,
+            receivedByPosition: receivedByTitle,
+            receivedByDate,
+            registeredById,
+            registeredBy: registeredByName,
+            registeredByPosition: registeredByTitle,
+            registeredByDate,
+            remarks,
           },
         });
 
-        // Helper function to convert Date to ISO string for JSON
-        const dateToJSON = (date: Date) => date.toISOString();
-
-        // Create the BirthCertificateForm record
+        // Create the birth certificate details
         await tx.birthCertificateForm.create({
           data: {
             baseFormId: baseForm.id,
-            childName: {
-              first: formData.childInfo.firstName,
-              middle: formData.childInfo.middleName || '',
-              last: formData.childInfo.lastName,
-            } as Prisma.JsonObject,
-            sex: formData.childInfo.sex,
-            dateOfBirth: formData.childInfo.dateOfBirth!,
-            placeOfBirth: formData.childInfo.placeOfBirth as Prisma.JsonObject,
-            typeOfBirth: formData.childInfo.typeOfBirth || '',
-            multipleBirthOrder: formData.childInfo.multipleBirthOrder || '',
-            birthOrder: formData.childInfo.birthOrder,
-            weightAtBirth: parseFloat(formData.childInfo.weightAtBirth),
-            motherMaidenName: {
-              first: formData.motherInfo.firstName,
-              middle: formData.motherInfo.middleName || '',
-              last: formData.motherInfo.lastName,
-            } as Prisma.JsonObject,
-            motherCitizenship: formData.motherInfo?.citizenship || '',
-            motherReligion: formData.motherInfo.religion || '',
-            motherOccupation: formData.motherInfo.occupation,
-            motherAge: parseInt(formData.motherInfo.age, 10),
-            motherResidence: formData.motherInfo.residence as Prisma.JsonObject,
-            totalChildrenBornAlive: parseInt(
-              formData.motherInfo.totalChildrenBornAlive,
-              10
-            ),
-            childrenStillLiving: parseInt(
-              formData.motherInfo.childrenStillLiving,
-              10
-            ),
-            childrenNowDead: parseInt(formData.motherInfo.childrenNowDead, 10),
+
+            childName: asJson({
+              first: formData.childInfo?.firstName ?? '',
+              middle: formData.childInfo?.middleName ?? '',
+              last: formData.childInfo?.lastName ?? '',
+            }),
+            sex: formData.childInfo?.sex!,
+            dateOfBirth: formData.childInfo?.dateOfBirth ?? new Date(),
+            placeOfBirth: asJson(formData.childInfo?.placeOfBirth ?? {}),
+            typeOfBirth: formData.childInfo?.typeOfBirth ?? '',
+            multipleBirthOrder: formData.childInfo?.multipleBirthOrder ?? '',
+            birthOrder: formData.childInfo?.birthOrder ?? '',
+            weightAtBirth: formData.childInfo?.weightAtBirth ?? '',
+
+            motherMaidenName: asJson({
+              first: formData.motherInfo?.firstName ?? '',
+              middle: formData.motherInfo?.middleName ?? '',
+              last: formData.motherInfo?.lastName ?? '',
+            }),
+            motherCitizenship: formData.motherInfo?.citizenship ?? '',
+            motherReligion: formData.motherInfo?.religion ?? '',
+            motherOccupation: formData.motherInfo?.occupation ?? '',
+            motherAge:
+              parseInt(formData.motherInfo?.age ?? '0', 10) || 0,
+            motherResidence: asJson(formData.motherInfo?.residence ?? {}),
+            totalChildrenBornAlive:
+              parseInt(formData.motherInfo?.totalChildrenBornAlive ?? '0', 10) ||
+              0,
+            childrenStillLiving:
+              parseInt(formData.motherInfo?.childrenStillLiving ?? '0', 10) ||
+              0,
+            childrenNowDead:
+              parseInt(formData.motherInfo?.childrenNowDead ?? '0', 10) ||
+              0,
+
             fatherName:
-              !formData.fatherInfo ||
-              !formData.fatherInfo.firstName ||
-              !formData.fatherInfo.lastName
-                ? Prisma.JsonNull
-                : ({
+              formData.fatherInfo?.firstName && formData.fatherInfo?.lastName
+                ? asJson({
                     first: formData.fatherInfo.firstName,
-                    middle: formData.fatherInfo.middleName || '',
+                    middle: formData.fatherInfo.middleName ?? '',
                     last: formData.fatherInfo.lastName,
-                  } as Prisma.JsonObject),
-            fatherCitizenship: formData.fatherInfo?.citizenship || '',
-            fatherReligion: formData.fatherInfo?.religion || '',
-            fatherOccupation: formData.fatherInfo?.occupation || '',
-            fatherAge: formData.fatherInfo
-              ? parseInt(formData.fatherInfo.age, 10)
-              : 0,
-            fatherResidence: !formData.fatherInfo
-              ? Prisma.JsonNull
-              : (formData.fatherInfo.residence as Prisma.JsonObject),
-            parentMarriage: !formData.parentMarriage
-              ? Prisma.JsonNull
-              : formData.parentMarriage.date
-              ? {
-                  date:
-                    formData.parentMarriage.date instanceof Date
-                      ? dateToJSON(formData.parentMarriage.date)
-                      : formData.parentMarriage.date,
-                  place: formData.parentMarriage.place,
-                }
+                  })
+                : Prisma.JsonNull,
+            fatherCitizenship: formData.fatherInfo?.citizenship ?? '',
+            fatherReligion: formData.fatherInfo?.religion ?? '',
+            fatherOccupation: formData.fatherInfo?.occupation ?? '',
+            fatherAge:
+              parseInt(formData.fatherInfo?.age ?? '0', 10) || 0,
+            fatherResidence:
+              formData.fatherInfo?.residence
+                ? asJson(formData.fatherInfo.residence)
+                : Prisma.JsonNull,
+
+            parentMarriage:
+              formData.parentMarriage?.date
+                ? asJson({
+                    date: toJsonDate(new Date(formData.parentMarriage.date)),
+                    place: formData.parentMarriage.place ?? {},
+                  })
+                : Prisma.JsonNull,
+
+            attendant: formData.attendant
+              ? asJson({
+                  type: formData.attendant.type ?? '',
+                  certification: {
+                    ...formData.attendant.certification,
+                    time: formData.attendant.certification?.time
+                      ? toJsonDate(formData.attendant.certification.time)
+                      : undefined,
+                    date: formData.attendant.certification?.date
+                      ? toJsonDate(formData.attendant.certification.date)
+                      : undefined,
+                  },
+                })
               : Prisma.JsonNull,
-            attendant: {
-              type: formData.attendant.type,
-              certification: {
-                ...formData.attendant.certification,
-                time: dateToJSON(formData.attendant.certification.time),
-                date: dateToJSON(formData.attendant.certification.date!),
-              },
-            } as unknown as Prisma.JsonObject,
-            informant: {
-              ...formData.informant,
-              date: dateToJSON(formData.informant.date!),
-            } as unknown as Prisma.JsonObject,
-            preparer: {
-              ...formData.preparedBy,
-              date: dateToJSON(formData.preparedBy.date!),
-            } as unknown as Prisma.JsonObject,
-            hasAffidavitOfPaternity: formData.hasAffidavitOfPaternity,
+
+            informant: formData.informant
+              ? asJson({
+                  ...formData.informant,
+                  date: formData.informant.date
+                    ? toJsonDate(formData.informant.date)
+                    : undefined,
+                })
+              : Prisma.JsonNull,
+
+            preparer: asJson({
+              nameInPrint: preparedByName,
+              titleOrPosition: preparedByTitle,
+              date: toJsonDate(preparedByDate),
+            }),
+
+            hasAffidavitOfPaternity,
             affidavitOfPaternityDetails:
-              !formData.hasAffidavitOfPaternity ||
-              !formData.affidavitOfPaternityDetails
-                ? Prisma.JsonNull
-                : (formData.affidavitOfPaternityDetails as unknown as Prisma.JsonObject),
-            isDelayedRegistration: formData.isDelayedRegistration,
+              hasAffidavitOfPaternity && formData.affidavitOfPaternityDetails
+                ? asJson(formData.affidavitOfPaternityDetails)
+                : Prisma.JsonNull,
+
+            isDelayedRegistration,
             affidavitOfDelayedRegistration:
-              !formData.isDelayedRegistration ||
-              !formData.affidavitOfDelayedRegistration
-                ? Prisma.JsonNull
-                : (formData.affidavitOfDelayedRegistration as unknown as Prisma.JsonObject),
+              isDelayedRegistration &&
+              formData.affidavitOfDelayedRegistration
+                ? asJson(formData.affidavitOfDelayedRegistration)
+                : Prisma.JsonNull,
             reasonForDelay:
-              (formData.isDelayedRegistration &&
-                formData.affidavitOfDelayedRegistration?.reasonForDelay) ||
-              '',
+              isDelayedRegistration &&
+              formData.affidavitOfDelayedRegistration?.reasonForDelay
+                ? formData.affidavitOfDelayedRegistration.reasonForDelay
+                : '',
           },
         });
 
-        // Revalidate the path
         revalidatePath('/civil-registry');
 
         return {
           success: true,
           message: 'Birth certificate submitted successfully',
-          data: {
-            baseFormId: baseForm.id,
-            bookNumber,
-            pageNumber,
-          },
+          data: { baseFormId: baseForm.id, bookNumber, pageNumber },
         };
       },
-      {
-        maxWait: 10000,
-        timeout: 30000,
-      }
+      { maxWait: 10000, timeout: 30000 }
     );
   } catch (error) {
     return {

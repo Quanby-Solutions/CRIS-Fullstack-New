@@ -271,8 +271,8 @@ export function EditBirthCivilRegistryFormInline({
     // Weight at birth
     const rawWeightAtBirth = form.birthCertificateForm?.weightAtBirth;
     const weightAtBirth: string =
-      typeof rawWeightAtBirth === "number"
-        ? rawWeightAtBirth.toString()
+      typeof rawWeightAtBirth === "string"
+        ? rawWeightAtBirth
         : rawWeightAtBirth || "";
 
     // Mother residence mapping (support for both "street" and "st")

@@ -1,6 +1,5 @@
 // prisma/seed.ts
 import { hash } from 'bcryptjs'
-import { generateTestData } from './seed-data'
 import { Permission, PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -16,7 +15,6 @@ async function main() {
   // ----------------------------
   // Seed Roles & Permissions
   // ----------------------------
-  // Base roles always created (production & development)
   const roleConfigs = [
     {
       name: 'Super Admin',
@@ -50,7 +48,7 @@ async function main() {
         Permission.FEEDBACK_EXPORT,
         Permission.DOCUMENT_BIRTH,
         Permission.DOCUMENT_DEATH,
-        Permission.DOCUMENT_MARRIAGE
+        Permission.DOCUMENT_MARRIAGE,
       ],
     },
     {
@@ -77,7 +75,6 @@ async function main() {
     },
   ]
 
-  // In non-production environments, add additional roles.
   if (process.env.NEXT_PUBLIC_NODE_ENV !== 'production') {
     roleConfigs.push(
       {
@@ -114,7 +111,6 @@ async function main() {
     )
   }
 
-  // Upsert each role with its permissions.
   for (const config of roleConfigs) {
     await prisma.role.upsert({
       where: { name: config.name },
@@ -144,7 +140,6 @@ async function main() {
   const defaultPassword = await hash('password', 12)
   const userIds: string[] = []
 
-  // Check for existing users (for example, users whose email ends with '@gov.ph')
   const existingUsers = await prisma.user.findMany({
     where: { email: { endsWith: '@gov.ph' } },
     include: { roles: { include: { role: true } } },
@@ -154,7 +149,6 @@ async function main() {
     console.log(`Found ${existingUsers.length} existing users. Reusing them...`)
     existingUsers.forEach((user) => userIds.push(user.id))
   } else {
-    // Helper function to create users for a given role.
     const createUsers = async (
       count: number,
       roleName: string,
@@ -174,7 +168,6 @@ async function main() {
                 name: `${roleName} ${index + 1}`,
                 emailVerified: true,
                 active: true,
-                // Non-null assertion is safe here because we throw if required roles are missing.
                 roles: { create: { roleId: roleMap[roleName]! } },
                 username: `${emailPrefix}${index + 1}`,
                 accounts: {
@@ -195,11 +188,9 @@ async function main() {
       )
     }
 
-    // Create users for the core roles.
     const superAdmins = await createUsers(1, 'Super Admin', 'superadmin', 'gov.ph')
-    const admins = await createUsers(2, 'Admin', 'admin', 'gov.ph')
+    const admins      = await createUsers(2, 'Admin',      'admin',      'gov.ph')
 
-    // Declare arrays for additional roles with explicit types.
     let registrars: UserWithRole[] = []
     let recordsOfficers: UserWithRole[] = []
     let verificationOfficers: UserWithRole[] = []
@@ -212,8 +203,7 @@ async function main() {
       clerks = await createUsers(3, 'Clerk', 'clerk', 'gov.ph')
     }
 
-    // Combine all newly created users for logging.
-    const allUsers: UserWithRole[] = [
+    const allUsers = [
       ...superAdmins,
       ...admins,
       ...registrars,
@@ -221,12 +211,9 @@ async function main() {
       ...verificationOfficers,
       ...clerks,
     ]
-
     console.log('Created new users:')
     allUsers.forEach((user) => {
-      console.log(
-        `- ${user.roles[0]?.role?.name ?? 'No Role'}: ${user.email} / password`
-      )
+      console.log(`- ${user.roles[0]?.role?.name ?? 'No Role'}: ${user.email} / password`)
     })
   }
 
@@ -253,15 +240,6 @@ async function main() {
   }))
 
   await prisma.profile.createMany({ data: profiles, skipDuplicates: true })
-
-  // ----------------------------
-  // Generate Additional Test Data
-  // ----------------------------
-  if (process.env.NEXT_PUBLIC_NODE_ENV !== 'production') {
-    await generateTestData(prisma, userIds)
-  } else {
-    console.log('Production environment detected. Skipping test data generation.')
-  }
 
   console.log('Seeding completed successfully!')
 }
