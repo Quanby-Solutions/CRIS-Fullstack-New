@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { format } from 'date-fns'
-import { Session } from 'next-auth'
-import { DateRange } from 'react-day-picker'
-import { Badge } from '@/components/ui/badge'
-import { ColumnDef } from '@tanstack/react-table'
-import { DocumentStatus, FormType } from '@prisma/client'
-import { DataTableRowActions } from './data-table-row-actions'
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
-import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown'
+import { format } from "date-fns";
+import { Session } from "next-auth";
+import { DateRange } from "react-day-picker";
+import { Badge } from "@/components/ui/badge";
+import { ColumnDef } from "@tanstack/react-table";
+import { DocumentStatus, FormType } from "@prisma/client";
+import { DataTableRowActions } from "./data-table-row-actions";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
+import StatusDropdown from "@/components/custom/civil-registry/components/status-dropdown";
 
 // Type definitions
-type TranslationFunction = (key: string) => string
+type TranslationFunction = (key: string) => string;
 
 type FormTypeInfo = {
   label: string;
-  variant: 'default' | 'secondary' | 'destructive';
+  variant: "default" | "secondary" | "destructive";
   className: string;
-}
+};
 
 type RegistryDetails = {
   registryNumber: string;
   pageNumber: string;
   bookNumber: string;
-}
+};
 
 type NameDetails = {
   firstName?: string;
@@ -33,7 +33,7 @@ type NameDetails = {
   first?: string;
   middle?: string;
   last?: string;
-}
+};
 
 type FormSpecificDetails = {
   firstName?: string;
@@ -47,56 +47,147 @@ type FormSpecificDetails = {
   wifeFirstName?: string;
   wifeLastName?: string;
   dateOfMarriage?: string;
-}
+};
 
 // Utility function to safely parse names
 const parseNameSafely = (name: unknown): NameDetails => {
-  if (typeof name === 'string') {
+  if (typeof name === "string") {
     try {
-      return JSON.parse(name) as NameDetails
+      return JSON.parse(name) as NameDetails;
     } catch {
-      return {}
+      return {};
     }
   }
-  return name as NameDetails || {}
-}
+  return (name as NameDetails) || {};
+};
 
-const safeFormatDate = (date: unknown, dateFormat = 'PP'): string => {
+const safeFormatDate = (date: unknown, dateFormat = "PP"): string => {
   // Handle null, undefined, and other falsy values
-  if (!date) return 'N/A'
+  if (!date) return "N/A";
 
   // Convert to date based on input type
-  let parsedDate: Date
+  let parsedDate: Date;
   if (date instanceof Date) {
-    parsedDate = date
-  } else if (typeof date === 'string' || typeof date === 'number') {
-    parsedDate = new Date(date)
+    parsedDate = date;
+  } else if (typeof date === "string" || typeof date === "number") {
+    parsedDate = new Date(date);
   } else {
-    return 'N/A'
+    return "N/A";
   }
 
   // Validate the date
-  return isNaN(parsedDate.getTime()) ? 'N/A' : format(parsedDate, dateFormat)
-}
+  return isNaN(parsedDate.getTime()) ? "N/A" : format(parsedDate, dateFormat);
+};
+
+export const safeFormatDateForDeath = (dateField: any): string => {
+  // Handle empty values
+  if (!dateField) return "";
+
+  try {
+    // If it's a string that looks like JSON, try to parse it
+    if (typeof dateField === "string") {
+      // Check if it's a JSON string literal with quotes
+      if (
+        dateField.includes('"dateOfDeath"') ||
+        dateField.includes('"dateOfBirth"')
+      ) {
+        try {
+          const parsed = JSON.parse(dateField);
+          // Extract the actual date value
+          const dateValue = parsed.dateOfDeath || parsed.dateOfBirth;
+          if (dateValue) {
+            // Now handle the actual date string
+            const date = new Date(dateValue);
+            if (!isNaN(date.getTime())) {
+              // Format as "Jan 1, 2025"
+              return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+            }
+            return dateValue; // Return the raw value if not a valid date
+          }
+        } catch (e) {
+          console.warn("Error parsing date JSON:", e);
+        }
+      }
+
+      // If it's an ISO date string directly
+      if (/^\d{4}-\d{2}-\d{2}T/.test(dateField)) {
+        const date = new Date(dateField);
+        if (!isNaN(date.getTime())) {
+          // Format as "Jan 1, 2025"
+          return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+        }
+      }
+
+      // If it's a string with alphabetic characters (not months), return as is
+      if (
+        /[a-zA-Z]{4,}/.test(dateField) &&
+        !/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.test(dateField)
+      ) {
+        return dateField;
+      }
+    }
+
+    // If it's already an object with dateOfDeath/dateOfBirth properties
+    if (dateField && typeof dateField === "object") {
+      const dateValue = dateField.dateOfDeath || dateField.dateOfBirth;
+      if (dateValue) {
+        return safeFormatDateForDeath(dateValue);
+      }
+    }
+
+    // Try to create a Date object
+    if (dateField) {
+      const date = new Date(dateField);
+      if (!isNaN(date.getTime())) {
+        // Format as "Jan 1, 2025"
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      }
+    }
+
+    // Default case: return as string but remove JSON formatting
+    const strValue = String(dateField);
+    if (strValue.startsWith("{") && strValue.endsWith("}")) {
+      return "Invalid date format";
+    }
+    return strValue;
+  } catch (error) {
+    console.warn("Error formatting death date:", error);
+    return "Error formatting date";
+  }
+};
 
 // Form type styling map
 const formTypeVariants: Record<FormType, FormTypeInfo> = {
   MARRIAGE: {
-    label: 'Marriage',
-    variant: 'destructive',
-    className: 'bg-blue-500/30 dark:bg-blue-500/50 dark:text-accent-foreground text-blue-500 hover:bg-blue-500/30'
+    label: "Marriage",
+    variant: "destructive",
+    className:
+      "bg-blue-500/30 dark:bg-blue-500/50 dark:text-accent-foreground text-blue-500 hover:bg-blue-500/30",
   },
   BIRTH: {
-    label: 'Birth',
-    variant: 'secondary',
-    className: 'bg-green-500/30 dark:bg-green-500/50 text-green-500 dark:text-accent-foreground hover:bg-green-500/30'
+    label: "Birth",
+    variant: "secondary",
+    className:
+      "bg-green-500/30 dark:bg-green-500/50 text-green-500 dark:text-accent-foreground hover:bg-green-500/30",
   },
   DEATH: {
-    label: 'Death',
-    variant: 'default',
-    className: 'bg-muted text-accent-foreground hover:bg-muted'
+    label: "Death",
+    variant: "default",
+    className: "bg-muted text-accent-foreground hover:bg-muted",
   },
-}
+};
 
 export const createColumns = (
   session: Session | null,
@@ -105,64 +196,69 @@ export const createColumns = (
   t?: TranslationFunction
 ): ColumnDef<BaseRegistryFormWithRelations>[] => {
   // Safe translation function
-  const translate: TranslationFunction = (key: string) => t?.(key) ?? key
+  const translate: TranslationFunction = (key: string) => t?.(key) ?? key;
 
   // Helper to extract form-specific details
-  const extractFormDetails = (row: BaseRegistryFormWithRelations): FormSpecificDetails => {
+  const extractFormDetails = (
+    row: BaseRegistryFormWithRelations
+  ): FormSpecificDetails => {
     switch (row.formType) {
-      case 'BIRTH':
-        if (!row.birthCertificateForm) return {}
-        const birthName = parseNameSafely(row.birthCertificateForm.childName)
+      case "BIRTH":
+        if (!row.birthCertificateForm) return {};
+        const birthName = parseNameSafely(row.birthCertificateForm.childName);
         return {
-          firstName: birthName.firstName ?? birthName.first ?? '',
-          middleName: birthName.middleName ?? birthName.middle ?? '',
-          lastName: birthName.lastName ?? birthName.last ?? '',
-          sex: row.birthCertificateForm.sex ?? '',
+          firstName: birthName.firstName ?? birthName.first ?? "",
+          middleName: birthName.middleName ?? birthName.middle ?? "",
+          lastName: birthName.lastName ?? birthName.last ?? "",
+          sex: row.birthCertificateForm.sex ?? "",
           dateOfBirth: safeFormatDate(row.birthCertificateForm.dateOfBirth),
-        }
+        };
 
-      case 'DEATH':
-        if (!row.deathCertificateForm) return {}
-        const deathName = parseNameSafely(row.deathCertificateForm.deceasedName)
+      case "DEATH":
+        if (!row.deathCertificateForm) return {};
+        const deathName = parseNameSafely(
+          row.deathCertificateForm.deceasedName
+        );
         return {
-          firstName: deathName.first ?? deathName.firstName ?? '',
-          middleName: deathName.middle ?? deathName.middleName ?? '',
-          lastName: deathName.last ?? deathName.lastName ?? '',
-          sex: row.deathCertificateForm.sex ?? '',
-          dateOfDeath: safeFormatDate(row.deathCertificateForm.dateOfDeath),
-        }
+          firstName: deathName.first ?? deathName.firstName ?? "",
+          middleName: deathName.middle ?? deathName.middleName ?? "",
+          lastName: deathName.last ?? deathName.lastName ?? "",
+          sex: row.deathCertificateForm.sex ?? "",
+          dateOfDeath: safeFormatDateForDeath(
+            row.deathCertificateForm.dateOfDeath
+          ),
+        };
 
-      case 'MARRIAGE':
-        if (!row.marriageCertificateForm) return {}
+      case "MARRIAGE":
+        if (!row.marriageCertificateForm) return {};
         return {
-          husbandFirstName: row.marriageCertificateForm.husbandFirstName ?? '',
-          husbandLastName: row.marriageCertificateForm.husbandLastName ?? '',
-          wifeFirstName: row.marriageCertificateForm.wifeFirstName ?? '',
-          wifeLastName: row.marriageCertificateForm.wifeLastName ?? '',
-          dateOfMarriage: safeFormatDate(row.marriageCertificateForm.dateOfMarriage),
-        }
+          husbandFirstName: row.marriageCertificateForm.husbandFirstName ?? "",
+          husbandLastName: row.marriageCertificateForm.husbandLastName ?? "",
+          wifeFirstName: row.marriageCertificateForm.wifeFirstName ?? "",
+          wifeLastName: row.marriageCertificateForm.wifeLastName ?? "",
+          dateOfMarriage: safeFormatDate(
+            row.marriageCertificateForm.dateOfMarriage
+          ),
+        };
 
       default:
-        return {}
+        return {};
     }
-  }
+  };
 
   return [
     {
-      accessorKey: 'formType',
+      accessorKey: "formType",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={translate('formType')}
-        />
+        <DataTableColumnHeader column={column} title={translate("formType")} />
       ),
       cell: ({ row }) => {
-        const formType = row.getValue('formType') as FormType
+        const formType = row.getValue("formType") as FormType;
         const formTypeInfo = formTypeVariants[formType] ?? {
-          label: 'Unknown',
-          variant: 'default',
-          className: ''
-        }
+          label: "Unknown",
+          variant: "default",
+          className: "",
+        };
 
         return (
           <Badge
@@ -171,139 +267,164 @@ export const createColumns = (
           >
             {translate(formTypeInfo.label.toLowerCase())}
           </Badge>
-        )
+        );
       },
       filterFn: (row, id, value) => {
-        const formType = row.getValue(id)
-        return formType ? value.includes(formType) : false
+        const formType = row.getValue(id);
+        return formType ? value.includes(formType) : false;
       },
     },
     {
-      accessorFn: (row) => JSON.stringify({
-        registryNumber: row.registryNumber ?? 'N/A',
-        pageNumber: row.pageNumber ?? 'N/A',
-        bookNumber: row.bookNumber ?? 'N/A',
-      }),
-      id: 'registryDetails',
+      accessorFn: (row) =>
+        JSON.stringify({
+          registryNumber: row.registryNumber ?? "N/A",
+          pageNumber: row.pageNumber ?? "N/A",
+          bookNumber: row.bookNumber ?? "N/A",
+        }),
+      id: "registryDetails",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={translate('registryDetails')}
+          title={translate("registryDetails")}
         />
       ),
       cell: ({ row }) => {
-        const details = JSON.parse(row.getValue('registryDetails') || '{}') as RegistryDetails
+        const details = JSON.parse(
+          row.getValue("registryDetails") || "{}"
+        ) as RegistryDetails;
         return (
           <div className="flex flex-col space-y-2">
             {Object.entries({
               registry: details.registryNumber,
               page: details.pageNumber,
-              book: details.bookNumber
+              book: details.bookNumber,
             }).map(([type, value]) => (
               <div key={type} className="flex items-center gap-2">
                 <span className="font-medium">{translate(type)}:</span>
-                <span className="text-sm text-muted-foreground">
-                  {value}
-                </span>
+                <span className="text-sm text-muted-foreground">{value}</span>
               </div>
             ))}
           </div>
-        )
+        );
       },
       filterFn: (row, id, value) => {
-        if (!value) return true
-        const details = JSON.parse(row.getValue(id) || '{}') as RegistryDetails
+        if (!value) return true;
+        const details = JSON.parse(row.getValue(id) || "{}") as RegistryDetails;
 
-        if (typeof value === 'object' && 'pageNumber' in value && 'bookNumber' in value) {
-          const { pageNumber, bookNumber } = value
+        if (
+          typeof value === "object" &&
+          "pageNumber" in value &&
+          "bookNumber" in value
+        ) {
+          const { pageNumber, bookNumber } = value;
           const matchesPage = pageNumber
-            ? (details.pageNumber || '').toLowerCase().includes(pageNumber.toLowerCase())
-            : true
+            ? (details.pageNumber || "")
+                .toLowerCase()
+                .includes(pageNumber.toLowerCase())
+            : true;
           const matchesBook = bookNumber
-            ? (details.bookNumber || '').toLowerCase().includes(bookNumber.toLowerCase())
-            : true
-          return matchesPage && matchesBook
+            ? (details.bookNumber || "")
+                .toLowerCase()
+                .includes(bookNumber.toLowerCase())
+            : true;
+          return matchesPage && matchesBook;
         }
-        return true
+        return true;
       },
     },
     {
       accessorFn: (row) => JSON.stringify(extractFormDetails(row)),
-      id: 'details',
+      id: "details",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={translate('details')}
-        />
+        <DataTableColumnHeader column={column} title={translate("details")} />
       ),
       cell: ({ row }) => {
-        const details = JSON.parse(row.getValue('details') || '{}') as FormSpecificDetails
+        const details = JSON.parse(
+          row.getValue("details") || "{}"
+        ) as FormSpecificDetails;
         return (
           <div className="space-y-2">
             {(details.firstName || details.middleName || details.lastName) && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('name')}:</span>
-                <span>{`${details.firstName ?? ''} ${details.middleName ?? ''} ${details.lastName ?? ''}`.trim()}</span>
+                <span className="font-medium">{translate("name")}:</span>
+                <span>
+                  {`${details.firstName ?? ""} ${details.middleName ?? ""} ${
+                    details.lastName ?? ""
+                  }`.trim()}
+                </span>
               </div>
             )}
             {details.sex && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('sex')}:</span>
+                <span className="font-medium">{translate("sex")}:</span>
                 <span>{details.sex}</span>
               </div>
             )}
             {details.dateOfBirth && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('dateOfBirth')}:</span>
+                <span className="font-medium">{translate("dateOfBirth")}:</span>
                 <span>{details.dateOfBirth}</span>
               </div>
             )}
             {details.dateOfDeath && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('dateOfDeath')}:</span>
+                <span className="font-medium">{translate("dateOfDeath")}:</span>
                 <span>{details.dateOfDeath}</span>
               </div>
             )}
             {(details.husbandFirstName || details.husbandLastName) && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('husband')}:</span>
-                <span>{`${details.husbandFirstName ?? ''} ${details.husbandLastName ?? ''}`.trim()}</span>
+                <span className="font-medium">{translate("husband")}:</span>
+                <span>
+                  {`${details.husbandFirstName ?? ""} ${
+                    details.husbandLastName ?? ""
+                  }`.trim()}
+                </span>
               </div>
             )}
             {(details.wifeFirstName || details.wifeLastName) && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('wife')}:</span>
-                <span>{`${details.wifeFirstName ?? ''} ${details.wifeLastName ?? ''}`.trim()}</span>
+                <span className="font-medium">{translate("wife")}:</span>
+                <span>
+                  {`${details.wifeFirstName ?? ""} ${
+                    details.wifeLastName ?? ""
+                  }`.trim()}
+                </span>
               </div>
             )}
             {details.dateOfMarriage && (
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{translate('dateOfMarriage')}:</span>
+                <span className="font-medium">
+                  {translate("dateOfMarriage")}:
+                </span>
                 <span>{details.dateOfMarriage}</span>
               </div>
             )}
           </div>
-        )
+        );
       },
       filterFn: (row, id, value) => {
-        if (!Array.isArray(value)) return true
+        if (!Array.isArray(value)) return true;
         try {
-          const details = JSON.parse(row.getValue(id) || '{}') as FormSpecificDetails
+          const details = JSON.parse(
+            row.getValue(id) || "{}"
+          ) as FormSpecificDetails;
           const [firstNameSearch, middleNameSearch, lastNameSearch] = value as [
             string,
             string,
             string
-          ]
+          ];
 
           if (!firstNameSearch && !middleNameSearch && !lastNameSearch) {
-            return true
+            return true;
           }
 
           const checkNameMatch = (
             actualName: string | undefined,
             searchTerm: string
-          ) => !searchTerm ||
-            (actualName ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+          ) =>
+            !searchTerm ||
+            (actualName ?? "").toLowerCase().includes(searchTerm.toLowerCase());
 
           // Check individual name fields
           if (details.firstName || details.middleName || details.lastName) {
@@ -311,7 +432,7 @@ export const createColumns = (
               checkNameMatch(details.firstName, firstNameSearch) &&
               checkNameMatch(details.middleName, middleNameSearch) &&
               checkNameMatch(details.lastName, lastNameSearch)
-            )
+            );
           }
 
           // Check marriage names
@@ -320,210 +441,223 @@ export const createColumns = (
               checkNameMatch(details.husbandLastName, lastNameSearch)) ||
             (checkNameMatch(details.wifeFirstName, firstNameSearch) &&
               checkNameMatch(details.wifeLastName, lastNameSearch))
-          )
+          );
         } catch (error) {
-          console.error(error)
-          return true
+          console.error(error);
+          return true;
         }
       },
     },
     {
       accessorFn: (row) => `${row.province}, ${row.cityMunicipality}`,
-      id: 'location',
+      id: "location",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('location')} />
+        <DataTableColumnHeader column={column} title={translate("location")} />
       ),
       cell: ({ row }) => {
-        const location = row.getValue('location') as string
-        const [province, city] = location.split(', ')
+        const location = row.getValue("location") as string;
+        const [province, city] = location.split(", ");
         return (
           <div className="flex flex-col space-y-1">
             <span className="font-medium">{province}</span>
             <span className="text-sm text-muted-foreground">{city}</span>
           </div>
-        )
+        );
       },
       filterFn: (row, id, value: string[]) => {
-        const location = row.getValue(id) as string
-        if (!value?.length) return true
-        return value.some((val) => location.toLowerCase().includes(val.toLowerCase()))
+        const location = row.getValue(id) as string;
+        if (!value?.length) return true;
+        return value.some((val) =>
+          location.toLowerCase().includes(val.toLowerCase())
+        );
       },
     },
-      // {
-      //   id: 'preparedBy',
-      //   accessorFn: (row) => row.preparedBy?.name,
-      //   header: ({ column }) => (
-      //     <DataTableColumnHeader column={column} title={translate('preparedBy')} />
-      //   ),
-      //   cell: ({ row }) => {
-      //     const preparedBy = row.original.preparedBy?.name || 'N/A'
-      //     return (
-      //       <div className="flex flex-col space-y-1">
-      //         <span className="font-medium">{preparedBy}</span>
-      //       </div>
-      //     )
-      //   },
-      //   filterFn: (row, id, value: string[]) => {
-      //     const preparerName = row.original.preparedBy?.name
-      //     if (!value?.length) return true
-      //     return value.includes(preparerName || '')
-      //   },
-      // },
+    // {
+    //   id: 'preparedBy',
+    //   accessorFn: (row) => row.preparedBy?.name,
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={translate('preparedBy')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const preparedBy = row.original.preparedBy?.name || 'N/A'
+    //     return (
+    //       <div className="flex flex-col space-y-1">
+    //         <span className="font-medium">{preparedBy}</span>
+    //       </div>
+    //     )
+    //   },
+    //   filterFn: (row, id, value: string[]) => {
+    //     const preparerName = row.original.preparedBy?.name
+    //     if (!value?.length) return true
+    //     return value.includes(preparerName || '')
+    //   },
+    // },
     {
-      id: 'verifiedBy',
+      id: "verifiedBy",
       accessorFn: (row) => row.verifiedBy?.name,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('verifiedBy')} />
+        <DataTableColumnHeader
+          column={column}
+          title={translate("verifiedBy")}
+        />
       ),
       cell: ({ row }) => {
-        const verifiedBy = row.original.verifiedBy?.name || 'N/A'
+        const verifiedBy = row.original.verifiedBy?.name || "N/A";
         return (
           <div className="flex flex-col space-y-1">
             <span className="font-medium">{verifiedBy}</span>
           </div>
-        )
+        );
       },
       filterFn: (row, id, value: string[]) => {
-        const verifierName = row.original.verifiedBy?.name
-        if (!value?.length) return true
-        return value.includes(verifierName || '')
+        const verifierName = row.original.verifiedBy?.name;
+        if (!value?.length) return true;
+        return value.includes(verifierName || "");
       },
     },
     {
       accessorFn: (row) => {
-        const receivedBy = `${row.receivedBy || ''} ${row.receivedByPosition || ''}`.trim()
-        const receivedDate = row.receivedByDate ? safeFormatDate(row.receivedByDate) : 'N/A'
-        return `${receivedBy} - ${receivedDate}`
+        const receivedBy = `${row.receivedBy || ""} ${
+          row.receivedByPosition || ""
+        }`.trim();
+        const receivedDate = row.receivedByDate
+          ? safeFormatDate(row.receivedByDate)
+          : "N/A";
+        return `${receivedBy} - ${receivedDate}`;
       },
-      id: 'received',
+      id: "received",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('received')} />
+        <DataTableColumnHeader column={column} title={translate("received")} />
       ),
       cell: ({ row }) => {
-        const received = row.getValue('received') as string
-        const [by, date] = received.split(' - ')
+        const received = row.getValue("received") as string;
+        const [by, date] = received.split(" - ");
         return (
           <div className="flex flex-col space-y-1">
             <span className="font-medium">{by}</span>
             <span className="text-sm text-muted-foreground">{date}</span>
           </div>
-        )
+        );
       },
       filterFn: (row, id, value: string[]) => {
-        const received = row.getValue(id) as string
-        if (!value?.length) return true
-        return value.some((val) => received.toLowerCase().includes(val.toLowerCase()))
+        const received = row.getValue(id) as string;
+        if (!value?.length) return true;
+        return value.some((val) =>
+          received.toLowerCase().includes(val.toLowerCase())
+        );
       },
     },
     {
       accessorFn: (row) =>
-        `${row.registeredBy || ''} ${row.registeredByPosition || ''}`.trim(),
-      id: 'registeredBy',
+        `${row.registeredBy || ""} ${row.registeredByPosition || ""}`.trim(),
+      id: "registeredBy",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('registeredBy')} />
+        <DataTableColumnHeader
+          column={column}
+          title={translate("registeredBy")}
+        />
       ),
       cell: ({ row }) => {
-        const registeredBy = row.getValue('registeredBy') as string
-        const [name, ...rest] = registeredBy.split(' ')
+        const registeredBy = row.getValue("registeredBy") as string;
+        const [name, ...rest] = registeredBy.split(" ");
         return (
           <div className="flex flex-col space-y-1">
             <span className="font-medium">{name}</span>
-            <span className="text-sm text-muted-foreground">{rest.join(' ')}</span>
+            <span className="text-sm text-muted-foreground">
+              {rest.join(" ")}
+            </span>
           </div>
-        )
+        );
       },
       filterFn: (row, id, value: string[]) => {
-        const registeredBy = row.getValue(id) as string
-        if (!value?.length) return true
+        const registeredBy = row.getValue(id) as string;
+        if (!value?.length) return true;
         return value.some((val) =>
           registeredBy.toLowerCase().includes(val.toLowerCase())
-        )
+        );
       },
     },
     {
-      id: 'year',
+      id: "year",
       accessorFn: (row) => {
-        const date = row.dateOfRegistration || row.createdAt
-        return new Date(date).getFullYear().toString()
+        const date = row.dateOfRegistration || row.createdAt;
+        return new Date(date).getFullYear().toString();
       },
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('year')} />
+        <DataTableColumnHeader column={column} title={translate("year")} />
       ),
       cell: ({ row }) => {
-        const year = row.getValue('year') as string
-        return <span>{year}</span>
+        const year = row.getValue("year") as string;
+        return <span>{year}</span>;
       },
       filterFn: (row, id, value: string[]) => {
-        const year = row.getValue(id) as string
-        if (!value?.length) return true
-        return value.includes(year)
+        const year = row.getValue(id) as string;
+        if (!value?.length) return true;
+        return value.includes(year);
       },
     },
     {
-      accessorKey: 'status',
+      accessorKey: "status",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('status')} />
+        <DataTableColumnHeader column={column} title={translate("status")} />
       ),
       cell: ({ row }) => {
-        const status = row.getValue('status') as DocumentStatus
+        const status = row.getValue("status") as DocumentStatus;
         return (
           <StatusDropdown
             formId={row.original.id}
-            registryNumber={row.original.registryNumber ?? 'N/A'}
-            bookNumber={row.original.bookNumber ?? 'N/A'}
-            pageNumber={row.original.pageNumber ?? 'N/A'}
-            formType={row.original.formType ?? 'N/A'}
+            registryNumber={row.original.registryNumber ?? "N/A"}
+            bookNumber={row.original.bookNumber ?? "N/A"}
+            pageNumber={row.original.pageNumber ?? "N/A"}
+            formType={row.original.formType ?? "N/A"}
             currentStatus={status}
             onStatusChange={(newStatus) => {
-              row.original.status = newStatus
+              row.original.status = newStatus;
             }}
           />
-        )
+        );
       },
       filterFn: (row, id, value) => value.includes(row.getValue(id)),
     },
     {
-      accessorKey: 'createdAt',
+      accessorKey: "createdAt",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate('createdAt')} />
+        <DataTableColumnHeader column={column} title={translate("createdAt")} />
       ),
       cell: ({ row }) => {
-        const createdAt = row.getValue('createdAt')
-        return <span>{safeFormatDate(createdAt, 'PPP')}</span>
+        const createdAt = row.getValue("createdAt");
+        return <span>{safeFormatDate(createdAt, "PPP")}</span>;
       },
       filterFn: (row, id, filterValue) => {
-        if (typeof filterValue === 'object' && 'from' in filterValue) {
-          if (!filterValue) return true
-          const rowDate = new Date(row.getValue(id))
-          const range = filterValue as DateRange
-          if (!range.from) return true
-          const start = new Date(range.from)
-          start.setHours(0, 0, 0, 0)
+        if (typeof filterValue === "object" && "from" in filterValue) {
+          if (!filterValue) return true;
+          const rowDate = new Date(row.getValue(id));
+          const range = filterValue as DateRange;
+          if (!range.from) return true;
+          const start = new Date(range.from);
+          start.setHours(0, 0, 0, 0);
           if (!range.to) {
-            return rowDate >= start
+            return rowDate >= start;
           }
-          const end = new Date(range.to)
-          end.setHours(23, 59, 59, 999)
-          return rowDate >= start && rowDate <= end
+          const end = new Date(range.to);
+          end.setHours(23, 59, 59, 999);
+          return rowDate >= start && rowDate <= end;
         }
         if (Array.isArray(filterValue)) {
-          if (!filterValue.length) return true
-          const date = new Date(row.getValue(id))
-          const year = date.getFullYear().toString()
-          return filterValue.includes(year)
+          if (!filterValue.length) return true;
+          const date = new Date(row.getValue(id));
+          const year = date.getFullYear().toString();
+          return filterValue.includes(year);
         }
-        return true
+        return true;
       },
     },
     {
-      id: 'actions',
+      id: "actions",
       enableSorting: false,
       enableHiding: false,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={translate('Actions')}
-        />
+        <DataTableColumnHeader column={column} title={translate("Actions")} />
       ),
       cell: ({ row }) => (
         <DataTableRowActions
@@ -533,5 +667,5 @@ export const createColumns = (
         />
       ),
     },
-  ]
-}
+  ];
+};

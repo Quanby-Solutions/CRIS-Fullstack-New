@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { renderName, formatDate, formatLocation } from "./utils";
 import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import { safeFormatDateForDeath } from "../columns";
 
 interface DeathDetailsCardProps {
   form: BaseRegistryFormWithRelations;
@@ -187,11 +188,11 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
             </div>
             <div>
               <p className="font-medium">{t("Date of Death")}</p>
-              <div>{formatDate(d.dateOfDeath as any)}</div>
+              <div>{safeFormatDateForDeath(d.dateOfDeath as any)}</div>
             </div>
             <div>
               <p className="font-medium">{t("Date of Birth")}</p>
-              <div>{formatDate(d.dateOfBirth as any)}</div>
+              <div>{safeFormatDateForDeath(d.dateOfBirth as any)}</div>
             </div>
           </div>
         </section>

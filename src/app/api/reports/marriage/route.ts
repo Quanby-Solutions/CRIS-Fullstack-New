@@ -75,7 +75,7 @@ export async function GET(request: Request) {
             // Categorize based on residency status
             if (isHusbandResident && isWifeResident) {
                 yearlyData[year].residents++
-            } else {
+            } else {~
                 yearlyData[year].nonResidents++
             }
         })

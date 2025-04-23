@@ -51,8 +51,6 @@
     "averageProcessingTime": "Avg. Processing Time",
     "noDocuments": "No documents found matching the selected filters."
   },
-
-
   "metrics": {
     "total_registrations": "Total Registrations",
     "birth_certificates": "Birth Certificates",
@@ -435,7 +433,6 @@
   "dashboard_description_role": "Manage roles and permissions for different users. Create, edit, and assign roles to control access and permissions within the system.",
   "summary_view_user": "User Management Overview",
   "dashboard_description_user": "Manage users, including account information such as location, contact info, and other details. Add, edit, and update information to ensure proper management and communication.",
-
   "birth_gender_distribution": "Gender Distribution in Birth",
   "death_gender_distribution": "Gender Distribution in Death",
   "death_registrations_by_gender": "Death Registrations by Gender",
@@ -468,7 +465,6 @@
   "birth_reports": "Birth Reports",
   "death_reports": "Death Reports",
   "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use.",
-
   "Submit:": "Submit",
   "Submit...": "Submiting...",
   "Update Role": "Edit Role",

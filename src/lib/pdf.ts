@@ -2,6 +2,7 @@ import { jsPDF } from "jspdf"
 import { CertifiedCopy } from "@prisma/client"
 import path from "path"
 import fs from "fs"
+import { safeFormatDateForDeath } from "@/components/custom/civil-registry/columns"
 
 type CertifiedCopyData = CertifiedCopy & {
     form?: {
@@ -352,7 +353,7 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
                 renderField("Age:", data.form.specificForm.age?.toString() || '')
                 renderField("Civil Status:", data.form.specificForm.civilStatus || '')
                 renderField("Citizenship:", data.form.specificForm.citizenship || '')
-                renderField("Date of Death:", data.form.specificForm.dateOfDeath.toLocaleDateString())
+                renderField("Date of Death:", safeFormatDateForDeath(data.form.specificForm.dateOfDeath))
                 renderField("Place of Death:", data.form.specificForm.placeOfDeath)
                 renderField("Cause of Death:", data.form.specificForm.causeOfDeath || '')
             }
