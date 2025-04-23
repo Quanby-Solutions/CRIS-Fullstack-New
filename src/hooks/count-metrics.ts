@@ -108,8 +108,8 @@ export async function getRecentRegistrations(): Promise<BaseRegistration[]> {
     } else if (reg.deathCertificateForm) {
       const deceasedName = reg.deathCertificateForm.deceasedName as { first: string; middle?: string; last: string }
       registration.name = `${deceasedName.last}, ${deceasedName.first} ${deceasedName.middle || ''}`.trim()
-      registration.sex = reg.deathCertificateForm.sex
-      registration.dateOfBirth = reg.deathCertificateForm.dateOfBirth?.toISOString().split('T')[0] || ''
+      registration.sex = reg.deathCertificateForm?.sex ?? '';
+      registration.dateOfBirth = reg.deathCertificateForm.dateOfBirth instanceof Date ? reg.deathCertificateForm.dateOfBirth.toISOString().split('T')[0] : String(reg.deathCertificateForm.dateOfBirth || '')
     } else if (reg.marriageCertificateForm) {
       registration.name = `${reg.marriageCertificateForm.husbandLastName}, ${reg.marriageCertificateForm.husbandFirstName} & ${reg.marriageCertificateForm.wifeLastName}, ${reg.marriageCertificateForm.wifeFirstName}`
       registration.sex = 'N/A'
@@ -200,9 +200,9 @@ export async function getBirthAndDeathGenderCount(type: "birth" | "death"): Prom
 
   const groupedData = new Map<string, GenderCount>()
 
-  const processResults = (results: typeof birthResults) => {
+  const processResults = (results: typeof birthResults | typeof deathResults) => {
     results.forEach(record => {
-      if (!record.baseForm?.createdAt) return
+      if (!record.baseForm?.createdAt || !record.sex) return
 
       const date = record.baseForm.createdAt.toISOString().split('T')[0]
       const gender = record.sex.toLowerCase()

@@ -54,7 +54,7 @@ export function parseToDate(
   const parsedDate = new Date(`${year}-${month}-${day}`);
   if (isNaN(parsedDate.getTime())) {
     console.error(`Invalid date: ${year}-${month}-${day}`);
-    return null; // Return null for invalid dates
+    return null; // Return null for tis
   }
   return parsedDate;
 }

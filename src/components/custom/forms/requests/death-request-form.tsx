@@ -1,37 +1,46 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { z } from "zod"
-import { useSubmitCertifiedCopyRequest, SubmitCertifiedCopyRequestParams } from "@/hooks/use-submit-certified"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action"
-import { DeathCertificateForm, Permission } from "@prisma/client"
-import { NameObject } from "@/lib/types/json"
-import { Checkbox } from "@/components/ui/checkbox"
-import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
-import { notifyUsersWithPermission } from "@/hooks/users-action"
+import { useState, useEffect, useRef } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { z } from "zod";
+import {
+  useSubmitCertifiedCopyRequest,
+  SubmitCertifiedCopyRequestParams,
+} from "@/hooks/use-submit-certified";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import { DeathCertificateForm, Permission } from "@prisma/client";
+import { NameObject } from "@/lib/types/json";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table";
+import { notifyUsersWithPermission } from "@/hooks/users-action";
 
 // Helper function to format a NameObject into a full name string.
 const formatName = (name: NameObject | undefined): string => {
-  if (!name || !name.first || !name.last) return ""
-  return `${name.first} ${name.middle || ""} ${name.last}`.trim()
-}
+  if (!name || !name.first || !name.last) return "";
+  return `${name.first} ${name.middle || ""} ${name.last}`.trim();
+};
 
 // Updated helper to format the place of death.
 // If the stored place is a string, it returns it directly; if it's an object, it concatenates available parts.
 const formatPlaceOfDeath = (place: any): string => {
-  if (!place) return ""
-  if (typeof place === "string") return place
-  const { hospital, street, barangay, cityMunicipality, province, country } = place
+  if (!place) return "";
+  if (typeof place === "string") return place;
+  const { hospital, street, barangay, cityMunicipality, province, country } =
+    place;
   return [hospital, street, barangay, cityMunicipality, province, country]
     .filter((part) => !!part)
-    .join(", ")
-}
+    .join(", ");
+};
 
 // Zod schema for validation – include copies.
 const schema = z.object({
@@ -43,19 +52,21 @@ const schema = z.object({
   address: z.string().min(1, "Address is required"),
   purpose: z.string().min(1, "Purpose is required"),
   copies: z.number().min(1, "At least one copy is required"),
-  isCertified: z.boolean().refine((val) => val === true, "You must certify the information"),
-})
+  isCertified: z
+    .boolean()
+    .refine((val) => val === true, "You must certify the information"),
+});
 
 interface DeathCertificateFormCTCProps {
-  attachment: AttachmentWithCertifiedCopies | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onClose?: () => void
-  onCancel?: () => void
-  onAttachmentUpdated?: () => void
+  attachment: AttachmentWithCertifiedCopies | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClose?: () => void;
+  onCancel?: () => void;
+  onAttachmentUpdated?: () => void;
   formData?: BaseRegistryFormWithRelations & {
-    deathCertificateForm?: DeathCertificateForm | null
-  }
+    deathCertificateForm?: DeathCertificateForm | null;
+  };
 }
 
 const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
@@ -68,24 +79,26 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
   formData,
 }) => {
   // Extract default values from formData if available.
-  const deathData = formData?.deathCertificateForm
+  const deathData = formData?.deathCertificateForm;
   const defaultDeceasedName = deathData?.deceasedName
     ? formatName(deathData.deceasedName as unknown as NameObject)
-    : ""
-  const defaultDeathDate = deathData?.dateOfDeath && typeof deathData.dateOfDeath === 'string'
-    ? new Date(deathData.dateOfDeath).toISOString().split("T")[0]
-    : ""
-    const defaultDeathPlace = deathData?.placeOfDeath
+    : "";
+  const defaultDeathDate =
+    deathData?.dateOfDeath && typeof deathData.dateOfDeath === "string"
+      ? new Date(deathData.dateOfDeath).toISOString().split("T")[0]
+      : "";
+  const defaultDeathPlace = deathData?.placeOfDeath
     ? formatPlaceOfDeath(deathData.placeOfDeath)
-    : ""
+    : "";
 
   // Local state for registration and certification.
-  const [isRegisteredLate, setIsRegisteredLate] = useState(false)
-  const [isCertified, setIsCertified] = useState(false)
-  const [isFormValid, setIsFormValid] = useState(false)
+  const [isRegisteredLate, setIsRegisteredLate] = useState(false);
+  const [isCertified, setIsCertified] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // Use our custom hook for submission.
-  const { submitRequest, isLoading, error, successMessage } = useSubmitCertifiedCopyRequest()
+  const { submitRequest, isLoading, error, successMessage } =
+    useSubmitCertifiedCopyRequest();
 
   // Centralized form state split into required and optional fields.
   const [formState, setFormState] = useState({
@@ -108,9 +121,9 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
       whenRegistered: "",
       signature: "",
     },
-  })
+  });
 
-  const submittedRef = useRef(false)
+  const submittedRef = useRef(false);
 
   const resetForm = () => {
     setFormState({
@@ -133,63 +146,65 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
         whenRegistered: "",
         signature: "",
       },
-    })
-    setIsCertified(false)
-    setIsRegisteredLate(false)
-  }
+    });
+    setIsCertified(false);
+    setIsRegisteredLate(false);
+  };
 
   // When an input changes, update the corresponding required or optional field.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
+    const { id, value } = e.target;
     if (id in formState.required) {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         required: {
           ...prev.required,
           [id]: value.trim(),
         },
-      }))
+      }));
     } else {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         optional: {
           ...prev.optional,
           [id]: value,
         },
-      }))
+      }));
     }
-  }
+  };
 
   // Validate that all required fields in formState.required are filled and that the certification checkbox is checked.
   useEffect(() => {
-    const requiredFilled = Object.values(formState.required).every(val => val !== "")
-    setIsFormValid(requiredFilled && isCertified)
-  }, [formState.required, isCertified])
+    const requiredFilled = Object.values(formState.required).every(
+      (val) => val !== ""
+    );
+    setIsFormValid(requiredFilled && isCertified);
+  }, [formState.required, isCertified]);
 
   useEffect(() => {
     if (successMessage && !submittedRef.current) {
-      toast.success(successMessage)
-      resetForm()
-      onAttachmentUpdated?.()
-      submittedRef.current = true
+      toast.success(successMessage);
+      resetForm();
+      onAttachmentUpdated?.();
+      submittedRef.current = true;
       setTimeout(() => {
-        onClose?.()
-      }, 500)
+        onClose?.();
+      }, 500);
     }
-  }, [successMessage, onClose, onAttachmentUpdated])
+  }, [successMessage, onClose, onAttachmentUpdated]);
 
   useEffect(() => {
     if (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }, [error])
+  }, [error]);
 
   // Handle form submission by merging read-only deceased data with the required/optional fields.
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!isCertified) {
-      toast.error("Please certify that the information is true")
-      return
+      toast.error("Please certify that the information is true");
+      return;
     }
     const validationObj = {
       deceasedName: defaultDeceasedName,
@@ -199,13 +214,15 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
       ...formState.optional,
       copies: parseInt(formState.required.copies, 10),
       isCertified,
-    }
-    const result = schema.safeParse(validationObj)
+    };
+    const result = schema.safeParse(validationObj);
     if (!result.success) {
       toast.error(
-        `Please fill in all required fields: ${result.error.errors.map(e => e.message).join(", ")}`
-      )
-      return
+        `Please fill in all required fields: ${result.error.errors
+          .map((e) => e.message)
+          .join(", ")}`
+      );
+      return;
     }
     const submissionData: SubmitCertifiedCopyRequestParams = {
       address: formState.required.address,
@@ -222,22 +239,24 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
       searchedBy: formState.optional.searchedBy || undefined,
       contactNo: formState.optional.contactNo || undefined,
       date: formState.optional.datePaid || undefined,
-      whenRegistered: isRegisteredLate ? formState.optional.whenRegistered || undefined : undefined,
+      whenRegistered: isRegisteredLate
+        ? formState.optional.whenRegistered || undefined
+        : undefined,
       attachmentId: attachment?.id ?? "",
       copies: parseInt(formState.required.copies, 10),
-    }
+    };
     try {
-      await submitRequest(submissionData)
-      toast.success("Request submitted successfully")
-            const documentRead = Permission.DOCUMENT_READ
-              const Title = `New CTC has been created for "${formData?.formType} Certificate"`
-              const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
-              notifyUsersWithPermission(documentRead, Title, message);
-      resetForm()
+      await submitRequest(submissionData);
+      toast.success("Request submitted successfully");
+      const documentRead = Permission.DOCUMENT_READ;
+      const Title = `New CTC has been created for "${formData?.formType} Certificate"`;
+      const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
+      notifyUsersWithPermission(documentRead, Title, message);
+      resetForm();
     } catch (err) {
-      toast.error("Failed to submit request")
+      toast.error("Failed to submit request");
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -247,36 +266,58 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
         </DialogHeader>
         <div className="w-full">
           <div className="container mx-auto p-4 max-w-4xl">
-            <h1 className="text-2xl font-bold text-center mb-8">Death Certificate Request Form</h1>
+            <h1 className="text-2xl font-bold text-center mb-8">
+              Death Certificate Request Form
+            </h1>
             <form className="space-y-12" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Deceased's Information (read-only) */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Deceased's Information</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Deceased's Information
+                  </h2>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="deceasedName">
-                        Full Name of the Deceased <span className="text-red-500">*</span>
+                        Full Name of the Deceased{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
-                      <Input id="deceasedName" placeholder="Enter full name" value={defaultDeceasedName} disabled />
+                      <Input
+                        id="deceasedName"
+                        placeholder="Enter full name"
+                        value={defaultDeceasedName}
+                        disabled
+                      />
                     </div>
                     <div>
                       <Label htmlFor="deathDate">
                         Date of Death <span className="text-red-500">*</span>
                       </Label>
-                      <Input id="deathDate" type="date" value={defaultDeathDate} disabled />
+                      <Input
+                        id="deathDate"
+                        type="date"
+                        value={defaultDeathDate}
+                        disabled
+                      />
                     </div>
                     <div>
                       <Label htmlFor="deathPlace">
                         Place of Death <span className="text-red-500">*</span>
                       </Label>
-                      <Input id="deathPlace" placeholder="Enter place of death" value={defaultDeathPlace} disabled />
+                      <Input
+                        id="deathPlace"
+                        placeholder="Enter place of death"
+                        value={defaultDeathPlace}
+                        disabled
+                      />
                     </div>
                     <div>
                       <Label>Registered Late?</Label>
                       <RadioGroup
                         defaultValue="no"
-                        onValueChange={(value) => setIsRegisteredLate(value === "yes")}
+                        onValueChange={(value) =>
+                          setIsRegisteredLate(value === "yes")
+                        }
                         className="flex space-x-4 mt-1"
                       >
                         <div className="flex items-center space-x-2">
@@ -290,8 +331,15 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
                       </RadioGroup>
                       {isRegisteredLate && (
                         <div className="mt-2">
-                          <Label htmlFor="whenRegistered">When Registered?</Label>
-                          <Input id="whenRegistered" type="date" value={formState.optional.whenRegistered} onChange={handleInputChange} />
+                          <Label htmlFor="whenRegistered">
+                            When Registered?
+                          </Label>
+                          <Input
+                            id="whenRegistered"
+                            type="date"
+                            value={formState.optional.whenRegistered}
+                            onChange={handleInputChange}
+                          />
                         </div>
                       )}
                     </div>
@@ -300,7 +348,9 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
 
                 {/* Requester's Information */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Requester's Information</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Requester's Information
+                  </h2>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="requesterName">
@@ -316,7 +366,8 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
                     </div>
                     <div>
                       <Label htmlFor="relationship">
-                        Relationship to the Deceased <span className="text-red-500">*</span>
+                        Relationship to the Deceased{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="relationship"
@@ -340,7 +391,8 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
                     </div>
                     <div>
                       <Label htmlFor="purpose">
-                        Purpose (please specify) <span className="text-red-500">*</span>
+                        Purpose (please specify){" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="purpose"
@@ -356,7 +408,9 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
 
               {/* Administrative Details */}
               <section>
-                <h2 className="text-xl font-semibold mb-4">Administrative Details</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Administrative Details
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="copies">
@@ -455,11 +509,14 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
                   <Checkbox
                     id="certification"
                     checked={isCertified}
-                    onCheckedChange={(checked) => setIsCertified(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      setIsCertified(checked as boolean)
+                    }
                     required
                   />
                   <Label htmlFor="certification" className="text-sm">
-                    I hereby certify that the above information is true. <span className="text-red-500">*</span>
+                    I hereby certify that the above information is true.{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                 </div>
                 <div>
@@ -475,7 +532,11 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
               </section>
 
               <div className="flex justify-end">
-                <Button type="submit" variant="default" disabled={isLoading || !isFormValid}>
+                <Button
+                  type="submit"
+                  variant="default"
+                  disabled={isLoading || !isFormValid}
+                >
                   {isLoading ? "Submitting..." : "Submit Request"}
                 </Button>
               </div>
@@ -484,7 +545,7 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default DeathCertificateFormCTC
+export default DeathCertificateFormCTC;
