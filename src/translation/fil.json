@@ -9,6 +9,7 @@
   "marriage_registrations_over_time": "Pagpaparehistro ng Kasal sa Paglipas ng Panahon",
   "from_last_month": "mula noong nakaraang buwan",
   "last_6_months_data": "Data ng Huling 6 na Buwan",
+  "no_recent_registrations": "Walang mga kamakailang pagpaparehistro na natagpuan.",
   "documentReport": {
     "title": "Ulat ng Kahilingan at Pagproseso ng Dokumento",
     "subtitle": "Pangkalahatang-ideya ng mga kahilingan sa dokumento ng civil registry at oras ng pagproseso.",
@@ -362,7 +363,6 @@
     "noNotifications": "Walang mga notipikasyon",
     "noArchived": "Walang mga nakatagong notipikasyon",
     "noFavorite": "Walang mga paboritong notipikasyon",
-
     "dateRange": "Saklaw ng Petsa",
     "startDate": "Petsa ng Pagsisimula",
     "endDate": "Petsa ng Pagwawakas",
@@ -439,18 +439,15 @@
   "summary_view_role": "Pangkalahatang-ideya ng Mga Papel at Pahintulot",
   "dashboard_description_role": "Pamahalaan ang mga papel at pahintulot para sa iba't ibang mga gumagamit. Lumikha, mag-edit, at magtakda ng mga papel upang kontrolin ang access at mga pahintulot sa loob ng sistema.",
   "dashboard_description_user": "Pamahalaan ang mga gumagamit, kasama na ang impormasyon ng account tulad ng lokasyon, contact info, at iba pang detalye. Magdagdag, mag-edit, at mag-update ng impormasyon upang matiyak ang wastong pamamahala at komunikasyon.",
-
   "birth_gender_distribution": "Pagkakatawang Kasarian sa Kapanganakan",
   "death_gender_distribution": "Pagkakatawang Kasarian sa Pagkamatay",
   "death_registrations_by_gender": "Mga Rehistro ng Pagkamatay ayon sa Kasarian",
   "conclusion": "Konklusyon",
-
   "birth_conclusion_more_female": "Mas Maraming Babae sa Kapanganakan",
   "birth_conclusion_equal": "Pantay na Lalaki at Babae sa Kapanganakan",
   "death_conclusion_more_male": "Mas Maraming Lalaki sa Pagkamatay",
   "death_conclusion_more_female": "Mas Maraming Babae sa Pagkamatay",
   "death_conclusion_equal": "Pantay na Lalaki at Babae sa Pagkamatay",
-
   "settingsNoticeTitle": "Note:",
   "settingsNoticeDescription": "These settings are for UI/UX demonstration purposes and are not final.",
   "notificationTitle": "Notifications",
@@ -468,7 +465,6 @@
   "birth_reports": "Kapanganakan",
   "death_reports": "Kamatayan",
   "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit.",
-
   "Submit:": "Isubmit",
   "Submit...": "Isina-Submiting...",
   "Update the details for the role.": "I-update ang mga detalye para sa tungkulin.",

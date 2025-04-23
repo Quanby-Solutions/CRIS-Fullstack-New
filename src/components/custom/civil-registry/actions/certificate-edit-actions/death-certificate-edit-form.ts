@@ -78,9 +78,17 @@ export async function updateDeathCertificateForm(
         // Deceased Information
         deceasedName: formData.name,
         sex: formData.sex!,
-        dateOfDeath: formData.dateOfDeath!,
-        timeOfDeath: formData.timeOfDeath!,
-        dateOfBirth: formData.dateOfBirth!,
+        dateOfDeath: formData.dateOfDeath instanceof Date
+          ? formData.dateOfDeath.toISOString()
+          : typeof formData.dateOfDeath === 'string'
+            ? formData.dateOfDeath
+            : null,
+        timeOfDeath: formData.timeOfDeath!, // This is already a string
+        dateOfBirth: formData.dateOfBirth instanceof Date
+          ? formData.dateOfBirth.toISOString()
+          : typeof formData.dateOfBirth === 'string'
+            ? formData.dateOfBirth
+            : null,
         ageAtDeath: formData.ageAtDeath as Prisma.JsonObject,
         placeOfDeath: formData.placeOfDeath as Prisma.JsonObject,
         civilStatus: formData.civilStatus!,

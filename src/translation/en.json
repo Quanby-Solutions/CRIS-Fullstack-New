@@ -5,7 +5,7 @@
   "No forms have been added yet": "No forms have been added yet",
   "late_registration": "Late registration",
   "ready_for_release": "Ready for release",
-
+  "no_recent_registrations": "No recent registrations found.",
   "documentReport": {
     "title": "Document Request & Processing Report",
     "subtitle": "Overview of civil registry document requests and processing times.",
