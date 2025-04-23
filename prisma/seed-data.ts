@@ -431,21 +431,7 @@ const generateMarriageCertificate = (
       placeOfMarriage: generatePhLocation(),
       dateOfMarriage: dateOfMarriage,
       // In your seed script
-      timeOfMarriage: (() => {
-        const dateOfMarriage = new Date("2023-07-08T11:33:36.060Z");
-        const [time, period] = "03:14 PM".split(' ');
-        const [hours, minutes] = time.split(':');
-
-        let convertedHours = Number(hours);
-        if (period === 'PM' && convertedHours !== 12) {
-          convertedHours += 12;
-        } else if (period === 'AM' && convertedHours === 12) {
-          convertedHours = 0;
-        }
-
-        dateOfMarriage.setHours(convertedHours, Number(minutes), 0, 0);
-        return dateOfMarriage;
-      })(),
+      timeOfMarriage: generateTimeString(),
 
       // Witnesses
       witnesses: Array(2)
