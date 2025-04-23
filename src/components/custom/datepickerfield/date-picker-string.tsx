@@ -25,7 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useState, useRef } from "react";
 
 interface DatePickerFieldProps {
   field: {
@@ -51,6 +51,72 @@ const MONTHS = [
   "December",
 ];
 
+const parseJsonDate = (value: any): Date | string | undefined => {
+  if (value === null || value === undefined) return undefined;
+
+  // If it's already a Date object, return it
+  if (value instanceof Date) {
+    return value;
+  }
+
+  // If it's a string, try to parse it
+  if (typeof value === "string") {
+    // Trim the string to remove any leading/trailing whitespace
+    const trimmedValue = value.trim();
+
+    // Regex for strict machine date formats
+    const strictMachineDateFormats = [
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/, // ISO datetime
+      /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
+    ];
+
+    // Regex for more human-readable or verbose date formats
+    const verboseDateFormats = [
+      /^[A-Za-z]+ \d{1,2},? \d{4}$/, // "January 24, 2025" or "Jan 24 2025"
+      /^\d{1,2}\/\d{1,2}\/\d{4}$/, // MM/DD/YYYY
+      /^\d{1,2}-\d{1,2}-\d{4}$/, // DD-MM-YYYY
+    ];
+
+    // Check if the trimmed value matches any strict machine date formats
+    const isStrictMachineDate = strictMachineDateFormats.some((format) =>
+      format.test(trimmedValue)
+    );
+
+    // Check if the trimmed value matches any verbose date formats
+    const isVerboseDate = verboseDateFormats.some((format) =>
+      format.test(trimmedValue)
+    );
+
+    // If it's a strict machine date, try to convert to Date
+    if (isStrictMachineDate) {
+      try {
+        const date = new Date(trimmedValue);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+      } catch {
+        // If parsing fails, continue
+      }
+    }
+
+    // If it's a verbose date or doesn't look like a machine date, return as string
+    if (isVerboseDate || !isStrictMachineDate) {
+      return trimmedValue;
+    }
+  }
+
+  // For other types, try to create a date or convert to string
+  try {
+    const date = new Date(value);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  } catch {}
+
+  // Fallback to string conversion
+  return String(value);
+};
+
 const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
   ({ field, label, placeholder = "Please select a date" }, ref) => {
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -60,23 +126,28 @@ const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
     );
     const [customDateString, setCustomDateString] = useState("");
 
+    // Use a ref to track manual mode changes vs. automatic ones from useEffect
+    const isManualModeChange = useRef(false);
+
     useEffect(() => {
-      let date: Date;
+      // Skip re-determining the mode if it was just manually set
+      if (isManualModeChange.current) {
+        isManualModeChange.current = false;
+        return;
+      }
+
       if (field.value) {
-        if (typeof field.value === "string" && isNaN(Date.parse(field.value))) {
-          // If it's a string that can't be parsed as a date
-          setInputMode("string");
-          setCustomDateString(field.value);
-        } else {
-          // If it's a Date object or string that can be parsed
+        const parsedValue = parseJsonDate(field.value);
+
+        // If parsedValue is a Date object, switch to date mode
+        if (parsedValue instanceof Date) {
           setInputMode("date");
-          date =
-            typeof field.value === "string"
-              ? new Date(field.value)
-              : field.value;
-          if (!isNaN(date.getTime())) {
-            setCurrentDate(date);
-          }
+          setCurrentDate(parsedValue);
+        }
+        // If parsedValue is a string, switch to string mode
+        else if (typeof parsedValue === "string") {
+          setInputMode("string");
+          setCustomDateString(parsedValue);
         }
       }
     }, [field.value]);
@@ -117,15 +188,20 @@ const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
     };
 
     const handleSwitchToSelect = () => {
+      isManualModeChange.current = true;
       setInputMode("select");
       field.onChange(null); // Reset value when switching back
     };
 
     const handleModeChange = (value: string) => {
       if (value === "date" || value === "string") {
+        isManualModeChange.current = true;
         setInputMode(value as "date" | "string");
         if (value === "string") {
           setCustomDateString("");
+          field.onChange("");
+        } else if (value === "date") {
+          field.onChange(null);
         }
       }
     };
@@ -135,6 +211,11 @@ const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
       if (field.value) {
         if (typeof field.value === "string") {
           if (isNaN(Date.parse(field.value))) {
+            // For long text inputs, truncate the display if needed
+            const maxDisplayLength = 25;
+            if (field.value.length > maxDisplayLength) {
+              return `${field.value.substring(0, maxDisplayLength)}...`;
+            }
             return field.value; // Display the string as is
           } else {
             return format(new Date(field.value), "MM/dd/yyyy");
@@ -268,10 +349,12 @@ const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
             <div className="flex space-x-2">
               <FormControl className="flex-1">
                 <Input
-                  placeholder="Enter date (e.g., Birth Year only, Unknown, etc.)"
+                  placeholder="Enter date information (up to 100 characters)"
                   value={customDateString}
                   onChange={handleCustomInputChange}
                   className="h-10"
+                  maxLength={100} // Allow up to 100 characters
+                  style={{ minHeight: "40px" }} // Ensure input is tall enough
                 />
               </FormControl>
               <Button

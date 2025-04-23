@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
 import { useFormContext } from "react-hook-form";
 
-
 const EmbalmerCertificationCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
 

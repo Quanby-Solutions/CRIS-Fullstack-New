@@ -65,17 +65,22 @@ export const mapToDeathCertificateValues = (
     // If it's already a Date object, verify it's valid and format it as string
     if (dateValue instanceof Date) {
       return !isNaN(dateValue.getTime())
-        ? dateValue.toISOString().split('T')[0] // Return YYYY-MM-DD format
+        ? dateValue.toISOString() // Return full ISO string for consistency
         : undefined;
     }
 
-    // If it's a string already, return as is if not a valid date
+    // If it's a string already
     if (typeof dateValue === 'string') {
+      // First check if it's already a valid ISO date string
+      if (dateValue.includes('T') && (dateValue.includes('Z') || dateValue.includes('+') || dateValue.includes('-'))) {
+        return dateValue; // Keep valid ISO strings as-is
+      }
+
       try {
         const parsedDate = new Date(dateValue);
         // If it parses as a valid date, standardize the format
         if (!isNaN(parsedDate.getTime())) {
-          return parsedDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+          return parsedDate.toISOString(); // Return full ISO string
         } else {
           // Return original string for values like "Unknown", "1950s", etc.
           return dateValue;
@@ -89,6 +94,119 @@ export const mapToDeathCertificateValues = (
     // For any other data type, convert to string
     return String(dateValue);
   };
+
+  /**
+ * Converts a value from a JSON field to either a Date object or a string
+ * @param value Any value from JSON, potentially a date string or descriptive text
+ * @returns Date object if the value is a valid date string, otherwise the original string
+ */
+  const parseJsonDate = (value: any): Date | string | undefined => {
+    if (value === null || value === undefined) return undefined;
+
+    // If it's already a Date object, return it
+    if (value instanceof Date) {
+      return value;
+    }
+
+    // If it's a string, try to parse it
+    if (typeof value === 'string') {
+      // Trim the string to remove any leading/trailing whitespace
+      const trimmedValue = value.trim();
+
+      // Check for ISO date/timestamp format with time
+      const isIsoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(trimmedValue);
+
+      // Check for more verbose date formats like "January 24, 2025"
+      const isVerboseDate = /^[A-Za-z]+ \d{1,2}, \d{4}$/.test(trimmedValue);
+
+      // If it's an ISO datetime, convert to Date
+      if (isIsoDateTime) {
+        try {
+          const date = new Date(trimmedValue);
+          if (!isNaN(date.getTime())) {
+            return date;
+          }
+        } catch {
+          // If parsing fails, continue
+        }
+      }
+
+      // If it's a verbose date format or doesn't look like a machine date, return as string
+      if (isVerboseDate || !isIsoDateTime) {
+        return trimmedValue;
+      }
+    }
+
+    // For other types, try to create a date or convert to string
+    try {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    } catch { }
+
+    // Fallback to string conversion
+    return String(value);
+  };
+
+  const parseJsonDateDeath = (value: any): Date | string | undefined => {
+    // If value is an object with a nested date property, extract the date
+    if (value && typeof value === 'object') {
+      if ('dateOfDeath' in value) {
+        value = value.dateOfDeath;
+      } else if ('dateOfBirth' in value) {
+        value = value.dateOfBirth;
+      }
+    }
+
+    if (value === null || value === undefined) return undefined;
+
+    // If it's already a Date object, return it
+    if (value instanceof Date) {
+      return value;
+    }
+
+    // If it's a string, try to parse it
+    if (typeof value === 'string') {
+      // Trim the string to remove any leading/trailing whitespace
+      const trimmedValue = value.trim();
+
+      // Check for ISO date/timestamp format with time
+      const isIsoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(trimmedValue);
+
+      // Check for more verbose date formats like "January 24, 2025"
+      const isVerboseDate = /^[A-Za-z]+ \d{1,2}, \d{4}$/.test(trimmedValue);
+
+      // If it's an ISO datetime, convert to Date
+      if (isIsoDateTime) {
+        try {
+          const date = new Date(trimmedValue);
+          if (!isNaN(date.getTime())) {
+            return date;
+          }
+        } catch {
+          // If parsing fails, continue
+        }
+      }
+
+      // If it's a verbose date format or doesn't look like a machine date, return as string
+      if (isVerboseDate || !isIsoDateTime) {
+        return trimmedValue;
+      }
+    }
+
+    // For other types, try to create a date or convert to string
+    try {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    } catch { }
+
+    // Fallback to string conversion
+    return String(value);
+  };
+
 
   // Helper to ensure non-null string values
   const ensureString = (value: any): string => {
@@ -227,9 +345,9 @@ export const mapToDeathCertificateValues = (
     // Deceased Information
     name: createNameObject(deathForm.deceasedName),
     sex: validateSex(deathForm.sex) || 'Male', // Default to Male if undefined
-    dateOfDeath: parseDateSafely(deathForm.dateOfDeath),
+    dateOfDeath: parseJsonDateDeath(deathForm.dateOfDeath),
+    dateOfBirth: parseJsonDateDeath(deathForm.dateOfBirth),
     timeOfDeath: parseDateSafely(deathForm.timeOfDeath),
-    dateOfBirth: parseDateSafely(deathForm.dateOfBirth),
     ageAtDeath: deathForm.ageAtDeath || {
       years: '',
       months: '',
@@ -316,13 +434,13 @@ export const mapToDeathCertificateValues = (
         duration: deathForm.medicalCertificate?.attendant?.duration
           ? {
             from: parseDate(deathForm.medicalCertificate.attendant.duration.from) || undefined,
-            to: parseDate(deathForm.medicalCertificate.attendant.duration.to) || undefined,
+            to: parseJsonDate(deathForm.medicalCertificate.attendant.duration.to) || undefined,
           }
           : undefined,
         certification: deathForm.medicalCertificate?.attendant?.certification
           ? {
             time: parseDate(deathForm.medicalCertificate.attendant.certification.time),
-            date: parseDate(deathForm.medicalCertificate.attendant.certification.date),
+            date: parseJsonDate(deathForm.medicalCertificate.attendant.certification.date),
             name: ensureString(deathForm.medicalCertificate.attendant.certification.name),
             title: ensureString(deathForm.medicalCertificate.attendant.certification.title),
             address: ensureString(deathForm.medicalCertificate.attendant.certification.address),
@@ -338,18 +456,18 @@ export const mapToDeathCertificateValues = (
       nameInPrint: ensureString(deathForm.certificationOfDeath?.nameInPrint),
       titleOfPosition: ensureString(deathForm.certificationOfDeath?.titleOfPosition),
       address: ensureString(deathForm.certificationOfDeath?.address),
-      date: parseDateSafely(deathForm.certificationOfDeath?.date),
+      date: parseJsonDate(deathForm.certificationOfDeath?.date),
     },
 
     // Review Information
     reviewedBy: {
-      date: parseDateSafely(deathForm.reviewedBy?.date),
+      date: parseJsonDate(deathForm.reviewedBy?.date),
     },
 
     // Optional Certificates
     postmortemCertificate: deathForm.postmortemCertificate
       ? {
-        date: parseDateSafely(deathForm.postmortemCertificate.date),
+        date: parseJsonDate(deathForm.postmortemCertificate.date),
         nameInPrint: ensureString(deathForm.postmortemCertificate.nameInPrint),
         address: ensureString(deathForm.postmortemCertificate.address),
         causeOfDeath: ensureString(deathForm.postmortemCertificate.causeOfDeath),
@@ -367,9 +485,9 @@ export const mapToDeathCertificateValues = (
       nameInPrint: ensureString(deathForm.embalmerCertification?.nameInPrint),
       nameOfDeceased: ensureString(deathForm.embalmerCertification?.nameOfDeceased),
       licenseNo: ensureString(deathForm.embalmerCertification?.licenseNo),
-      issuedOn: parseDateSafely(deathForm.embalmerCertification?.issuedOn),
+      issuedOn: parseJsonDate(deathForm.embalmerCertification?.issuedOn),
       issuedAt: ensureString(deathForm.embalmerCertification?.issuedAt),
-      expiryDate: parseDateSafely(deathForm.embalmerCertification?.expiryDate),
+      expiryDate: parseJsonDate(deathForm.embalmerCertification?.expiryDate),
       address: ensureString(deathForm.embalmerCertification?.address),
       titleDesignation: ensureString(deathForm.embalmerCertification?.titleDesignation),
     },
@@ -378,12 +496,12 @@ export const mapToDeathCertificateValues = (
     corpseDisposal: validateCorpseDisposal(deathForm.corpseDisposal),
     burialPermit: {
       number: ensureString(deathForm.burialPermit?.number),
-      dateIssued: parseDateSafely(deathForm.burialPermit?.dateIssued),
+      dateIssued: parseJsonDate(deathForm.burialPermit?.dateIssued),
     },
     transferPermit: deathForm.transferPermit
       ? {
         number: ensureString(deathForm.transferPermit.number),
-        dateIssued: parseDateSafely(deathForm.transferPermit.dateIssued),
+        dateIssued: parseJsonDate(deathForm.transferPermit.dateIssued),
       }
       : {
         number: '',
@@ -399,7 +517,7 @@ export const mapToDeathCertificateValues = (
       nameInPrint: ensureString(deathForm.informant?.nameInPrint),
       relationshipToDeceased: ensureString(deathForm.informant?.relationshipToDeceased),
       address: ensureString(deathForm.informant?.address),
-      date: parseDateSafely(deathForm.informant?.date),
+      date: parseJsonDate(deathForm.informant?.date),
     },
 
 
@@ -446,10 +564,10 @@ export const mapToDeathCertificateValues = (
       },
       deceased: {
         name: ensureString(deathForm.delayedRegistration.deceased?.name),
-        dateOfDeath: parseDateSafely(deathForm.delayedRegistration.deceased?.dateOfDeath),
+        dateOfDeath: parseJsonDate(deathForm.delayedRegistration.deceased?.dateOfDeath),
         placeOfDeath: ensureString(deathForm.delayedRegistration.deceased?.placeOfDeath),
         burialInfo: {
-          date: parseDateSafely(deathForm.delayedRegistration.deceased?.burialInfo?.date),
+          date: parseJsonDate(deathForm.delayedRegistration.deceased?.burialInfo?.date),
           place: ensureString(deathForm.delayedRegistration.deceased?.burialInfo?.place),
           method: ensureString(deathForm.delayedRegistration.deceased?.burialInfo?.method),
         },
@@ -460,7 +578,7 @@ export const mapToDeathCertificateValues = (
       },
       causeOfDeath: ensureString(deathForm.delayedRegistration?.causeOfDeath),
       reasonForDelay: ensureString(deathForm.delayedRegistration?.reasonForDelay),
-      affidavitDate: parseDateSafely(deathForm.delayedRegistration?.affidavitDate),
+      affidavitDate: parseJsonDate(deathForm.delayedRegistration?.affidavitDate),
       affidavitDatePlace: ensureString(deathForm.delayedRegistration?.affidavitDatePlace),
       adminOfficer: {
         name: ensureString(deathForm.delayedRegistration?.adminOfficer?.name),
@@ -468,8 +586,9 @@ export const mapToDeathCertificateValues = (
         position: ensureString(deathForm.delayedRegistration?.adminOfficer?.position),
       },
       ctcInfo: {
+        dayOf: parseJsonDate(deathForm.delayedRegistration?.ctcInfo?.dayOf),
         number: ensureString(deathForm.delayedRegistration?.ctcInfo?.number),
-        issuedOn: parseDateSafely(deathForm.delayedRegistration?.ctcInfo?.issuedOn),
+        issuedOn: parseJsonDate(deathForm.delayedRegistration?.ctcInfo?.issuedOn),
         issuedAt: ensureString(deathForm.delayedRegistration?.ctcInfo?.issuedAt),
       },
     }

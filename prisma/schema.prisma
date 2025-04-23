@@ -264,7 +264,7 @@ model BirthCertificateForm {
   typeOfBirth                    String
   multipleBirthOrder             String?
   birthOrder                     String?
-  weightAtBirth                  Float
+  weightAtBirth                  String?
   motherMaidenName               Json
   motherCitizenship              String
   motherReligion                 String?
@@ -334,7 +334,7 @@ model DeathCertificateForm {
   certificationOfDeath Json? // Contains hasAttended, signature, nameInPrint, titleOfPosition, address, date, healthOfficerSignature, healthOfficerNameInPrint
 
   // Review Information
-  reviewedBy String? // Contains signature and date
+  reviewedBy Json? // Contains signature and date
 
   // Optional Certificates
   postmortemCertificate Json? // For autopsy cases

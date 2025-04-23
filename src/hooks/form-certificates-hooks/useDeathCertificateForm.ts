@@ -150,7 +150,7 @@ const emptyDefaults: DeathCertificateFormValues = {
     licenseNo: '',
     issuedOn: undefined,
     issuedAt: '',
-    expiryDate: undefined,
+    expiryDate: '',
   },
   delayedRegistration: {
     isDelayed: false,

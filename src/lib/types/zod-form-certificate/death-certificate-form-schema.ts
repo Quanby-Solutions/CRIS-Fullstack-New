@@ -138,10 +138,10 @@ const medicalCertificateSchema = z.object({
       duration: z
         .object({
           from: z.date().optional(),
-          to: createDateFieldSchema({
-            requiredError: 'End date is required',
-            futureError: 'End date cannot be in the future',
-          }).optional(),
+          to: z.union([
+            z.string(),
+            z.date()
+          ]).optional(),
         })
         .optional(),
       certification: z
@@ -150,7 +150,10 @@ const medicalCertificateSchema = z.object({
           name: z.string().optional(),
           title: z.string().optional(),
           address: z.string().optional(),
-          date: z.date().optional(),
+          date: z.union([
+            z.string(),
+            z.date()
+          ]).optional(),
         })
         .optional(),
     })
@@ -264,10 +267,16 @@ const delayedRegistrationSchema = z.object({
     position: z.string().optional(),
   }),
   ctcInfo: z.object({
-    dayOf: z.string().optional(),
+    dayOf: z.union([
+      z.string().optional(),
+      z.date().optional()
+    ]).optional(),
     placeAt: z.string().optional(),
     number: z.string().optional(),
-    issuedOn: z.string().optional(),
+    issuedOn: z.union([
+      z.string().optional(),
+      z.date().optional()
+    ]).optional(),
     issuedAt: z.string().optional(),
   }).optional(),
 }).optional();

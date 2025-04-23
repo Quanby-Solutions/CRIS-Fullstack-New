@@ -554,7 +554,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="Enter position"
+                          placeholder="Enter officer position"
                           value={field.value ?? ""}
                         />
                       </FormControl>
@@ -571,7 +571,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="Enter position"
+                          placeholder="Enter officer name"
                           value={field.value ?? ""}
                         />
                       </FormControl>
@@ -588,7 +588,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="Enter position"
+                          placeholder="Enter officer address"
                           value={field.value ?? ""}
                         />
                       </FormControl>

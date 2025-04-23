@@ -167,29 +167,25 @@ const ChildInformationCard: React.FC = () => {
                   )}
                 />
 
-                <FormField
-                  control={control}
-                  name='childInfo.weightAtBirth'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel><strong>6.</strong> Weight at Birth (grams)</FormLabel>
-                      <FormControl>
-                        <Input
-                          className='h-10'
-                          placeholder='Enter weight (e.g., 3.5)'
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            if (/^\d*\.?\d*$/.test(value) || value === '') {
-                              field.onChange(value)
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={control}
+                name="childInfo.weightAtBirth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel><strong>6.</strong> Weight at Birth (grams)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"               // explicitly a text input
+                        className="h-10"
+                        placeholder="Enter weight (e.g., 3.5)"
+                        {...field}                // value & onChange come from RHF
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               </div>
             </CardContent>
           </Card>
@@ -298,30 +294,26 @@ const ChildInformationCard: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={control}
-                name='childInfo.birthOrder'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel><strong>5c.</strong> Birth Order</FormLabel>
-                    <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter birth order'
-                        {...field}
-                        value={field.value ?? ''} // Ensure controlled value
-                        onChange={(e) => {
-                          const value = e.target.value
-                          if (/^\d*$/.test(value) || value === '') {
-                            field.onChange(value)
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={control}
+              name="childInfo.birthOrder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel><strong>5c.</strong> Birth Order</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="h-10"
+                      placeholder="Enter birth order (e.g. 1 or first)"
+                      {...field}
+                      value={field.value}
+                      onChange={e => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             </div>
           </CardContent>
         </Card>
