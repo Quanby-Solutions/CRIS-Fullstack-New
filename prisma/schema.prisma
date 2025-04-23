@@ -305,9 +305,9 @@ model DeathCertificateForm {
   // Deceased Information
   deceasedName Json // nameSchema structure (first, middle, last)
   sex          Sex? // Enum: Male, Female
-  dateOfDeath  String?
+  dateOfDeath  Json?
   timeOfDeath  Json?
-  dateOfBirth  String?
+  dateOfBirth  Json?
   ageAtDeath   Json? // Object with years, months, days, hours
   placeOfDeath Json? // residenceSchema structure
   civilStatus  String
