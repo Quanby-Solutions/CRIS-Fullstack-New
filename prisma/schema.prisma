@@ -264,7 +264,7 @@ model BirthCertificateForm {
   typeOfBirth                    String
   multipleBirthOrder             String?
   birthOrder                     String?
-  weightAtBirth                  Float
+  weightAtBirth                  String?
   motherMaidenName               Json
   motherCitizenship              String
   motherReligion                 String?
