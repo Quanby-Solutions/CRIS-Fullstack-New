@@ -88,7 +88,7 @@ export function DataTableRowActions({
 
   // Get the latest attachment with CTC information
   const attachments: AttachmentWithCertifiedCopies[] = form.documents
-    .flatMap((doc) => doc.document.attachments)
+    .flatMap((doc) => doc.document?.attachments ?? [])
     .map((att) => ({
       ...att,
       certifiedCopies: att.certifiedCopies ?? [],
@@ -117,10 +117,12 @@ export function DataTableRowActions({
           ...form,
           documents: form.documents.map((doc) => ({
             ...doc,
-            document: {
-              ...doc.document,
-              attachments: updatedAttachments,
-            },
+            document: doc.document
+              ? {
+                  ...doc.document,
+                  attachments: updatedAttachments,
+                }
+              : null,
           })),
         });
       }

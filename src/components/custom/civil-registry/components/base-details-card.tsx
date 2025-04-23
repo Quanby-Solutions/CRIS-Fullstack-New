@@ -91,7 +91,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({
 
   // Explicitly cast attachments to include certifiedCopies.
   const attachments: AttachmentWithCertifiedCopies[] = formData.documents
-    .flatMap((doc) => doc.document.attachments)
+    .flatMap((doc) => doc.document?.attachments ?? [])
     .map((att) => ({
       ...att,
       certifiedCopies: att.certifiedCopies ?? [],
@@ -112,7 +112,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({
         ...doc,
         document: {
           ...doc.document,
-          attachments: doc.document.attachments.filter(
+          attachments: doc?.document?.attachments.filter(
             (att) => att.id !== deletedId
           ),
         },

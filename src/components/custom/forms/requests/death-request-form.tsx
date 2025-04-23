@@ -72,10 +72,10 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
   const defaultDeceasedName = deathData?.deceasedName
     ? formatName(deathData.deceasedName as unknown as NameObject)
     : ""
-  const defaultDeathDate = deathData?.dateOfDeath
+  const defaultDeathDate = deathData?.dateOfDeath && typeof deathData.dateOfDeath === 'string'
     ? new Date(deathData.dateOfDeath).toISOString().split("T")[0]
     : ""
-  const defaultDeathPlace = deathData?.placeOfDeath
+    const defaultDeathPlace = deathData?.placeOfDeath
     ? formatPlaceOfDeath(deathData.placeOfDeath)
     : ""
 
