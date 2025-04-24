@@ -86,6 +86,7 @@ export default function StatusSelect({
   const { fetchNotifications } = useNotifications()
   const { permissions } = useUser()
   const canVerify = hasPermission(permissions, Permission.DOCUMENT_VERIFY)
+  const canExport = hasPermission(permissions, Permission.DOCUMENT_EXPORT)
 
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<DocumentStatus>(currentStatus)
@@ -146,8 +147,16 @@ export default function StatusSelect({
         value={status}
         onValueChange={(newStatus) => {
           if (newStatus === status || loading) return
-          // prevent changing to VERIFIED if no permission
+          // Prevent changing to VERIFIED without permission
           if (newStatus === DocumentStatus.VERIFIED && !canVerify) return
+          // Prevent changing to READY_FOR_RELEASE or RELEASED without export permission
+          if (
+            (newStatus === DocumentStatus.READY_FOR_RELEASE ||
+              newStatus === DocumentStatus.RELEASED) &&
+            !canExport
+          )
+            return
+
           setPendingStatus(newStatus as DocumentStatus)
           setDialogOpen(true)
         }}
@@ -173,7 +182,13 @@ export default function StatusSelect({
         <SelectContent>
           {Object.entries(statusVariants).map(([statusKey, statusInfo]) => {
             const isVerified = statusKey === DocumentStatus.VERIFIED
-            const disabled = isVerified && !canVerify
+            const isReady = statusKey === DocumentStatus.READY_FOR_RELEASE
+            const isReleased = statusKey === DocumentStatus.RELEASED
+
+            // disable Verified if no canVerify, and Ready/Released if no canExport
+            const disabled =
+              (isVerified && !canVerify) ||
+              ((isReady || isReleased) && !canExport)
 
             return (
               <SelectItem
@@ -203,8 +218,7 @@ export default function StatusSelect({
             <DialogTitle>Confirm Status Change</DialogTitle>
             <DialogDescription>
               Are you sure you want to change the status to{' '}
-              {pendingStatus ? statusVariants[pendingStatus].label : ''}
-              ?
+              {pendingStatus ? statusVariants[pendingStatus].label : ''}?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
