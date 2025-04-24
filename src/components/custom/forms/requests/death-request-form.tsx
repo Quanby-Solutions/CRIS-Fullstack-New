@@ -35,11 +35,120 @@ const formatName = (name: NameObject | undefined): string => {
 const formatPlaceOfDeath = (place: any): string => {
   if (!place) return "";
   if (typeof place === "string") return place;
-  const { hospital, street, barangay, cityMunicipality, province, country } =
-    place;
-  return [hospital, street, barangay, cityMunicipality, province, country]
+  const {
+    locationType,
+    internationalAddress,
+    hospitalInstitution,
+    houseNo,
+    st,
+    barangay,
+    cityMunicipality,
+    province,
+  } = place;
+  return [
+    locationType,
+    internationalAddress,
+    hospitalInstitution,
+    houseNo,
+    st,
+    barangay,
+    cityMunicipality,
+    province,
+  ]
     .filter((part) => !!part)
     .join(", ");
+};
+
+// Updated parseJsonDateDeath function to handle non-date formats as strings
+const parseJsonDateDeath = (value: any): Date | string | undefined => {
+  // If value is an object with a nested date property, extract the date
+  if (value && typeof value === "object") {
+    if ("dateOfDeath" in value) {
+      value = value.dateOfDeath;
+    } else if ("dateOfBirth" in value) {
+      value = value.dateOfBirth;
+    }
+  }
+
+  if (value === null || value === undefined) return undefined;
+
+  // If it's already a Date object, return it
+  if (value instanceof Date) {
+    return value;
+  }
+
+  // If it's a string, try to parse it
+  if (typeof value === "string") {
+    // Trim the string to remove any leading/trailing whitespace
+    const trimmedValue = value.trim();
+
+    // Check for ISO date/timestamp format with time
+    const isIsoDateTime =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(trimmedValue);
+
+    // Check for standard date format YYYY-MM-DD
+    const isStandardDate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedValue);
+
+    // Try to parse as a date
+    try {
+      const date = new Date(trimmedValue);
+
+      // Check if it's a valid date
+      if (!isNaN(date.getTime())) {
+        // If it matches ISO datetime or standard date format, return as Date
+        if (isIsoDateTime || isStandardDate) {
+          return date;
+        }
+      }
+    } catch {}
+
+    // If not a valid date format, return as string
+    return trimmedValue;
+  }
+
+  // For other types, try to create a date
+  try {
+    const date = new Date(value);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  } catch {}
+
+  // Fallback to string conversion
+  return String(value);
+};
+
+// Updated formatDateForInput function to handle non-date formats
+const formatDateForInput = (dateValue: any): string => {
+  const parsed = parseJsonDateDeath(dateValue);
+
+  if (!parsed) return "";
+
+  if (parsed instanceof Date) {
+    return parsed.toISOString().split("T")[0]; // Format as YYYY-MM-DD for date input
+  }
+
+  // If it's a string that's not a date format, return it as-is
+  if (typeof parsed === "string") {
+    // Check if it's a date format
+    const isDateFormat = /^\d{4}-\d{2}-\d{2}$/.test(parsed);
+
+    // If not a date format, return the string
+    if (!isDateFormat) {
+      return parsed;
+    }
+
+    // If it is a date format, process as before
+    try {
+      const date = new Date(parsed);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split("T")[0];
+      }
+    } catch {}
+  }
+
+  // If all else fails, return empty string
+  return "";
 };
 
 // Zod schema for validation – include copies.
@@ -83,10 +192,9 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
   const defaultDeceasedName = deathData?.deceasedName
     ? formatName(deathData.deceasedName as unknown as NameObject)
     : "";
-  const defaultDeathDate =
-    deathData?.dateOfDeath && typeof deathData.dateOfDeath === "string"
-      ? new Date(deathData.dateOfDeath).toISOString().split("T")[0]
-      : "";
+  const defaultDeathDate = deathData?.dateOfDeath
+    ? formatDateForInput(deathData.dateOfDeath)
+    : "";
   const defaultDeathPlace = deathData?.placeOfDeath
     ? formatPlaceOfDeath(deathData.placeOfDeath)
     : "";
@@ -293,12 +401,28 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
                       <Label htmlFor="deathDate">
                         Date of Death <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        id="deathDate"
-                        type="date"
-                        value={defaultDeathDate}
-                        disabled
-                      />
+                      {typeof defaultDeathDate === "string" &&
+                      /^\d{4}-\d{2}-\d{2}$/.test(defaultDeathDate) ? (
+                        // Use date input if we have a valid YYYY-MM-DD format
+                        <Input
+                          id="deathDate"
+                          type="date"
+                          value={defaultDeathDate}
+                          disabled
+                        />
+                      ) : (
+                        // Use regular text input for other date formats
+                        <Input
+                          id="deathDate"
+                          type="text"
+                          value={
+                            typeof defaultDeathDate === "string"
+                              ? defaultDeathDate
+                              : ""
+                          }
+                          disabled
+                        />
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="deathPlace">
