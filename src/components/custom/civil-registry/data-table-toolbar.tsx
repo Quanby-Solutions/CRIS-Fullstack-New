@@ -170,6 +170,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const detailsColumn = table.getColumn("details")
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
+
   useEffect(() => {
     const defaultVisibleColumns = [
       "formType",
