@@ -439,7 +439,7 @@ export function EditBirthCivilRegistryFormInline({
       type: "Others" | "Physician" | "Nurse" | "Midwife" | "Hilot";
       certification: {
         date: Date;
-        time: Date;
+        time: string;
         signature: string | File;
         name: string;
         title: string;
@@ -456,7 +456,7 @@ export function EditBirthCivilRegistryFormInline({
       type: "Hilot",
       certification: {
         date: new Date(),
-        time: new Date(),
+        time: "",
         signature: "",
         name: "",
         title: "MD",
@@ -512,7 +512,7 @@ export function EditBirthCivilRegistryFormInline({
           | "Hilot",
         certification: {
           date: parsedDate,
-          time: parsedTime,
+          time: cert.time ?? "",
           signature: cert.signature ?? "",
           name: cert.name ?? "",
           title: cert.title ?? "",
@@ -802,7 +802,7 @@ export function EditBirthCivilRegistryFormInline({
       attendant: {
         type: attendant.type,
         certification: {
-          time: parseDateSafely(attendant.certification.time),
+          time: attendant.certification.time,
           name: attendant.certification.name,
           title: attendant.certification.title,
           date: parseDateSafely(attendant.certification.date),

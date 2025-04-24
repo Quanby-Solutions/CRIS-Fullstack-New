@@ -111,38 +111,34 @@ const marriageInformationSchema = z.object({
 }).optional();
 
 // Attendant Information Schema
-const attendantInformationSchema = z.object({
-  type: z.union([
-    z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot']),
-    z.string()
-  ]).optional(),
-  certification: z.object({
-    time: z.preprocess((val) => {
-      if (val == null || val === '') return undefined;
-      if (typeof val === 'string') {
-        // Assume time string is in HH:MM format.
-        const [hours, minutes] = val.split(':');
-        const date = new Date();
-        date.setHours(Number(hours), Number(minutes), 0, 0);
-        return date;
-      }
-      return val;
-    }, z.date().optional()),
-    name: z.string().optional(),
-    title: z.string().optional(),
-    signature: z.any().optional(),
-    address: z.object({
-      houseNo: z.string().optional(),
-      st: z.string().optional(),
-      barangay: z.string().optional(),
-      cityMunicipality: z.string().optional(),
-      province: z.string().optional(),
-      country: z.string().optional(),
-      internationalAddress: z.string().optional(),
-    }).optional(),
-    date: createOptionalDateFieldSchemaWithPreprocess(),
-  }).optional(),
-}).optional();
+const attendantInformationSchema = z
+  .object({
+    type: z
+      .union([z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot']), z.string()])
+      .optional(),
+    certification: z
+      .object({
+        time: z.string().optional(),
+        name: z.string().optional(),
+        title: z.string().optional(),
+        signature: z.any().optional(),
+        address: z
+          .object({
+            houseNo: z.string().optional(),
+            st: z.string().optional(),
+            barangay: z.string().optional(),
+            cityMunicipality: z.string().optional(),
+            province: z.string().optional(),
+            country: z.string().optional(),
+            internationalAddress: z.string().optional(),
+          })
+          .optional(),
+        date: createOptionalDateFieldSchemaWithPreprocess(),
+      })
+      .optional(),
+  })
+  .optional();
+
 
 // Informant Schema
 const informantSchema = z.object({

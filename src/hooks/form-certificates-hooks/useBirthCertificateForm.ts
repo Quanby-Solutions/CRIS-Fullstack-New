@@ -95,7 +95,7 @@ export function useBirthCertificateForm({
       attendant: {
         type: 'Physician',
         certification: {
-          time: new Date('2022-01-01T10:00:00'),
+          time: '10:30 AM',
 
           name: 'Dr. Smith',
           title: 'Chief Physician',

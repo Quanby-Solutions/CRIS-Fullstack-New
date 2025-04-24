@@ -147,20 +147,20 @@ export async function submitBirthCertificateForm(
                   })
                 : Prisma.JsonNull,
 
-            attendant: formData.attendant
-              ? asJson({
-                  type: formData.attendant.type ?? '',
-                  certification: {
-                    ...formData.attendant.certification,
-                    time: formData.attendant.certification?.time
-                      ? toJsonDate(formData.attendant.certification.time)
-                      : undefined,
-                    date: formData.attendant.certification?.date
-                      ? toJsonDate(formData.attendant.certification.date)
-                      : undefined,
-                  },
-                })
-              : Prisma.JsonNull,
+                attendant: formData.attendant
+                ? asJson({
+                    type: formData.attendant.type ?? '',
+                    certification: {
+                      ...formData.attendant.certification,
+                      // time is now just a string (or undefined)
+                      time: formData.attendant.certification?.time ?? undefined,
+                      // dates still get serialized
+                      date: formData.attendant.certification?.date
+                        ? toJsonDate(formData.attendant.certification.date)
+                        : undefined,
+                    },
+                  })
+                : Prisma.JsonNull,
 
             informant: formData.informant
               ? asJson({

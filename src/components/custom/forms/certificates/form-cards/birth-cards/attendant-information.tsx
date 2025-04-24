@@ -74,14 +74,14 @@ const AttendantInformationCard: React.FC = () => {
                 // When field.value is custom, update local state.
                 useEffect(() => {
                   if (isCustom) {
-                    setCustomAttendant(field.value);
+                    setCustomAttendant(field.value ?? '');
                     setShowOtherInput(true);
                   }
                 }, [field.value, isCustom]);
 
                 // For the radio group, if the current value is custom, select "Others"
                 const radioValue =
-                  attendantOptions.includes(field.value) || field.value === 'Others'
+                  attendantOptions.includes(field.value ?? '') || field.value === 'Others'
                     ? field.value
                     : 'Others';
 
@@ -149,22 +149,22 @@ const AttendantInformationCard: React.FC = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
-                  control={control}
-                  name="attendant.certification.time"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Time of Birth</FormLabel>
-                      <FormControl>
-                        <TimePicker
-                          value={field.value}
-                          onChange={(value) => field.onChange(value)}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      control={control}
+                      name="attendant.certification.time"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Time of Birth</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter time (e.g. 14:30 or text)"
+                              {...field}
+                              className="h-10"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                 <FormField
                   control={control}
                   name="attendant.certification.date"
