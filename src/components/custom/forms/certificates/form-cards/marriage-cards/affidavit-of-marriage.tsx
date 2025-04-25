@@ -14,9 +14,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { MarriageCertificateFormValues } from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
 import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
-import LocationSelector from "../shared-components/location-selector";
-import NCRModeSwitch from "../shared-components/ncr-mode-switch";
-
 import { useEffect } from "react";
 import AffidavitOfSolemnizingAtPlaceSworn from "./locations/affidavit-solemnizing-place";
 import AffidavitOfSolemnizingAtPlaceExecute from "./locations/affidavit-solemnizing-place-execute";
@@ -28,43 +25,7 @@ interface AffidavitOfSolemnizingOfficerProps {
 export const AffidavitOfSolemnizingOfficer: React.FC<
   AffidavitOfSolemnizingOfficerProps
 > = ({ className }) => {
-  const { control, getValues, setValue } =
-    useFormContext<MarriageCertificateFormValues>();
-  const [ncrModeAdminOfficer, setNcrModeAdminOfficer] = React.useState(false);
-  const [ncrModeSwornOfficer, setNcrModeSwornOfficer] = React.useState(false);
-
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues(
-      "affidavitOfSolemnizingOfficer.d.atPlaceExecute.province"
-    );
-    if (province === "Metro Manila" || province === "NCR") {
-      setNcrModeAdminOfficer(true);
-    }
-  }, [getValues]);
-
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues(
-      "affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.province"
-    );
-    if (province === "Metro Manila" || province === "NCR") {
-      setNcrModeSwornOfficer(true);
-    }
-  }, [getValues]);
-
-  useEffect(() => {
-    if (ncrModeAdminOfficer && ncrModeSwornOfficer === true) {
-      setValue(
-        "affidavitOfSolemnizingOfficer.d.atPlaceExecute.province",
-        "Metro Manila"
-      );
-      setValue(
-        "affidavitOfSolemnizingOfficer.dateSworn.atPlaceOfSworn.province",
-        "Metro Manila"
-      );
-    }
-  });
+  const { control } = useFormContext<MarriageCertificateFormValues>();
 
   return (
     <Card className={cn("border dark:border-border", className)}>

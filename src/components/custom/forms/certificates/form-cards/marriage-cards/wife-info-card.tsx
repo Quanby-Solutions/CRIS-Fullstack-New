@@ -16,40 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useEffect, useState } from "react";
 import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
-import { useFormContext, useWatch } from "react-hook-form";
-import {
-  MarriageCertificateFormValues,
-  MarriageProps,
-} from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
-import LocationSelector from "../shared-components/location-selector";
-import NCRModeSwitch from "../shared-components/ncr-mode-switch";
-import LocationSelectorNew from "../shared-components/location-selector-new";
+import { useFormContext } from "react-hook-form";
+import { MarriageCertificateFormValues } from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
 import CivilStatus from "../shared-components/civil-status";
 import WifePlaceOfBirth from "./locations/wife-place-birth";
 import WifeResidenceCard from "./locations/wife-residence-place";
 
 const WifeInfoCard: React.FC = () => {
-  const { control, setValue, getValues } =
-    useFormContext<MarriageCertificateFormValues>();
-  const [wifeNcrMode, setNcrMode] = useState(false);
-
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues("wifePlaceOfBirth.province");
-    if (province === "Metro Manila" || province === "NCR") {
-      setNcrMode(true);
-    }
-  }, [getValues]);
-
-  // Removed the auto-calculation of age based on birthdate
-
-  useEffect(() => {
-    if (wifeNcrMode === true) {
-      setValue("wifePlaceOfBirth.province", "Metro Manila");
-    }
-  });
+  const { control } = useFormContext<MarriageCertificateFormValues>();
 
   return (
     <Card className="border dark:border-border">

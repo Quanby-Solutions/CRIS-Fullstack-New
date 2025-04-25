@@ -20,9 +20,8 @@ import PlaceOfMarriageCard from "./locations/place-of-marriage";
 import { Input } from "@/components/ui/input";
 
 const MarriageDetailsCard: React.FC = () => {
-  const { control, getValues, setValue, watch } =
+  const { control, setValue, watch } =
     useFormContext<MarriageCertificateFormValues>();
-  const [marriageNcr, setNcrMode] = useState(false);
   const [useFullAddressInput, setUseFullAddressInput] = useState(false);
 
   // Watch for changes in the address fields for synchronization
@@ -30,26 +29,6 @@ const MarriageDetailsCard: React.FC = () => {
   const cityMunicipality = watch("placeOfMarriage.cityMunicipality");
   const barangay = watch("placeOfMarriage.barangay");
   const fullAddress = watch("placeOfMarriage.address");
-
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues("placeOfMarriage.province");
-    if (province === "Metro Manila" || province === "NCR") {
-      setNcrMode(true);
-    }
-
-    // Detect if fullAddress is already set to determine initial view mode
-    const hasFullAddress = !!getValues("placeOfMarriage.address");
-    if (hasFullAddress) {
-      setUseFullAddressInput(true);
-    }
-  }, [getValues]);
-
-  useEffect(() => {
-    if (marriageNcr === true) {
-      setValue("placeOfMarriage.province", "Metro Manila");
-    }
-  }, [marriageNcr, setValue]);
 
   // When switching to full address input, combine existing fields into the full address
   useEffect(() => {

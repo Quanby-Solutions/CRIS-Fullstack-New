@@ -21,23 +21,7 @@ import NCRModeSwitch from "../shared-components/ncr-mode-switch";
 import HusbandConsentPlace from "./locations/husband-consent-place";
 
 const HusbandParentsInfoCard: React.FC = () => {
-  const { control, getValues, setValue } =
-    useFormContext<MarriageCertificateFormValues>();
-  const [parentMode, setNcrMode] = useState(false);
-
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues("husbandConsentPerson.residence.province");
-    if (province === "Metro Manila" || province === "NCR") {
-      setNcrMode(true);
-    }
-  }, [getValues]);
-
-  useEffect(() => {
-    if (parentMode === true) {
-      setValue("husbandConsentPerson.residence.province", "Metro Manila");
-    }
-  });
+  const { control } = useFormContext<MarriageCertificateFormValues>();
 
   return (
     <Card className="border dark:border-border">
