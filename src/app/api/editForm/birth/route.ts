@@ -103,9 +103,9 @@ export async function PUT(request: Request) {
     const safeAttendantCertificationAddress = replaceNulls(attendant?.certification?.address);
     const safeAttendantCertification = attendant?.certification
       ? {
-          ...replaceNulls(attendant.certification),
-          address: safeAttendantCertificationAddress,
-        }
+        ...replaceNulls(attendant.certification),
+        address: safeAttendantCertificationAddress,
+      }
       : {};
 
     // For string fields that are stored as JSON scalars, pass as string
@@ -115,26 +115,26 @@ export async function PUT(request: Request) {
     // Map name objects
     const safeChildName = childInfo
       ? replaceNulls({
-          first: childInfo.firstName || '',
-          middle: childInfo.middleName || '',
-          last: childInfo.lastName || '',
-        })
+        first: childInfo.firstName || '',
+        middle: childInfo.middleName || '',
+        last: childInfo.lastName || '',
+      })
       : { first: '', middle: '', last: '' };
 
     const safeMotherName = motherInfo
       ? replaceNulls({
-          first: motherInfo.firstName || '',
-          middle: motherInfo.middleName || '',
-          last: motherInfo.lastName || '',
-        })
+        first: motherInfo.firstName || '',
+        middle: motherInfo.middleName || '',
+        last: motherInfo.lastName || '',
+      })
       : { first: '', middle: '', last: '' };
 
     const safeFatherName = fatherInfo
       ? replaceNulls({
-          first: fatherInfo.firstName || '',
-          middle: fatherInfo.middleName || '',
-          last: fatherInfo.lastName || '',
-        })
+        first: fatherInfo.firstName || '',
+        middle: fatherInfo.middleName || '',
+        last: fatherInfo.lastName || '',
+      })
       : { first: '', middle: '', last: '' };
 
     // Log sanitized data for debugging

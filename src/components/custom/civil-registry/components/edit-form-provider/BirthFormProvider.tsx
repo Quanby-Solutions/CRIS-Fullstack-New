@@ -1097,7 +1097,12 @@ export function EditBirthCivilRegistryFormInline({
         ),
       },
       parentMarriage: {
-        date: data.parentMarriage?.date || "",
+        // Properly handle the date field which could be a string or Date object
+        date: data.parentMarriage?.date
+          ? data.parentMarriage.date instanceof Date
+            ? data.parentMarriage.date
+            : data.parentMarriage.date
+          : "",
         place: mergeResidence(
           originalParentMarriage,
           data.parentMarriage?.place as Record<string, string>
