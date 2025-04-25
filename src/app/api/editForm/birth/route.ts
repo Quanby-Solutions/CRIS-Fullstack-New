@@ -218,7 +218,7 @@ export async function PUT(request: Request) {
               typeOfBirth: childInfo?.typeOfBirth || '',
               multipleBirthOrder: childInfo?.multipleBirthOrder || '',
               birthOrder: childInfo?.birthOrder || '',
-              weightAtBirth: childInfo?.weightAtBirth ? String(parseFloat(String(childInfo.weightAtBirth))) : '0',
+              weightAtBirth: childInfo?.weightAtBirth ? String(childInfo.weightAtBirth) : '0',
               motherMaidenName: safeMotherName,
               motherCitizenship: motherInfo?.citizenship || '',
               motherReligion: motherInfo?.religion || '',

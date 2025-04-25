@@ -670,7 +670,12 @@ export function EditCivilRegistryFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTitle></DialogTitle>
-      <DialogContent className="max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0"
+      >
         {renderForm()}
       </DialogContent>
     </Dialog>

@@ -140,10 +140,10 @@ export async function submitBirthCertificateForm(
 
             parentMarriage:
               formData.parentMarriage?.date
-                ? asJson({
-                  date: toJsonDate(new Date(formData.parentMarriage.date)),
+                ? {
+                  date: formData.parentMarriage.date,
                   place: formData.parentMarriage.place ?? {},
-                })
+                } as Prisma.JsonObject
                 : Prisma.JsonNull,
 
             attendant: formData.attendant

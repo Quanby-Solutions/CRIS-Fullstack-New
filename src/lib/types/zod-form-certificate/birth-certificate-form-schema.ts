@@ -98,7 +98,10 @@ const marriageDateSchema = z.union([
 ]).optional();
 
 const marriageInformationSchema = z.object({
-  date: marriageDateSchema,
+  date: z.union([
+    z.string().optional(),
+    z.date().optional(),
+  ]).optional(),
   place: z.object({
     houseNo: z.string().optional(),
     st: z.string().optional(),

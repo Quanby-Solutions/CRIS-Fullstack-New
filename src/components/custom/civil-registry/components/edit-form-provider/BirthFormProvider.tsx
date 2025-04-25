@@ -443,20 +443,14 @@ export function EditBirthCivilRegistryFormInline({
       "place" in rawParentMarriage
     ) {
       const pm = rawParentMarriage as any;
-      let pmDate: Date | "Not Married" | "Forgotten" | "Don't Know";
-      if (typeof pm.date === "string") {
-        if (
-          pm.date === "Not Married" ||
-          pm.date === "Forgotten" ||
-          pm.date === "Don't Know"
-        ) {
-          pmDate = pm.date;
-        } else {
-          pmDate = new Date(pm.date);
-        }
-      } else {
-        pmDate = pm.date ? new Date(pm.date) : new Date();
-      }
+
+      // Debug the incoming value
+      console.log("Raw parentMarriage.date:", pm.date);
+      console.log("Raw parentMarriage.date type:", typeof pm.date);
+
+      // Use parseJsonDate to handle various date formats
+      const pmDate = parseJsonDate(pm.date);
+
       const rawPMPlace = pm.place;
       let pmPlace: MarriagePlace = {
         houseNo: "",
@@ -480,7 +474,8 @@ export function EditBirthCivilRegistryFormInline({
           country: rawPMPlace.country ?? "",
         };
       }
-      parentMarriage = { date: pmDate, place: pmPlace };
+      // The parseJsonDate function will handle string values like "Test 2025" appropriately
+      parentMarriage = { date: pmDate as any, place: pmPlace };
     }
 
     // Attendant extraction

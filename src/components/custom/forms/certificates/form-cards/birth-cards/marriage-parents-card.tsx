@@ -130,24 +130,28 @@ export default function MarriageInformationCard() {
             </div> */}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {dateOption === "Date" && (
-                <FormField
-                  control={control}
-                  name="parentMarriage.date"
-                  render={({ field }) => (
-                    <DatePickerString
-                      field={{
-                        // If field.value is a Date, pass it; otherwise pass null.
-                        value: field.value instanceof Date ? field.value : null,
-                        onChange: field.onChange,
-                      }}
-                      label="Date"
-                      placeholder="Select marriage date"
-                      ref={field.ref}
-                    />
-                  )}
-                />
-              )}
+              <FormField
+                control={control}
+                name="parentMarriage.date"
+                render={({ field }) => (
+                  <DatePickerString
+                    field={{
+                      // If field.value is a string, pass it as is; if a Date, pass as Date; otherwise null
+                      value: field.value
+                        ? typeof field.value === "string"
+                          ? field.value
+                          : field.value instanceof Date
+                          ? field.value
+                          : null
+                        : null,
+                      onChange: field.onChange,
+                    }}
+                    label="Date"
+                    placeholder="Select marriage date"
+                    ref={field.ref}
+                  />
+                )}
+              />
             </div>
 
             {/* Marriage Place */}
