@@ -215,14 +215,7 @@ export const MarriageDetailsCard: React.FC<MarriageDetailsCardProps> = ({
             </div>
             <div>
               <p className="font-medium">{t("Time of Marriage")}</p>
-              <div>
-                {m.timeOfMarriage
-                  ? new Date(m.timeOfMarriage).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  : ""}
-              </div>
+              <div>{m.timeOfMarriage}</div>
             </div>
 
             <div>

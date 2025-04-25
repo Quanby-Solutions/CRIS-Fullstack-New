@@ -179,13 +179,22 @@ const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
       }
     };
 
+    // Alternative approach: Add special handling for spaces
     const handleCustomInputChange = (
       e: React.ChangeEvent<HTMLInputElement>
     ) => {
       const value = e.target.value;
-      setCustomDateString(value);
-      field.onChange(value);
+
+      // Ensure spaces are registered correctly
+      // This normalizes all whitespace to single spaces
+      const normalizedValue = value.replace(/\s+/g, " ");
+
+      setCustomDateString(normalizedValue);
+      field.onChange(normalizedValue);
     };
+
+    // Another option: Use a ref to track input value changes more directly
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const handleSwitchToSelect = () => {
       isManualModeChange.current = true;
@@ -349,12 +358,24 @@ const DatePickerString = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
             <div className="flex space-x-2">
               <FormControl className="flex-1">
                 <Input
+                  ref={inputRef}
                   placeholder="Enter date information (up to 100 characters)"
                   value={customDateString}
                   onChange={handleCustomInputChange}
                   className="h-10"
-                  maxLength={100} // Allow up to 100 characters
-                  style={{ minHeight: "40px" }} // Ensure input is tall enough
+                  maxLength={100}
+                  style={{ minHeight: "40px" }}
+                  // Adding onKeyDown handler to ensure spaces are captured
+                  onKeyDown={(e) => {
+                    if (e.key === " ") {
+                      // Prevent default space behavior if needed
+                      // e.preventDefault();
+                      // Handle the space manually if necessary
+                      const newValue = customDateString + " ";
+                      setCustomDateString(newValue);
+                      field.onChange(newValue);
+                    }
+                  }}
                 />
               </FormControl>
               <Button
