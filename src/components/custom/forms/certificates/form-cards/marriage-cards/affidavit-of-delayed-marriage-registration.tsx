@@ -42,7 +42,7 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     name: "affidavitForDelayed.delayedRegistration",
   });
 
-  // NCR
+  // State for NCR mode
   const [affiant, setAffiant] = useState(false);
   const [execution, setExecution] = useState(false);
   const [ncrModeSwornDelayedOfficer, setNcrModeSwornOfficer] = useState(false);
@@ -56,36 +56,29 @@ export const AffidavitForDelayedMarriageRegistration: FC<
     name: "affidavitForDelayed.a.b.agreement",
   });
 
+  // Detect NCR Mode for the relevant fields only once on mount
   useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
     const province = getValues(
       "affidavitForDelayed.applicantInformation.applicantAddress.province"
     );
-    if (province === "Metro Manila" || province === "NCR") {
-      setAffiant(true);
-    }
-  }, [getValues]);
+    setAffiant(province === "Metro Manila" || province === "NCR");
 
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues("affidavitForDelayed.f.place.province");
-    if (province === "Metro Manila" || province === "NCR") {
-      setExecution(true);
-    }
-  }, [getValues]);
+    const executionProvince = getValues("affidavitForDelayed.f.place.province");
+    setExecution(
+      executionProvince === "Metro Manila" || executionProvince === "NCR"
+    );
 
-  useEffect(() => {
-    // Detect NCR mode from fetched data on component mount
-    const province = getValues(
+    const swornOfficerProvince = getValues(
       "affidavitForDelayed.dateSworn.atPlaceOfSworn.province"
     );
-    if (province === "Metro Manila" || province === "NCR") {
-      setNcrModeSwornOfficer(true);
-    }
+    setNcrModeSwornOfficer(
+      swornOfficerProvince === "Metro Manila" || swornOfficerProvince === "NCR"
+    );
   }, [getValues]);
 
+  // Update the provinces automatically if NCR mode is detected
   useEffect(() => {
-    if (affiant && execution && ncrModeSwornDelayedOfficer === true) {
+    if (affiant && execution && ncrModeSwornDelayedOfficer) {
       setValue(
         "affidavitForDelayed.applicantInformation.applicantAddress.province",
         "Metro Manila"
@@ -96,35 +89,20 @@ export const AffidavitForDelayedMarriageRegistration: FC<
         "Metro Manila"
       );
     }
-  });
+  }, [affiant, execution, ncrModeSwornDelayedOfficer, setValue]);
 
-  // Replace the problematic useEffect with this improved version
+  // Default value setup when mounting or resetting "delayedRegistration" field
   useEffect(() => {
-    // Make sure we explicitly set the value if it's undefined
     if (isDelayed === undefined) {
       setValue("affidavitForDelayed.delayedRegistration", "No", {
         shouldValidate: true,
       });
     }
 
-    // Reset the entire AffidavitForDelayed object when selecting "No"
     if (isDelayed === "No") {
-      // Preserve the delayedRegistration value while resetting other fields
-      const currentValue = "No";
-      setValue("affidavitForDelayed", { delayedRegistration: currentValue });
+      setValue("affidavitForDelayed", { delayedRegistration: "No" });
     }
   }, [isDelayed, setValue]);
-
-  // Also make sure to set a default value when the component mounts
-  useEffect(() => {
-    // Set a default value if none exists
-    const currentValue = getValues("affidavitForDelayed.delayedRegistration");
-    if (!currentValue) {
-      setValue("affidavitForDelayed.delayedRegistration", "No", {
-        shouldValidate: true,
-      });
-    }
-  }, []);
 
   return (
     <Card className={cn("border dark:border-border", className)}>
