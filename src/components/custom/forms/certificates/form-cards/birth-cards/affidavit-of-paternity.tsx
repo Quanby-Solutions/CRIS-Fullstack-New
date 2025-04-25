@@ -1,105 +1,108 @@
-'use client'
+"use client";
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
-import LocationSelector from '../shared-components/location-selector'
-import NCRModeSwitch from '../shared-components/ncr-mode-switch'
-import { RegisteredAtOfficeCard } from '../shared-components/processing-details-cards'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import LocationSelector from "../shared-components/location-selector";
+import NCRModeSwitch from "../shared-components/ncr-mode-switch";
+import { RegisteredAtOfficeCard } from "../shared-components/processing-details-cards";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 
 const AffidavitOfPaternityForm: React.FC = () => {
-  const { control, watch, setValue, trigger, getValues } = useFormContext()
+  const { control, watch, setValue, trigger, getValues } = useFormContext();
 
   // Local state for NCR mode for the admin officer address.
-  const [ncrMode, setncrMode] = useState(false)
+  const [ncrMode, setncrMode] = useState(false);
 
   // Watch for the checkbox and nested affidavit details.
-  const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity')
-  const affidavitDetails = watch('affidavitOfPaternityDetails')
-  const province = watch('affidavitOfPaternityDetails.adminOfficer.address.province')
+  const hasAffidavitOfPaternity = watch("hasAffidavitOfPaternity");
+  const affidavitDetails = watch("affidavitOfPaternityDetails");
+  const province = watch(
+    "affidavitOfPaternityDetails.adminOfficer.address.province"
+  );
   // When checkbox is checked and nested details are not initialized, initialize them.
 
-
-  
   const getProvinceString = (provinceValue: any): string => {
-    if (typeof provinceValue === 'string') {
+    if (typeof provinceValue === "string") {
       return provinceValue;
     } else if (
       provinceValue &&
-      typeof provinceValue === 'object' &&
+      typeof provinceValue === "object" &&
       provinceValue.label
     ) {
       return provinceValue.label;
     }
-    return '';
+    return "";
   };
 
+  useEffect(() => {
+    if (hasAffidavitOfPaternity) {
+      const provinceString = getProvinceString(province) || "Metro Manila";
 
-    useEffect(() => {
-      if (hasAffidavitOfPaternity){
-      const provinceString = getProvinceString(province) || 'Metro Manila'
-      
       // Determine if the province should be NCR (Metro Manila) or not
-      const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila'
-      setncrMode(shouldBeNCR)
-    
-      // Set the province value based on whether NCR mode is true or false
-      setValue('affidavitOfPaternityDetails.adminOfficer.address.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
-        shouldValidate: true, // Trigger validation immediately
-        shouldDirty: true,     // Mark the field as dirty to ensure validation
-      })
-    
-      // Manually trigger revalidation of the province field after setting the value
-      trigger('affidavitOfPaternityDetails.adminOfficer.address.province')
-    }
-    }, [province, hasAffidavitOfPaternity]) // Runs whenever province changes
+      const shouldBeNCR =
+        provinceString.trim().toLowerCase() === "metro manila";
+      setncrMode(shouldBeNCR);
 
+      // Set the province value based on whether NCR mode is true or false
+      setValue(
+        "affidavitOfPaternityDetails.adminOfficer.address.province",
+        shouldBeNCR ? "Metro Manila" : provinceString,
+        {
+          shouldValidate: true, // Trigger validation immediately
+          shouldDirty: true, // Mark the field as dirty to ensure validation
+        }
+      );
+
+      // Manually trigger revalidation of the province field after setting the value
+      trigger("affidavitOfPaternityDetails.adminOfficer.address.province");
+    }
+  }, [province, hasAffidavitOfPaternity]); // Runs whenever province changes
 
   useLayoutEffect(() => {
-    const currentDelayedReg = getValues('affidavitOfPaternityDetails');
+    const currentDelayedReg = getValues("affidavitOfPaternityDetails");
     if (hasAffidavitOfPaternity && currentDelayedReg === null) {
-      setValue('affidavitOfPaternityDetails', {
-        father: { signature: '', name: '' },
-        mother: { signature: '', name: '' },
+      setValue("affidavitOfPaternityDetails", {
+        father: { signature: "", name: "" },
+        mother: { signature: "", name: "" },
         dateSworn: undefined,
         adminOfficer: {
-          nameInPrint: '',
-          titleOrPosition: '',
+          nameInPrint: "",
+          titleOrPosition: "",
           address: {
-            houseNo: '',
-            st: '',
-            barangay: '',
-            cityMunicipality: '',
-            province: '',
-            country: '',
+            houseNo: "",
+            st: "",
+            barangay: "",
+            cityMunicipality: "",
+            province: "",
+            country: "",
           },
         },
         ctcInfo: {
-          number: '',
+          number: "",
           dateIssued: undefined,
-          placeIssued: '',
+          placeIssued: "",
         },
-      })
+      });
     }
-  }, [hasAffidavitOfPaternity, affidavitDetails, setValue])
+  }, [hasAffidavitOfPaternity, affidavitDetails, setValue]);
 
   // Reset the nested affidavit details when the checkbox is unchecked.
   useEffect(() => {
     if (!hasAffidavitOfPaternity) {
-      setValue('affidavitOfPaternityDetails', null)
+      setValue("affidavitOfPaternityDetails", null);
     }
-  }, [hasAffidavitOfPaternity, setValue])
-  
+  }, [hasAffidavitOfPaternity, setValue]);
 
   return (
     <Card>
@@ -109,20 +112,20 @@ const AffidavitOfPaternityForm: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className='space-y-4'>
+        <div className="space-y-4">
           {/* Checkbox to include the affidavit details */}
           <FormField
             control={control}
-            name='hasAffidavitOfPaternity'
+            name="hasAffidavitOfPaternity"
             render={({ field }) => (
-              <FormItem className='flex flex-row items-center space-x-2'>
+              <FormItem className="flex flex-row items-center space-x-2">
                 <FormControl>
                   <Checkbox
                     checked={field.value ?? false}
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <FormLabel className='font-normal'>
+                <FormLabel className="font-normal">
                   Include Affidavit of Paternity
                 </FormLabel>
               </FormItem>
@@ -138,17 +141,17 @@ const AffidavitOfPaternityForm: React.FC = () => {
                   <CardTitle>Parental Details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Father's Details */}
-                    <div className='space-y-4'>
+                    <div className="space-y-4">
                       <FormField
                         control={control}
-                        name='affidavitOfPaternityDetails.father.name'
+                        name="affidavitOfPaternityDetails.father.name"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Father&apos; Name</FormLabel>
                             <FormControl>
-                              <Input {...field} value={field.value || ''} />
+                              <Input {...field} value={field.value || ""} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -157,15 +160,15 @@ const AffidavitOfPaternityForm: React.FC = () => {
                     </div>
 
                     {/* Mother's Details */}
-                    <div className='space-y-4'>
+                    <div className="space-y-4">
                       <FormField
                         control={control}
-                        name='affidavitOfPaternityDetails.mother.name'
+                        name="affidavitOfPaternityDetails.mother.name"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Mother&apos; Name</FormLabel>
                             <FormControl>
-                              <Input {...field} value={field.value || ''} />
+                              <Input {...field} value={field.value || ""} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -175,7 +178,25 @@ const AffidavitOfPaternityForm: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-
+              {/* Date Sworn */}
+              <FormField
+                control={control}
+                name="affidavitOfPaternityDetails.dateSworn"
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerString
+                      field={{
+                        value: field.value!,
+                        onChange: field.onChange,
+                      }}
+                      label="Date Sworn"
+                      placeholder="Please select a date"
+                      ref={field.ref}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               {/* Administering Officer Details */}
               <RegisteredAtOfficeCard
                 fieldPrefix="affidavitOfPaternityDetails.adminOfficer"
@@ -186,47 +207,44 @@ const AffidavitOfPaternityForm: React.FC = () => {
                 showTitleOrPosition={true}
               />
 
-
-              
-
               {/* Admin Officer Address */}
               <Card>
                 <CardHeader>
                   <CardTitle>Admin Officer Address</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className='space-y-4'>
+                  <div className="space-y-4">
                     <NCRModeSwitch
                       isNCRMode={ncrMode}
                       setIsNCRMode={setncrMode}
                     />
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <LocationSelector
-                        provinceFieldName='affidavitOfPaternityDetails.adminOfficer.address.province'
-                        municipalityFieldName='affidavitOfPaternityDetails.adminOfficer.address.cityMunicipality'
-                        barangayFieldName='affidavitOfPaternityDetails.adminOfficer.address.barangay'
-                        provinceLabel='Province'
-                        municipalityLabel='City/Municipality'
-                        selectTriggerClassName='h-10 px-3 text-base md:text-sm'
-                        provincePlaceholder='Select province'
-                        municipalityPlaceholder='Select city/municipality'
-                        className='grid grid-cols-2 gap-4'
+                        provinceFieldName="affidavitOfPaternityDetails.adminOfficer.address.province"
+                        municipalityFieldName="affidavitOfPaternityDetails.adminOfficer.address.cityMunicipality"
+                        barangayFieldName="affidavitOfPaternityDetails.adminOfficer.address.barangay"
+                        provinceLabel="Province"
+                        municipalityLabel="City/Municipality"
+                        selectTriggerClassName="h-10 px-3 text-base md:text-sm"
+                        provincePlaceholder="Select province"
+                        municipalityPlaceholder="Select city/municipality"
+                        className="grid grid-cols-2 gap-4"
                         isNCRMode={ncrMode}
                         showBarangay={true}
-                        barangayLabel='Barangay'
-                        barangayPlaceholder='Select barangay'
+                        barangayLabel="Barangay"
+                        barangayPlaceholder="Select barangay"
                       />
                       <FormField
                         control={control}
-                        name='affidavitOfPaternityDetails.adminOfficer.address.country'
+                        name="affidavitOfPaternityDetails.adminOfficer.address.country"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Country</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                className='h-10'
-                                value={field.value || ''}
+                                className="h-10"
+                                value={field.value || ""}
                               />
                             </FormControl>
                             <FormMessage />
@@ -244,15 +262,15 @@ const AffidavitOfPaternityForm: React.FC = () => {
                   <CardTitle>CTC Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={control}
-                      name='affidavitOfPaternityDetails.ctcInfo.number'
+                      name="affidavitOfPaternityDetails.ctcInfo.number"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>CTC Number</FormLabel>
                           <FormControl>
-                            <Input {...field} value={field.value || ''} />
+                            <Input {...field} value={field.value || ""} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -260,16 +278,16 @@ const AffidavitOfPaternityForm: React.FC = () => {
                     />
                     <FormField
                       control={control}
-                      name='affidavitOfPaternityDetails.ctcInfo.dateIssued'
+                      name="affidavitOfPaternityDetails.ctcInfo.dateIssued"
                       render={({ field }) => (
                         <FormItem>
-                          <DatePickerField
+                          <DatePickerString
                             field={{
                               value: field.value ?? null,
                               onChange: field.onChange,
                             }}
-                            label='Date Issued'
-                            placeholder='Select date issued'
+                            label="Date Issued"
+                            placeholder="Select date issued"
                             ref={field.ref}
                           />
                           <FormMessage />
@@ -278,12 +296,12 @@ const AffidavitOfPaternityForm: React.FC = () => {
                     />
                     <FormField
                       control={control}
-                      name='affidavitOfPaternityDetails.ctcInfo.placeIssued'
+                      name="affidavitOfPaternityDetails.ctcInfo.placeIssued"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Place Issued</FormLabel>
                           <FormControl>
-                            <Input {...field} value={field.value || ''} />
+                            <Input {...field} value={field.value || ""} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -297,7 +315,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default AffidavitOfPaternityForm
+export default AffidavitOfPaternityForm;

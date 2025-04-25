@@ -109,6 +109,56 @@ export function EditBirthCivilRegistryFormInline({
     return dateValue;
   };
 
+  const parseJsonDate = (value: any): Date | string | undefined => {
+    if (value === null || value === undefined) return undefined;
+
+    // If it's already a Date object, return it
+    if (value instanceof Date) {
+      return value;
+    }
+
+    // If it's a string, try to parse it
+    if (typeof value === "string") {
+      // Trim the string to remove any leading/trailing whitespace
+      const trimmedValue = value.trim();
+
+      // Check for ISO date/timestamp format with time
+      const isIsoDateTime =
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(trimmedValue);
+
+      // Check for more verbose date formats like "January 24, 2025"
+      const isVerboseDate = /^[A-Za-z]+ \d{1,2}, \d{4}$/.test(trimmedValue);
+
+      // If it's an ISO datetime, convert to Date
+      if (isIsoDateTime) {
+        try {
+          const date = new Date(trimmedValue);
+          if (!isNaN(date.getTime())) {
+            return date;
+          }
+        } catch {
+          // If parsing fails, continue
+        }
+      }
+
+      // If it's a verbose date format or doesn't look like a machine date, return as string
+      if (isVerboseDate || !isIsoDateTime) {
+        return trimmedValue;
+      }
+    }
+
+    // For other types, try to create a date or convert to string
+    try {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    } catch {}
+
+    // Fallback to string conversion
+    return String(value);
+  };
+
   // Utility: parse raw residence if provided as JSON string
   const parseResidence = (rawResidence: unknown): any => {
     if (typeof rawResidence === "string") {
@@ -273,7 +323,7 @@ export function EditBirthCivilRegistryFormInline({
     const weightAtBirth: string =
       typeof rawWeightAtBirth === "string"
         ? rawWeightAtBirth
-        : rawWeightAtBirth || "";
+        : String(rawWeightAtBirth || "");
 
     // Mother residence mapping (support for both "street" and "st")
     let rawMotherResidence = form.birthCertificateForm?.motherResidence;
@@ -438,7 +488,7 @@ export function EditBirthCivilRegistryFormInline({
     let attendant: {
       type: "Others" | "Physician" | "Nurse" | "Midwife" | "Hilot";
       certification: {
-        date: Date;
+        date: Date | any;
         time: string;
         signature: string | File;
         name: string;
@@ -511,7 +561,7 @@ export function EditBirthCivilRegistryFormInline({
           | "Midwife"
           | "Hilot",
         certification: {
-          date: parsedDate,
+          date: parseJsonDate(cert.date),
           time: cert.time ?? "",
           signature: cert.signature ?? "",
           name: cert.name ?? "",
@@ -669,15 +719,13 @@ export function EditBirthCivilRegistryFormInline({
         if (ctcInfo && typeof ctcInfo === "object") {
           processedCtcInfo = {
             ...ctcInfo,
-            dateIssued: ctcInfo.dateIssued
-              ? new Date(ctcInfo.dateIssued)
-              : undefined,
+            dateIssued: parseJsonDate(ctcInfo.dateIssued),
           };
         }
         affidavitOfPaternityDetails = {
           ...rest,
           ctcInfo: processedCtcInfo,
-          dateSworn: dateSworn ? new Date(dateSworn) : undefined,
+          dateSworn: parseJsonDate(dateSworn),
         };
       }
     }
@@ -701,15 +749,13 @@ export function EditBirthCivilRegistryFormInline({
         if (ctcInfo && typeof ctcInfo === "object") {
           processedCtcInfo = {
             ...ctcInfo,
-            dateIssued: ctcInfo.dateIssued
-              ? new Date(ctcInfo.dateIssued)
-              : undefined,
+            dateIssued: parseJsonDate(ctcInfo.dateIssued),
           };
         }
         affidavitOfDelayedRegistration = {
           ...rest,
           ctcInfo: processedCtcInfo,
-          dateSworn: dateSworn ? new Date(dateSworn) : undefined,
+          dateSworn: parseJsonDate(dateSworn),
         };
       }
     }
@@ -805,7 +851,7 @@ export function EditBirthCivilRegistryFormInline({
           time: attendant.certification.time,
           name: attendant.certification.name,
           title: attendant.certification.title,
-          date: parseDateSafely(attendant.certification.date),
+          date: parseJsonDate(attendant.certification.date),
           address: {
             st: attendant.certification.address.st,
             country: attendant.certification.address.country,
@@ -861,6 +907,8 @@ export function EditBirthCivilRegistryFormInline({
         mother: {
           name: affidavitOfPaternityDetails?.mother?.name || "",
         },
+        dateSworn:
+          parseDateSafely(affidavitOfPaternityDetails?.dateSworn) || "",
         adminOfficer: {
           nameInPrint:
             affidavitOfPaternityDetails?.adminOfficer?.nameInPrint || "",
@@ -1102,6 +1150,7 @@ export function EditBirthCivilRegistryFormInline({
             >
           ),
         },
+        dateSworn: data.affidavitOfPaternityDetails?.dateSworn || null,
         ctcInfo: {
           number: data.affidavitOfPaternityDetails?.ctcInfo?.number || "",
           dateIssued:

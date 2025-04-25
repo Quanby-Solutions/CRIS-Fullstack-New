@@ -133,7 +133,10 @@ const attendantInformationSchema = z
             internationalAddress: z.string().optional(),
           })
           .optional(),
-        date: createOptionalDateFieldSchemaWithPreprocess(),
+        date: z.union([
+          z.date().optional(),
+          z.string().optional(),
+        ]).optional(),
       })
       .optional(),
   })
@@ -165,7 +168,10 @@ const affidavitOfPaternitySchema = z.object({
   mother: z.object({
     name: z.string().optional(),
   }).optional(),
-  dateSworn: createOptionalDateFieldSchemaWithPreprocess(),
+  dateSworn: z.union([
+    z.date().optional(),
+    z.string().optional(),
+  ]).optional(),
   adminOfficer: z.object({
     nameInPrint: z.string().optional(),
     titleOrPosition: z.string().optional(),
@@ -181,7 +187,10 @@ const affidavitOfPaternitySchema = z.object({
   }).optional(),
   ctcInfo: z.object({
     number: z.string().optional(),
-    dateIssued: createOptionalDateFieldSchemaWithPreprocess(),
+    dateIssued: z.union([
+      z.date().optional(),
+      z.string().optional(),
+    ]).optional(),
     placeIssued: z.string().optional(),
   }).optional(),
 }).nullable().optional();
@@ -204,7 +213,10 @@ const delayedRegistrationAffidavitSchema = z.object({
   }).optional(),
   registrationType: z.enum(['SELF', 'OTHER']).optional(),
   reasonForDelay: z.string().optional(),
-  dateSworn: createOptionalDateFieldSchemaWithPreprocess(),
+  dateSworn: z.union([
+    z.date().optional(),
+    z.string().optional(),
+  ]).optional(),
   adminOfficer: z.object({
     nameInPrint: z.string().optional(),
     titleOrPosition: z.string().optional(),
@@ -220,7 +232,10 @@ const delayedRegistrationAffidavitSchema = z.object({
   }).optional(),
   ctcInfo: z.object({
     number: z.string().optional(),
-    dateIssued: createOptionalDateFieldSchemaWithPreprocess(),
+    dateIssued: z.union([
+      z.date().optional(),
+      z.string().optional(),
+    ]).optional(),
     placeIssued: z.string().optional(),
   }).optional(),
   parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED', "Don't Know"]).optional(),

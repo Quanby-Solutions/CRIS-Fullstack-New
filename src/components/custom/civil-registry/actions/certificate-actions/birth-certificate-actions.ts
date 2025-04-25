@@ -98,8 +98,7 @@ export async function submitBirthCertificateForm(
             typeOfBirth: formData.childInfo?.typeOfBirth ?? '',
             multipleBirthOrder: formData.childInfo?.multipleBirthOrder ?? '',
             birthOrder: formData.childInfo?.birthOrder ?? '',
-            weightAtBirth: formData.childInfo?.weightAtBirth ?? '',
-
+            weightAtBirth: formData.childInfo?.weightAtBirth ?? '0',
             motherMaidenName: asJson({
               first: formData.motherInfo?.firstName ?? '',
               middle: formData.motherInfo?.middleName ?? '',
@@ -124,10 +123,10 @@ export async function submitBirthCertificateForm(
             fatherName:
               formData.fatherInfo?.firstName && formData.fatherInfo?.lastName
                 ? asJson({
-                    first: formData.fatherInfo.firstName,
-                    middle: formData.fatherInfo.middleName ?? '',
-                    last: formData.fatherInfo.lastName,
-                  })
+                  first: formData.fatherInfo.firstName,
+                  middle: formData.fatherInfo.middleName ?? '',
+                  last: formData.fatherInfo.lastName,
+                })
                 : Prisma.JsonNull,
             fatherCitizenship: formData.fatherInfo?.citizenship ?? '',
             fatherReligion: formData.fatherInfo?.religion ?? '',
@@ -142,33 +141,31 @@ export async function submitBirthCertificateForm(
             parentMarriage:
               formData.parentMarriage?.date
                 ? asJson({
-                    date: toJsonDate(new Date(formData.parentMarriage.date)),
-                    place: formData.parentMarriage.place ?? {},
-                  })
+                  date: toJsonDate(new Date(formData.parentMarriage.date)),
+                  place: formData.parentMarriage.place ?? {},
+                })
                 : Prisma.JsonNull,
 
-                attendant: formData.attendant
-                ? asJson({
-                    type: formData.attendant.type ?? '',
-                    certification: {
-                      ...formData.attendant.certification,
-                      // time is now just a string (or undefined)
-                      time: formData.attendant.certification?.time ?? undefined,
-                      // dates still get serialized
-                      date: formData.attendant.certification?.date
-                        ? toJsonDate(formData.attendant.certification.date)
-                        : undefined,
-                    },
-                  })
-                : Prisma.JsonNull,
+            attendant: formData.attendant
+              ? asJson({
+                type: formData.attendant.type ?? '',
+                certification: {
+                  ...formData.attendant.certification,
+                  // time is now just a string (or undefined)
+                  time: formData.attendant.certification?.time ?? undefined,
+                  // dates still get serialized
+                  date: formData.attendant.certification?.date
+                },
+              })
+              : Prisma.JsonNull,
 
             informant: formData.informant
               ? asJson({
-                  ...formData.informant,
-                  date: formData.informant.date
-                    ? toJsonDate(formData.informant.date)
-                    : undefined,
-                })
+                ...formData.informant,
+                date: formData.informant.date
+                  ? toJsonDate(formData.informant.date)
+                  : undefined,
+              })
               : Prisma.JsonNull,
 
             preparer: asJson({
@@ -186,12 +183,12 @@ export async function submitBirthCertificateForm(
             isDelayedRegistration,
             affidavitOfDelayedRegistration:
               isDelayedRegistration &&
-              formData.affidavitOfDelayedRegistration
+                formData.affidavitOfDelayedRegistration
                 ? asJson(formData.affidavitOfDelayedRegistration)
                 : Prisma.JsonNull,
             reasonForDelay:
               isDelayedRegistration &&
-              formData.affidavitOfDelayedRegistration?.reasonForDelay
+                formData.affidavitOfDelayedRegistration?.reasonForDelay
                 ? formData.affidavitOfDelayedRegistration.reasonForDelay
                 : '',
           },

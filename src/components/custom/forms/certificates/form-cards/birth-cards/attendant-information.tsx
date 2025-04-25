@@ -1,55 +1,65 @@
-'use client';
+"use client";
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import TimePicker from '@/components/custom/time/time-picker';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+import TimePicker from "@/components/custom/time/time-picker";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { BirthCertificateFormValues } from "@/lib/types/zod-form-certificate/birth-certificate-form-schema";
+import React, { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import LocationSelector from "../shared-components/location-selector";
+import NCRModeSwitch from "../shared-components/ncr-mode-switch";
+import DatePickerString from "@/components/custom/datepickerfield/date-picker-string";
 
 const AttendantInformationCard: React.FC = () => {
-  const { control, setValue, watch, trigger } = useFormContext<BirthCertificateFormValues>();
+  const { control, setValue, watch, trigger } =
+    useFormContext<BirthCertificateFormValues>();
   const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
   // State to track if "Others" input should be shown
   const [showOtherInput, setShowOtherInput] = useState(false);
   // Local state to hold the custom input value
-  const [customAttendant, setCustomAttendant] = useState('');
+  const [customAttendant, setCustomAttendant] = useState("");
 
-  const province = watch('attendant.certification.address.province');
+  const province = watch("attendant.certification.address.province");
 
   const getProvinceString = (provinceValue: any): string => {
-    if (typeof provinceValue === 'string') {
+    if (typeof provinceValue === "string") {
       return provinceValue;
-    } else if (provinceValue && typeof provinceValue === 'object' && provinceValue.label) {
+    } else if (
+      provinceValue &&
+      typeof provinceValue === "object" &&
+      provinceValue.label
+    ) {
       return provinceValue.label;
     }
-    return '';
+    return "";
   };
 
   useEffect(() => {
-    const provinceString = getProvinceString(province) || 'Metro Manila';
-    const shouldBeNCR = provinceString.trim().toLowerCase() === 'metro manila';
+    const provinceString = getProvinceString(province) || "Metro Manila";
+    const shouldBeNCR = provinceString.trim().toLowerCase() === "metro manila";
     setAttendantAddressNcrMode(shouldBeNCR);
-    setValue('attendant.certification.address.province', shouldBeNCR ? 'Metro Manila' : provinceString, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    trigger('attendant.certification.address.province');
+    setValue(
+      "attendant.certification.address.province",
+      shouldBeNCR ? "Metro Manila" : provinceString,
+      {
+        shouldValidate: true,
+        shouldDirty: true,
+      }
+    );
+    trigger("attendant.certification.address.province");
   }, [province, setValue, trigger]);
 
   // Predefined attendant options
-  const attendantOptions = ['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'];
+  const attendantOptions = ["Physician", "Nurse", "Midwife", "Hilot", "Others"];
 
   return (
     <Card>
@@ -69,38 +79,40 @@ const AttendantInformationCard: React.FC = () => {
               render={({ field }) => {
                 // Determine if the current field value is one of the predefined options.
                 // If not, we assume it is a custom value.
-                const isCustom = field.value && !attendantOptions.includes(field.value);
-                
+                const isCustom =
+                  field.value && !attendantOptions.includes(field.value);
+
                 // When field.value is custom, update local state.
                 useEffect(() => {
                   if (isCustom) {
-                    setCustomAttendant(field.value ?? '');
+                    setCustomAttendant(field.value ?? "");
                     setShowOtherInput(true);
                   }
                 }, [field.value, isCustom]);
 
                 // For the radio group, if the current value is custom, select "Others"
                 const radioValue =
-                  attendantOptions.includes(field.value ?? '') || field.value === 'Others'
+                  attendantOptions.includes(field.value ?? "") ||
+                  field.value === "Others"
                     ? field.value
-                    : 'Others';
+                    : "Others";
 
                 return (
                   <FormItem>
                     <FormControl>
                       <RadioGroup
                         onValueChange={(value) => {
-                          if (value === 'Others') {
+                          if (value === "Others") {
                             setShowOtherInput(true);
                             // If a custom value already exists, update the field value with it.
                             if (customAttendant) {
                               field.onChange(customAttendant);
                             } else {
-                              field.onChange('');
+                              field.onChange("");
                             }
                           } else {
                             setShowOtherInput(false);
-                            setCustomAttendant('');
+                            setCustomAttendant("");
                             field.onChange(value);
                           }
                         }}
@@ -108,11 +120,16 @@ const AttendantInformationCard: React.FC = () => {
                         className="grid grid-cols-2 md:grid-cols-5 gap-4"
                       >
                         {attendantOptions.map((type) => (
-                          <FormItem key={type} className="flex items-center space-x-3 space-y-0">
+                          <FormItem
+                            key={type}
+                            className="flex items-center space-x-3 space-y-0"
+                          >
                             <FormControl>
                               <RadioGroupItem value={type} />
                             </FormControl>
-                            <FormLabel className="font-normal">{type}</FormLabel>
+                            <FormLabel className="font-normal">
+                              {type}
+                            </FormLabel>
                           </FormItem>
                         ))}
                       </RadioGroup>
@@ -139,7 +156,9 @@ const AttendantInformationCard: React.FC = () => {
         {/* Certification Details */}
         <Card>
           <CardHeader className="pb-3">
-            <h3 className="text-sm font-semibold">21b. Certification of Attendant at Birth</h3>
+            <h3 className="text-sm font-semibold">
+              21b. Certification of Attendant at Birth
+            </h3>
           </CardHeader>
           <CardContent>
             <NCRModeSwitch
@@ -149,27 +168,27 @@ const AttendantInformationCard: React.FC = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
-                      control={control}
-                      name="attendant.certification.time"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Time of Birth</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter time (e.g. 14:30 or text)"
-                              {...field}
-                              className="h-10"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  control={control}
+                  name="attendant.certification.time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Time of Birth</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter time (e.g. 14:30 or text)"
+                          {...field}
+                          className="h-10"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={control}
                   name="attendant.certification.date"
                   render={({ field }) => (
-                    <DatePickerField
+                    <DatePickerString
                       field={{ value: field.value!, onChange: field.onChange }}
                       label="Certification Date"
                       placeholder="Select date"
@@ -184,7 +203,11 @@ const AttendantInformationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Name in Print</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter full name" {...field} className="h-10" />
+                        <Input
+                          placeholder="Enter full name"
+                          {...field}
+                          className="h-10"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -198,7 +221,11 @@ const AttendantInformationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Title/Position</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter title/designation" {...field} className="h-10" />
+                        <Input
+                          placeholder="Enter title/designation"
+                          {...field}
+                          className="h-10"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -211,7 +238,11 @@ const AttendantInformationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>House Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter house number" {...field} className="h-10" />
+                        <Input
+                          placeholder="Enter house number"
+                          {...field}
+                          className="h-10"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -224,7 +255,11 @@ const AttendantInformationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Street</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter street" {...field} className="h-10" />
+                        <Input
+                          placeholder="Enter street"
+                          {...field}
+                          className="h-10"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
-import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm';
-import type { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import { useBirthCertificateForm } from "@/hooks/form-certificates-hooks/useBirthCertificateForm";
+import type { BirthCertificateFormValues } from "@/lib/types/zod-form-certificate/birth-certificate-form-schema";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
-import { mapToMarriageCertificateValues } from '@/lib/utils/map-to-marriage-certificate';
-import { EditBirthCivilRegistryFormInline } from './edit-form-provider/BirthFormProvider';
+import { mapToMarriageCertificateValues } from "@/lib/utils/map-to-marriage-certificate";
+import { EditBirthCivilRegistryFormInline } from "./edit-form-provider/BirthFormProvider";
 
-import { Button } from '@/components/ui/button';
-import { DialogFooter, DialogHeader } from '@/components/ui/dialog';
-import { useEffect, useRef } from 'react';
-import MarriageCertificateForm from '../../forms/certificates/marriage-certificate-form';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import { Button } from "@/components/ui/button";
+import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { useEffect, useRef } from "react";
+import MarriageCertificateForm from "../../forms/certificates/marriage-certificate-form";
+import { MarriageCertificateFormValues } from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
 
 interface EmptyDialogProps {
   open: boolean;
@@ -23,10 +23,15 @@ interface EmptyDialogProps {
   editType?: string;
 }
 
-function EmptyDialog({ open, onOpenChange, onCancel, editType }: EmptyDialogProps) {
+function EmptyDialog({
+  open,
+  onOpenChange,
+  onCancel,
+  editType,
+}: EmptyDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='p-6'>
+      <DialogContent className="p-6">
         <DialogHeader>
           <DialogTitle>Empty Dialog</DialogTitle>
         </DialogHeader>
@@ -44,7 +49,7 @@ interface EditCivilRegistryFormDialogProps {
   open: boolean;
   onOpenChangeAction: (open: boolean) => void;
   onSaveAction: (updatedForm: BaseRegistryFormWithRelations) => Promise<void>;
-  editType: 'BIRTH' | 'DEATH' | 'MARRIAGE';
+  editType: "BIRTH" | "DEATH" | "MARRIAGE";
 }
 
 interface ChildName {
@@ -136,7 +141,7 @@ export function EditCivilRegistryFormDialog({
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     // Handle window focus/blur events as well for better coverage
     const handleWindowFocus = () => {
@@ -147,21 +152,21 @@ export function EditCivilRegistryFormDialog({
       }
     };
 
-    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener("focus", handleWindowFocus);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleWindowFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleWindowFocus);
     };
   }, [onOpenChangeAction]);
 
   // Custom handler for dialog open state changes
   const handleOpenChange = (newOpenState: boolean) => {
-    // If attempting to close by clicking outside or pressing escape, 
+    // If attempting to close by clicking outside or pressing escape,
     // ignore it if it wasn't an explicit user action within the dialog
     if (!newOpenState && openRef.current) {
       // Check if this was triggered by tab switching or an actual user action
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         // This was likely a user action (clicking outside, pressing ESC)
         onOpenChangeAction(newOpenState);
       } else {
@@ -186,42 +191,42 @@ export function EditCivilRegistryFormDialog({
   ): Partial<BirthCertificateFormValues> => {
     // Child name
     const rawChildName = form.birthCertificateForm?.childName;
-    let childName: ChildName = { first: '', middle: '', last: '' };
+    let childName: ChildName = { first: "", middle: "", last: "" };
     if (
       rawChildName &&
-      typeof rawChildName === 'object' &&
+      typeof rawChildName === "object" &&
       !Array.isArray(rawChildName) &&
-      'first' in rawChildName &&
-      'middle' in rawChildName &&
-      'last' in rawChildName
+      "first" in rawChildName &&
+      "middle" in rawChildName &&
+      "last" in rawChildName
     ) {
       childName = rawChildName as unknown as ChildName;
     }
 
     // Mother name
     const rawMotherName = form.birthCertificateForm?.motherMaidenName;
-    let motherName: motherName = { first: '', middle: '', last: '' };
+    let motherName: motherName = { first: "", middle: "", last: "" };
     if (
       rawMotherName &&
-      typeof rawMotherName === 'object' &&
+      typeof rawMotherName === "object" &&
       !Array.isArray(rawMotherName) &&
-      'first' in rawMotherName &&
-      'middle' in rawMotherName &&
-      'last' in rawMotherName
+      "first" in rawMotherName &&
+      "middle" in rawMotherName &&
+      "last" in rawMotherName
     ) {
       motherName = rawMotherName as unknown as motherName;
     }
 
     // Father name
     const rawFatherName = form.birthCertificateForm?.fatherName;
-    let fatherName: FatherName = { first: '', middle: '', last: '' };
+    let fatherName: FatherName = { first: "", middle: "", last: "" };
     if (
       rawFatherName &&
-      typeof rawFatherName === 'object' &&
+      typeof rawFatherName === "object" &&
       !Array.isArray(rawFatherName) &&
-      'first' in rawFatherName &&
-      'middle' in rawFatherName &&
-      'last' in rawFatherName
+      "first" in rawFatherName &&
+      "middle" in rawFatherName &&
+      "last" in rawFatherName
     ) {
       fatherName = rawFatherName as unknown as FatherName;
     }
@@ -229,33 +234,33 @@ export function EditCivilRegistryFormDialog({
     // Place of Birth
     const rawPlaceOfBirth = form.birthCertificateForm?.placeOfBirth;
     let placeOfBirth: PlaceOfBirth = {
-      houseNo: '',
-      street: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
-      hospital: '',
+      houseNo: "",
+      street: "",
+      barangay: "",
+      cityMunicipality: "",
+      province: "",
+      country: "",
+      hospital: "",
     };
     if (
       rawPlaceOfBirth &&
-      typeof rawPlaceOfBirth === 'object' &&
+      typeof rawPlaceOfBirth === "object" &&
       !Array.isArray(rawPlaceOfBirth) &&
-      'houseNo' in rawPlaceOfBirth &&
-      'street' in rawPlaceOfBirth &&
-      'barangay' in rawPlaceOfBirth &&
-      'cityMunicipality' in rawPlaceOfBirth &&
-      'province' in rawPlaceOfBirth &&
-      'country' in rawPlaceOfBirth &&
-      'hospital' in rawPlaceOfBirth
+      "houseNo" in rawPlaceOfBirth &&
+      "street" in rawPlaceOfBirth &&
+      "barangay" in rawPlaceOfBirth &&
+      "cityMunicipality" in rawPlaceOfBirth &&
+      "province" in rawPlaceOfBirth &&
+      "country" in rawPlaceOfBirth &&
+      "hospital" in rawPlaceOfBirth
     ) {
       placeOfBirth = rawPlaceOfBirth as unknown as PlaceOfBirth;
     }
 
     // Sex
     const rawSex = form.birthCertificateForm?.sex;
-    const sex: 'Male' | 'Female' =
-      rawSex === 'Male' || rawSex === 'Female' ? rawSex : 'Male';
+    const sex: "Male" | "Female" =
+      rawSex === "Male" || rawSex === "Female" ? rawSex : "Male";
 
     // Date of birth
     const rawDateOfBirth = form.birthCertificateForm?.dateOfBirth;
@@ -265,41 +270,41 @@ export function EditCivilRegistryFormDialog({
 
     // Type of birth
     const rawTypeOfBirth = form.birthCertificateForm?.typeOfBirth;
-    const typeOfBirth: 'Single' | 'Twin' | 'Triplet' | 'Others' =
-      rawTypeOfBirth === 'Single' ||
-        rawTypeOfBirth === 'Twin' ||
-        rawTypeOfBirth === 'Triplet' ||
-        rawTypeOfBirth === 'Others'
+    const typeOfBirth: "Single" | "Twin" | "Triplet" | "Others" =
+      rawTypeOfBirth === "Single" ||
+      rawTypeOfBirth === "Twin" ||
+      rawTypeOfBirth === "Triplet" ||
+      rawTypeOfBirth === "Others"
         ? rawTypeOfBirth
-        : 'Single';
+        : "Single";
 
     // Weight at birth
     const rawWeightAtBirth = form.birthCertificateForm?.weightAtBirth;
     const weightAtBirth: string =
-      typeof rawWeightAtBirth === 'number'
-        ? rawWeightAtBirth.toString()
-        : rawWeightAtBirth || '';
+      rawWeightAtBirth && !isNaN(Number(rawWeightAtBirth))
+        ? String(parseFloat(String(rawWeightAtBirth)))
+        : "0";
 
     // Mother residence
     const rawMotherResidence = form.birthCertificateForm?.motherResidence;
     let motherResidence: MotherResidence = {
-      houseNo: '',
-      street: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
+      houseNo: "",
+      street: "",
+      barangay: "",
+      cityMunicipality: "",
+      province: "",
+      country: "",
     };
     if (
       rawMotherResidence &&
-      typeof rawMotherResidence === 'object' &&
+      typeof rawMotherResidence === "object" &&
       !Array.isArray(rawMotherResidence) &&
-      'houseNo' in rawMotherResidence &&
-      'street' in rawMotherResidence &&
-      'barangay' in rawMotherResidence &&
-      'cityMunicipality' in rawMotherResidence &&
-      'province' in rawMotherResidence &&
-      'country' in rawMotherResidence
+      "houseNo" in rawMotherResidence &&
+      "street" in rawMotherResidence &&
+      "barangay" in rawMotherResidence &&
+      "cityMunicipality" in rawMotherResidence &&
+      "province" in rawMotherResidence &&
+      "country" in rawMotherResidence
     ) {
       motherResidence = rawMotherResidence as unknown as MotherResidence;
     }
@@ -307,23 +312,23 @@ export function EditCivilRegistryFormDialog({
     // Father residence
     const rawFatherResidence = form.birthCertificateForm?.fatherResidence;
     let fatherResidence: FatherResidence = {
-      houseNo: '',
-      street: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
+      houseNo: "",
+      street: "",
+      barangay: "",
+      cityMunicipality: "",
+      province: "",
+      country: "",
     };
     if (
       rawFatherResidence &&
-      typeof rawFatherResidence === 'object' &&
+      typeof rawFatherResidence === "object" &&
       !Array.isArray(rawFatherResidence) &&
-      'houseNo' in rawFatherResidence &&
-      'street' in rawFatherResidence &&
-      'barangay' in rawFatherResidence &&
-      'cityMunicipality' in rawFatherResidence &&
-      'province' in rawFatherResidence &&
-      'country' in rawFatherResidence
+      "houseNo" in rawFatherResidence &&
+      "street" in rawFatherResidence &&
+      "barangay" in rawFatherResidence &&
+      "cityMunicipality" in rawFatherResidence &&
+      "province" in rawFatherResidence &&
+      "country" in rawFatherResidence
     ) {
       fatherResidence = rawFatherResidence as unknown as FatherResidence;
     }
@@ -350,11 +355,11 @@ export function EditCivilRegistryFormDialog({
     }
 
     // Validate multipleBirthOrder against allowed literals.
-    const validBirthOrders = ['First', 'Second', 'Third'] as const;
+    const validBirthOrders = ["First", "Second", "Third"] as const;
     const rawMultipleBirthOrder = form.birthCertificateForm?.multipleBirthOrder;
-    const multipleBirthOrder: 'First' | 'Second' | 'Third' | undefined =
+    const multipleBirthOrder: "First" | "Second" | "Third" | undefined =
       validBirthOrders.includes(rawMultipleBirthOrder as any)
-        ? (rawMultipleBirthOrder as 'First' | 'Second' | 'Third')
+        ? (rawMultipleBirthOrder as "First" | "Second" | "Third")
         : undefined;
 
     // Parent marriage extraction.
@@ -362,42 +367,42 @@ export function EditCivilRegistryFormDialog({
     let parentMarriage: ParentMarriage = {
       date: new Date(),
       place: {
-        houseNo: '',
-        street: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: '',
+        houseNo: "",
+        street: "",
+        barangay: "",
+        cityMunicipality: "",
+        province: "",
+        country: "",
       },
     };
     if (
       rawParentMarriage &&
-      typeof rawParentMarriage === 'object' &&
+      typeof rawParentMarriage === "object" &&
       !Array.isArray(rawParentMarriage) &&
-      'date' in rawParentMarriage &&
-      'place' in rawParentMarriage
+      "date" in rawParentMarriage &&
+      "place" in rawParentMarriage
     ) {
       const pm = rawParentMarriage as any;
       const pmDate = pm.date ? new Date(pm.date) : new Date();
       let pmPlace: MarriagePlace = {
-        houseNo: '',
-        street: '',
-        barangay: '',
-        cityMunicipality: '',
-        province: '',
-        country: '',
+        houseNo: "",
+        street: "",
+        barangay: "",
+        cityMunicipality: "",
+        province: "",
+        country: "",
       };
       const rawPMPlace = pm.place;
       if (
         rawPMPlace &&
-        typeof rawPMPlace === 'object' &&
+        typeof rawPMPlace === "object" &&
         !Array.isArray(rawPMPlace) &&
-        'houseNo' in rawPMPlace &&
-        'street' in rawPMPlace &&
-        'barangay' in rawPMPlace &&
-        'cityMunicipality' in rawPMPlace &&
-        'province' in rawPMPlace &&
-        'country' in rawPMPlace
+        "houseNo" in rawPMPlace &&
+        "street" in rawPMPlace &&
+        "barangay" in rawPMPlace &&
+        "cityMunicipality" in rawPMPlace &&
+        "province" in rawPMPlace &&
+        "country" in rawPMPlace
       ) {
         pmPlace = rawPMPlace as unknown as MarriagePlace;
       }
@@ -405,14 +410,14 @@ export function EditCivilRegistryFormDialog({
     }
 
     return {
-      registryNumber: form.registryNumber || '',
-      province: form.province || '',
-      cityMunicipality: form.cityMunicipality || '',
+      registryNumber: form.registryNumber || "",
+      province: form.province || "",
+      cityMunicipality: form.cityMunicipality || "",
       pagination: {
-        pageNumber: form.pageNumber || '',
-        bookNumber: form.bookNumber || '',
+        pageNumber: form.pageNumber || "",
+        bookNumber: form.bookNumber || "",
       },
-      remarks: form.remarks || '',
+      remarks: form.remarks || "",
 
       // Child information
       childInfo: {
@@ -424,7 +429,7 @@ export function EditCivilRegistryFormDialog({
         placeOfBirth,
         typeOfBirth,
         multipleBirthOrder,
-        birthOrder: form.birthCertificateForm?.birthOrder || '',
+        birthOrder: form.birthCertificateForm?.birthOrder || "",
         weightAtBirth,
       },
 
@@ -433,26 +438,26 @@ export function EditCivilRegistryFormDialog({
         firstName: motherName.first,
         middleName: motherName.middle,
         lastName: motherName.last,
-        citizenship: form.birthCertificateForm?.motherCitizenship || '',
-        religion: form.birthCertificateForm?.motherReligion || '',
-        occupation: form.birthCertificateForm?.motherOccupation || '',
-        age: String(form.birthCertificateForm?.motherAge || ''),
+        citizenship: form.birthCertificateForm?.motherCitizenship || "",
+        religion: form.birthCertificateForm?.motherReligion || "",
+        occupation: form.birthCertificateForm?.motherOccupation || "",
+        age: String(form.birthCertificateForm?.motherAge || ""),
         totalChildrenBornAlive: String(
-          form.birthCertificateForm?.totalChildrenBornAlive || ''
+          form.birthCertificateForm?.totalChildrenBornAlive || ""
         ),
         childrenStillLiving: String(
-          form.birthCertificateForm?.childrenStillLiving || ''
+          form.birthCertificateForm?.childrenStillLiving || ""
         ),
         childrenNowDead: String(
-          form.birthCertificateForm?.childrenNowDead || ''
+          form.birthCertificateForm?.childrenNowDead || ""
         ),
         residence: {
-          houseNo: motherResidence.houseNo || '',
-          st: motherResidence.street || '',
-          barangay: motherResidence.barangay || '',
-          cityMunicipality: motherResidence.cityMunicipality || '',
-          province: motherResidence.province || '',
-          country: motherResidence.country || '',
+          houseNo: motherResidence.houseNo || "",
+          st: motherResidence.street || "",
+          barangay: motherResidence.barangay || "",
+          cityMunicipality: motherResidence.cityMunicipality || "",
+          province: motherResidence.province || "",
+          country: motherResidence.country || "",
         },
       },
 
@@ -461,17 +466,17 @@ export function EditCivilRegistryFormDialog({
         firstName: fatherName.first,
         middleName: fatherName.middle,
         lastName: fatherName.last,
-        citizenship: form.birthCertificateForm?.fatherCitizenship || '',
-        religion: form.birthCertificateForm?.fatherReligion || '',
-        occupation: form.birthCertificateForm?.fatherOccupation || '',
-        age: String(form.birthCertificateForm?.fatherAge || ''),
+        citizenship: form.birthCertificateForm?.fatherCitizenship || "",
+        religion: form.birthCertificateForm?.fatherReligion || "",
+        occupation: form.birthCertificateForm?.fatherOccupation || "",
+        age: String(form.birthCertificateForm?.fatherAge || ""),
         residence: {
-          houseNo: fatherResidence.houseNo || '',
-          st: fatherResidence.street || '',
-          barangay: fatherResidence.barangay || '',
-          cityMunicipality: fatherResidence.cityMunicipality || '',
-          province: fatherResidence.province || '',
-          country: fatherResidence.country || '',
+          houseNo: fatherResidence.houseNo || "",
+          st: fatherResidence.street || "",
+          barangay: fatherResidence.barangay || "",
+          cityMunicipality: fatherResidence.cityMunicipality || "",
+          province: fatherResidence.province || "",
+          country: fatherResidence.country || "",
         },
       },
 
@@ -480,18 +485,18 @@ export function EditCivilRegistryFormDialog({
 
       // Attendant information
       attendant: {
-        type: 'Physician',
+        type: "Physician",
         certification: {
-          time: new Date(),
-          name: '',
-          title: '',
+          time: new Date().toISOString(),
+          name: "",
+          title: "",
           address: {
-            houseNo: '',
-            st: '',
-            barangay: '',
-            cityMunicipality: '',
-            province: '',
-            country: '',
+            houseNo: "",
+            st: "",
+            barangay: "",
+            cityMunicipality: "",
+            province: "",
+            country: "",
           },
           date: new Date(),
         },
@@ -499,15 +504,15 @@ export function EditCivilRegistryFormDialog({
 
       // Informant information
       informant: {
-        name: '',
-        relationship: '',
+        name: "",
+        relationship: "",
         address: {
-          houseNo: '',
-          st: '',
-          barangay: '',
-          cityMunicipality: '',
-          province: '',
-          country: '',
+          houseNo: "",
+          st: "",
+          barangay: "",
+          cityMunicipality: "",
+          province: "",
+          country: "",
         },
         date: new Date(),
       },
@@ -516,23 +521,23 @@ export function EditCivilRegistryFormDialog({
       preparedBy: {
         // signature: '',
         nameInPrint:
-          typeof form.preparedBy === 'string'
+          typeof form.preparedBy === "string"
             ? form.preparedBy
-            : form.preparedBy?.name || '',
-        titleOrPosition: '',
+            : form.preparedBy?.name || "",
+        titleOrPosition: "",
         date: parseDateSafely(form.preparedByDate),
       },
       receivedBy: {
         // signature: '',
-        nameInPrint: typeof form.receivedBy === 'string' ? form.receivedBy : '',
-        titleOrPosition: '',
+        nameInPrint: typeof form.receivedBy === "string" ? form.receivedBy : "",
+        titleOrPosition: "",
         date: parseDateSafely(form.receivedByDate),
       },
       registeredByOffice: {
         // signature: '',
         nameInPrint:
-          typeof form.registeredBy === 'string' ? form.registeredBy : '',
-        titleOrPosition: '',
+          typeof form.registeredBy === "string" ? form.registeredBy : "",
+        titleOrPosition: "",
         date: parseDateSafely(form.registeredByDate),
       },
       hasAffidavitOfPaternity: false,
@@ -548,35 +553,35 @@ export function EditCivilRegistryFormDialog({
     data: BirthCertificateFormValues
   ): Promise<void> => {
     try {
-      const preparedByValue = { name: data.preparedBy.nameInPrint || '' };
+      const preparedByValue = { name: data.preparedBy?.nameInPrint || "" };
       const updatedForm: BaseRegistryFormWithRelations = {
         ...form,
-        registryNumber: data.registryNumber,
-        province: data.province,
-        cityMunicipality: data.cityMunicipality,
+        registryNumber: data?.registryNumber || "",
+        province: data?.province || "",
+        cityMunicipality: data?.cityMunicipality || "",
         pageNumber: data.pagination?.pageNumber || form.pageNumber,
         bookNumber: data.pagination?.bookNumber || form.bookNumber,
         remarks: data.remarks || null,
         preparedBy: preparedByValue,
-        preparedByDate: data.preparedBy.date || null,
-        receivedBy: data.receivedBy.nameInPrint || null,
-        receivedByDate: data.receivedBy.date || null,
-        registeredBy: data.registeredByOffice.nameInPrint || null,
-        registeredByDate: data.registeredByOffice.date || null,
+        preparedByDate: data?.preparedBy?.date || null,
+        receivedBy: data.receivedBy?.nameInPrint || null,
+        receivedByDate: data.receivedBy?.date || null,
+        registeredBy: data.registeredByOffice?.nameInPrint || null,
+        registeredByDate: data.registeredByOffice?.date || null,
         updatedAt: new Date(),
       };
 
       await onSaveAction(updatedForm);
-      toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
+      toast.success(`${t("formUpdated")} ${updatedForm.id}!`);
       onOpenChangeAction(false);
     } catch (error) {
-      console.error('Error updating form:', error);
-      toast.error(t('errorUpdatingForm'));
+      console.error("Error updating form:", error);
+      toast.error(t("errorUpdatingForm"));
     }
   };
 
   const { formMethods, handleError } = useBirthCertificateForm({
-    onOpenChange: () => { },
+    onOpenChange: () => {},
     defaultValues: initialData,
   });
 
@@ -589,12 +594,12 @@ export function EditCivilRegistryFormDialog({
         await handleEditSubmit(data);
         formMethods.reset();
       } catch (error: unknown) {
-        console.error('Error submitting form:', error);
-        toast.error('Error submitting form');
+        console.error("Error submitting form:", error);
+        toast.error("Error submitting form");
         handleError(error);
       }
     } else {
-      toast.warning('Please complete all required fields');
+      toast.warning("Please complete all required fields");
     }
   };
 
@@ -613,21 +618,21 @@ export function EditCivilRegistryFormDialog({
 
   const renderForm = () => {
     switch (editType) {
-      case 'BIRTH':
+      case "BIRTH":
         return (
           <EditBirthCivilRegistryFormInline
             form={form}
             onSaveAction={async (
               updatedForm: BaseRegistryFormWithRelations
             ) => {
-              toast.success(`${t('formUpdated')} ${updatedForm.id}!`);
+              toast.success(`${t("formUpdated")} ${updatedForm.id}!`);
               return Promise.resolve();
             }}
             editType={form.formType}
             onCancel={handleCancel}
           />
         );
-      case 'DEATH':
+      case "DEATH":
         return (
           <EmptyDialog
             open={open}
@@ -635,12 +640,16 @@ export function EditCivilRegistryFormDialog({
             onCancel={handleCancel}
           />
         );
-      case 'MARRIAGE':
+      case "MARRIAGE":
         const marriageFormValues = mapToMarriageCertificateValues(form);
 
         // Add the marriage certificate form ID to the values
-        if (form.marriageCertificateForm && typeof form.marriageCertificateForm === 'object') {
-          marriageFormValues.id = form.marriageCertificateForm.id || 'no id found';
+        if (
+          form.marriageCertificateForm &&
+          typeof form.marriageCertificateForm === "object"
+        ) {
+          marriageFormValues.id =
+            form.marriageCertificateForm.id || "no id found";
         }
 
         return (
@@ -648,7 +657,9 @@ export function EditCivilRegistryFormDialog({
             open={open}
             onOpenChange={handleMarriageFormOpenChange}
             onCancel={handleMarriageFormCancel}
-            defaultValues={marriageFormValues as Partial<MarriageCertificateFormValues>}
+            defaultValues={
+              marriageFormValues as Partial<MarriageCertificateFormValues>
+            }
           />
         );
       default:
@@ -659,9 +670,9 @@ export function EditCivilRegistryFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTitle></DialogTitle>
-      <DialogContent className='max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0'>
+      <DialogContent className="max-w-[70vw] w-[70vw] h-[95vh] max-h-[95vh] p-0">
         {renderForm()}
       </DialogContent>
     </Dialog>
   );
-};
+}

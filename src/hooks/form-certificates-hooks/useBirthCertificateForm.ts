@@ -49,8 +49,8 @@ export function useBirthCertificateForm({
         firstName: '',
         middleName: '',
         lastName: '',
-        citizenship: '',
-        religion: '',
+        citizenship: ' ',
+        religion: ' ',
         occupation: '',
         age: '',
         totalChildrenBornAlive: '',
@@ -62,15 +62,15 @@ export function useBirthCertificateForm({
           barangay: '',
           cityMunicipality: '',
           province: '',
-          country: '',
+          country: ' ',
         },
       },
       fatherInfo: {
         firstName: '',
         middleName: '',
         lastName: '',
-        citizenship: '',
-        religion: '',
+        citizenship: ' ',
+        religion: ' ',
         occupation: '',
         age: '',
         residence: {
@@ -97,6 +97,7 @@ export function useBirthCertificateForm({
         type: '',
         certification: {
           time: '',
+
           name: '',
           title: '',
           address: {
@@ -105,12 +106,13 @@ export function useBirthCertificateForm({
             barangay: '',
             cityMunicipality: '',
             province: '',
-            country: '',
+            country: ' ',
           },
           date: undefined,
         },
       },
       informant: {
+
         name: '',
         relationship: '',
         address: {
@@ -146,8 +148,9 @@ export function useBirthCertificateForm({
       pagination: {
         pageNumber: '',
         bookNumber: '',
-      }
-    }
+      },
+      ...defaultValues,
+    },
   });
 
   const onSubmit = async (data: BirthCertificateFormValues) => {
