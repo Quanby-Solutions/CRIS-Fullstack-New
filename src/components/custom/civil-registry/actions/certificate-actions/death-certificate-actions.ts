@@ -193,13 +193,12 @@ export async function submitDeathCertificateForm(
               nameInPrint: formData.certificationOfDeath?.nameInPrint,
               titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
               address: formData.certificationOfDeath?.address,
-              date: formData.certificationOfDeath?.date,
-              healthOfficerNameInPrint:
-                formData.certificationOfDeath?.nameInPrint,
+              reviwiewedBy: formData.certificationOfDeath?.reviewedBy as Prisma.JsonObject,
+
             } as Prisma.JsonObject,
 
             // Review Information.
-            reviewedBy: formData?.reviewedBy?.date,
+
 
             // Optional Certificates.
             postmortemCertificate: formData.postmortemCertificate

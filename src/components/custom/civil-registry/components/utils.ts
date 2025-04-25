@@ -15,8 +15,11 @@ export const renderName = (name: any): string => {
 export const formatLocation = (loc: any): string => {
     if (!loc) return ''
     if (typeof loc === 'string') return loc
-    const { houseNo, street, barangay, cityMunicipality, province, country, place, internationalAddress, residence } = loc
+    const {
+        locationType, hospitalInstitution, houseNo, street, barangay, cityMunicipality, province, country, place, internationalAddress, residence } = loc
     const parts = []
+    if (locationType) parts.push(locationType)
+    if (hospitalInstitution) parts.push(hospitalInstitution)
     if (houseNo || street) parts.push([houseNo, street].filter(Boolean).join(' '))
     if (barangay) parts.push(barangay)
     if (cityMunicipality) parts.push(cityMunicipality)
@@ -123,7 +126,7 @@ export const formatDateDeath = (date: string | number | Date | null | undefined)
         if (/[a-zA-Z]{4,}/.test(date) && !/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.test(date)) {
             return date; // Return the original string for transparency
         }
-        
+
         const parsedDate = new Date(date);
 
         // Check if parsing resulted in a valid date

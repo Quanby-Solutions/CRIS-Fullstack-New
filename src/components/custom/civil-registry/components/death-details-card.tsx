@@ -13,26 +13,60 @@ interface DeathDetailsCardProps {
  * Interfaces and type guards for nested objects within deathCertificateForm
  */
 
-/** Causes of Death **/
-interface CausesOfDeath {
-  immediate: string;
-  antecedent: string;
-  underlying: string;
-  otherSignificant?: string;
+/** Causes of Death **/ interface CausesOfDeath {
+  immediate: string | { cause: string; interval?: string };
+  antecedent: string | { cause: string; interval?: string };
+  underlying: string | { cause: string; interval?: string };
+  otherSignificantConditions?: string;
 }
 
 function isCausesOfDeath(value: unknown): value is CausesOfDeath {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "immediate" in value &&
-    typeof (value as Record<string, unknown>).immediate === "string" &&
-    "antecedent" in value &&
-    typeof (value as Record<string, unknown>).antecedent === "string" &&
-    "underlying" in value &&
-    typeof (value as Record<string, unknown>).underlying === "string"
-    // otherSignificant is optional
-  );
+  if (typeof value !== "object" || value === null) return false;
+
+  const obj = value as Record<string, unknown>;
+
+  // Check for required keys
+  if (!("immediate" in obj && "antecedent" in obj && "underlying" in obj))
+    return false;
+
+  // Check immediate
+  if (
+    typeof obj.immediate !== "string" &&
+    (typeof obj.immediate !== "object" ||
+      obj.immediate === null ||
+      !("cause" in obj.immediate) ||
+      typeof obj.immediate.cause !== "string")
+  )
+    return false;
+
+  // Check antecedent
+  if (
+    typeof obj.antecedent !== "string" &&
+    (typeof obj.antecedent !== "object" ||
+      obj.antecedent === null ||
+      !("cause" in obj.antecedent) ||
+      typeof obj.antecedent.cause !== "string")
+  )
+    return false;
+
+  // Check underlying
+  if (
+    typeof obj.underlying !== "string" &&
+    (typeof obj.underlying !== "object" ||
+      obj.underlying === null ||
+      !("cause" in obj.underlying) ||
+      typeof obj.underlying.cause !== "string")
+  )
+    return false;
+
+  // otherSignificantConditions is optional
+  if (
+    "otherSignificantConditions" in obj &&
+    typeof obj.otherSignificantConditions !== "string"
+  )
+    return false;
+
+  return true;
 }
 
 /** Certifier **/
@@ -146,17 +180,21 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
 
   // Narrow nested objects using our type guards:
   const causesOfDeath =
-    d.causesOfDeath19a && isCausesOfDeath(d.causesOfDeath19a)
-      ? d.causesOfDeath19a
+    d.causesOfDeath19b && isCausesOfDeath(d.causesOfDeath19b)
+      ? d.causesOfDeath19b
       : undefined;
 
   const certifier =
     d.reviewedBy && isCertifier(d.reviewedBy) ? d.reviewedBy : undefined;
 
-  const disposalDetails =
-    d.corpseDisposal && isDisposalDetails(d.corpseDisposal)
+  // First, modify the section in DeathDetailsCard that gets disposalDetails:
+  const disposalDetails = d.corpseDisposal
+    ? typeof d.corpseDisposal === "string"
+      ? { method: d.corpseDisposal, place: "", date: "" }
+      : isDisposalDetails(d.corpseDisposal)
       ? d.corpseDisposal
-      : undefined;
+      : undefined
+    : undefined;
 
   const informant =
     d.informant && isInformant(d.informant) ? d.informant : undefined;
@@ -207,10 +245,10 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
               <p className="font-medium">{t("Place of Death")}</p>
               <div>{formatLocation(d.placeOfDeath)}</div>
             </div>
-            <div>
+            {/* <div>
               <p className="font-medium">{t("Place of Birth")}</p>
               <div>{formatLocation(d.birthInformation)}</div>
-            </div>
+            </div> */}
             <div>
               <p className="font-medium">{t("Residence")}</p>
               <div>{formatLocation(d.residence)}</div>
@@ -259,20 +297,53 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
           <div className="grid grid-cols-1 gap-4">
             <div>
               <p className="font-medium">{t("Immediate")}</p>
-              <div>{causesOfDeath ? causesOfDeath.immediate : ""}</div>
+              <div>
+                {typeof causesOfDeath?.immediate === "object"
+                  ? causesOfDeath.immediate.cause
+                  : (causesOfDeath?.immediate as string) || ""}
+                {causesOfDeath &&
+                  typeof causesOfDeath.immediate === "object" &&
+                  causesOfDeath.immediate.interval && (
+                    <div className="text-sm text-gray-500">
+                      Interval: {causesOfDeath.immediate.interval}
+                    </div>
+                  )}
+              </div>
             </div>
             <div>
               <p className="font-medium">{t("Antecedent")}</p>
-              <div>{causesOfDeath ? causesOfDeath.antecedent : ""}</div>
+              <div>
+                {causesOfDeath && typeof causesOfDeath.antecedent === "object"
+                  ? causesOfDeath.antecedent.cause
+                  : (causesOfDeath?.antecedent as string) || ""}
+                {causesOfDeath &&
+                  typeof causesOfDeath.antecedent === "object" &&
+                  causesOfDeath.antecedent.interval && (
+                    <div className="text-sm text-gray-500">
+                      Interval: {causesOfDeath.antecedent.interval}
+                    </div>
+                  )}
+              </div>
             </div>
             <div>
               <p className="font-medium">{t("Underlying")}</p>
-              <div>{causesOfDeath ? causesOfDeath.underlying : ""}</div>
+              <div>
+                {causesOfDeath && typeof causesOfDeath.underlying === "object"
+                  ? causesOfDeath.underlying.cause
+                  : (causesOfDeath?.underlying as string) || ""}
+                {causesOfDeath &&
+                  typeof causesOfDeath.underlying === "object" &&
+                  causesOfDeath.underlying.interval && (
+                    <div className="text-sm text-gray-500">
+                      Interval: {causesOfDeath.underlying.interval}
+                    </div>
+                  )}
+              </div>
             </div>
-            {causesOfDeath && causesOfDeath.otherSignificant && (
+            {causesOfDeath && causesOfDeath.otherSignificantConditions && (
               <div>
                 <p className="font-medium">{t("Other Significant")}</p>
-                <div>{causesOfDeath.otherSignificant}</div>
+                <div>{causesOfDeath.otherSignificantConditions}</div>
               </div>
             )}
           </div>
@@ -322,18 +393,45 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
             <div>
               <p className="font-medium">{t("Disposal Details")}</p>
               <div>
-                {disposalDetails ? (
+                {d.corpseDisposal && (
                   <>
-                    <strong>{t("Method")}:</strong> {disposalDetails.method}
+                    <strong>{t("Disposal Method")}:</strong> {d.corpseDisposal}
                     <br />
-                    <strong>{t("Place")}:</strong> {disposalDetails.place}
-                    <br />
-                    <strong>{t("Date")}:</strong>{" "}
-                    {formatDate(disposalDetails.date)}
                   </>
-                ) : (
-                  ""
                 )}
+
+                {d.burialPermit &&
+                  typeof d.burialPermit === "object" &&
+                  "number" in d.burialPermit && (
+                    <>
+                      <strong>{t("Burial Permit")}:</strong>{" "}
+                      {d.burialPermit.number}
+                      {d.burialPermit.dateIssued && (
+                        <>
+                          <br />
+                          <strong>{t("Date Issued")}:</strong>{" "}
+                          {safeFormatDateForDeath(d.burialPermit.dateIssued)}
+                        </>
+                      )}
+                      <br />
+                    </>
+                  )}
+
+                {d.transferPermit &&
+                  typeof d.transferPermit === "object" &&
+                  "number" in d.transferPermit && (
+                    <>
+                      <strong>{t("Transfer Permit")}:</strong>{" "}
+                      {d.transferPermit.number}
+                      {d.transferPermit.dateIssued && (
+                        <>
+                          <br />
+                          <strong>{t("Date Issued")}:</strong>{" "}
+                          {safeFormatDateForDeath(d.transferPermit.dateIssued)}
+                        </>
+                      )}
+                    </>
+                  )}
               </div>
             </div>
           </div>

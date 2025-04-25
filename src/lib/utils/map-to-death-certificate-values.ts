@@ -456,7 +456,10 @@ export const mapToDeathCertificateValues = (
       nameInPrint: ensureString(deathForm.certificationOfDeath?.nameInPrint),
       titleOfPosition: ensureString(deathForm.certificationOfDeath?.titleOfPosition),
       address: ensureString(deathForm.certificationOfDeath?.address),
-      date: parseJsonDate(deathForm.certificationOfDeath?.date),
+      reviewedBy: {
+        date: parseJsonDate(deathForm.certificationOfDeath?.reviewedBy?.date),
+        healthOfficerNameInPrint: ensureString(deathForm.certificationOfDeath?.reviewedBy?.healthOfficerNameInPrint),
+      }
     },
 
     // Review Information

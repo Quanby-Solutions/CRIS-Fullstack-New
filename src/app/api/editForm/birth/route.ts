@@ -68,26 +68,26 @@ export async function PUT(request: Request) {
     // Map name objects.
     const safeChildName = childInfo
       ? replaceNulls({
-          first: childInfo.firstName || "",
-          middle: childInfo.middleName || "",
-          last: childInfo.lastName || "",
-        })
+        first: childInfo.firstName || "",
+        middle: childInfo.middleName || "",
+        last: childInfo.lastName || "",
+      })
       : { first: "", middle: "", last: "" };
 
     const safeMotherName = motherInfo
       ? replaceNulls({
-          first: motherInfo.firstName || "",
-          middle: motherInfo.middleName || "",
-          last: motherInfo.lastName || "",
-        })
+        first: motherInfo.firstName || "",
+        middle: motherInfo.middleName || "",
+        last: motherInfo.lastName || "",
+      })
       : { first: "", middle: "", last: "" };
 
     const safeFatherName = fatherInfo
       ? replaceNulls({
-          first: fatherInfo.firstName || "",
-          middle: fatherInfo.middleName || "",
-          last: fatherInfo.lastName || "",
-        })
+        first: fatherInfo.firstName || "",
+        middle: fatherInfo.middleName || "",
+        last: fatherInfo.lastName || "",
+      })
       : { first: "", middle: "", last: "" };
 
     const updatedForm = await prisma.baseRegistryForm.update({
@@ -156,7 +156,7 @@ export async function PUT(request: Request) {
               motherCitizenship: motherInfo?.citizenship || "",
               motherReligion: motherInfo?.religion || "",
               motherOccupation: motherInfo?.occupation || "",
-              motherAge: Number(motherInfo?.age ?? 0),
+              motherAge: motherInfo?.age ?? 0,
               totalChildrenBornAlive: Number(motherInfo?.totalChildrenBornAlive ?? 0),
               childrenStillLiving: Number(motherInfo?.childrenStillLiving ?? 0),
               childrenNowDead: Number(motherInfo?.childrenNowDead ?? 0),
@@ -165,7 +165,7 @@ export async function PUT(request: Request) {
               fatherCitizenship: fatherInfo?.citizenship || "",
               fatherReligion: fatherInfo?.religion || "",
               fatherOccupation: fatherInfo?.occupation || "",
-              fatherAge: Number(fatherInfo?.age ?? 0),
+              fatherAge: fatherInfo?.age ?? 0,
               fatherResidence: safeFatherResidence,
               parentMarriage: safeParentMarriage,
               attendant: safeAttendant,
