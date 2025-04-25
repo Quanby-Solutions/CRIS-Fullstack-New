@@ -9,6 +9,17 @@ interface DeathDetailsCardProps {
   form: BaseRegistryFormWithRelations;
 }
 
+interface CertificationOfDeath {
+  hasAttended: boolean;
+  nameInPrint: string;
+  titleOfPosition: string;
+  address: string;
+  reviewedBy: {
+    date: string | Date | null;
+    healthOfficerNameInPrint: string;
+  };
+}
+
 /**
  * Interfaces and type guards for nested objects within deathCertificateForm
  */
@@ -116,22 +127,22 @@ interface Informant {
   name: string;
   relationship: string;
   date: string | Date;
+  address: any;
 }
 
 function isInformant(value: unknown): value is Informant {
   return (
     typeof value === "object" &&
     value !== null &&
-    "name" in value &&
-    typeof (value as Record<string, unknown>).name === "string" &&
-    "relationship" in value &&
-    typeof (value as Record<string, unknown>).relationship === "string" &&
+    "nameInPrint" in value &&
+    typeof (value as Record<string, unknown>).nameInPrint === "string" &&
+    "relationshipToDeceased" in value &&
+    typeof (value as Record<string, unknown>).relationshipToDeceased ===
+      "string" &&
     "date" in value &&
-    (typeof (value as Record<string, unknown>).date === "string" ||
-      (value as Record<string, unknown>).date instanceof Date)
+    "address" in value
   );
 }
-
 /** Preparer **/
 interface Preparer {
   name: string;
@@ -184,8 +195,21 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
       ? d.causesOfDeath19b
       : undefined;
 
+  // Replace the current certifier extraction with this:
+  // Use type assertion when accessing the data
+  const certificationData =
+    d.certificationOfDeath as unknown as CertificationOfDeath;
+
   const certifier =
-    d.reviewedBy && isCertifier(d.reviewedBy) ? d.reviewedBy : undefined;
+    certificationData &&
+    certificationData.reviewedBy &&
+    certificationData.reviewedBy.healthOfficerNameInPrint
+      ? {
+          name: certificationData.reviewedBy.healthOfficerNameInPrint,
+          title: certificationData.titleOfPosition || "",
+          date: certificationData.reviewedBy.date || new Date(),
+        }
+      : undefined;
 
   // First, modify the section in DeathDetailsCard that gets disposalDetails:
   const disposalDetails = d.corpseDisposal
@@ -381,7 +405,7 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
               <div>
                 {certifier ? (
                   <>
-                    {renderName(certifier.name)} ({certifier.title})
+                    {certifier.name} {certifier.title && `(${certifier.title})`}
                     <br />
                     {formatDate(certifier.date)}
                   </>
@@ -446,14 +470,61 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
             <div>
               <p className="font-medium">{t("Informant")}</p>
               <div>
-                {informant ? (
+                {d.informant && typeof d.informant === "object" ? (
                   <>
-                    {renderName(informant.name)} ({informant.relationship})
-                    <br />
-                    {formatDate(informant.date)}
+                    {(d.informant as any).nameInPrint && (
+                      <>
+                        <strong>{t("Name")}:</strong>{" "}
+                        {(d.informant as any).nameInPrint}
+                        <br />
+                      </>
+                    )}
+                    {(d.informant as any).relationshipToDeceased && (
+                      <>
+                        <strong>{t("Relationship")}:</strong>{" "}
+                        {(d.informant as any).relationshipToDeceased}
+                        <br />
+                      </>
+                    )}
+                    {(d.informant as any).address && (
+                      <>
+                        <strong>{t("Address")}:</strong>{" "}
+                        {(d.informant as any).address}
+                        <br />
+                      </>
+                    )}
+                    {(d.informant as any).date && (
+                      <>
+                        <strong>{t("Date")}:</strong>{" "}
+                        {safeFormatDateForDeath((d.informant as any).date)}
+                      </>
+                    )}
                   </>
                 ) : (
                   ""
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="font-medium">{t("Preparer")}</p>
+              <div>
+                {form.preparedByName && (
+                  <>
+                    <strong>{t("Name")}:</strong> {form.preparedByName}
+                    <br />
+                  </>
+                )}
+                {form.preparedByPosition && (
+                  <>
+                    <strong>{t("Position")}:</strong> {form.preparedByPosition}
+                    <br />
+                  </>
+                )}
+                {form.preparedByDate && (
+                  <>
+                    <strong>{t("Date")}:</strong>{" "}
+                    {safeFormatDateForDeath(form.preparedByDate)}
+                  </>
                 )}
               </div>
             </div>
@@ -475,23 +546,50 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
         </section>
 
         {/* Burial Permit */}
+        {/* Burial Permit */}
         <section className="p-4 rounded">
           <h3 className="font-bold text-lg mb-4 border-b pb-2">
             {t("Burial Permit")}
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1">
             <div>
-              <p className="font-medium">{t("Permit Number")}</p>
-              <div>{burialPermit ? burialPermit.number : ""}</div>
+              {d.burialPermit &&
+                typeof d.burialPermit === "object" &&
+                "number" in d.burialPermit && (
+                  <div className="grid grid-cols-2">
+                    <p className="font-medium">{t("Permit Number")}:</p>
+                    <p>{String(d.burialPermit.number)}</p>
+
+                    {d.burialPermit.dateIssued && (
+                      <>
+                        <p className="font-medium">{t("Date Issued")}:</p>
+                        <p>
+                          {safeFormatDateForDeath(d.burialPermit.dateIssued)}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
             </div>
-            <div>
-              <p className="font-medium">{t("Date")}</p>
-              <div>{burialPermit ? formatDate(burialPermit.date) : ""}</div>
-            </div>
-            <div>
-              <p className="font-medium">{t("Cemetery")}</p>
-              <div>{burialPermit ? burialPermit.cemetery : ""}</div>
-            </div>
+
+            {/* Cemetery Information */}
+            {d.cemeteryOrCrematory &&
+              typeof d.cemeteryOrCrematory === "object" && (
+                <div className="mt-2 grid grid-cols-2">
+                  <p className="font-medium">{t("Cemetery/Crematory")}:</p>
+                  <div>
+                    {(d.cemeteryOrCrematory as any).name && (
+                      <p>{(d.cemeteryOrCrematory as any).name}</p>
+                    )}
+
+                    {(d.cemeteryOrCrematory as any).address && (
+                      <p className="text-sm text-gray-600">
+                        {formatLocation((d.cemeteryOrCrematory as any).address)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
           </div>
         </section>
       </CardContent>
