@@ -235,7 +235,7 @@ export const mapToDeathCertificateValues = (
         houseNo: '',
         st: '',
         hospitalInstitution: '',
-        internationalAddress: ''
+        internationalAddress: '',
       };
     }
 
@@ -353,6 +353,7 @@ export const mapToDeathCertificateValues = (
       months: '',
       days: '',
       hours: '',
+      minutes: '',
     },
     placeOfDeath: createAddressObject(deathForm?.placeOfDeath),
     civilStatus: validateCivilStatus(deathForm.civilStatus) || 'Single',
@@ -569,6 +570,7 @@ export const mapToDeathCertificateValues = (
         name: ensureString(deathForm.delayedRegistration.deceased?.name),
         dateOfDeath: parseJsonDate(deathForm.delayedRegistration.deceased?.dateOfDeath),
         placeOfDeath: ensureString(deathForm.delayedRegistration.deceased?.placeOfDeath),
+        diedOn: ensureString(deathForm.delayedRegistration?.deceased?.diedOn),
         burialInfo: {
           date: parseJsonDate(deathForm.delayedRegistration.deceased?.burialInfo?.date),
           place: ensureString(deathForm.delayedRegistration.deceased?.burialInfo?.place),

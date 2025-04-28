@@ -350,10 +350,16 @@ export const mapToMarriageCertificateValues = (
 
         registeredByOffice: {
             // signature: ensureString(marriageForm.registeredByOffice?.signature),
-            nameInPrint: ensureString(marriageForm.registeredByOffice?.nameInPrint),
-            titleOrPosition: ensureString(marriageForm.registeredByOffice?.titleOrPosition),
-            date: parseDateSafely(marriageForm.registeredByOffice?.date),
+            nameInPrint: ensureString(form.registeredBy),
+            titleOrPosition: ensureString(form.registeredByPosition),
+            date: parseDateSafely(form.registeredByDate),
+
         },
+
+        // registeredById: registeredById,
+        // registeredBy: data.registeredByOffice?.nameInPrint,
+        // registeredByPosition: data.registeredByOffice?.titleOrPosition,
+        // registeredByDate: data.registeredByOffice?.date!,
 
         // Affidavit information
         affidavitOfSolemnizingOfficer: {

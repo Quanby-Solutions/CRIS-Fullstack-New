@@ -19,6 +19,13 @@ export async function updateMarriageCertificateForm(
             select: { id: true, baseFormId: true }
         });
 
+        const registeredByUser = await prisma.user.findFirst({
+            where: { name: data.registeredByOffice?.nameInPrint },
+        });
+
+        const registeredById = registeredByUser ? registeredByUser.id : null;
+
+
         console.log('Existing form query result:', marriageCert);
 
         if (!marriageCert) {
@@ -35,7 +42,6 @@ export async function updateMarriageCertificateForm(
             return { error: 'Marriage certificate not found. ID format might be incorrect.' };
         }
 
-
         // Update the base form using the baseFormId from the marriage certificate
         const updatedBaseForm = await prisma.baseRegistryForm.update({
             where: { id: baseFormId || '' },
@@ -49,6 +55,10 @@ export async function updateMarriageCertificateForm(
                 // preparedByName: data.preparedBy?.nameInPrint,
                 // preparedByPosition: data.preparedBy?.titleOrPosition,
                 // preparedByDate: data.preparedBy?.date,
+                registeredById: registeredById,
+                registeredBy: data.registeredByOffice?.nameInPrint,
+                registeredByPosition: data.registeredByOffice?.titleOrPosition,
+                registeredByDate: data.registeredByOffice?.date!,
                 receivedBy: data.receivedBy?.nameInPrint,
                 receivedByPosition: data.receivedBy?.titleOrPosition,
                 receivedByDate: data.receivedBy?.date,
@@ -177,8 +187,6 @@ export async function updateMarriageCertificateForm(
                     ...(data.husbandWitnesses?.map(w => ({ name: w.name || '' })) || []),
                     ...(data.wifeWitnesses?.map(w => ({ name: w.name || '' })) || [])
                 ],
-
-                registeredByOffice: data.registeredByOffice,
 
                 affidavitOfSolemnizingOfficer: data.affidavitOfSolemnizingOfficer,
 

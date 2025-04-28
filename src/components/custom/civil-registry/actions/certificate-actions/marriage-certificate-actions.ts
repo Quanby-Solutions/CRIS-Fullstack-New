@@ -82,9 +82,9 @@ export async function submitMarriageCertificateForm(
             receivedByPosition: formData.receivedBy.titleOrPosition,
             receivedByDate: formData.receivedBy.date!,
             registeredById: registeredById,
-            registeredBy: formData.registeredByOffice.nameInPrint,
-            registeredByPosition: formData.registeredByOffice.titleOrPosition,
-            registeredByDate: formData.registeredByOffice.date!,
+            registeredBy: formData.registeredByOffice?.nameInPrint,
+            registeredByPosition: formData.registeredByOffice?.titleOrPosition,
+            registeredByDate: formData.registeredByOffice?.date!,
             remarks: formData.remarks,
           },
         });
