@@ -12,7 +12,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { MarriageCertificateFormValues } from "@/lib/types/zod-form-certificate/marriage-certificate-form-schema";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react"; // ⬅ removed useEffect
 import { useFormContext } from "react-hook-form";
 
 import TimePicker from "@/components/custom/time/time-picker";
@@ -24,48 +24,11 @@ const MarriageDetailsCard: React.FC = () => {
     useFormContext<MarriageCertificateFormValues>();
   const [useFullAddressInput, setUseFullAddressInput] = useState(false);
 
-  // Watch for changes in the address fields for synchronization
+  // Watch for changes (kept for external usage if needed)
   const province = watch("placeOfMarriage.province");
   const cityMunicipality = watch("placeOfMarriage.cityMunicipality");
   const barangay = watch("placeOfMarriage.barangay");
   const fullAddress = watch("placeOfMarriage.address");
-
-  // When switching to full address input, combine existing fields into the full address
-  useEffect(() => {
-    if (useFullAddressInput && !fullAddress) {
-      const parts = [barangay, cityMunicipality, province].filter(Boolean);
-
-      if (parts.length > 0) {
-        setValue("placeOfMarriage.address", parts.join(", "));
-      }
-    }
-  }, [
-    useFullAddressInput,
-    fullAddress,
-    barangay,
-    cityMunicipality,
-    province,
-    setValue,
-  ]);
-
-  // When switching from full address to location selector, try to parse the address
-  // This is basic and would need more sophisticated parsing in a real application
-  useEffect(() => {
-    if (!useFullAddressInput && fullAddress && !province && !cityMunicipality) {
-      const parts = fullAddress.split(",").map((part) => part.trim());
-
-      if (parts.length >= 3) {
-        setValue("placeOfMarriage.barangay", parts[0]);
-        setValue("placeOfMarriage.cityMunicipality", parts[1]);
-        setValue("placeOfMarriage.province", parts[2]);
-      } else if (parts.length === 2) {
-        setValue("placeOfMarriage.cityMunicipality", parts[0]);
-        setValue("placeOfMarriage.province", parts[1]);
-      } else if (parts.length === 1) {
-        setValue("placeOfMarriage.province", parts[0]);
-      }
-    }
-  }, [useFullAddressInput, fullAddress, province, cityMunicipality, setValue]);
 
   // Clear the full address when switching to location selector mode
   const handleAddressInputModeChange = (newValue: boolean) => {
