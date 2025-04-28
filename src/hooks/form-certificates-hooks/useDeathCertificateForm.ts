@@ -185,8 +185,8 @@ const emptyDefaults: DeathCertificateFormValues = {
       address: undefined,
     },
     ctcInfo: {
-      dayOf: undefined,
-      placeAt: undefined,
+      dayOf: '',
+      placeAt: '',
       number: undefined,
       issuedOn: undefined,
       issuedAt: undefined,

@@ -593,6 +593,7 @@ export const mapToDeathCertificateValues = (
         number: ensureString(deathForm.delayedRegistration?.ctcInfo?.number),
         issuedOn: parseJsonDate(deathForm.delayedRegistration?.ctcInfo?.issuedOn),
         issuedAt: ensureString(deathForm.delayedRegistration?.ctcInfo?.issuedAt),
+        placeAt: ensureString(deathForm.delayedRegistration?.ctcInfo?.placeAt)
       },
     }
   } else {

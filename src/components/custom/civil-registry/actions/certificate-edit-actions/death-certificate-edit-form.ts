@@ -232,7 +232,7 @@ export async function updateDeathCertificateForm(
             ...(formData.delayedRegistration.ctcInfo ? {
               ctcInfo: {
                 dayOf: dateToJSON(formData.delayedRegistration.ctcInfo.dayOf) || null,
-                placeAt: formData.delayedRegistration.ctcInfo.placeAt || null,
+                placeAt: formData?.delayedRegistration?.ctcInfo?.placeAt,
                 number: formData.delayedRegistration.ctcInfo.number || null,
                 issuedOn: dateToJSON(formData.delayedRegistration.ctcInfo.issuedOn) || null,
                 issuedAt: formData.delayedRegistration.ctcInfo.issuedAt || null
