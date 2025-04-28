@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 export async function updateDeathCertificateForm(
   baseFormId: string,
-  formData: DeathCertificateFormValues
+  formData: DeathCertificateFormValues,
 ) {
 
 
@@ -20,6 +20,13 @@ export async function updateDeathCertificateForm(
       where: { baseFormId },
       select: { id: true, baseFormId: true }
     });
+
+
+    const registeredByUser = await prisma.user.findFirst({
+      where: { name: formData.registeredByOffice?.nameInPrint },
+    });
+
+    const registeredById = registeredByUser ? registeredByUser.id : null;
 
     console.log('Existing form query result:', deathCert);
 
@@ -67,6 +74,10 @@ export async function updateDeathCertificateForm(
         receivedByPosition: formData.receivedBy?.titleOrPosition,
         receivedByDate: formData.receivedBy?.date,
         updatedAt: new Date(),
+        registeredById: registeredById,
+        registeredBy: formData.registeredByOffice?.nameInPrint,
+        registeredByPosition: formData.registeredByOffice?.titleOrPosition,
+        registeredByDate: formData.registeredByOffice?.date!,
       }
     });
 
