@@ -598,7 +598,6 @@ export const mapToDeathCertificateValues = (
     }
   } else {
     result.delayedRegistration = {
-
       isDelayed: false,
       affiant: {
         name: '',
@@ -630,11 +629,12 @@ export const mapToDeathCertificateValues = (
         position: '',
       },
       ctcInfo: {
+        dayOf: '',        // Added missing field
         number: '',
         issuedOn: undefined,
         issuedAt: '',
+        placeAt: ''       // Added missing field
       },
-
     }
   }
 
