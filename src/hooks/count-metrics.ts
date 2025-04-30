@@ -1,3 +1,4 @@
+// src/hooks/count-metrics.ts
 "use server"
 
 import { prisma } from "@/lib/prisma"
@@ -26,100 +27,6 @@ interface BaseRegistration {
   formType: FormType
 }
 
-export async function getRegistryMetrics(): Promise<RegistryMetrics> {
-  const today = new Date()
-  const last6Months = Array.from({ length: 6 }, (_, i) =>
-    new Date(today.getFullYear(), today.getMonth() - i, 1)
-  ).reverse()
-
-  const registryForms = await prisma.baseRegistryForm.findMany({
-    where: {
-      dateOfRegistration: {
-        gte: last6Months[0],
-        lte: new Date(today.getFullYear(), today.getMonth() + 1, 0)
-      }
-    },
-    select: { formType: true, dateOfRegistration: true }
-  })
-
-  const monthlyData = last6Months.map(month => {
-    const monthStart = new Date(month.getFullYear(), month.getMonth(), 1)
-    const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0)
-
-    const monthCounts: MonthlyCount = {
-      month: month.toLocaleString('default', { month: 'long' }),
-      birth: 0,
-      death: 0,
-      marriage: 0
-    }
-
-    registryForms.forEach(form => {
-      if (form.dateOfRegistration >= monthStart && form.dateOfRegistration <= monthEnd) {
-        switch (form.formType) {
-          case 'BIRTH': monthCounts.birth++; break
-          case 'DEATH': monthCounts.death++; break
-          case 'MARRIAGE': monthCounts.marriage++; break
-        }
-      }
-    })
-
-    return monthCounts
-  })
-
-  const [currentMonth, previousMonth] = [monthlyData.at(-1)!, monthlyData.at(-2)!]
-  const currentTotal = currentMonth.birth + currentMonth.death + currentMonth.marriage
-  const previousTotal = previousMonth.birth + previousMonth.death + previousMonth.marriage
-  const percentageChange = previousTotal ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0
-
-  return {
-    monthlyData,
-    trend: {
-      percentage: Math.abs(percentageChange).toFixed(1),
-      isUp: percentageChange >= 0
-    }
-  }
-}
-
-export async function getRecentRegistrations(): Promise<BaseRegistration[]> {
-  const registrations = await prisma.baseRegistryForm.findMany({
-    include: {
-      birthCertificateForm: true,
-      deathCertificateForm: true,
-      marriageCertificateForm: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 100,
-  })
-
-  return registrations.map(reg => {
-    const registration: BaseRegistration = {
-      name: '',
-      sex: '',
-      dateOfBirth: '',
-      registrationDate: reg.createdAt.toISOString().split('T')[0],
-      formType: reg.formType
-    }
-
-    if (reg.birthCertificateForm) {
-      const childName = reg.birthCertificateForm.childName as { first: string; middle?: string; last: string }
-      registration.name = `${childName.last}, ${childName.first} ${childName.middle || ''}`.trim()
-      registration.sex = reg.birthCertificateForm.sex
-      registration.dateOfBirth = reg.birthCertificateForm.dateOfBirth.toISOString().split('T')[0]
-    } else if (reg.deathCertificateForm) {
-      const deceasedName = reg.deathCertificateForm.deceasedName as { first: string; middle?: string; last: string }
-      registration.name = `${deceasedName.last}, ${deceasedName.first} ${deceasedName.middle || ''}`.trim()
-      registration.sex = reg.deathCertificateForm?.sex ?? '';
-      registration.dateOfBirth = reg.deathCertificateForm.dateOfBirth instanceof Date ? reg.deathCertificateForm.dateOfBirth.toISOString().split('T')[0] : String(reg.deathCertificateForm.dateOfBirth || '')
-    } else if (reg.marriageCertificateForm) {
-      registration.name = `${reg.marriageCertificateForm.husbandLastName}, ${reg.marriageCertificateForm.husbandFirstName} & ${reg.marriageCertificateForm.wifeLastName}, ${reg.marriageCertificateForm.wifeFirstName}`
-      registration.sex = 'N/A'
-      registration.dateOfBirth = reg.marriageCertificateForm.dateOfMarriage.toISOString().split('T')[0]
-    }
-
-    return registration
-  })
-}
-
 interface GenderCount {
   male: number
   female: number
@@ -131,105 +38,176 @@ interface GenderData {
   female: number
 }
 
-export type PrismaModels = "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm"
+export type PrismaModels =
+  | "baseRegistryForm"
+  | "birthCertificateForm"
+  | "deathCertificateForm"
+  | "marriageCertificateForm"
 
-export async function getCurrentMonthRegistrations(model: PrismaModels): Promise<number> {
+// Map relation names to the corresponding FormType
+const modelToType: Record<Exclude<PrismaModels, "baseRegistryForm">, FormType> = {
+  birthCertificateForm:    FormType.BIRTH,
+  deathCertificateForm:    FormType.DEATH,
+  marriageCertificateForm: FormType.MARRIAGE,
+}
+
+function monthBounds(offsetMonths: number) {
   const now = new Date()
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  const start = new Date(now.getFullYear(), now.getMonth() - offsetMonths, 1)
+  const end   = new Date(start.getFullYear(), start.getMonth() + 1, 1)
+  return { start, end }
+}
 
-  if (model === "baseRegistryForm") {
-    return prisma.baseRegistryForm.count({
-      where: { dateOfRegistration: { gte: startOfMonth, lte: endOfMonth } }
-    })
-  }
+export async function getRegistryMetrics(): Promise<RegistryMetrics> {
+  const today = new Date()
 
-  const relationField = {
-    birthCertificateForm: { birthCertificateForm: { isNot: null } },
-    deathCertificateForm: { deathCertificateForm: { isNot: null } },
-    marriageCertificateForm: { marriageCertificateForm: { isNot: null } }
-  }[model]
+  // First day of each of the last 6 months
+  const last6Months = Array.from({ length: 6 }, (_, i) =>
+    new Date(today.getFullYear(), today.getMonth() - i, 1)
+  ).reverse()
 
-  return prisma.baseRegistryForm.count({
+  const rangeStart = last6Months[0]
+  const rangeEnd   = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+
+  const registryForms = await prisma.baseRegistryForm.findMany({
     where: {
-      dateOfRegistration: { gte: startOfMonth, lte: endOfMonth },
-      ...relationField
+      dateOfRegistration: { gte: rangeStart, lt: rangeEnd }
+    },
+    select: {
+      formType: true,
+      dateOfRegistration: true
     }
+  })
+
+  const monthlyData: MonthlyCount[] = last6Months.map(monthStart => {
+    const monthNext  = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1)
+    const label      = monthStart.toLocaleString("default", { month: "long" })
+    const counts: MonthlyCount = { month: label, birth: 0, death: 0, marriage: 0 }
+
+    for (const form of registryForms) {
+      const dt = form.dateOfRegistration
+      if (dt >= monthStart && dt < monthNext) {
+        switch (form.formType) {
+          case FormType.BIRTH:
+            counts.birth++
+            break
+          case FormType.DEATH:
+            counts.death++
+            break
+          case FormType.MARRIAGE:
+            counts.marriage++
+            break
+        }
+      }
+    }
+
+    return counts
+  })
+
+  const current  = monthlyData[monthlyData.length - 1]
+  const previous = monthlyData[monthlyData.length - 2]!
+  const currentTotal  = current.birth + current.death + current.marriage
+  const previousTotal = previous.birth + previous.death + previous.marriage
+  const changePct     = previousTotal
+    ? ((currentTotal - previousTotal) / previousTotal) * 100
+    : 0
+
+  return {
+    monthlyData,
+    trend: {
+      percentage: Math.abs(changePct).toFixed(1),
+      isUp: changePct >= 0
+    }
+  }
+}
+
+export async function getRecentRegistrations(): Promise<BaseRegistration[]> {
+  const regs = await prisma.baseRegistryForm.findMany({
+    include: {
+      birthCertificateForm:    true,
+      deathCertificateForm:    true,
+      marriageCertificateForm: true,
+    },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  })
+
+  return regs.map(reg => {
+    const r: BaseRegistration = {
+      name: "",
+      sex: "",
+      dateOfBirth: "",
+      registrationDate: reg.createdAt.toISOString().split("T")[0],
+      formType: reg.formType
+    }
+
+    if (reg.birthCertificateForm) {
+      const nameObj = reg.birthCertificateForm.childName as { first: string; middle?: string; last: string }
+      r.name = `${nameObj.last}, ${nameObj.first} ${nameObj.middle || ""}`.trim()
+      r.sex = reg.birthCertificateForm.sex
+      r.dateOfBirth = reg.birthCertificateForm.dateOfBirth.toISOString().split("T")[0]
+    } else if (reg.deathCertificateForm) {
+      const nameObj = reg.deathCertificateForm.deceasedName as { first: string; middle?: string; last: string }
+      r.name = `${nameObj.last}, ${nameObj.first} ${nameObj.middle || ""}`.trim()
+      r.sex = reg.deathCertificateForm.sex ?? ""
+      const dob = reg.deathCertificateForm.dateOfBirth
+      r.dateOfBirth = dob instanceof Date
+        ? dob.toISOString().split("T")[0]
+        : String(dob || "")
+    } else if (reg.marriageCertificateForm) {
+      const m = reg.marriageCertificateForm
+      r.name = `${m.husbandLastName}, ${m.husbandFirstName} & ${m.wifeLastName}, ${m.wifeFirstName}`
+      r.sex = "N/A"
+      r.dateOfBirth = m.dateOfMarriage.toISOString().split("T")[0]
+    }
+
+    return r
   })
 }
 
-export async function getPreviousMonthRegistrations(model: PrismaModels): Promise<number> {
-  const now = new Date()
-  const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-  const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0)
-
-  if (model === "baseRegistryForm") {
-    return prisma.baseRegistryForm.count({
-      where: { dateOfRegistration: { gte: startOfPrevMonth, lte: endOfPrevMonth } }
-    })
+export async function getCurrentMonthRegistrations(model: PrismaModels): Promise<number> {
+  const { start, end } = monthBounds(0)
+  const where: any = { dateOfRegistration: { gte: start, lt: end } }
+  if (model !== "baseRegistryForm") {
+    where.formType = modelToType[model]
   }
+  return prisma.baseRegistryForm.count({ where })
+}
 
-  const relationField = {
-    birthCertificateForm: { birthCertificateForm: { isNot: null } },
-    deathCertificateForm: { deathCertificateForm: { isNot: null } },
-    marriageCertificateForm: { marriageCertificateForm: { isNot: null } }
-  }[model]
-
-  return prisma.baseRegistryForm.count({
-    where: {
-      dateOfRegistration: { gte: startOfPrevMonth, lte: endOfPrevMonth },
-      ...relationField
-    }
-  })
+export async function getPreviousMonthRegistrations(model: PrismaModels): Promise<number> {
+  const { start, end } = monthBounds(1)
+  const where: any = { dateOfRegistration: { gte: start, lt: end } }
+  if (model !== "baseRegistryForm") {
+    where.formType = modelToType[model]
+  }
+  return prisma.baseRegistryForm.count({ where })
 }
 
 export async function getBirthAndDeathGenderCount(type: "birth" | "death"): Promise<GenderData[]> {
   const birthResults = await prisma.birthCertificateForm.findMany({
-    select: {
-      sex: true,
-      baseForm: { select: { createdAt: true } }
-    },
+    select: { sex: true, baseForm: { select: { createdAt: true } } }
   })
-
   const deathResults = await prisma.deathCertificateForm.findMany({
-    select: {
-      sex: true,
-      baseForm: { select: { createdAt: true } }
-    },
+    select: { sex: true, baseForm: { select: { createdAt: true } } }
   })
 
-  const groupedData = new Map<string, GenderCount>()
-
-  const processResults = (results: typeof birthResults | typeof deathResults) => {
-    results.forEach(record => {
-      if (!record.baseForm?.createdAt || !record.sex) return
-
-      const date = record.baseForm.createdAt.toISOString().split('T')[0]
-      const gender = record.sex.toLowerCase()
-
-      if (!groupedData.has(date)) {
-        groupedData.set(date, { male: 0, female: 0 })
-      }
-
-      const count = groupedData.get(date)!
-      if (gender === 'male' || gender === 'female') {
-        count[gender]++
-      }
+  const grouped = new Map<string, GenderCount>()
+  const process = (rows: typeof birthResults | typeof deathResults) => {
+    rows.forEach(r => {
+      const dt = r.baseForm?.createdAt
+      const sex = r.sex?.toLowerCase()
+      if (!dt || !sex) return
+      const date = dt.toISOString().split("T")[0]
+      if (!grouped.has(date)) grouped.set(date, { male: 0, female: 0 })
+      const cnt = grouped.get(date)!
+      if (sex === "male" || sex === "female") cnt[sex]++
     })
   }
 
-  // Fetch only birth or death gender counts based on selection
-  if (type === "birth") {
-    processResults(birthResults)
-  } else {
-    processResults(deathResults)
-  }
+  if (type === "birth") process(birthResults)
+  else process(deathResults)
 
-  return Array.from(groupedData.entries())
-    .map(([date, counts]): GenderData => ({
-      name: date,
-      male: counts.male,
-      female: counts.female
-    }))
+  return Array.from(grouped.entries())
+    .map(([name, c]) => ({ name, male: c.male, female: c.female }))
     .sort((a, b) => a.name.localeCompare(b.name))
 }
