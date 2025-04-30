@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import DatePickerField from "@/components/custom/datepickerfield/date-picker-field";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { FieldValues, Path, useFormContext } from 'react-hook-form';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { FieldValues, Path, useFormContext } from "react-hook-form";
 
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   fieldPrefix: string;
@@ -36,8 +36,8 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
       <CardHeader>
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {showNameInPrint && (
             <FormField
               control={control}
@@ -47,10 +47,10 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                   <FormLabel>Name in Print</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder='Enter staff name'
+                      placeholder="Enter staff name"
                       {...field}
-                      value={field.value || ''}
-                      className='h-10'
+                      value={field.value || ""}
+                      className="h-10"
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
@@ -69,8 +69,8 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                     value: field.value || null,
                     onChange: field.onChange,
                   }}
-                  label='Date'
-                  placeholder='Select date'
+                  label="Date"
+                  placeholder="Select date"
                 />
               )}
             />
@@ -84,10 +84,10 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                   <FormLabel>Title or Position</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder='Enter title or position'
+                      placeholder="Enter title or position"
                       {...field}
-                      value={field.value || ''}
-                      className='h-10'
+                      value={field.value || ""}
+                      className="h-10"
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
@@ -103,25 +103,15 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
 }
 
 export function PreparedByCard<T extends FieldValues = FieldValues>(
-  props: Omit<ProcessingCardProps<T>, 'fieldPrefix'>
+  props: Omit<ProcessingCardProps<T>, "fieldPrefix">
 ) {
-  return (
-    <ProcessingDetailsCard<T>
-      fieldPrefix="preparedBy"
-      {...props}
-    />
-  );
+  return <ProcessingDetailsCard<T> fieldPrefix="preparedBy" {...props} />;
 }
 
 export function ReceivedByCard<T extends FieldValues = FieldValues>(
-  props: Omit<ProcessingCardProps<T>, 'fieldPrefix'>
+  props: Omit<ProcessingCardProps<T>, "fieldPrefix">
 ) {
-  return (
-    <ProcessingDetailsCard<T>
-      fieldPrefix='receivedBy'
-      {...props}
-    />
-  );
+  return <ProcessingDetailsCard<T> fieldPrefix="receivedBy" {...props} />;
 }
 
 export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
