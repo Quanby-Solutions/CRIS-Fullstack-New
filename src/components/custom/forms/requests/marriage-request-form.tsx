@@ -1,36 +1,49 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { z } from "zod"
-import { useSubmitCertifiedCopyRequest, SubmitCertifiedCopyRequestParams } from "@/hooks/use-submit-certified"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action"
-import { MarriageCertificateForm, Permission } from "@prisma/client"
-import { NameObject } from "@/lib/types/json"
-import { Checkbox } from "@/components/ui/checkbox"
-import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
-import { notifyUsersWithPermission } from "@/hooks/users-action"
+import { useState, useEffect, useRef } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { z } from "zod";
+import {
+  useSubmitCertifiedCopyRequest,
+  SubmitCertifiedCopyRequestParams,
+} from "@/hooks/use-submit-certified";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import { MarriageCertificateForm, Permission } from "@prisma/client";
+import { NameObject } from "@/lib/types/json";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table";
+import { notifyUsersWithPermission } from "@/hooks/users-action";
 
 // Helper to format a full name from parts.
-const formatFullName = (first: string, middle: string | null, last: string): string => {
-  return `${first} ${middle ? middle + " " : ""}${last}`.trim()
-}
+const formatFullName = (
+  first: string,
+  middle: string | null,
+  last: string
+): string => {
+  return `${first} ${middle ? middle + " " : ""}${last}`.trim();
+};
 
-// Updated helper to format the place of marriage.  
+// Updated helper to format the place of marriage.
 // If the place is a string, it returns it directly; if it's an object, it joins available parts.
 const formatPlaceOfMarriage = (place: any): string => {
-  if (!place) return ""
-  if (typeof place === "string") return place
-  const { hospital, street, barangay, cityMunicipality, province, country } = place
+  if (!place) return "";
+  if (typeof place === "string") return place;
+  const { hospital, street, barangay, cityMunicipality, province, country } =
+    place;
   return [hospital, street, barangay, cityMunicipality, province, country]
     .filter((part) => !!part)
-    .join(", ")
-}
+    .join(", ");
+};
 
 // Zod schema for validation – note we use "placeOfMarriage" as the field.
 const schema = z.object({
@@ -43,19 +56,21 @@ const schema = z.object({
   address: z.string().min(1, "Address is required"),
   purpose: z.string().min(1, "Purpose is required"),
   copies: z.number().min(1, "At least one copy is required"),
-  isCertified: z.boolean().refine((val) => val === true, "You must certify the information"),
-})
+  isCertified: z
+    .boolean()
+    .refine((val) => val === true, "You must certify the information"),
+});
 
 interface MarriageCertificateFormCTCProps {
-  attachment: AttachmentWithCertifiedCopies | null
+  attachment: AttachmentWithCertifiedCopies | null;
   formData?: BaseRegistryFormWithRelations & {
-    marriageCertificateForm?: MarriageCertificateForm | null
-  }
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onClose?: () => void
-  onCancel?: () => void
-  onAttachmentUpdated?: () => void
+    marriageCertificateForm?: MarriageCertificateForm | null;
+  };
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClose?: () => void;
+  onCancel?: () => void;
+  onAttachmentUpdated?: () => void;
 }
 
 const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
@@ -68,27 +83,36 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
   onAttachmentUpdated,
 }) => {
   // Extract default values from formData if available.
-  const marriageData = formData?.marriageCertificateForm
+  const marriageData = formData?.marriageCertificateForm;
   const defaultHusbandName = marriageData
-    ? formatFullName(marriageData.husbandFirstName, marriageData.husbandMiddleName, marriageData.husbandLastName)
-    : ""
+    ? formatFullName(
+        marriageData.husbandFirstName,
+        marriageData.husbandMiddleName,
+        marriageData.husbandLastName
+      )
+    : "";
   const defaultWifeName = marriageData
-    ? formatFullName(marriageData.wifeFirstName, marriageData.wifeMiddleName, marriageData.wifeLastName)
-    : ""
+    ? formatFullName(
+        marriageData.wifeFirstName,
+        marriageData.wifeMiddleName,
+        marriageData.wifeLastName
+      )
+    : "";
   const defaultMarriageDate = marriageData?.dateOfMarriage
     ? new Date(marriageData.dateOfMarriage).toISOString().split("T")[0]
-    : ""
+    : "";
   const defaultMarriagePlace = marriageData?.placeOfMarriage
     ? formatPlaceOfMarriage(marriageData.placeOfMarriage)
-    : ""
+    : "";
 
   // Local state for registration and certification.
-  const [isRegisteredLate, setIsRegisteredLate] = useState(false)
-  const [isCertified, setIsCertified] = useState(false)
-  const [isFormValid, setIsFormValid] = useState(false)
+  const [isRegisteredLate, setIsRegisteredLate] = useState(false);
+  const [isCertified, setIsCertified] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // Use our custom hook for submission.
-  const { submitRequest, isLoading, error, successMessage } = useSubmitCertifiedCopyRequest()
+  const { submitRequest, isLoading, error, successMessage } =
+    useSubmitCertifiedCopyRequest();
 
   // Centralized form state split into required and optional fields.
   const [formState, setFormState] = useState({
@@ -111,9 +135,9 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
       whenRegistered: "",
       signature: "",
     },
-  })
+  });
 
-  const submittedRef = useRef(false)
+  const submittedRef = useRef(false);
 
   const resetForm = () => {
     setFormState({
@@ -136,62 +160,64 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
         whenRegistered: "",
         signature: "",
       },
-    })
-    setIsCertified(false)
-    setIsRegisteredLate(false)
-  }
+    });
+    setIsCertified(false);
+    setIsRegisteredLate(false);
+  };
 
   // When an input changes, update the corresponding required or optional field.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
+    const { id, value } = e.target;
     if (id in formState.required) {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         required: {
           ...prev.required,
-          [id]: value.trim(),
+          [id]: value, // Remove the trim() to allow spaces
         },
-      }))
+      }));
     } else {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         optional: {
           ...prev.optional,
           [id]: value,
         },
-      }))
+      }));
     }
-  }
+  };
 
   useEffect(() => {
     // Check that all required fields (from the formState.required object) are filled.
-    const requiredFilled = Object.values(formState.required).every((val) => val !== "")
-    setIsFormValid(requiredFilled && isCertified)
-  }, [formState.required, isCertified])
+    const requiredFilled = Object.values(formState.required).every(
+      (val) => val !== ""
+    );
+    setIsFormValid(requiredFilled && isCertified);
+  }, [formState.required, isCertified]);
 
   useEffect(() => {
     if (successMessage && !submittedRef.current) {
-      toast.success(successMessage)
-      resetForm()
-      onAttachmentUpdated?.()
-      submittedRef.current = true
+      toast.success(successMessage);
+      resetForm();
+      onAttachmentUpdated?.();
+      submittedRef.current = true;
       setTimeout(() => {
-        onClose?.()
-      }, 500)
+        onClose?.();
+      }, 500);
     }
-  }, [successMessage, onClose, onAttachmentUpdated])
+  }, [successMessage, onClose, onAttachmentUpdated]);
 
   useEffect(() => {
     if (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }, [error])
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!isCertified) {
-      toast.error("Please certify that the information is true")
-      return
+      toast.error("Please certify that the information is true");
+      return;
     }
     // Combine required and optional fields to create a flat validation object.
     const validationObj = {
@@ -203,14 +229,16 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
       ...formState.optional,
       copies: parseInt(formState.required.copies, 10),
       isCertified,
-    }
+    };
 
-    const result = schema.safeParse(validationObj)
+    const result = schema.safeParse(validationObj);
     if (!result.success) {
       toast.error(
-        `Please fill in all required fields: ${result.error.errors.map((e) => e.message).join(", ")}`
-      )
-      return
+        `Please fill in all required fields: ${result.error.errors
+          .map((e) => e.message)
+          .join(", ")}`
+      );
+      return;
     }
 
     // Build the submission data.
@@ -229,23 +257,25 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
       searchedBy: formState.optional.searchedBy || undefined,
       contactNo: formState.optional.contactNo || undefined,
       date: formState.optional.datePaid || undefined,
-      whenRegistered: isRegisteredLate ? formState.optional.whenRegistered || undefined : undefined,
+      whenRegistered: isRegisteredLate
+        ? formState.optional.whenRegistered || undefined
+        : undefined,
       attachmentId: attachment?.id ?? "",
       copies: parseInt(formState.required.copies, 10),
-    }
+    };
 
     try {
-      await submitRequest(submissionData)
-      toast.success("Request submitted successfully")
-      const documentRead = Permission.DOCUMENT_READ
-      const Title = `New CTC has been created for "${formData?.formType} Certificate"`
+      await submitRequest(submissionData);
+      toast.success("Request submitted successfully");
+      const documentRead = Permission.DOCUMENT_READ;
+      const Title = `New CTC has been created for "${formData?.formType} Certificate"`;
       const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
       notifyUsersWithPermission(documentRead, Title, message);
-      resetForm()
+      resetForm();
     } catch (err) {
-      toast.error("Failed to submit request")
+      toast.error("Failed to submit request");
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -255,12 +285,16 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
         </DialogHeader>
         <div className="w-full">
           <div className="container mx-auto p-4 max-w-4xl">
-            <h1 className="text-2xl font-bold text-center mb-8">Marriage Certificate Request Form</h1>
+            <h1 className="text-2xl font-bold text-center mb-8">
+              Marriage Certificate Request Form
+            </h1>
             <form className="space-y-12" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Owner's Personal Information (read-only) */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Owner's Personal Information</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Owner's Personal Information
+                  </h2>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="husbandName">
@@ -275,7 +309,8 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                     </div>
                     <div>
                       <Label htmlFor="wifeName">
-                        Maiden Name of Wife <span className="text-red-500">*</span>
+                        Maiden Name of Wife{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="wifeName"
@@ -297,7 +332,8 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                     </div>
                     <div>
                       <Label htmlFor="placeOfMarriage">
-                        Place of Marriage <span className="text-red-500">*</span>
+                        Place of Marriage{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="placeOfMarriage"
@@ -310,7 +346,9 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                       <Label>Registered Late?</Label>
                       <RadioGroup
                         defaultValue="no"
-                        onValueChange={(value) => setIsRegisteredLate(value === "yes")}
+                        onValueChange={(value) =>
+                          setIsRegisteredLate(value === "yes")
+                        }
                         className="flex space-x-4"
                       >
                         <div className="flex items-center space-x-2">
@@ -324,7 +362,9 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                       </RadioGroup>
                       {isRegisteredLate && (
                         <div className="mt-2">
-                          <Label htmlFor="whenRegistered">When Registered?</Label>
+                          <Label htmlFor="whenRegistered">
+                            When Registered?
+                          </Label>
                           <Input
                             id="whenRegistered"
                             type="date"
@@ -339,7 +379,9 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
 
                 {/* Requester's Information */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Requester's Information</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Requester's Information
+                  </h2>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="requesterName">
@@ -355,7 +397,8 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                     </div>
                     <div>
                       <Label htmlFor="relationship">
-                        Relationship to the Owner <span className="text-red-500">*</span>
+                        Relationship to the Owner{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="relationship"
@@ -379,7 +422,8 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                     </div>
                     <div>
                       <Label htmlFor="purpose">
-                        Purpose (please specify) <span className="text-red-500">*</span>
+                        Purpose (please specify){" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="purpose"
@@ -395,7 +439,9 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
 
               {/* Administrative Details */}
               <section>
-                <h2 className="text-xl font-semibold mb-4">Administrative Details</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Administrative Details
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="copies">
@@ -494,11 +540,14 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
                   <Checkbox
                     id="certification"
                     checked={isCertified}
-                    onCheckedChange={(checked) => setIsCertified(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      setIsCertified(checked as boolean)
+                    }
                     required
                   />
                   <Label htmlFor="certification" className="text-sm">
-                    I hereby certify that the above information is true. <span className="text-red-500">*</span>
+                    I hereby certify that the above information is true.{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                 </div>
                 <div>
@@ -514,7 +563,11 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
               </section>
 
               <div className="flex justify-end">
-                <Button type="submit" variant="default" disabled={isLoading || !isFormValid}>
+                <Button
+                  type="submit"
+                  variant="default"
+                  disabled={isLoading || !isFormValid}
+                >
                   {isLoading ? "Submitting..." : "Submit Request"}
                 </Button>
               </div>
@@ -523,7 +576,7 @@ const MarriageCertificateFormCTC: React.FC<MarriageCertificateFormCTCProps> = ({
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default MarriageCertificateFormCTC
+export default MarriageCertificateFormCTC;

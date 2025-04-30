@@ -1,25 +1,33 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action"
-import { SubmitCertifiedCopyRequestParams, useSubmitCertifiedCopyRequest } from "@/hooks/use-submit-certified"
-import { toast } from "sonner"
-import { z } from "zod"
+import { useEffect, useRef, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import {
+  SubmitCertifiedCopyRequestParams,
+  useSubmitCertifiedCopyRequest,
+} from "@/hooks/use-submit-certified";
+import { toast } from "sonner";
+import { z } from "zod";
 import {
   BirthCertificateForm,
   DeathCertificateForm,
   MarriageCertificateForm,
   Permission,
-} from "@prisma/client"
-import { Checkbox } from "@/components/ui/checkbox"
-import { NameObject, PlaceOfBirthObject } from "@/lib/types/json"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
-import { notifyUsersWithPermission } from "@/hooks/users-action"
+} from "@prisma/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { NameObject, PlaceOfBirthObject } from "@/lib/types/json";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table";
+import { notifyUsersWithPermission } from "@/hooks/users-action";
 
 // Zod schema for validation
 const schema = z.object({
@@ -28,20 +36,22 @@ const schema = z.object({
   relationship: z.string().min(1, "Relationship to owner is required"),
   requesterName: z.string().min(1, "Requester name is required"),
   copies: z.number().min(1, "At least one copy is required"),
-  isCertified: z.boolean().refine((val) => val === true, "You must certify the information"),
-})
+  isCertified: z
+    .boolean()
+    .refine((val) => val === true, "You must certify the information"),
+});
 
 interface BirthCertificateFormProps {
   formData?: BaseRegistryFormWithRelations & {
-    birthCertificateForm?: BirthCertificateForm | null
-    deathCertificateForm?: DeathCertificateForm | null
-    marriageCertificateForm?: MarriageCertificateForm | null
-  }
-  open: boolean
-  onClose?: () => void
-  onOpenChange: (open: boolean) => void
-  attachment: AttachmentWithCertifiedCopies | null
-  onAttachmentUpdated: () => void
+    birthCertificateForm?: BirthCertificateForm | null;
+    deathCertificateForm?: DeathCertificateForm | null;
+    marriageCertificateForm?: MarriageCertificateForm | null;
+  };
+  open: boolean;
+  onClose?: () => void;
+  onOpenChange: (open: boolean) => void;
+  attachment: AttachmentWithCertifiedCopies | null;
+  onAttachmentUpdated: () => void;
 }
 
 const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
@@ -50,12 +60,13 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
   onOpenChange,
   onClose,
   attachment,
-  onAttachmentUpdated
+  onAttachmentUpdated,
 }) => {
-  const [isRegisteredLate, setIsRegisteredLate] = useState(false)
-  const [isCertified, setIsCertified] = useState(false)
-  const [isFormValid, setIsFormValid] = useState(false)
-  const { submitRequest, isLoading, isError, error, successMessage } = useSubmitCertifiedCopyRequest()
+  const [isRegisteredLate, setIsRegisteredLate] = useState(false);
+  const [isCertified, setIsCertified] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
+  const { submitRequest, isLoading, isError, error, successMessage } =
+    useSubmitCertifiedCopyRequest();
 
   const [formState, setFormState] = useState({
     required: {
@@ -74,9 +85,9 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
       searchedBy: "",
       contactNo: "",
       datePaid: "",
-      signature: ""
-    }
-  })
+      signature: "",
+    },
+  });
 
   const resetForm = () => {
     setFormState({
@@ -96,80 +107,87 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
         searchedBy: "",
         contactNo: "",
         datePaid: "",
-        signature: ""
-      }
-    })
-    setIsCertified(false)
-    setIsRegisteredLate(false)
-  }
+        signature: "",
+      },
+    });
+    setIsCertified(false);
+    setIsRegisteredLate(false);
+  };
 
+  // When an input changes, update the corresponding required or optional field.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    if (name in formState.required) {
-      setFormState(prev => ({
+    const { id, value } = e.target;
+    if (id in formState.required) {
+      setFormState((prev) => ({
         ...prev,
         required: {
           ...prev.required,
-          [name]: value.trim()
-        }
-      }))
+          [id]: value, // Remove the trim() to allow spaces
+        },
+      }));
     } else {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         optional: {
           ...prev.optional,
-          [name]: value
-        }
-      }))
+          [id]: value,
+        },
+      }));
     }
-  }
+  };
 
-  const submittedRef = useRef(false)
+  const submittedRef = useRef(false);
 
   useEffect(() => {
-    const requiredFieldsFilled = Object.values(formState.required).every(value => value !== "")
-    setIsFormValid(requiredFieldsFilled && isCertified)
-  }, [formState.required, isCertified])
+    const requiredFieldsFilled = Object.values(formState.required).every(
+      (value) => value !== ""
+    );
+    setIsFormValid(requiredFieldsFilled && isCertified);
+  }, [formState.required, isCertified]);
 
   useEffect(() => {
     if (successMessage && !submittedRef.current) {
-      toast.success(successMessage)
-      resetForm()
-      onAttachmentUpdated()
-      submittedRef.current = true // Flag that the form is successfully submitted
+      toast.success(successMessage);
+      resetForm();
+      onAttachmentUpdated();
+      submittedRef.current = true; // Flag that the form is successfully submitted
       setTimeout(() => {
-        onClose?.()
-      }, 500)
+        onClose?.();
+      }, 500);
     }
-  }, [successMessage, onClose])
+  }, [successMessage, onClose]);
 
   useEffect(() => {
     if (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }, [error])
+  }, [error]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
     if (!isCertified) {
-      toast.error("Please certify that the information is true")
-      return
+      toast.error("Please certify that the information is true");
+      return;
     }
 
-    const formEntries = new FormData(event.currentTarget)
-    const formObj = Object.fromEntries(formEntries.entries())
+    const formEntries = new FormData(event.currentTarget);
+    const formObj = Object.fromEntries(formEntries.entries());
     const validationObj = {
       ...formObj,
       copies: parseInt(formObj.copies as string, 10),
-      isCertified
-    }
+      isCertified,
+    };
 
-    const result = schema.safeParse(validationObj)
+    const result = schema.safeParse(validationObj);
 
     if (!result.success) {
-      toast.error(`Please fill in all required fields: ${result.error.errors.map(e => e.message).join(", ")}`)
-      return
+      toast.error(
+        `Please fill in all required fields: ${result.error.errors
+          .map((e) => e.message)
+          .join(", ")}`
+      );
+      return;
     }
 
     const requestData: SubmitCertifiedCopyRequestParams = {
@@ -187,46 +205,64 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
       searchedBy: formObj.searchedBy?.toString(),
       contactNo: formObj.contactNo?.toString(),
       date: formObj.datePaid ? formObj.datePaid.toString() : undefined,
-      whenRegistered: isRegisteredLate ? formObj.whenRegistered?.toString() : undefined,
-      attachmentId: attachment?.id ?? '',
-      copies: parseInt(formState.required.copies, 10)
-    }
+      whenRegistered: isRegisteredLate
+        ? formObj.whenRegistered?.toString()
+        : undefined,
+      attachmentId: attachment?.id ?? "",
+      copies: parseInt(formState.required.copies, 10),
+    };
 
     try {
-      await submitRequest(requestData)
-      toast.success("Request submitted successfully")
+      await submitRequest(requestData);
+      toast.success("Request submitted successfully");
 
+      const documentRead = Permission.DOCUMENT_READ;
+      const Title = `New CTC has been created for "${formData?.formType}"`;
+      const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
+      notifyUsersWithPermission(documentRead, Title, message);
 
-
-      const documentRead = Permission.DOCUMENT_READ
-        const Title = `New CTC has been created for "${formData?.formType}"`
-        const message = `A CTC for  (Book: ${formData?.bookNumber}, Page: ${formData?.pageNumber}, Registry Number: ${formData?.registryNumber}, Form Type: ${formData?.formType}) has been created sucessfully.`;
-        notifyUsersWithPermission(documentRead, Title, message);
-
-        
-      resetForm()
-      onAttachmentUpdated()
-      onClose?.()
+      resetForm();
+      onAttachmentUpdated();
+      onClose?.();
     } catch (error) {
-      toast.error("Failed to submit request")
+      toast.error("Failed to submit request");
     }
-  }
+  };
 
-  const childName = formData?.birthCertificateForm?.childName as NameObject | undefined
-  const placeOfBirth = formData?.birthCertificateForm?.placeOfBirth as PlaceOfBirthObject | undefined
-  const motherMaidenName = formData?.birthCertificateForm?.motherMaidenName as NameObject | undefined
-  const fatherName = formData?.birthCertificateForm?.fatherName as NameObject | undefined
-  const dob = formData?.birthCertificateForm?.dateOfBirth
+  const childName = formData?.birthCertificateForm?.childName as
+    | NameObject
+    | undefined;
+  const placeOfBirth = formData?.birthCertificateForm?.placeOfBirth as
+    | PlaceOfBirthObject
+    | undefined;
+  const motherMaidenName = formData?.birthCertificateForm?.motherMaidenName as
+    | NameObject
+    | undefined;
+  const fatherName = formData?.birthCertificateForm?.fatherName as
+    | NameObject
+    | undefined;
+  const dob = formData?.birthCertificateForm?.dateOfBirth;
 
   const formatName = (name: NameObject | undefined): string => {
-    if (!name || !name.first || !name.last) return ""
-    return `${name.first} ${name.middle || ""} ${name.last}`.trim()
-  }
+    if (!name || !name.first || !name.last) return "";
+    return `${name.first} ${name.middle || ""} ${name.last}`.trim();
+  };
 
-  const formatPlaceOfBirth = (place: PlaceOfBirthObject | undefined): string => {
-    if (!place || !place.hospital || !place.cityMunicipality || !place.province || !place.country) return ""
-    return `${place.hospital}, ${place.street || ""}, ${place.barangay || ""}, ${place.cityMunicipality}, ${place.province}, ${place.country}`.trim()
-  }
+  const formatPlaceOfBirth = (
+    place: PlaceOfBirthObject | undefined
+  ): string => {
+    if (
+      !place ||
+      !place.hospital ||
+      !place.cityMunicipality ||
+      !place.province ||
+      !place.country
+    )
+      return "";
+    return `${place.hospital}, ${place.street || ""}, ${
+      place.barangay || ""
+    }, ${place.cityMunicipality}, ${place.province}, ${place.country}`.trim();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -236,12 +272,16 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
         </DialogHeader>
         <div className="w-full">
           <div className="container mx-auto p-4 max-w-4xl">
-            <h1 className="text-2xl font-bold text-center mb-8">Birth Certificate Request Form</h1>
+            <h1 className="text-2xl font-bold text-center mb-8">
+              Birth Certificate Request Form
+            </h1>
 
             <form className="space-y-12" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Owner's Personal Information</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Owner's Personal Information
+                  </h2>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="fullName">Full Name</Label>
@@ -259,7 +299,9 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                         id="dob"
                         name="dob"
                         type="date"
-                        defaultValue={dob ? new Date(dob).toISOString().split("T")[0] : ""}
+                        defaultValue={
+                          dob ? new Date(dob).toISOString().split("T")[0] : ""
+                        }
                         disabled={true}
                       />
                     </div>
@@ -297,7 +339,9 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                       <Label>Registered Late?</Label>
                       <RadioGroup
                         defaultValue="no"
-                        onValueChange={(value) => setIsRegisteredLate(value === "yes")}
+                        onValueChange={(value) =>
+                          setIsRegisteredLate(value === "yes")
+                        }
                         className="flex space-x-4 mt-1"
                       >
                         <div className="flex items-center space-x-2">
@@ -314,17 +358,25 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                     {isRegisteredLate && (
                       <div className="mt-2">
                         <Label htmlFor="whenRegistered">When Registered?</Label>
-                        <Input id="whenRegistered" name="whenRegistered" type="date" />
+                        <Input
+                          id="whenRegistered"
+                          name="whenRegistered"
+                          type="date"
+                        />
                       </div>
                     )}
                   </div>
                 </section>
 
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Requester's Information</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Requester's Information
+                  </h2>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="requesterName">Full Name <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="requesterName">
+                        Full Name <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="requesterName"
                         name="requesterName"
@@ -335,7 +387,10 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                       />
                     </div>
                     <div>
-                      <Label htmlFor="relationship">Relationship to the Owner <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="relationship">
+                        Relationship to the Owner{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="relationship"
                         name="relationship"
@@ -346,7 +401,9 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                       />
                     </div>
                     <div>
-                      <Label htmlFor="address">Address <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="address">
+                        Address <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="address"
                         name="address"
@@ -357,7 +414,10 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                       />
                     </div>
                     <div>
-                      <Label htmlFor="purpose">Purpose (please specify) <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="purpose">
+                        Purpose (please specify){" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="purpose"
                         name="purpose"
@@ -371,10 +431,14 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                 </section>
               </div>
               <section>
-                <h2 className="text-xl font-semibold mb-4">Administrative Details</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Administrative Details
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="copies">No. of Copies <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="copies">
+                      No. of Copies <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       id="copies"
                       name="copies"
@@ -463,11 +527,15 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
                   <Checkbox
                     id="certification"
                     checked={isCertified}
-                    onCheckedChange={(checked) => setIsCertified(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      setIsCertified(checked as boolean)
+                    }
                     required
                   />
                   <Label htmlFor="certification" className="text-sm">
-                    I hereby certify that the above information on the relationship is true. <span className="text-red-500">*</span>
+                    I hereby certify that the above information on the
+                    relationship is true.{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                 </div>
                 <div>
@@ -483,7 +551,11 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
               </section>
 
               <div className="flex justify-end">
-                <Button type="submit" variant="default" disabled={isLoading || !isFormValid}>
+                <Button
+                  type="submit"
+                  variant="default"
+                  disabled={isLoading || !isFormValid}
+                >
                   {isLoading ? "Submitting..." : "Submit Request"}
                 </Button>
               </div>
@@ -492,7 +564,7 @@ const BirthCertificateFormCTC: React.FC<BirthCertificateFormProps> = ({
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default BirthCertificateFormCTC
+export default BirthCertificateFormCTC;

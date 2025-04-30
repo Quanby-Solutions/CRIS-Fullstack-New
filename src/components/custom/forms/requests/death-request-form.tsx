@@ -59,10 +59,10 @@ const formatPlaceOfDeath = (place: any): string => {
     .join(", ");
 };
 
-// Updated parseJsonDateDeath function to handle non-date formats as strings
+// Updated parseJsonDateDeath function with additional validation for Date objects
 const parseJsonDateDeath = (value: any): Date | string | undefined => {
   // If value is an object with a nested date property, extract the date
-  if (value && typeof value === "object") {
+  if (value && typeof value === "object" && !(value instanceof Date)) {
     if ("dateOfDeath" in value) {
       value = value.dateOfDeath;
     } else if ("dateOfBirth" in value) {
@@ -72,9 +72,10 @@ const parseJsonDateDeath = (value: any): Date | string | undefined => {
 
   if (value === null || value === undefined) return undefined;
 
-  // If it's already a Date object, return it
+  // If it's already a Date object, validate it first
   if (value instanceof Date) {
-    return value;
+    // Check if the date is valid before returning it
+    return isNaN(value.getTime()) ? undefined : value;
   }
 
   // If it's a string, try to parse it
@@ -89,18 +90,16 @@ const parseJsonDateDeath = (value: any): Date | string | undefined => {
     // Check for standard date format YYYY-MM-DD
     const isStandardDate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedValue);
 
-    // Try to parse as a date
-    try {
-      const date = new Date(trimmedValue);
-
-      // Check if it's a valid date
-      if (!isNaN(date.getTime())) {
-        // If it matches ISO datetime or standard date format, return as Date
-        if (isIsoDateTime || isStandardDate) {
+    // Try to parse as a date only if it appears to be in a date-like format
+    if (isIsoDateTime || isStandardDate) {
+      try {
+        const date = new Date(trimmedValue);
+        // Check if it's a valid date
+        if (!isNaN(date.getTime())) {
           return date;
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     // If not a valid date format, return as string
     return trimmedValue;
@@ -118,33 +117,48 @@ const parseJsonDateDeath = (value: any): Date | string | undefined => {
   return String(value);
 };
 
-// Updated formatDateForInput function to handle non-date formats
+// Updated formatDateForInput function with more robust error handling
 const formatDateForInput = (dateValue: any): string => {
+  // First, try to parse the date value
   const parsed = parseJsonDateDeath(dateValue);
 
+  // If parsing returns undefined, return empty string
   if (!parsed) return "";
 
+  // If parsing returns a Date object, convert to YYYY-MM-DD format
   if (parsed instanceof Date) {
-    return parsed.toISOString().split("T")[0]; // Format as YYYY-MM-DD for date input
+    try {
+      // Extra safety check to ensure valid date
+      if (isNaN(parsed.getTime())) {
+        console.warn("Invalid date detected:", dateValue);
+        return "";
+      }
+      return parsed.toISOString().split("T")[0]; // Format as YYYY-MM-DD for date input
+    } catch (error) {
+      console.warn("Error formatting date:", error);
+      return "";
+    }
   }
 
-  // If it's a string that's not a date format, return it as-is
+  // If it's a string that looks like a date format, try to convert
   if (typeof parsed === "string") {
     // Check if it's a date format
     const isDateFormat = /^\d{4}-\d{2}-\d{2}$/.test(parsed);
 
-    // If not a date format, return the string
-    if (!isDateFormat) {
-      return parsed;
+    // If it looks like a date format, try to parse it
+    if (isDateFormat) {
+      try {
+        const date = new Date(parsed);
+        if (!isNaN(date.getTime())) {
+          return date.toISOString().split("T")[0];
+        }
+      } catch (error) {
+        console.warn("Error parsing date string:", error);
+      }
     }
 
-    // If it is a date format, process as before
-    try {
-      const date = new Date(parsed);
-      if (!isNaN(date.getTime())) {
-        return date.toISOString().split("T")[0];
-      }
-    } catch {}
+    // Return the string as-is if it's not a date format or couldn't be parsed
+    return parsed;
   }
 
   // If all else fails, return empty string
@@ -260,6 +274,7 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
   };
 
   // When an input changes, update the corresponding required or optional field.
+  // When an input changes, update the corresponding required or optional field.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     if (id in formState.required) {
@@ -267,7 +282,7 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
         ...prev,
         required: {
           ...prev.required,
-          [id]: value.trim(),
+          [id]: value, // Remove the trim() to allow spaces
         },
       }));
     } else {
@@ -280,7 +295,6 @@ const DeathCertificateFormCTC: React.FC<DeathCertificateFormCTCProps> = ({
       }));
     }
   };
-
   // Validate that all required fields in formState.required are filled and that the certification checkbox is checked.
   useEffect(() => {
     const requiredFilled = Object.values(formState.required).every(
