@@ -60,8 +60,6 @@ function monthBounds(offsetMonths: number) {
 
 export async function getRegistryMetrics(): Promise<RegistryMetrics> {
   const today = new Date()
-
-  // First day of each of the last 6 months
   const last6Months = Array.from({ length: 6 }, (_, i) =>
     new Date(today.getFullYear(), today.getMonth() - i, 1)
   ).reverse()
@@ -210,4 +208,20 @@ export async function getBirthAndDeathGenderCount(type: "birth" | "death"): Prom
   return Array.from(grouped.entries())
     .map(([name, c]) => ({ name, male: c.male, female: c.female }))
     .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Returns the total count for the given model.
+ */
+export async function getTotalRegistrations(model: PrismaModels): Promise<number> {
+  switch (model) {
+    case "baseRegistryForm":
+      return prisma.baseRegistryForm.count()
+    case "birthCertificateForm":
+      return prisma.birthCertificateForm.count()
+    case "deathCertificateForm":
+      return prisma.deathCertificateForm.count()
+    case "marriageCertificateForm":
+      return prisma.marriageCertificateForm.count()
+  }
 }
