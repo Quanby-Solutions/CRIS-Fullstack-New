@@ -43,7 +43,16 @@ const childInformationSchema = z.object({
   typeOfBirth: z.string().optional(),
   multipleBirthOrder: z.string().optional(),
   birthOrder: z.string().optional(),
-  weightAtBirth: z.string().optional(),
+  weightAtBirth: z
+  .string()
+  .optional()
+  .refine((val) => {
+    if (!val) return true;
+    return !val.includes(',');
+  }, {
+    message:
+      'Please enter digits only (e.g. 3000) without commas; free-form text like "Don\'t Know" is still allowed.',
+  }),
 }).optional();
 
 // Mother Information Schema
