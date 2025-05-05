@@ -103,6 +103,17 @@ model User {
   @@map("user")
 }
 
+
+model BaseRegistryFormDocument {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseRegistryFormId String           @db.Uuid
+  documentId         String           @db.Uuid
+  baseRegistryForm   BaseRegistryForm @relation(fields: [baseRegistryFormId], references: [id], onDelete: Cascade)
+  document           Document         @relation(fields: [documentId], references: [id])
+
+  @@map("base_registry_form_document")
+}
+
 // ------------------------------
 // BaseRegistryForm
 // ------------------------------
@@ -172,16 +183,6 @@ model BaseRegistryForm {
   @@map("base_registry_form")
 }
 
-model BaseRegistryFormDocument {
-  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseRegistryFormId String           @db.Uuid
-  documentId         String           @db.Uuid
-  baseRegistryForm   BaseRegistryForm @relation(fields: [baseRegistryFormId], references: [id], onDelete: Cascade)
-  document           Document         @relation(fields: [documentId], references: [id])
-
-  @@map("base_registry_form_document")
-}
-
 // ------------------------------
 // MarriageCertificateForm (Form 97)
 // ------------------------------
@@ -192,7 +193,7 @@ model MarriageCertificateForm {
   husbandMiddleName           String?
   husbandLastName             String
   husbandDateOfBirth          DateTime
-  husbandAge                  Int
+  x                   Int
   husbandPlaceOfBirth         Json?
   husbandSex                  Sex?
   husbandCitizenship          String

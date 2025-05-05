@@ -12,7 +12,7 @@ export const BirthDataSchema = z.array(
 export const DeathDataSchema = z.array(
     z.object({
         year: z.number(),
-        male: z.number(),
+    male: z.number(),
         female: z.number(),
     })
 )

@@ -46,6 +46,7 @@ export async function updateMarriageCertificateForm(
         const updatedBaseForm = await prisma.baseRegistryForm.update({
             where: { id: baseFormId || '' },
             data: {
+                formNumber: '97', // Marriage certificate form number.
                 registryNumber: data.registryNumber,
                 province: data.province,
                 cityMunicipality: data.cityMunicipality,

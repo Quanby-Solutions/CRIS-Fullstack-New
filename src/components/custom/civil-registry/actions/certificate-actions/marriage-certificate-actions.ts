@@ -61,7 +61,7 @@ export async function submitMarriageCertificateForm(
         // Create the base registry form record.
         const baseForm = await tx.baseRegistryForm.create({
           data: {
-            formNumber: '103', // Marriage certificate form number.
+            formNumber: '97', // Marriage certificate form number.
             formType: FormType.MARRIAGE,
             registryNumber: formData.registryNumber,
             province: formData.province,
