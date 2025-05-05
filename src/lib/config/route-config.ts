@@ -195,6 +195,28 @@ export const routeConfigs: RouteConfig[] = [
         requiredPermissions: [Permission.REPORT_READ],
     },
     {
+        id: "reports-birth",
+        path: "/report-birth",
+        type: "ui",
+        title: "Reports-birth",
+        iconName: "report",
+        
+    },
+    {
+        id: "reports-marriage",
+        path: "/reports-marriage",
+        type: "ui",
+        title: "Reports-marriage",
+        iconName: "report",
+    },
+    {
+        id: "reports-death",
+        path: "/reports-death",
+        type: "ui",
+        title: "Reports-death",
+        iconName: "report",
+    },
+    {
         id: "feedback",
         path: "/feedback",
         type: "ui",
