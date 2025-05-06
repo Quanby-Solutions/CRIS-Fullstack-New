@@ -60,6 +60,8 @@ export function FileUploadDialog({
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // Add a state to track upload progress for large files
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Reset state when dialog opens/closes
   useEffect(() => {
@@ -67,6 +69,7 @@ export function FileUploadDialog({
       // Clear file and preview when the dialog closes
       setFile(null);
       setPreviewUrl(null);
+      setUploadProgress(0);
     }
   }, [open]);
 
@@ -87,6 +90,7 @@ export function FileUploadDialog({
     }
   }, []);
 
+  // Remove maxSize limitation to allow files of any size
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -94,6 +98,7 @@ export function FileUploadDialog({
       "application/pdf": [".pdf"],
     },
     multiple: false,
+    // No maxSize parameter here, allowing unlimited file size
   });
 
   const handleUpload = async () => {
@@ -103,29 +108,54 @@ export function FileUploadDialog({
     }
 
     setIsLoading(true);
+    setUploadProgress(0);
 
     try {
+      // For large files, use XMLHttpRequest to track upload progress
+      const xhr = new XMLHttpRequest();
       const formData = new FormData();
       formData.append("file", file);
       formData.append("referenceNumber", registryNumber);
 
-      const uploadResponse = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      // Set up progress tracking
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round(
+            (event.loaded / event.total) * 100
+          );
+          setUploadProgress(percentComplete);
+        }
       });
 
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        console.error("Upload failed response:", errorText);
-        throw new Error(`File upload failed: ${errorText || "Unknown error"}`);
-      }
+      // Create a promise to handle the XMLHttpRequest
+      const uploadPromise = new Promise<any>((resolve, reject) => {
+        xhr.open("POST", "/api/upload", true);
 
-      let uploadJson;
-      try {
-        uploadJson = await uploadResponse.json();
-      } catch (e) {
-        throw new Error("Invalid JSON response from server");
-      }
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const response = JSON.parse(xhr.responseText);
+              resolve(response);
+            } catch (e) {
+              reject(new Error("Invalid JSON response from server"));
+            }
+          } else {
+            reject(
+              new Error(
+                `File upload failed: ${xhr.responseText || "Unknown error"}`
+              )
+            );
+          }
+        };
+
+        xhr.onerror = function () {
+          reject(new Error("Network error during upload"));
+        };
+
+        xhr.send(formData);
+      });
+
+      const uploadJson = await uploadPromise;
 
       const fileUrl = uploadJson.filepath;
       if (!fileUrl) {
@@ -188,7 +218,7 @@ export function FileUploadDialog({
           <DialogTitle>Upload the Scanned Copy of the Certificate</DialogTitle>
           <DialogDescription>
             Drag & drop a file, or click to select. Supported formats: JPEG,
-            PNG, PDF.
+            PNG, PDF. No file size limit.
           </DialogDescription>
         </DialogHeader>
 
@@ -210,6 +240,12 @@ export function FileUploadDialog({
                 <p className="text-xs text-muted-foreground">
                   Supported formats: JPEG, PNG, PDF
                 </p>
+                {file && (
+                  <p className="text-xs font-medium">
+                    Selected: {file.name} (
+                    {(file.size / (1024 * 1024)).toFixed(2)} MB)
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -244,6 +280,18 @@ export function FileUploadDialog({
             </div>
           </div>
         </div>
+
+        {isLoading && uploadProgress > 0 && (
+          <div className="w-full mt-4">
+            <div className="text-sm mb-1">Uploading: {uploadProgress}%</div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-primary h-2.5 rounded-full"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
 
         <DialogFooter className="p-4 border-t">
           <Button

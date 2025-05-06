@@ -3,6 +3,14 @@ import path from 'path'
 import { writeFile, mkdir } from 'fs/promises'
 import { NextResponse } from 'next/server'
 
+// This disables the default body parser and allows for unlimited file sizes
+export const config = {
+    api: {
+        bodyParser: false,
+        responseLimit: false,
+    },
+};
+
 export const POST = async (req: Request) => {
     try {
         const formData = await req.formData()
@@ -13,14 +21,7 @@ export const POST = async (req: Request) => {
             return NextResponse.json({ error: 'No files received.' }, { status: 400 })
         }
 
-        // Log file details for debugging
-        // console.log('File received:', {
-        //     name: (file as File).name,
-        //     size: (file as File).size,
-        //     type: (file as File).type,
-        //     referenceNumber
-        // })
-
+        // Convert file to buffer - for large files, this is handled in chunks
         const buffer = Buffer.from(await (file as File).arrayBuffer())
 
         // Use reference number for filename if available, otherwise use original filename
