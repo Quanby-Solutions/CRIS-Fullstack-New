@@ -173,6 +173,31 @@ export async function GET(request: Request) {
     weightGroups[key]++
   }
 
+  // Build placeOfBirthGroups
+  const placeOfBirthLabels = ['Health facility', 'Home', 'Others'] as const
+  const placeOfBirthGroups = initGroups(placeOfBirthLabels)
+  for (const { birthCertificateForm } of forms) {
+    if (!birthCertificateForm) continue
+    const pb = birthCertificateForm.placeOfBirth as any
+    const hospital = (pb.hospital ?? '').toLowerCase()
+
+    let category: typeof placeOfBirthLabels[number]
+    if (
+      hospital.includes('hospital') ||
+      hospital.includes('clinic') ||
+      hospital.includes('medical')
+    ) {
+      category = 'Health facility'
+    } else if (hospital.includes('barangay')
+    ) {
+      category = 'Home'
+    } else {
+      category = 'Others'
+    }
+
+    placeOfBirthGroups[category]++
+  }
+
   return NextResponse.json({
     totalCount,
     monthlyData,
@@ -182,6 +207,7 @@ export async function GET(request: Request) {
     marriageLegitimacyGroups,
     attendantTypeGroups,
     birthRegistrationStatusGroups,
-    weightGroups
+    weightGroups,
+    placeOfBirthGroups
   })
 }

@@ -2,6 +2,7 @@
 import { create } from 'zustand'
 
 interface ReportsState {
+    attendantTypeGroups: any;
     birthData: { year: number; male: number; female: number }[]
     deathData: { year: number; male: number; female: number }[]
     marriageData: { year: number; totalMarriages: number; residents: number; nonResidents: number }[]

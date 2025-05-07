@@ -28,6 +28,7 @@ export default function LiveBirthGenderReportWithFilter() {
     attendantTypeGroups,
     birthRegistrationStatusGroups,
     weightGroups,
+    placeOfBirthGroups,
     loading,
     error,
     fetchReport
@@ -97,6 +98,14 @@ export default function LiveBirthGenderReportWithFilter() {
     rows.push(['Weight at Birth'])
     rows.push(['Range','Count'])
     Object.entries(weightGroups).forEach(([k,v]) => {
+      rows.push([k, v])
+    })
+    rows.push([])
+
+    // Place of Birth
+    rows.push(['Place of Birth Distribution'])
+    rows.push(['Category','Count'])
+    Object.entries(placeOfBirthGroups).forEach(([k, v]) => {
       rows.push([k, v])
     })
 
@@ -186,6 +195,13 @@ export default function LiveBirthGenderReportWithFilter() {
             data={weightGroups}
             keyLabel="Range"
           />
+
+          {/* Place of Birth */}
+          <KeyValueTable
+            title="Place of Birth Distribution"
+            data={placeOfBirthGroups}
+            keyLabel="Category"
+          />
         </div>
       )}
     </div>
@@ -240,7 +256,6 @@ function OverflowTable({ headers, rows }: {
         </thead>
         <tbody>
           {rows.map((r,i)=>(
-
             <tr key={i}>
               {r.map((c,j)=>(
                 <td key={j} className={`border px-3 py-1 ${j>0?'text-right':''}`}>
