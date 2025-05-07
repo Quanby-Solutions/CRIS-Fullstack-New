@@ -119,15 +119,20 @@ export function MarriageAgePyramidChart() {
       data.ageBucketData.reduce((sum, item) => sum + item.female, 0);
 
     // Convert to percentages and negate male values for left side of chart
-    const processed = data.ageBucketData.map((item) => ({
-      label: item.label,
-      // Negate male values for left side of the pyramid
-      male: -((item.male / totalMale) * 100),
-      female: (item.female / totalFemale) * 100,
-      // Keep original values for tooltip display
-      originalMale: item.male,
-      originalFemale: item.female,
-    }));
+    const processed = data.ageBucketData.map((item) => {
+      const malePercentage = ((item.male / totalMale) * 100).toFixed(2);
+      const femalePercentage = ((item.female / totalFemale) * 100).toFixed(2);
+
+      return {
+        label: item.label,
+        // Negate male values for left side of the pyramid
+        male: -parseFloat(malePercentage),
+        female: parseFloat(femalePercentage),
+        // Keep original values for tooltip display
+        originalMale: item.male,
+        originalFemale: item.female,
+      };
+    });
 
     // Sort from youngest to oldest
     const orderedBuckets = [
@@ -210,8 +215,8 @@ export function MarriageAgePyramidChart() {
                 <XAxis
                   type="number"
                   tickFormatter={(value) => `${Math.abs(value).toFixed(1)}%`}
-                  domain={[-40, 40]}
-                  ticks={[-40, -30, -20, -10, 0, 10, 20, 30, 40]}
+                  domain={[-50, 50]} // Changed from [-40, 40] to [-50, 50]
+                  ticks={[-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50]} // Updated tick values
                 />
                 <YAxis
                   dataKey="label"
@@ -225,13 +230,13 @@ export function MarriageAgePyramidChart() {
                 <Bar
                   dataKey="male"
                   name="Male"
-                  fill="#9c27b0"
+                  fill="hsl(var(--chart-1))"
                   radius={[0, 0, 0, 0]}
                 />
                 <Bar
                   dataKey="female"
                   name="Female"
-                  fill="#f48fb1"
+                  fill="hsl(var(--chart-4))"
                   radius={[0, 0, 0, 0]}
                 />
               </BarChart>

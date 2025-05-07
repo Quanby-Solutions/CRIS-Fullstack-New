@@ -1,9 +1,15 @@
+//api/marriage-report/base/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // TS shapes for JSON columns
 interface LicenseDetails { marriageAgreement?: boolean }
 interface DelayedAffidavit { delayedRegistration?: 'No' | 'Yes' }
+interface SolemnizingOfficer {
+    name?: string;
+    position?: string;
+    registryNoExpiryDate?: string
+}
 
 export async function GET(request: NextRequest) {
     try {
@@ -30,6 +36,7 @@ export async function GET(request: NextRequest) {
                         wifeAge: true,
                         marriageLicenseDetails: true,
                         affidavitOfdelayedRegistration: true,
+                        solemnizingOfficer: true,
                     }
                 }
             }
@@ -52,6 +59,44 @@ export async function GET(request: NextRequest) {
             return aff?.delayedRegistration === 'No'
         }).length
         const late = total - onTime
+
+        // Count ceremony types based on solemnizing officer position
+        let civilCeremony = 0
+        let romanCatholic = 0
+        let muslim = 0
+        let tribal = 0
+        let otherReligious = 0
+
+        // Define pattern arrays for each category
+        const civilPatterns = ['mayor', 'judge', 'justice', 'fiscal', 'attorney', 'lawyer', 'court'];
+        const catholicPatterns = ['father', 'rev.', 'rev ', 'reverend', 'priest', 'pastor', 'bishop', 'cardinal', 'deacon', 'minister', 'fr.', 'fr '];
+        const muslimPatterns = ['imam', 'ustadz', 'sheikh', 'islamic', 'muslim'];
+        const tribalPatterns = ['tribal', 'elder', 'indigenous', 'chieftain', 'datu', 'chief'];
+
+        validForms.forEach(f => {
+            const officer = f.marriageCertificateForm!.solemnizingOfficer as SolemnizingOfficer;
+            // Convert to lowercase and ensure it's a string
+            const position = (officer?.position || '').toString().toLowerCase().trim();
+
+            // Use some() to check if any pattern matches
+            const isCivil = civilPatterns.some(pattern => position.includes(pattern));
+            const isCatholic = catholicPatterns.some(pattern => position.includes(pattern));
+            const isMuslim = muslimPatterns.some(pattern => position.includes(pattern));
+            const isTribal = tribalPatterns.some(pattern => position.includes(pattern));
+
+            // Categorize based on matches
+            if (isCivil) {
+                civilCeremony++;
+            } else if (isCatholic) {
+                romanCatholic++;
+            } else if (isMuslim) {
+                muslim++;
+            } else if (isTribal) {
+                tribal++;
+            } else {
+                otherReligious++;
+            }
+        })
 
         // Age buckets
         const buckets = [
@@ -86,8 +131,18 @@ export async function GET(request: NextRequest) {
         })
 
         return NextResponse.json({
-            data: validForms,
-            summary: { total, withLicense, noLicense, onTime, late },
+            summary: {
+                total,
+                withLicense,
+                noLicense,
+                onTime,
+                late,
+                civilCeremony,
+                romanCatholic,
+                muslim,
+                tribal,
+                otherReligious
+            },
             ageCounts
         }, { status: 200 })
 

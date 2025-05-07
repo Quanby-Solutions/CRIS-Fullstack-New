@@ -10,6 +10,7 @@ import { Icons } from "@/components/ui/icons";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { MarriageAgePyramidChart } from "./components/marriage-per-age";
+import { WeddingRitesComparison } from "./components/marriage-wedding-rites";
 
 export default function DashboardContent() {
   const { t } = useTranslation();
@@ -58,15 +59,12 @@ export default function DashboardContent() {
       <ChartsDashboard selectedMetric={selectedMetric} /> */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <MarriageAgePyramidChart />
+        <WeddingRitesComparison />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {/* birth */}
-      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{/* birth */}</div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {/* death */}
-      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{/* death */}</div>
     </div>
   );
 }

@@ -24,6 +24,11 @@ interface Summary {
   noLicense: number;
   onTime: number;
   late: number;
+  civilCeremony: number;
+  romanCatholic: number;
+  muslim: number;
+  tribal: number;
+  otherReligious: number;
 }
 
 interface AgeCount {
@@ -92,13 +97,13 @@ export default function Interface() {
     fetchData();
   }, []);
 
-  // --- Export helpers ---
+  // --- Export helpers (include new fields) ---
   const exportCSV = () => {
     if (!summary) return;
     let csv = "";
     csv +=
-      "No. of Marriage,With Marriage License,No Marriage License,On Time Registration,Late Registration\n";
-    csv += `${summary.total},${summary.withLicense},${summary.noLicense},${summary.onTime},${summary.late}\n\n`;
+      "No. of Marriage,With Marriage License,No Marriage License,On Time Registration,Late Registration,Civil Ceremony,Roman Catholic,Muslim,Tribal,Other Religious Rites\n";
+    csv += `${summary.total},${summary.withLicense},${summary.noLicense},${summary.onTime},${summary.late},${summary.civilCeremony},${summary.romanCatholic},${summary.muslim},${summary.tribal},${summary.otherReligious}\n\n`;
     csv += "Age Range,Age of Bride,Age of Groom\n";
     ageCounts.forEach(({ bucket, bride, groom }) => {
       csv += `${bucket},${bride},${groom}\n`;
@@ -121,9 +126,14 @@ export default function Interface() {
       "No Marriage License",
       "On Time Registration",
       "Late Registration",
+      "Civil Ceremony",
+      "Roman Catholic",
+      "Muslim",
+      "Tribal",
+      "Other Religious Rites",
     ].forEach((h) => (html += `<th>${h}</th>`));
     html += "</tr><tr>";
-    html += `<td>${summary.total}</td><td>${summary.withLicense}</td><td>${summary.noLicense}</td><td>${summary.onTime}</td><td>${summary.late}</td></tr><tr><td colspan="5"></td></tr><tr>`;
+    html += `<td>${summary.total}</td><td>${summary.withLicense}</td><td>${summary.noLicense}</td><td>${summary.onTime}</td><td>${summary.late}</td><td>${summary.civilCeremony}</td><td>${summary.romanCatholic}</td><td>${summary.muslim}</td><td>${summary.tribal}</td><td>${summary.otherReligious}</td></tr><tr><td colspan=\"10\"></td></tr><tr>`;
     ["Age Range", "Age of Bride", "Age of Groom"].forEach(
       (h) => (html += `<th>${h}</th>`)
     );
@@ -218,6 +228,11 @@ export default function Interface() {
               <TableHead>No Marriage License</TableHead>
               <TableHead>On Time Registration</TableHead>
               <TableHead>Late Registration</TableHead>
+              <TableHead>Civil Ceremony</TableHead>
+              <TableHead>Roman Catholic</TableHead>
+              <TableHead>Muslim</TableHead>
+              <TableHead>Tribal</TableHead>
+              <TableHead>Other Religious Rites</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -227,6 +242,11 @@ export default function Interface() {
               <TableCell>{summary.noLicense}</TableCell>
               <TableCell>{summary.onTime}</TableCell>
               <TableCell>{summary.late}</TableCell>
+              <TableCell>{summary.civilCeremony}</TableCell>
+              <TableCell>{summary.romanCatholic}</TableCell>
+              <TableCell>{summary.muslim}</TableCell>
+              <TableCell>{summary.tribal}</TableCell>
+              <TableCell>{summary.otherReligious}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
