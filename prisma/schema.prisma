@@ -193,7 +193,6 @@ model MarriageCertificateForm {
   husbandMiddleName           String?
   husbandLastName             String
   husbandDateOfBirth          DateTime
-  x                   Int
   husbandPlaceOfBirth         Json?
   husbandSex                  Sex?
   husbandCitizenship          String
