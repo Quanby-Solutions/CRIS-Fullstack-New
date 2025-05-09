@@ -25,28 +25,11 @@ interface AgeGenderCount {
     grandTotal: number;
 }
 
-interface Residence {
-    cityMunicipality?: string;
-    barangay?: string;
+// Monthly breakdown structure
+interface MonthlyDemographicData {
+    [barangay: string]: AgeGenderCount;
 }
-
-interface DeathCertificateForm {
-    residence?: Residence;
-    sex?: "Male" | "Female";
-    ageAtDeath?: any; // Adjust this type as needed
-}
-
-interface BaseRegistryForm {
-    formType: string;
-    dateOfRegistration: Date;
-    deathCertificateForm?: DeathCertificateForm;
-}
-
-interface DeathsByDemographicData {
-    deathsByDemographic: Record<string, AgeGenderCount>;
-    totalsByDemographic: AgeGenderCount;
-    year: number;
-}
+import { Sex } from '@prisma/client'; // Import the Sex enum from Prisma
 
 export async function GET(request: NextRequest) {
     try {
@@ -80,6 +63,12 @@ export async function GET(request: NextRequest) {
         // Initialize data structure for counting deaths by barangay, age group, and gender
         const deathsByDemographic: Record<string, AgeGenderCount> = {};
 
+        // Initialize monthly data structure
+        const monthlyData: Record<string, MonthlyDemographicData> = {};
+        for (let month = 1; month <= 12; month++) {
+            monthlyData[month] = {};
+        }
+
         // Initialize counts for each barangay
         const initializeAgeGenderCount = (): AgeGenderCount => ({
             male: {
@@ -106,21 +95,46 @@ export async function GET(request: NextRequest) {
         // Initialize all Legazpi barangays
         legazpiBarangays.forEach((barangay) => {
             deathsByDemographic[barangay] = initializeAgeGenderCount();
+
+            // Initialize each barangay in monthly data
+            for (let month = 1; month <= 12; month++) {
+                monthlyData[month][barangay] = initializeAgeGenderCount();
+            }
+        });
+
+        // Also initialize special categories for non-Legazpi deaths
+        const specialCategories = [
+            "Outside Legazpi (Philippines)",
+            "Foreign Countries",
+            "Outside Legazpi",
+            "Unknown"
+        ];
+
+        specialCategories.forEach(category => {
+            deathsByDemographic[category] = initializeAgeGenderCount();
+
+            // Initialize each special category in monthly data
+            for (let month = 1; month <= 12; month++) {
+                monthlyData[month][category] = initializeAgeGenderCount();
+            }
         });
 
         // Helper function to determine age group
         const getAgeGroup = (ageAtDeath: any) => {
             if (!ageAtDeath) return null;
+
             // Parse age values, defaulting to 0 if undefined
             const years = ageAtDeath.years !== undefined ? parseInt(ageAtDeath.years) : 0;
             const months = ageAtDeath.months !== undefined ? parseInt(ageAtDeath.months) : 0;
             const days = ageAtDeath.days !== undefined ? parseInt(ageAtDeath.days) : 0;
             const hours = ageAtDeath.hours !== undefined ? parseInt(ageAtDeath.hours) : 0;
             const minutes = ageAtDeath.minutes !== undefined ? parseInt(ageAtDeath.minutes) : 0;
+
             // If years is 0 or undefined, but other values are present, it's less than 1 year
             if ((years === 0 || years === undefined) && (months > 0 || days > 0 || hours > 0 || minutes > 0)) {
                 return "lessThan1Year";
             }
+
             // Age groups based on years
             if (years === 0) return "lessThan1Year";
             if (years >= 1 && years <= 4) return "oneToFourYears";
@@ -128,6 +142,7 @@ export async function GET(request: NextRequest) {
             if (years >= 15 && years <= 49) return "fifteenToFortyNineYears";
             if (years >= 50 && years <= 64) return "fiftyToSixtyFourYears";
             if (years >= 65) return "sixtyFiveAndAbove";
+
             // Default case if something went wrong
             return null;
         };
@@ -137,32 +152,50 @@ export async function GET(request: NextRequest) {
             const deathForm = record.deathCertificateForm;
             if (!deathForm) return;
 
-            // Check if the residence cityMunicipality is Legazpi City or City of Legazpi
-            const residence = deathForm.residence as Residence | undefined;
-            // if (
-            //     residence?.cityMunicipality !== "Legazpi City" &&
-            //     residence?.cityMunicipality !== "City of Legazpi"
-            // ) {
-            //     return;
-            // }
+            // Get month from date of registration
+            const month = new Date(record.dateOfRegistration).getMonth() + 1;
 
             // Determine barangay
             let barangay = "Unknown";
-            if (
-                residence?.barangay &&
-                legazpiBarangays.includes(residence.barangay)
-            ) {
-                barangay = residence.barangay;
+
+            if (deathForm.placeOfDeath) {
+                let placeOfDeath: any;
+
+                if (typeof deathForm.placeOfDeath === "string") {
+                    try {
+                        placeOfDeath = JSON.parse(deathForm.placeOfDeath);
+                    } catch (e) {
+                        console.error("Error parsing placeOfDeath JSON:", e);
+                    }
+                } else {
+                    placeOfDeath = deathForm.placeOfDeath;
+                }
+
+                if (placeOfDeath) {
+                    if (placeOfDeath.barangay && legazpiBarangays.includes(placeOfDeath.barangay)) {
+                        barangay = placeOfDeath.barangay;
+                    } else if (placeOfDeath.country && placeOfDeath.country !== "PHILIPPINES") {
+                        barangay = "Foreign Countries";
+                    } else if (placeOfDeath.country === "PHILIPPINES" && placeOfDeath.cityMunicipality !== "LEGAZPI CITY") {
+                        barangay = "Outside Legazpi (Philippines)";
+                    } else if (placeOfDeath.cityMunicipality && placeOfDeath.cityMunicipality !== "LEGAZPI CITY") {
+                        barangay = "Outside Legazpi";
+                    }
+                }
             }
 
             // Ensure barangay exists in our data structures
             if (!deathsByDemographic[barangay]) {
                 deathsByDemographic[barangay] = initializeAgeGenderCount();
             }
+            if (!monthlyData[month][barangay]) {
+                monthlyData[month][barangay] = initializeAgeGenderCount();
+            }
 
-            // Determine gender (sex) - direct from deathCertificateForm
-            const gender = deathForm.sex === "Female" ? "female" : "male";
-
+            let gender: 'male' | 'female' = 'male'; // default
+            if (deathForm.sex && deathForm.sex === "Female" as Sex) {
+                gender = 'female';
+            }
             // Parse age at death
             let ageAtDeath;
             if (deathForm.ageAtDeath) {
@@ -186,11 +219,46 @@ export async function GET(request: NextRequest) {
                 deathsByDemographic[barangay][gender][ageGroup]++;
                 deathsByDemographic[barangay][gender].total++;
                 deathsByDemographic[barangay].grandTotal++;
+
+                monthlyData[month][barangay][gender][ageGroup]++;
+                monthlyData[month][barangay][gender].total++;
+                monthlyData[month][barangay].grandTotal++;
             }
         });
 
         // Calculate totals across all barangays
         const totalsByDemographic: AgeGenderCount = initializeAgeGenderCount();
+
+        // Monthly totals
+        const totalsByMonth: Record<string, AgeGenderCount> = {};
+        for (let month = 1; month <= 12; month++) {
+            totalsByMonth[month] = initializeAgeGenderCount();
+
+            Object.values(monthlyData[month]).forEach(counts => {
+                // Male totals
+                totalsByMonth[month].male.lessThan1Year += counts.male.lessThan1Year;
+                totalsByMonth[month].male.oneToFourYears += counts.male.oneToFourYears;
+                totalsByMonth[month].male.fiveToFourteenYears += counts.male.fiveToFourteenYears;
+                totalsByMonth[month].male.fifteenToFortyNineYears += counts.male.fifteenToFortyNineYears;
+                totalsByMonth[month].male.fiftyToSixtyFourYears += counts.male.fiftyToSixtyFourYears;
+                totalsByMonth[month].male.sixtyFiveAndAbove += counts.male.sixtyFiveAndAbove;
+                totalsByMonth[month].male.total += counts.male.total;
+
+                // Female totals
+                totalsByMonth[month].female.lessThan1Year += counts.female.lessThan1Year;
+                totalsByMonth[month].female.oneToFourYears += counts.female.oneToFourYears;
+                totalsByMonth[month].female.fiveToFourteenYears += counts.female.fiveToFourteenYears;
+                totalsByMonth[month].female.fifteenToFortyNineYears += counts.female.fifteenToFortyNineYears;
+                totalsByMonth[month].female.fiftyToSixtyFourYears += counts.female.fiftyToSixtyFourYears;
+                totalsByMonth[month].female.sixtyFiveAndAbove += counts.female.sixtyFiveAndAbove;
+                totalsByMonth[month].female.total += counts.female.total;
+
+                // Grand total
+                totalsByMonth[month].grandTotal += counts.grandTotal;
+            });
+        }
+
+        // Overall totals
         Object.values(deathsByDemographic).forEach(counts => {
             // Male totals
             totalsByDemographic.male.lessThan1Year += counts.male.lessThan1Year;
@@ -200,6 +268,7 @@ export async function GET(request: NextRequest) {
             totalsByDemographic.male.fiftyToSixtyFourYears += counts.male.fiftyToSixtyFourYears;
             totalsByDemographic.male.sixtyFiveAndAbove += counts.male.sixtyFiveAndAbove;
             totalsByDemographic.male.total += counts.male.total;
+
             // Female totals
             totalsByDemographic.female.lessThan1Year += counts.female.lessThan1Year;
             totalsByDemographic.female.oneToFourYears += counts.female.oneToFourYears;
@@ -208,6 +277,7 @@ export async function GET(request: NextRequest) {
             totalsByDemographic.female.fiftyToSixtyFourYears += counts.female.fiftyToSixtyFourYears;
             totalsByDemographic.female.sixtyFiveAndAbove += counts.female.sixtyFiveAndAbove;
             totalsByDemographic.female.total += counts.female.total;
+
             // Grand total
             totalsByDemographic.grandTotal += counts.grandTotal;
         });
@@ -216,6 +286,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             deathsByDemographic,
             totalsByDemographic,
+            monthlyData,
+            totalsByMonth,
             year,
         });
     } catch (error: any) {

@@ -17,7 +17,7 @@ export const legazpiData = {
       "Ilawod",
       "Ilawod East",
       "Kawit-East Washington Drive",
-      "Rizal Street, Ilawod",
+      "Rizal Street Ilawod",
       "Cabagñan West",
       "Cabagñan",
       "Cabagñan East",

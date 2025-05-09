@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -11,8 +12,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { legazpiData } from "@/lib/utils/barangay";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 
 interface DeathsByDemographicProps {
@@ -44,6 +45,8 @@ interface AgeGenderCount {
 interface DeathsByDemographicData {
   deathsByDemographic: Record<string, AgeGenderCount>;
   totalsByDemographic: AgeGenderCount;
+  monthlyData: Record<string, Record<string, AgeGenderCount>>;
+  totalsByMonth: Record<string, AgeGenderCount>;
   year: number;
 }
 
@@ -52,19 +55,25 @@ const DeathsByDemographicInterface = ({ year }: DeathsByDemographicProps) => {
   const [data, setData] = useState<DeathsByDemographicData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showEmptyRows, setShowEmptyRows] = useState<boolean>(false);
+  const [displayMode, setDisplayMode] = useState<"byBarangay" | "byMonth">(
+    "byBarangay"
+  );
+  const [selectedMonth, setSelectedMonth] = useState<number>(1);
 
   // Fetch data function
   const fetchData = async (selectedYear: number) => {
     setLoading(true);
     setError(null);
+
     try {
       const response = await fetch(
         `/api/death-report/deaths-by-demographic?year=${selectedYear}`
       );
+
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}`);
       }
+
       const demographicData: DeathsByDemographicData = await response.json();
       console.log("Deaths by demographic data:", demographicData); // Log for debugging
       setData(demographicData);
@@ -86,32 +95,70 @@ const DeathsByDemographicInterface = ({ year }: DeathsByDemographicProps) => {
   // Get sorted list of barangays
   const getSortedBarangays = (): string[] => {
     if (!data) return [];
+
     // Get Legazpi barangays in their defined order
     const legazpiBarangays = legazpiData["LEGAZPI CITY"].barangay_list;
-    // Return all barangays, or only those with data depending on the filter
-    if (showEmptyRows) {
-      return legazpiBarangays;
-    } else {
-      return legazpiBarangays.filter((barangay) => shouldDisplayRow(barangay));
-    }
+
+    // Get all barangays from the data
+    const dataBarangays = Object.keys(data.deathsByDemographic);
+
+    // Filter out special categories
+    const specialCategories = [
+      "Outside Legazpi (Philippines)",
+      "Foreign Countries",
+      "Outside Legazpi",
+      "Unknown",
+    ];
+
+    // Sort Legazpi barangays first, then special categories
+    return [
+      ...legazpiBarangays.filter((b) => dataBarangays.includes(b)),
+      ...specialCategories.filter((c) => dataBarangays.includes(c)),
+    ];
   };
 
   // Helper to determine if a row should be displayed (has at least one non-zero value)
   const shouldDisplayRow = (barangay: string): boolean => {
     if (!data) return false;
-    return data.deathsByDemographic[barangay]?.grandTotal > 0;
+
+    if (displayMode === "byBarangay") {
+      return data.deathsByDemographic[barangay]?.grandTotal > 0;
+    } else {
+      // By month mode
+      const monthStr = selectedMonth.toString();
+      return data.monthlyData[monthStr]?.[barangay]?.grandTotal > 0;
+    }
+  };
+
+  // Format month name
+  const formatMonth = (month: number): string => {
+    return new Date(2000, month - 1, 1).toLocaleString("default", {
+      month: "long",
+    });
   };
 
   // Get data for the current view mode
   const getCurrentData = (barangay: string) => {
     if (!data) return null;
-    return data.deathsByDemographic[barangay];
+
+    if (displayMode === "byBarangay") {
+      return data.deathsByDemographic[barangay];
+    } else {
+      const monthStr = selectedMonth.toString();
+      return data.monthlyData[monthStr]?.[barangay];
+    }
   };
 
   // Get totals for the current view mode
   const getCurrentTotals = () => {
     if (!data) return null;
-    return data.totalsByDemographic;
+
+    if (displayMode === "byBarangay") {
+      return data.totalsByDemographic;
+    } else {
+      const monthStr = selectedMonth.toString();
+      return data.totalsByMonth[monthStr];
+    }
   };
 
   return (
@@ -128,23 +175,51 @@ const DeathsByDemographicInterface = ({ year }: DeathsByDemographicProps) => {
         <>
           <Card>
             <CardHeader className="pb-2">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+              <div className="flex justify-between items-center">
                 <CardTitle>
                   Number of Deaths by Barangays, Age Group and Gender -{" "}
                   {data?.year || year}
                 </CardTitle>
-                <div className="flex flex-wrap gap-2 items-center">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="show-empty-rows"
-                      checked={showEmptyRows}
-                      onCheckedChange={setShowEmptyRows}
-                    />
-                    <Label htmlFor="show-empty-rows">Show All Barangays</Label>
-                  </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant={
+                      displayMode === "byBarangay" ? "default" : "outline"
+                    }
+                    onClick={() => setDisplayMode("byBarangay")}
+                    size="sm"
+                  >
+                    By Barangay
+                  </Button>
+                  <Button
+                    variant={displayMode === "byMonth" ? "default" : "outline"}
+                    onClick={() => setDisplayMode("byMonth")}
+                    size="sm"
+                  >
+                    By Month
+                  </Button>
                 </div>
               </div>
             </CardHeader>
+
+            {displayMode === "byMonth" && (
+              <div className="px-6 pt-2">
+                <div className="flex items-center space-x-2 mb-4">
+                  <span className="text-sm font-medium">Select Month:</span>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                    className="rounded border border-gray-300 px-2 py-1"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {formatMonth(i + 1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
             <CardContent>
               <div className="overflow-x-auto">
                 <Table className="border-collapse border border-gray-200">
@@ -160,7 +235,7 @@ const DeathsByDemographicInterface = ({ year }: DeathsByDemographicProps) => {
                         colSpan={2}
                         className="border border-gray-200 bg-yellow-100 font-bold text-center"
                       >
-                        {"<1"}
+                        &lt;1
                       </TableHead>
                       <TableHead
                         colSpan={2}
@@ -190,7 +265,7 @@ const DeathsByDemographicInterface = ({ year }: DeathsByDemographicProps) => {
                         colSpan={2}
                         className="border border-gray-200 bg-yellow-100 font-bold text-center"
                       >
-                        65+
+                        65 ABOVE
                       </TableHead>
                       <TableHead
                         colSpan={2}
@@ -224,79 +299,141 @@ const DeathsByDemographicInterface = ({ year }: DeathsByDemographicProps) => {
                   <TableBody>
                     {/* Barangay rows */}
                     {data &&
-                      getSortedBarangays().map((barangay) => {
-                        const barangayData = getCurrentData(barangay);
-                        if (!barangayData) return null;
-                        return (
-                          <TableRow
-                            key={barangay}
-                            className={
-                              barangayData.grandTotal === 0
-                                ? "text-gray-400"
-                                : ""
-                            }
-                          >
-                            <TableCell className="border border-gray-200 font-medium">
-                              {barangay}
-                            </TableCell>
-                            {/* Less than 1 year */}
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.male.lessThan1Year || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.female.lessThan1Year || ""}
-                            </TableCell>
-                            {/* 1-4 years */}
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.male.oneToFourYears || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.female.oneToFourYears || ""}
-                            </TableCell>
-                            {/* 5-14 years */}
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.male.fiveToFourteenYears || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.female.fiveToFourteenYears || ""}
-                            </TableCell>
-                            {/* 15-49 years */}
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.male.fifteenToFortyNineYears || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.female.fifteenToFortyNineYears ||
-                                ""}
-                            </TableCell>
-                            {/* 50-64 years */}
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.male.fiftyToSixtyFourYears || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.female.fiftyToSixtyFourYears || ""}
-                            </TableCell>
-                            {/* 65+ years */}
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.male.sixtyFiveAndAbove || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center">
-                              {barangayData.female.sixtyFiveAndAbove || ""}
-                            </TableCell>
-                            {/* Total */}
-                            <TableCell className="border border-gray-200 text-center font-semibold">
-                              {barangayData.male.total || ""}
-                            </TableCell>
-                            <TableCell className="border border-gray-200 text-center font-semibold">
-                              {barangayData.female.total || ""}
-                            </TableCell>
-                            {/* Grand Total */}
-                            <TableCell className="border border-gray-200 text-center font-bold">
-                              {barangayData.grandTotal || ""}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    {/* Totals row - FIXED */}
+                      getSortedBarangays()
+                        .filter((barangay) => shouldDisplayRow(barangay))
+                        .map((barangay) => {
+                          const barangayData = getCurrentData(barangay);
+                          if (!barangayData) return null;
+
+                          return (
+                            <TableRow key={barangay}>
+                              <TableCell className="border border-gray-200 font-medium">
+                                {barangay}
+                              </TableCell>
+                              {/* Less than 1 year */}
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.male.lessThan1Year || ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.female.lessThan1Year || ""}
+                              </TableCell>
+                              {/* 1-4 years */}
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.male.oneToFourYears || ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.female.oneToFourYears || ""}
+                              </TableCell>
+                              {/* 5-14 years */}
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.male.fiveToFourteenYears || ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.female.fiveToFourteenYears || ""}
+                              </TableCell>
+                              {/* 15-49 years */}
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.male.fifteenToFortyNineYears ||
+                                  ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.female.fifteenToFortyNineYears ||
+                                  ""}
+                              </TableCell>
+                              {/* 50-64 years */}
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.male.fiftyToSixtyFourYears || ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.female.fiftyToSixtyFourYears ||
+                                  ""}
+                              </TableCell>
+                              {/* 65+ years */}
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.male.sixtyFiveAndAbove || ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center">
+                                {barangayData.female.sixtyFiveAndAbove || ""}
+                              </TableCell>
+                              {/* Total */}
+                              <TableCell className="border border-gray-200 text-center font-semibold">
+                                {barangayData.male.total || ""}
+                              </TableCell>
+                              <TableCell className="border border-gray-200 text-center font-semibold">
+                                {barangayData.female.total || ""}
+                              </TableCell>
+                              {/* Grand Total */}
+                              <TableCell className="border border-gray-200 text-center font-bold">
+                                {barangayData.grandTotal || ""}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+
+                    {/* Totals row */}
+                    {data && (
+                      <TableRow className="bg-gray-100">
+                        <TableCell className="border border-gray-200 font-bold">
+                          TOTAL
+                        </TableCell>
+                        {/* Less than 1 year */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.lessThan1Year || ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.lessThan1Year || ""}
+                        </TableCell>
+                        {/* 1-4 years */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.oneToFourYears || ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.oneToFourYears || ""}
+                        </TableCell>
+                        {/* 5-14 years */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.fiveToFourteenYears || ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.fiveToFourteenYears || ""}
+                        </TableCell>
+                        {/* 15-49 years */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.fifteenToFortyNineYears ||
+                            ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.fifteenToFortyNineYears ||
+                            ""}
+                        </TableCell>
+                        {/* 50-64 years */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.fiftyToSixtyFourYears || ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.fiftyToSixtyFourYears ||
+                            ""}
+                        </TableCell>
+                        {/* 65+ years */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.sixtyFiveAndAbove || ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.sixtyFiveAndAbove || ""}
+                        </TableCell>
+                        {/* Total */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.male.total || ""}
+                        </TableCell>
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.female.total || ""}
+                        </TableCell>
+                        {/* Grand Total */}
+                        <TableCell className="border border-gray-200 text-center font-bold">
+                          {getCurrentTotals()?.grandTotal || ""}
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
