@@ -183,6 +183,73 @@ model BaseRegistryForm {
   @@map("base_registry_form")
 }
 
+// ------------------------------ 
+// DeathCertificateForm (Form 103) 
+// ------------------------------ 
+
+model DeathCertificateForm {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId String? @unique @db.Uuid
+
+  // Deceased Information
+  deceasedName Json // nameSchema structure (first, middle, last)
+  sex          Sex? // Enum: Male, Female
+  dateOfDeath  Json?
+  timeOfDeath  Json?
+  dateOfBirth  Json?
+  ageAtDeath   Json? // Object with years, months, days, hours
+  placeOfDeath Json? // residenceSchema structure
+  civilStatus  String
+  religion     String?
+  citizenship  String?
+  residence    Json // residenceSchema structure
+  occupation   String?
+
+  // Parents Information
+  parentInfo Json? // Contains fatherName and motherName as nameSchema
+
+  // Birth Information
+  birthInformation Json? // Contains ageOfMother, methodOfDelivery, lengthOfPregnancy, typeOfBirth, birthOrder
+
+  // Medical Certificate
+  medicalCertificate Json? // Contains causesOfDeath, maternalCondition, externalCauses, attendant, autopsy
+
+  causesOfDeath19a Json? // Standard cause of death (immediate, antecedent, underlying, otherSignificantConditions)
+
+  // Causes of Death sections
+  causesOfDeath19b Json? // Standard cause of death (immediate, antecedent, underlying, otherSignificantConditions)
+
+  // Certification of Death
+  certificationOfDeath Json? // Contains hasAttended, signature, nameInPrint, titleOfPosition, address, date, healthOfficerSignature, healthOfficerNameInPrint
+
+  // Review Information
+  reviewedBy Json? // Contains signature and date
+
+  // Optional Certificates
+  postmortemCertificate Json? // For autopsy cases
+  embalmerCertification Json? // For embalming cases
+  delayedRegistration   Json? // For late registrations
+
+  // Disposal Information
+  corpseDisposal      String?
+  burialPermit        Json? // Contains number and dateIssued
+  transferPermit      Json? // Optional, contains number and dateIssued
+  cemeteryOrCrematory Json? // Contains name and address (residenceSchema)
+
+  // Informant Information
+  informant Json? // Contains signature, nameInPrint, relationshipToDeceased, address, date
+
+  // Additional Fields
+  remarks String? // Additional remarks or annotations
+
+  // Relationships
+  baseForm BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+
+  @@index([dateOfDeath])
+  @@map("death_certificate_form")
+}
+
+
 // ------------------------------
 // MarriageCertificateForm (Form 97)
 // ------------------------------
@@ -295,70 +362,7 @@ model BirthCertificateForm {
   @@map("birth_certificate_form")
 }
 
-// ------------------------------ 
-// DeathCertificateForm (Form 103) 
-// ------------------------------ 
-model DeathCertificateForm {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId String? @unique @db.Uuid
 
-  // Deceased Information
-  deceasedName Json // nameSchema structure (first, middle, last)
-  sex          Sex? // Enum: Male, Female
-  dateOfDeath  Json?
-  timeOfDeath  Json?
-  dateOfBirth  Json?
-  ageAtDeath   Json? // Object with years, months, days, hours
-  placeOfDeath Json? // residenceSchema structure
-  civilStatus  String
-  religion     String?
-  citizenship  String?
-  residence    Json // residenceSchema structure
-  occupation   String?
-
-  // Parents Information
-  parentInfo Json? // Contains fatherName and motherName as nameSchema
-
-  // Birth Information
-  birthInformation Json? // Contains ageOfMother, methodOfDelivery, lengthOfPregnancy, typeOfBirth, birthOrder
-
-  // Medical Certificate
-  medicalCertificate Json? // Contains causesOfDeath, maternalCondition, externalCauses, attendant, autopsy
-
-  causesOfDeath19a Json? // Standard cause of death (immediate, antecedent, underlying, otherSignificantConditions)
-
-  // Causes of Death sections
-  causesOfDeath19b Json? // Standard cause of death (immediate, antecedent, underlying, otherSignificantConditions)
-
-  // Certification of Death
-  certificationOfDeath Json? // Contains hasAttended, signature, nameInPrint, titleOfPosition, address, date, healthOfficerSignature, healthOfficerNameInPrint
-
-  // Review Information
-  reviewedBy Json? // Contains signature and date
-
-  // Optional Certificates
-  postmortemCertificate Json? // For autopsy cases
-  embalmerCertification Json? // For embalming cases
-  delayedRegistration   Json? // For late registrations
-
-  // Disposal Information
-  corpseDisposal      String?
-  burialPermit        Json? // Contains number and dateIssued
-  transferPermit      Json? // Optional, contains number and dateIssued
-  cemeteryOrCrematory Json? // Contains name and address (residenceSchema)
-
-  // Informant Information
-  informant Json? // Contains signature, nameInPrint, relationshipToDeceased, address, date
-
-  // Additional Fields
-  remarks String? // Additional remarks or annotations
-
-  // Relationships
-  baseForm BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  @@index([dateOfDeath])
-  @@map("death_certificate_form")
-}
 
 // ------------------------------
 // CertifiedCopy
