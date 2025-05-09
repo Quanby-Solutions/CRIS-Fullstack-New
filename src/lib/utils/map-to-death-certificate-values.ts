@@ -150,62 +150,45 @@ export const mapToDeathCertificateValues = (
   };
 
   const parseJsonDateDeath = (value: any): Date | string | undefined => {
-    // If value is an object with a nested date property, extract the date
-    if (value && typeof value === 'object') {
-      if ('dateOfDeath' in value) {
-        value = value.dateOfDeath;
-      } else if ('dateOfBirth' in value) {
-        value = value.dateOfBirth;
+    // 1) if it’s the wrapper-object with an empty date, drop it
+    if (value != null && typeof value === "object") {
+      const { dateOfDeath, dateOfBirth } = value as any;
+      if (("dateOfDeath" in value && !dateOfDeath) ||
+        ("dateOfBirth" in value && !dateOfBirth)) {
+        return undefined;
+      }
+      // extract the real payload
+      value = dateOfDeath || dateOfBirth;
+    }
+
+    // 2) now exactly the same logic as your ISO/string/date parsing
+    if (value == null) return undefined;
+    if (value instanceof Date) return value;
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      const isoRx = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/;
+      const verbRx = /^[A-Za-z]+ \d{1,2}, \d{4}$/;
+
+      if (isoRx.test(trimmed)) {
+        const d = new Date(trimmed);
+        if (!isNaN(d.getTime())) return d;
+      }
+      if (verbRx.test(trimmed)) {
+        return trimmed;
       }
     }
 
-    if (value === null || value === undefined) return undefined;
-
-    // If it's already a Date object, return it
-    if (value instanceof Date) {
-      return value;
-    }
-
-    // If it's a string, try to parse it
-    if (typeof value === 'string') {
-      // Trim the string to remove any leading/trailing whitespace
-      const trimmedValue = value.trim();
-
-      // Check for ISO date/timestamp format with time
-      const isIsoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(trimmedValue);
-
-      // Check for more verbose date formats like "January 24, 2025"
-      const isVerboseDate = /^[A-Za-z]+ \d{1,2}, \d{4}$/.test(trimmedValue);
-
-      // If it's an ISO datetime, convert to Date
-      if (isIsoDateTime) {
-        try {
-          const date = new Date(trimmedValue);
-          if (!isNaN(date.getTime())) {
-            return date;
-          }
-        } catch {
-          // If parsing fails, continue
-        }
-      }
-
-      // If it's a verbose date format or doesn't look like a machine date, return as string
-      if (isVerboseDate || !isIsoDateTime) {
-        return trimmedValue;
-      }
-    }
-
-    // For other types, try to create a date or convert to string
+    // 3) catch-all attempt
     try {
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
-        return date;
-      }
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) return d;
     } catch { }
 
-    // Fallback to string conversion
-    return String(value);
+    // 4) fallback: undefined (not String(value))
+    return undefined;
   };
+
 
 
   // Helper to ensure non-null string values

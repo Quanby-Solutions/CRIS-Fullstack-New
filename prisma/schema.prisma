@@ -182,7 +182,6 @@ model BaseRegistryForm {
   @@index([dateOfRegistration])
   @@map("base_registry_form")
 }
-
 // ------------------------------ 
 // DeathCertificateForm (Form 103) 
 // ------------------------------ 

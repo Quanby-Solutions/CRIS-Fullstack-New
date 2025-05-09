@@ -80,75 +80,38 @@ const safeFormatDate = (date: unknown, dateFormat = "PP"): string => {
 };
 
 export const safeFormatDateForDeath = (dateField: any): string => {
-  // Handle empty values
+  // 1) Handle null / undefined / empty‐string cases right away
   if (!dateField) return "";
+  if (
+    typeof dateField === "object" &&
+    ("dateOfDeath" in dateField || "dateOfBirth" in dateField)
+  ) {
+    const dob = (dateField as any).dateOfDeath;
+    const dib = (dateField as any).dateOfBirth;
+    // if both are empty or the one is empty, bail out with empty
+    if (!dob && !dib) return "";
+    // otherwise re‐run on the inner string
+    const inner = dob || dib;
+    return safeFormatDateForDeath(inner);
+  }
 
+  // 2) From here on you know it's not the empty‐object case
   try {
-    // If it's a string that looks like JSON, try to parse it
-    if (typeof dateField === "string") {
-      // Check if it's a JSON string literal with quotes
-      if (
-        dateField.includes('"dateOfDeath"') ||
-        dateField.includes('"dateOfBirth"')
-      ) {
-        try {
-          const parsed = JSON.parse(dateField);
-          // Extract the actual date value
-          const dateValue = parsed.dateOfDeath || parsed.dateOfBirth;
-          if (dateValue) {
-            // Now handle the actual date string
-            const date = new Date(dateValue);
-            if (!isNaN(date.getTime())) {
-              // Format as "Jan 1, 2025"
-              return date.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              });
-            }
-            return dateValue; // Return the raw value if not a valid date
-          }
-        } catch (e) {
-          console.warn("Error parsing date JSON:", e);
-        }
-      }
-
-      // If it's an ISO date string directly
-      if (/^\d{4}-\d{2}-\d{2}T/.test(dateField)) {
-        const date = new Date(dateField);
-        if (!isNaN(date.getTime())) {
-          // Format as "Jan 1, 2025"
-          return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          });
-        }
-      }
-
-      // If it's a string with alphabetic characters (not months), return as is
-      if (
-        /[a-zA-Z]{4,}/.test(dateField) &&
-        !/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.test(dateField)
-      ) {
-        return dateField;
-      }
+    // If it's a JSON‐looking string, parse once to extract the real field
+    if (typeof dateField === "string" && dateField.trim().startsWith("{")) {
+      const parsed = JSON.parse(dateField);
+      const inner = parsed.dateOfDeath || parsed.dateOfBirth;
+      return safeFormatDateForDeath(inner);
     }
 
-    // If it's already an object with dateOfDeath/dateOfBirth properties
-    if (dateField && typeof dateField === "object") {
-      const dateValue = dateField.dateOfDeath || dateField.dateOfBirth;
-      if (dateValue) {
-        return safeFormatDateForDeath(dateValue);
-      }
-    }
-
-    // Try to create a Date object
-    if (dateField) {
-      const date = new Date(dateField);
-      if (!isNaN(date.getTime())) {
-        // Format as "Jan 1, 2025"
-        return date.toLocaleDateString("en-US", {
+    // 3) ISO date‐string?
+    if (
+      typeof dateField === "string" &&
+      /^\d{4}-\d{2}-\d{2}T/.test(dateField)
+    ) {
+      const d = new Date(dateField);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
           year: "numeric",
@@ -156,15 +119,20 @@ export const safeFormatDateForDeath = (dateField: any): string => {
       }
     }
 
-    // Default case: return as string but remove JSON formatting
-    const strValue = String(dateField);
-    if (strValue.startsWith("{") && strValue.endsWith("}")) {
-      return "Invalid date format";
+    // 4) Try any other object/string directly
+    const d = new Date(dateField);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
     }
-    return strValue;
-  } catch (error) {
-    console.warn("Error formatting death date:", error);
-    return "Error formatting date";
+
+    // 5) Fallback to empty if it's some other junk
+    return "";
+  } catch {
+    return "";
   }
 };
 
@@ -369,7 +337,7 @@ export const createColumns = (
             {details.dateOfDeath && (
               <div className="flex items-center space-x-2">
                 <span className="font-medium">{translate("dateOfDeath")}:</span>
-                <span>{details.dateOfDeath}</span>
+                <span>{details.dateOfDeath || ""}</span>
               </div>
             )}
             {(details.husbandFirstName || details.husbandLastName) && (
