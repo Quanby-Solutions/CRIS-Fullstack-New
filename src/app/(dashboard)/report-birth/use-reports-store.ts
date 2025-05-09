@@ -30,6 +30,7 @@ interface ReportsState {
   attendantTypeGroups:           Record<'Physician'|'Nurse'|'Midwife'|'Hilot'|'Others',number>
   birthRegistrationStatusGroups: Record<'On time registration'|'Late registration',number>
   weightGroups:                  WeightGroups
+  placeOfBirthGroups:            Record<'Health facility'|'Home'|'Others', number>
   loading:                       boolean
   error:                         string|null
   fetchReport(
@@ -48,6 +49,7 @@ export const useReportsStore = create<ReportsState>((set) => ({
   attendantTypeGroups:           { Physician:0, Nurse:0, Midwife:0, Hilot:0, Others:0 },
   birthRegistrationStatusGroups: { 'On time registration':0, 'Late registration':0 },
   weightGroups:                  { '3,000 - 3,499':0,'2,500 - 2,999':0,'1,500 - 1,999':0,'1,000 - 1,499':0,'Not Stated':0 },
+  placeOfBirthGroups:            { 'Health facility':0, Home:0, Others:0 },
   loading:                       false,
   error:                         null,
 
@@ -65,7 +67,7 @@ export const useReportsStore = create<ReportsState>((set) => ({
         fatherAgeGroups, motherAgeGroups,
         motherBarangayGroups, marriageLegitimacyGroups,
         attendantTypeGroups, birthRegistrationStatusGroups,
-        weightGroups
+        weightGroups, placeOfBirthGroups
       } = await res.json()
       set({
         totalBirthCount:               totalCount,
@@ -77,7 +79,8 @@ export const useReportsStore = create<ReportsState>((set) => ({
         attendantTypeGroups,
         birthRegistrationStatusGroups,
         weightGroups,
-        loading:false
+        placeOfBirthGroups,
+        loading:                       false
       })
     } catch (err:any) {
       set({ error: err.message, loading:false })
