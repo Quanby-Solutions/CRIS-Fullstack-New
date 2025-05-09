@@ -8,6 +8,8 @@ import BurialMethodInterface from "./burial-method";
 import DeathReportInterface from "./interface-death";
 import PlaceOfDeathInterface from "./place-of-death";
 import DeathStatisticsInterface from "./statistics";
+import CausesOfDeathInterface from "./causes";
+import DeathsByDemographicInterface from "./deaths-by-demographic";
 
 interface Statistics {
   totalDeaths: number;
@@ -81,20 +83,25 @@ export default function DeathReport() {
   };
 
   // --- EXPORT CSV ------------------------------------------------------------
+  // Updated exportCSV function to include causes of death
   const exportCSV = async () => {
-    // 1) fetch all four in parallel
-    const [statsRes, deathRes, placeRes, burialRes] = await Promise.all([
-      fetch(`/api/death-report/statistics?year=${year}`),
-      fetch(`/api/death-report?year=${year}`),
-      fetch(`/api/death-report/place-of-death?year=${year}`),
-      fetch(`/api/death-report/burial-method?year=${year}`),
-    ]);
-    const [statsData, deathData, placeData, burialData] = await Promise.all([
-      statsRes.json(),
-      deathRes.json(),
-      placeRes.json(),
-      burialRes.json(),
-    ]);
+    // 1) fetch all five reports in parallel (added causes)
+    const [statsRes, deathRes, placeRes, burialRes, causesRes] =
+      await Promise.all([
+        fetch(`/api/death-report/statistics?year=${year}`),
+        fetch(`/api/death-report?year=${year}`),
+        fetch(`/api/death-report/place-of-death?year=${year}`),
+        fetch(`/api/death-report/burial-method?year=${year}`),
+        fetch(`/api/death-report/causes?year=${year}`), // Added causes endpoint
+      ]);
+    const [statsData, deathData, placeData, burialData, causesData] =
+      await Promise.all([
+        statsRes.json(),
+        deathRes.json(),
+        placeRes.json(),
+        burialRes.json(),
+        causesRes.json(), // Added causes data
+      ]);
 
     // Get month names
     const months = getMonthNames();
@@ -463,6 +470,60 @@ export default function DeathReport() {
       noTransferRow += noTransferTotal > 0 ? noTransferTotal : "";
       csv += noTransferRow + "\n";
     }
+    csv += "\n";
+
+    // --- Add Causes of Death section ---
+    csv += `Causes of Death (Year ${causesData.year})
+`;
+    // Header row with months
+    csv += `Cause,${months.join(",")},Total
+`;
+
+    // Get sorted causes (sort by total count, descending)
+    const sortedCauses = Object.keys(causesData.causeCounts).sort(
+      (a, b) => causesData.causeCounts[b] - causesData.causeCounts[a]
+    );
+
+    // Add a row for each cause
+    sortedCauses.forEach((cause) => {
+      let row = `${cause},`;
+      let total = causesData.causeCounts[cause] || 0;
+
+      // Add data for each month
+      for (let month = 1; month <= 12; month++) {
+        const monthStr = month.toString();
+        const count =
+          causesData.monthlyData[monthStr] &&
+          causesData.monthlyData[monthStr][cause]
+            ? causesData.monthlyData[monthStr][cause]
+            : 0;
+
+        // Add empty cell instead of 0
+        row += `${count > 0 ? count : ""},`;
+      }
+
+      // Add total (empty if zero)
+      row += total > 0 ? total : "";
+      csv += row + "\n";
+    });
+
+    // Add a total row
+    let totalRow = `Total,`;
+    for (let month = 1; month <= 12; month++) {
+      const monthStr = month.toString();
+      let monthTotal = 0;
+
+      if (causesData.monthlyData[monthStr]) {
+        // Sum all causes for this month
+        Object.values(causesData.monthlyData[monthStr]).forEach((count) => {
+          monthTotal += count as number;
+        });
+      }
+
+      totalRow += `${monthTotal > 0 ? monthTotal : ""},`;
+    }
+    totalRow += causesData.totalDeaths || 0;
+    csv += totalRow + "\n";
 
     // 3) download
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -495,11 +556,13 @@ export default function DeathReport() {
         </Button>
       </div>
       {/* your three report components */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto">
+        <DeathsByDemographicInterface year={year} />
         <DeathStatisticsInterface year={year} />
         <DeathReportInterface year={year} />
         <PlaceOfDeathInterface year={year} />
         <BurialMethodInterface year={year} />
+        <CausesOfDeathInterface year={year} />
       </div>
     </div>
   );

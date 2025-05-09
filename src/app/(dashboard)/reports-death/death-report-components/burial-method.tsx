@@ -28,6 +28,7 @@ interface BurialMethodData {
     cremation: number;
     withTransferPermit: number;
     withoutTransferPermit: number;
+    notStated: number; // Only global Not Stated
   };
   burialCountsMonthly: Record<
     string,
@@ -42,6 +43,8 @@ interface BurialMethodData {
       };
       cremation: number;
       withTransferPermit: number;
+      withoutTransferPermit: number;
+      notStated: number; // Only global Not Stated
     }
   >;
   year: number;
@@ -69,6 +72,7 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
       }
 
       const burialData: BurialMethodData = await response.json();
+      console.log("Burial method data:", burialData); // Log for debugging
       setData(burialData);
     } catch (err) {
       setError(
@@ -105,7 +109,14 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
 
   // Calculate a total for each category
   const calculateTotals = () => {
-    if (!data) return { burial: 0, cremation: 0, total: 0, withTransfer: 0 };
+    if (!data)
+      return {
+        burial: 0,
+        cremation: 0,
+        total: 0,
+        withTransfer: 0,
+        notStated: 0, // Added Not Stated
+      };
 
     const burialInLegazpi =
       data.burialCounts.legazpi.publicCemetery +
@@ -117,18 +128,20 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
 
     const totalBurial = burialInLegazpi + burialOutsideLegazpi;
     const withTransfer = data.burialCounts.withTransferPermit;
+    const notStated = data.burialCounts.notStated; // Global Not Stated
 
-    // Include withTransferPermit in the grand total
+    // Include withTransferPermit and notStated in the grand total
     return {
       burial: totalBurial,
       cremation: data.burialCounts.cremation,
-      total: totalBurial + data.burialCounts.cremation + withTransfer,
+      total:
+        totalBurial + data.burialCounts.cremation + withTransfer + notStated,
       withTransfer: withTransfer,
+      notStated: notStated,
     };
   };
 
   // Calculate total for a specific month
-  // NEW
   const calculateMonthTotal = (month: number): number => {
     if (!data) return 0;
     const monthData = data.burialCountsMonthly[month.toString()];
@@ -139,7 +152,8 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
       monthData.outsideLegazpi.publicCemetery +
       monthData.outsideLegazpi.privateCemetery +
       monthData.cremation +
-      monthData.withTransferPermit // ← include this!
+      monthData.withTransferPermit + // Include Transfer Permit
+      monthData.notStated // Include global Not Stated
     );
   };
 
@@ -165,6 +179,8 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
         return monthData.cremation;
       case "withTransferPermit":
         return monthData.withTransferPermit;
+      case "notStated": // Only global Not Stated
+        return monthData.notStated;
       default:
         return 0;
     }
@@ -187,6 +203,8 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
         return data.burialCounts.cremation;
       case "withTransferPermit":
         return data.burialCounts.withTransferPermit;
+      case "notStated": // Only global Not Stated
+        return data.burialCounts.notStated;
       default:
         return 0;
     }
@@ -200,6 +218,7 @@ const BurialMethodInterface = ({ year }: DeathReportInterfaceProps) => {
     { id: "privateCemeteryOutside", label: "Private Cemetery (Outside)" },
     { id: "cremation", label: "Cremation" },
     { id: "withTransferPermit", label: "With Transfer Permit" },
+    { id: "notStated", label: "Not Stated" }, // Just one global Not Stated
   ];
 
   return (
