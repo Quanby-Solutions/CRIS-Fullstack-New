@@ -109,12 +109,14 @@ export async function GET(request: Request) {
     motherBarangayGroups[key] = (motherBarangayGroups[key] || 0) + 1
   }
 
-  // Build marriageLegitimacyGroups
+  // Build marriageLegitimacyGroups (with null-check)
   const marriageLegitimacyGroups = { MARITAL: 0, NON_MARITAL: 0 }
   for (const { birthCertificateForm } of forms) {
     if (!birthCertificateForm) continue
-    const pm = birthCertificateForm.parentMarriage as { date: string }
-    const key = pm.date === 'Not Married' ? 'NON_MARITAL' : 'MARITAL'
+    const pm = birthCertificateForm.parentMarriage as { date?: string } | null
+    // treat missing or 'Not Married' as NON_MARITAL
+    const isNonMarital = !pm || pm.date === 'Not Married'
+    const key = isNonMarital ? 'NON_MARITAL' : 'MARITAL'
     marriageLegitimacyGroups[key as keyof typeof marriageLegitimacyGroups]++
   }
 
@@ -188,8 +190,7 @@ export async function GET(request: Request) {
       hospital.includes('medical')
     ) {
       category = 'Health facility'
-    } else if (hospital.includes('barangay')
-    ) {
+    } else if (hospital.includes('barangay')) {
       category = 'Home'
     } else {
       category = 'Others'
