@@ -190,7 +190,7 @@ export async function GET(request: Request) {
       hospital.includes('medical')
     ) {
       category = 'Health facility'
-    } else if (hospital.includes('barangay') || hospital.includes('brngy')) {
+    } else if (hospital.includes('barangay') || hospital.includes('brngy') || hospital.includes('brgy')) {
       category = 'Home'
     } else {
       category = 'Others'
