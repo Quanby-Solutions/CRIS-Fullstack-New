@@ -1,54 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { BirthReport } from "./birth-report";
-import { DeathReport } from "./death-report";
 import { useTranslation } from "react-i18next";
-import { DocumentReport } from "./document-report";
-import { MarriageReport } from "./marriage-report";
-// import { UserActivityReport } from "./user-activity-report"
+import Interface from "@/app/(dashboard)/reports-marriage/marriage-report-components/interface";
+import LiveBirthGenderReportWithFilter from "@/app/(dashboard)/report-birth/birth-report";
+import DeathReport from "@/app/(dashboard)/reports-death/death-report-components/all-component";
 
-export type ReportKey =
-  | "document"
-  | "user-activity"
-  | "marriage"
-  | "birth"
-  | "death";
+export type ReportKey = "marriage" | "birth" | "death";
 
 const reports: { key: ReportKey; labelKey: string }[] = [
-  { key: "document", labelKey: "document_requests" },
-  // { key: "user-activity", labelKey: "user_activity" },
   { key: "marriage", labelKey: "marriage_reports" },
   { key: "birth", labelKey: "birth_reports" },
   { key: "death", labelKey: "death_reports" },
 ];
 
 export const ReportsDashboard = () => {
-  const [selectedReport, setSelectedReport] = useState<ReportKey>("document");
+  const [selectedReport, setSelectedReport] = useState<ReportKey>("marriage");
   const { t } = useTranslation();
 
   const renderReport = () => {
     switch (selectedReport) {
-      case "document":
-        return <DocumentReport />;
-      // case "user-activity":
-      //     return <UserActivityReport />
       case "marriage":
-        return <MarriageReport />;
+        return <Interface />;
       case "birth":
-        return <BirthReport />;
+        return <LiveBirthGenderReportWithFilter />;
       case "death":
         return <DeathReport />;
       default:
-        return null;
+        return <Interface />; // Default to marriage if somehow invalid state
     }
   };
 
   return (
-    <div className="w-full ml-0 mr-auto relative h-screen ">
+    <div className="w-full ml-0 mr-auto relative h-screen overflow-y-auto">
       <CardHeader>
         <CardTitle>{t("reports_dashboard")}</CardTitle>
       </CardHeader>
@@ -58,7 +44,7 @@ export const ReportsDashboard = () => {
           onValueChange={(value) => setSelectedReport(value as ReportKey)}
           className="w-full"
         >
-          <TabsList className="grid w-full p-1 grid-cols-2 lg:grid-cols-4 mb-6 max-h-10">
+          <TabsList className="grid w-full p-1 grid-cols-3 mb-6 max-h-10">
             {reports.map((report) => (
               <TabsTrigger
                 key={report.key}
@@ -70,11 +56,7 @@ export const ReportsDashboard = () => {
             ))}
           </TabsList>
           {reports.map((report) => (
-            <TabsContent
-              key={report.key}
-              value={report.key}
-              className="w-full "
-            >
+            <TabsContent key={report.key} value={report.key} className="w-full">
               <div className="w-full">{renderReport()}</div>
             </TabsContent>
           ))}

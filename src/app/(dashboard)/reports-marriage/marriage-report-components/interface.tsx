@@ -152,66 +152,65 @@ export default function Interface() {
   };
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Export Buttons */}
-      <div className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={exportCSV} disabled={!summary}>
-          Export CSV
-        </Button>
-        <Button variant="outline" onClick={exportExcel} disabled={!summary}>
-          Export Excel
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4">
-        {[
-          {
-            label: "Start Year",
-            value: startYear,
-            onChange: setStartYear,
-            options: years,
-          },
-          {
-            label: "Start Month",
-            value: startMonth,
-            onChange: setStartMonth,
-            options: months.map((m) => m.value),
-          },
-          {
-            label: "End Year",
-            value: endYear,
-            onChange: setEndYear,
-            options: years,
-          },
-          {
-            label: "End Month",
-            value: endMonth,
-            onChange: setEndMonth,
-            options: months.map((m) => m.value),
-          },
-        ].map(({ label, value, onChange, options }) => (
-          <div key={label}>
-            <label className="block text-sm font-medium text-gray-700">
-              {label}
-            </label>
-            <Select value={value} onValueChange={onChange}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {options.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {months.find((m) => m.value === opt)?.label || opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+    <div className="h-full space-y-6">
+      <div className="flex flex-row justify-between items-center">
+        {/* Filters */}
+        <div className="flex flex-wrap gap-4">
+          {[
+            {
+              label: "Start Year",
+              value: startYear,
+              onChange: setStartYear,
+              options: years,
+            },
+            {
+              label: "Start Month",
+              value: startMonth,
+              onChange: setStartMonth,
+              options: months.map((m) => m.value),
+            },
+            {
+              label: "End Year",
+              value: endYear,
+              onChange: setEndYear,
+              options: years,
+            },
+            {
+              label: "End Month",
+              value: endMonth,
+              onChange: setEndMonth,
+              options: months.map((m) => m.value),
+            },
+          ].map(({ label, value, onChange, options }) => (
+            <div key={label}>
+              <label className="block text-sm font-medium text-gray-700">
+                {label}
+              </label>
+              <Select value={value} onValueChange={onChange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {options.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {months.find((m) => m.value === opt)?.label || opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+          <div className="flex items-end">
+            <Button onClick={fetchData} disabled={loading}>
+              {loading ? "Searching…" : "Search"}
+            </Button>
           </div>
-        ))}
-        <div className="flex items-end">
-          <Button onClick={fetchData} disabled={loading}>
-            {loading ? "Searching…" : "Search"}
+        </div>
+
+        {/* Export Buttons */}
+        <div className="flex flex-row gap-4 items-center">
+          <Button variant="outline" onClick={exportCSV} disabled={!summary}>
+            Export CSV
           </Button>
         </div>
       </div>

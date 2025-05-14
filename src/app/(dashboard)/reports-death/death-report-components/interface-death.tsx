@@ -331,7 +331,7 @@ const DeathReportInterface = ({ year }: DeathReportInterfaceProps) => {
   };
 
   return (
-    <div className=" p-6">
+    <>
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
@@ -469,7 +469,7 @@ const DeathReportInterface = ({ year }: DeathReportInterfaceProps) => {
           </Card>
         </>
       )}
-    </div>
+    </>
   );
 };
 

@@ -790,7 +790,7 @@ export default function DeathReport() {
     <div className="h-full flex flex-col">
       {/* header */}
       {/* year selector + export buttons */}
-      <div className="flex items-center p-4 gap-4 border-b">
+      <div className="flex items-center gap-4">
         <Select
           value={year.toString()}
           onValueChange={(value) => setYear(parseInt(value))}
@@ -965,7 +965,7 @@ export default function DeathReport() {
       </Dialog>
 
       {/* your three report components */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 space-y-6 overflow-y-auto">
         <DeathStatisticsInterface year={year} />
         <DeathReportInterface year={year} />
         <PlaceOfDeathInterface year={year} />

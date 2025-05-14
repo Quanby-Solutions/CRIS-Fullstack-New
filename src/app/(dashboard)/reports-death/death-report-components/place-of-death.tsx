@@ -109,7 +109,7 @@ const PlaceOfDeathInterface = ({ year }: DeathReportInterfaceProps) => {
   };
 
   return (
-    <div className="p-6">
+    <>
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
@@ -231,7 +231,7 @@ const PlaceOfDeathInterface = ({ year }: DeathReportInterfaceProps) => {
           </Card>
         </>
       )}
-    </div>
+    </>
   );
 };
 
