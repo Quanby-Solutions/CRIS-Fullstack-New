@@ -137,7 +137,10 @@ const medicalCertificateSchema = z.object({
       othersSpecify: z.string().optional(),
       duration: z
         .object({
-          from: z.date().optional(),
+          from: z.union([
+            z.string(),
+            z.date()
+          ]).optional(),
           to: z.union([
             z.string(),
             z.date()

@@ -11,10 +11,11 @@ import ChartsDashboard from "@/components/custom/dashboard/components/charts";
 import MetricsDashboard from "@/components/custom/dashboard/components/metrics";
 import StatisticsDashboard from "@/components/custom/dashboard/components/statistics";
 
-import { MarriageAgePyramidChart } from "./components/marriage-per-age";
-import { WeddingRitesComparison } from "./components/marriage-wedding-rites";
+import { MarriageAgePyramidChart } from "./marriage-graphs/marriage-per-age";
+import { WeddingRitesComparison } from "./marriage-graphs/marriage-wedding-rites";
 import { BirthPieGraph } from "./birth-graphs/pie-graph";
-
+import BarangayDeathReport from "./death-graphs/death-per-barangay";
+import PlaceOfDeathPieChart from "./death-graphs/place-of-death";
 
 export default function DashboardContent() {
   const { t } = useTranslation();
@@ -112,7 +113,11 @@ export default function DashboardContent() {
       </div>
 
       {/* Placeholder for DeathPieGraph or others */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{/* death */}</div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* death */}
+        <BarangayDeathReport />
+        <PlaceOfDeathPieChart />
+      </div>
     </div>
   );
 }

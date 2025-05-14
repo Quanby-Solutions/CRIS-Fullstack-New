@@ -417,7 +417,7 @@ export const mapToDeathCertificateValues = (
         othersSpecify: ensureString(deathForm.medicalCertificate?.attendant?.othersSpecify),
         duration: deathForm.medicalCertificate?.attendant?.duration
           ? {
-            from: parseDate(deathForm.medicalCertificate.attendant.duration.from) || undefined,
+            from: parseJsonDate(deathForm.medicalCertificate.attendant.duration.from) || undefined,
             to: parseJsonDate(deathForm.medicalCertificate.attendant.duration.to) || undefined,
           }
           : undefined,
