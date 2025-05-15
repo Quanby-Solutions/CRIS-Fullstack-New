@@ -103,8 +103,6 @@ const affidavitForDelayedSchema = z.object({
     applicantAddress: residenceSchemas.optional(), // Make the address optional
     postalCode: z
       .string()
-      .min(4, 'Postal code must be at least 4 digits')
-      .max(6, 'Postal code must be at most 6 digits')
       .regex(/^\d+$/, 'Postal code must contain only numbers')
       .optional(), // Make postal code optional
   }).optional(),
