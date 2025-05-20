@@ -26,6 +26,48 @@ interface PlaceChartProps {
   endMonth: number;
 }
 
+// Define custom colors for each segment
+const PLACE_CHART_COLORS = [
+  "#22C55E", // Green
+  "#3B82F6", // Blue
+  "#F59E0B", // Amber
+  "#EF4444", // Red
+  "#8B5CF6", // Purple
+  "#F97316", // Orange
+  "#06B6D4", // Cyan
+  "#84CC16", // Lime
+  "#EC4899", // Pink
+  "#6B7280", // Gray
+];
+
+// Alternative color palette for place of birth
+const PLACE_CHART_COLORS_ALTERNATIVE = [
+  "#059669", // Emerald
+  "#DC2626", // Red
+  "#7C3AED", // Violet
+  "#DB2777", // Pink
+  "#0891B2", // Sky
+  "#CA8A04", // Yellow
+  "#16A34A", // Green
+  "#EA580C", // Orange
+  "#4338CA", // Indigo
+  "#BE185D", // Rose
+];
+
+// Earth tone palette for place of birth
+const PLACE_CHART_COLORS_EARTH = [
+  "#8B4513", // Saddle Brown
+  "#228B22", // Forest Green
+  "#FF6347", // Tomato
+  "#4682B4", // Steel Blue
+  "#DAA520", // Goldenrod
+  "#CD853F", // Peru
+  "#20B2AA", // Light Sea Green
+  "#9370DB", // Medium Purple
+  "#FF4500", // Orange Red
+  "#32CD32", // Lime Green
+];
+
 // Custom Legend component with percentages
 interface LegendPayloadItem {
   value: string;
@@ -104,12 +146,12 @@ export function PlaceChart({
     fetchReport(startYear, startMonth, endYear, endMonth);
   }, [startYear, startMonth, endYear, endMonth, fetchReport]);
 
-  // Create formatted data for chart
+  // Create formatted data for chart with custom colors
   const placeData = Object.entries(placeOfBirthGroups).map(
     ([name, value], index) => ({
       name,
       value,
-      fill: `hsl(var(--chart-${index + 1}))`,
+      fill: PLACE_CHART_COLORS[index % PLACE_CHART_COLORS.length], // Use custom colors
     })
   );
 

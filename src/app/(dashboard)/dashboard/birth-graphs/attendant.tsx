@@ -26,6 +26,48 @@ interface AttendantChartProps {
   endMonth: number;
 }
 
+// Define custom colors for each segment
+const CHART_COLORS = [
+  "#FF6384", // Red/Pink
+  "#36A2EB", // Blue
+  "#FFCE56", // Yellow
+  "#4BC0C0", // Teal
+  "#9966FF", // Purple
+  "#FF9F40", // Orange
+  "#C9CBCF", // Gray
+  "#4BC0C0", // Additional Teal
+  "#FF6384", // Additional Red/Pink
+  "#36A2EB", // Additional Blue
+];
+
+// Alternative color palette (you can choose one)
+const CHART_COLORS_ALTERNATIVE = [
+  "#8B5CF6", // Purple
+  "#10B981", // Emerald
+  "#F59E0B", // Amber
+  "#EF4444", // Red
+  "#3B82F6", // Blue
+  "#8B5CF6", // Purple (lighter)
+  "#06B6D4", // Cyan
+  "#F97316", // Orange
+  "#84CC16", // Lime
+  "#EC4899", // Pink
+];
+
+// Pastel color palette option
+const CHART_COLORS_PASTEL = [
+  "#FFB3BA", // Light Pink
+  "#BAFFC9", // Light Green
+  "#BAE1FF", // Light Blue
+  "#FFFFBA", // Light Yellow
+  "#FFDFBA", // Light Orange
+  "#E0BBE4", // Light Purple
+  "#FFC9DE", // Light Rose
+  "#C7CEEA", // Light Lavender
+  "#B5EAD7", // Light Mint
+  "#FFDAB9", // Light Peach
+];
+
 // Custom Legend component with percentages
 interface LegendPayloadItem {
   value: string;
@@ -104,12 +146,12 @@ export function AttendantChart({
     fetchReport(startYear, startMonth, endYear, endMonth);
   }, [startYear, startMonth, endYear, endMonth, fetchReport]);
 
-  // Create formatted data for chart
+  // Create formatted data for chart with custom colors
   const attendantData = Object.entries(attendantTypeGroups).map(
     ([name, value], index) => ({
       name,
       value,
-      fill: `hsl(var(--chart-${index + 1}))`,
+      fill: CHART_COLORS[index % CHART_COLORS.length], // Use custom colors
     })
   );
 
