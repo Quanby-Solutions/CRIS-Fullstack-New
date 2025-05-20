@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         const deathRecords = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: 'DEATH',
-                dateOfRegistration: {
+                registeredByDate: {
                     gte: startDate,
                     lt: endDate,
                 },
@@ -77,14 +77,16 @@ export async function GET(request: NextRequest) {
                     deathsByNationality.foreignCountries++;
                 }
 
-                // Count by month
-                const recordDate = new Date(record.dateOfRegistration);
-                const month = recordDate.getMonth() + 1; // January is 0
+                // Count by month - fix the TypeScript error by checking if registeredByDate exists
+                if (record.registeredByDate) {
+                    const recordDate = new Date(record.registeredByDate);
+                    const month = recordDate.getMonth() + 1; // January is 0
 
-                if (isPhilippineResident) {
-                    deathsByNationalityMonthly[month.toString()].philippines++;
-                } else {
-                    deathsByNationalityMonthly[month.toString()].foreignCountries++;
+                    if (isPhilippineResident) {
+                        deathsByNationalityMonthly[month.toString()].philippines++;
+                    } else {
+                        deathsByNationalityMonthly[month.toString()].foreignCountries++;
+                    }
                 }
             }
         });

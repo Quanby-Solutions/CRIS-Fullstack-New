@@ -11,13 +11,13 @@ interface AgeBracket {
 
 const AGE_BRACKETS: AgeBracket[] = [
   { label: '50 and over', min: 50 },
-  { label: '45–49',       min: 45, max: 49 },
-  { label: '40–44',       min: 40, max: 44 },
-  { label: '35–39',       min: 35, max: 39 },
-  { label: '25–29',       min: 25, max: 29 },
-  { label: '20–24',       min: 20, max: 24 },
-  { label: '15–19',       min: 15, max: 19 },
-  { label: 'Under 15',    max: 14 },
+  { label: '45–49', min: 45, max: 49 },
+  { label: '40–44', min: 40, max: 44 },
+  { label: '35–39', min: 35, max: 39 },
+  { label: '25–29', min: 25, max: 29 },
+  { label: '20–24', min: 20, max: 24 },
+  { label: '15–19', min: 15, max: 19 },
+  { label: 'Under 15', max: 14 },
 ]
 
 function initGroups<Label extends string>(
@@ -34,22 +34,26 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const sy = parseInt(searchParams.get('startYear')  || '', 10)
+  const sy = parseInt(searchParams.get('startYear') || '', 10)
   const sm = parseInt(searchParams.get('startMonth') || '', 10)
-  const ey = parseInt(searchParams.get('endYear')    || '', 10)
-  const em = parseInt(searchParams.get('endMonth')   || '', 10)
+  const ey = parseInt(searchParams.get('endYear') || '', 10)
+  const em = parseInt(searchParams.get('endMonth') || '', 10)
 
   if ([sy, sm, ey, em].some(Number.isNaN)) {
     return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 })
   }
 
   const startDate = new Date(sy, sm - 1, 1)
-  const endDate   = new Date(ey, em, 0, 23, 59, 59)
+  const endDate = new Date(ey, em, 0, 23, 59, 59)
 
+  // Update the query to include both dateOfRegistration and registeredByDate in the filter
   const forms = await prisma.baseRegistryForm.findMany({
     where: {
       formType: 'BIRTH',
-      dateOfRegistration: { gte: startDate, lte: endDate }
+      OR: [
+        { dateOfRegistration: { gte: startDate, lte: endDate } },
+        { registeredByDate: { gte: startDate, lte: endDate } }
+      ]
     },
     include: { birthCertificateForm: true }
   })
@@ -58,15 +62,28 @@ export async function GET(request: Request) {
 
   // Build monthlyData
   const monthlyMap = new Map<string, { month: string; male: number; female: number }>()
-  for (const { dateOfRegistration, birthCertificateForm } of forms) {
-    if (!birthCertificateForm) continue
-    const y = dateOfRegistration.getFullYear()
-    const m = String(dateOfRegistration.getMonth() + 1).padStart(2, '0')
+  for (const form of forms) {
+    if (!form.birthCertificateForm) continue
+
+    // Get the registration date - first try dateOfRegistration, then registeredByDate
+    let registrationDate: Date | null = null;
+
+    if (form.dateOfRegistration) {
+      registrationDate = form.dateOfRegistration;
+    } else if (form.registeredByDate) {
+      registrationDate = form.registeredByDate;
+    }
+
+    // Skip if no valid registration date is found
+    if (!registrationDate) continue;
+
+    const y = registrationDate.getFullYear()
+    const m = String(registrationDate.getMonth() + 1).padStart(2, '0')
     const key = `${y}-${m}`
 
     const entry = monthlyMap.get(key) ?? { month: key, male: 0, female: 0 }
-    if (birthCertificateForm.sex === 'Male')   entry.male++
-    if (birthCertificateForm.sex === 'Female') entry.female++
+    if (form.birthCertificateForm.sex === 'Male') entry.male++
+    if (form.birthCertificateForm.sex === 'Female') entry.female++
     monthlyMap.set(key, entry)
   }
   const monthlyData = Array.from(monthlyMap.values())
@@ -103,9 +120,9 @@ export async function GET(request: Request) {
   for (const { birthCertificateForm } of forms) {
     if (!birthCertificateForm) continue
     const res = birthCertificateForm.motherResidence as any
-    const bgy  = res.barangay?.trim() || 'Unknown'
+    const bgy = res.barangay?.trim() || 'Unknown'
     const city = res.cityMunicipality?.trim() || ''
-    const key  = city === 'City of Legazpi' ? bgy : 'Outside Legazpi'
+    const key = city === 'City of Legazpi' ? bgy : 'Outside Legazpi'
     motherBarangayGroups[key] = (motherBarangayGroups[key] || 0) + 1
   }
 
@@ -121,7 +138,7 @@ export async function GET(request: Request) {
   }
 
   // Build attendantTypeGroups
-  const attendantLabels = ['Physician','Nurse','Midwife','Hilot','Others'] as const
+  const attendantLabels = ['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'] as const
   const attendantTypeGroups = initGroups(attendantLabels)
   for (const { birthCertificateForm } of forms) {
     if (!birthCertificateForm) continue

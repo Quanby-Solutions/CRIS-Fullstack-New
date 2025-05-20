@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         const deathRecords = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: 'DEATH',
-                dateOfRegistration: {
+                registeredByDate: {
                     gte: startDate,
                     lt: endDate,
                 },
@@ -85,9 +85,16 @@ export async function GET(request: NextRequest) {
                 deathsByPlaceOfDeath[category]++;
 
                 // Count by month and category
-                const recordDate = new Date(record.dateOfRegistration);
-                const month = recordDate.getMonth() + 1; // January is 0
-                deathsByPlaceOfDeathMonthly[month.toString()][category]++;
+                // Fix: Handle null date by checking if registeredByDate exists before creating a Date
+                if (record.registeredByDate) {
+                    const recordDate = new Date(record.registeredByDate);
+                    const month = recordDate.getMonth() + 1; // January is 0
+                    deathsByPlaceOfDeathMonthly[month.toString()][category]++;
+                } else {
+                    // If no date is available, count it in an "unknown" month or handle as needed
+                    // Here, we're just logging the issue
+                    console.warn('Death record without date encountered:', record.id);
+                }
             }
         });
 

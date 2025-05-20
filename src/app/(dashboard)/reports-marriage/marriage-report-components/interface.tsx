@@ -117,39 +117,39 @@ export default function Interface() {
     URL.revokeObjectURL(url);
   };
 
-  const exportExcel = () => {
-    if (!summary) return;
-    let html = "<table><tr>";
-    [
-      "No. of Marriage",
-      "With Marriage License",
-      "No Marriage License",
-      "On Time Registration",
-      "Late Registration",
-      "Civil Ceremony",
-      "Roman Catholic",
-      "Muslim",
-      "Tribal",
-      "Other Religious Rites",
-    ].forEach((h) => (html += `<th>${h}</th>`));
-    html += "</tr><tr>";
-    html += `<td>${summary.total}</td><td>${summary.withLicense}</td><td>${summary.noLicense}</td><td>${summary.onTime}</td><td>${summary.late}</td><td>${summary.civilCeremony}</td><td>${summary.romanCatholic}</td><td>${summary.muslim}</td><td>${summary.tribal}</td><td>${summary.otherReligious}</td></tr><tr><td colspan=\"10\"></td></tr><tr>`;
-    ["Age Range", "Age of Bride", "Age of Groom"].forEach(
-      (h) => (html += `<th>${h}</th>`)
-    );
-    html += "</tr>";
-    ageCounts.forEach(({ bucket, bride, groom }) => {
-      html += `<tr><td>${bucket}</td><td>${bride}</td><td>${groom}</td></tr>`;
-    });
-    html += "</table>";
-    const blob = new Blob([html], { type: "application/vnd.ms-excel" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "marriage_report.xls";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  // const exportExcel = () => {
+  //   if (!summary) return;
+  //   let html = "<table><tr>";
+  //   [
+  //     "No. of Marriage",
+  //     "With Marriage License",
+  //     "No Marriage License",
+  //     "On Time Registration",
+  //     "Late Registration",
+  //     "Civil Ceremony",
+  //     "Roman Catholic",
+  //     "Muslim",
+  //     "Tribal",
+  //     "Other Religious Rites",
+  //   ].forEach((h) => (html += `<th>${h}</th>`));
+  //   html += "</tr><tr>";
+  //   html += `<td>${summary.total}</td><td>${summary.withLicense}</td><td>${summary.noLicense}</td><td>${summary.onTime}</td><td>${summary.late}</td><td>${summary.civilCeremony}</td><td>${summary.romanCatholic}</td><td>${summary.muslim}</td><td>${summary.tribal}</td><td>${summary.otherReligious}</td></tr><tr><td colspan=\"10\"></td></tr><tr>`;
+  //   ["Age Range", "Age of Bride", "Age of Groom"].forEach(
+  //     (h) => (html += `<th>${h}</th>`)
+  //   );
+  //   html += "</tr>";
+  //   ageCounts.forEach(({ bucket, bride, groom }) => {
+  //     html += `<tr><td>${bucket}</td><td>${bride}</td><td>${groom}</td></tr>`;
+  //   });
+  //   html += "</table>";
+  //   const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+  //   const url = URL.createObjectURL(blob);
+  //   const a = document.createElement("a");
+  //   a.href = url;
+  //   a.download = "marriage_report.xls";
+  //   a.click();
+  //   URL.revokeObjectURL(url);
+  // };
 
   return (
     <div className="h-full space-y-6">
@@ -213,6 +213,12 @@ export default function Interface() {
             Export CSV
           </Button>
         </div>
+      </div>
+
+      <div className="text-sm text-gray-500">
+        Filtering by registration date (using registeredByDate from
+        baseRegistryForm, or registeredByOffice.date from
+        marriageCertificateForm if empty)
       </div>
 
       {error && <div className="text-red-600">{error}</div>}

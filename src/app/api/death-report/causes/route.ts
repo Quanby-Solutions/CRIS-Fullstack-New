@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
         const deathRecords = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: 'DEATH',
-                dateOfRegistration: {
+                registeredByDate: {
                     gte: startDate,
                     lt: endDate,
                 },

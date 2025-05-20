@@ -353,7 +353,6 @@ export const mapToMarriageCertificateValues = (
             nameInPrint: ensureString(form.registeredBy),
             titleOrPosition: ensureString(form.registeredByPosition),
             date: parseDateSafely(form.registeredByDate),
-
         },
 
         // registeredById: registeredById,

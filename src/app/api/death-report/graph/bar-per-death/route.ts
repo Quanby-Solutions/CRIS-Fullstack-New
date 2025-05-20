@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const deathRecords = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: 'DEATH',
-                dateOfRegistration: {
+                registeredByDate: {
                     gte: startDate,
                     lt: endDate,
                 },
@@ -157,22 +157,25 @@ export async function GET(request: NextRequest) {
 
         // Calculate percentages by month
         const percentagesByMonth: Record<string, Record<string, number>> = {};
-        
+
         for (let month = 1; month <= 12; month++) {
             // Filter deaths for this month
             const monthDeaths = deathRecords.filter(record => {
-                const recordDate = new Date(record.dateOfRegistration);
+                // Fix TypeScript error by checking if registeredByDate exists
+                if (!record.registeredByDate) return false;
+
+                const recordDate = new Date(record.registeredByDate);
                 return recordDate.getMonth() + 1 === month;
             });
-            
+
             // Create a new object for barangay counts for this month
             const monthBarangayCounts: Record<string, number> = {};
-            
+
             // Initialize with zeros
             legazpiData["LEGAZPI CITY"].barangay_list.forEach(barangay => {
                 monthBarangayCounts[barangay] = 0;
             });
-            
+
             // Process each death record for this month (using same logic as above)
             monthDeaths.forEach(record => {
                 if (record.deathCertificateForm) {
@@ -258,13 +261,13 @@ export async function GET(request: NextRequest) {
                     }
                 }
             });
-            
+
             // Calculate total deaths for this month
             const totalMonthDeaths = Object.values(monthBarangayCounts).reduce((sum, count) => sum + count, 0);
-            
+
             // Calculate percentages for this month
             percentagesByMonth[month.toString()] = {};
-            
+
             if (totalMonthDeaths > 0) {
                 Object.entries(monthBarangayCounts).forEach(([barangay, count]) => {
                     const percentage = parseFloat(((count / totalMonthDeaths) * 100).toFixed(1));

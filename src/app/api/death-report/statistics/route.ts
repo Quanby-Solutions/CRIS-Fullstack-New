@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         const deathRecords = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: 'DEATH',
-                dateOfRegistration: {
+                registeredByDate: {
                     gte: startDate,
                     lt: endDate,
                 },
@@ -129,77 +129,80 @@ export async function GET(request: NextRequest) {
 
         // Process each death record
         deathRecords.forEach((record, index) => {
-            // Make sure we convert date strings to Date objects if needed
-            const recordDate = new Date(record.dateOfRegistration);
-            const month = recordDate.getMonth() + 1; // 1-based month (January is 1)
-            const monthKey = month.toString();
+            // Fix TypeScript error by ensuring registeredByDate is not null
+            if (record.registeredByDate) {
+                // Make sure we convert date strings to Date objects if needed
+                const recordDate = new Date(record.registeredByDate);
+                const month = recordDate.getMonth() + 1; // 1-based month (January is 1)
+                const monthKey = month.toString();
 
-            // Keep track of record counts by month for debugging
-            recordMonths[monthKey] = (recordMonths[monthKey] || 0) + 1;
+                // Keep track of record counts by month for debugging
+                recordMonths[monthKey] = (recordMonths[monthKey] || 0) + 1;
 
-            // Create a debug entry for this record
-            const recordInfo: any = {
-                id: record.id,
-                date: record.dateOfRegistration,
-                month: month,
-                has_death_certificate: !!record.deathCertificateForm,
-            };
+                // Create a debug entry for this record
+                const recordInfo: any = {
+                    id: record.id,
+                    date: record.registeredByDate,
+                    month: month,
+                    has_death_certificate: !!record.deathCertificateForm,
+                };
 
-            // Process death certificate data if available
-            if (record.deathCertificateForm) {
-                // Registration type (on-time or late)
-                const isLateRegistration = getIsLateRegistration(record.deathCertificateForm);
-                recordInfo.isLate = isLateRegistration;
+                // Process death certificate data if available
+                if (record.deathCertificateForm) {
+                    // Registration type (on-time or late)
+                    const isLateRegistration = getIsLateRegistration(record.deathCertificateForm);
+                    recordInfo.isLate = isLateRegistration;
 
-                if (isLateRegistration) {
-                    statistics.registration.late++;
-                    statistics.monthly[monthKey].registration.late++;
+                    if (isLateRegistration) {
+                        statistics.registration.late++;
+                        statistics.monthly[monthKey].registration.late++;
+                    } else {
+                        statistics.registration.onTime++;
+                        statistics.monthly[monthKey].registration.onTime++;
+                    }
+
+                    // Gender statistics
+                    const gender = getGender(record.deathCertificateForm);
+                    recordInfo.gender = gender;
+
+                    if (gender === 'MALE') {
+                        statistics.gender.male++;
+                        statistics.monthly[monthKey].gender.male++;
+                    } else if (gender === 'FEMALE') {
+                        statistics.gender.female++;
+                        statistics.monthly[monthKey].gender.female++;
+                    } else {
+                        statistics.gender.unknown++;
+                        statistics.monthly[monthKey].gender.unknown++;
+                    }
+
+                    // Age group statistics
+                    const ageYears = getAgeYears(record.deathCertificateForm);
+                    const ageGroup = getAgeGroup(ageYears);
+                    recordInfo.ageYears = ageYears;
+                    recordInfo.ageGroup = ageGroup;
+
+                    // TypeScript needs help to know this is a valid key
+                    incrementAgeGroup(statistics.ageGroups, ageGroup);
+                    incrementAgeGroup(statistics.monthly[monthKey].ageGroups, ageGroup);
                 } else {
-                    statistics.registration.onTime++;
+                    // If death certificate data is missing, count as unknown
+                    recordInfo.isLate = false;
+                    recordInfo.gender = 'UNKNOWN';
+                    recordInfo.ageGroup = 'unknown';
+
+                    statistics.gender.unknown++;
+                    statistics.ageGroups.unknown++;
+                    statistics.registration.onTime++; // Assume on-time if not specified
+
+                    statistics.monthly[monthKey].gender.unknown++;
+                    statistics.monthly[monthKey].ageGroups.unknown++;
                     statistics.monthly[monthKey].registration.onTime++;
                 }
 
-                // Gender statistics
-                const gender = getGender(record.deathCertificateForm);
-                recordInfo.gender = gender;
-
-                if (gender === 'MALE') {
-                    statistics.gender.male++;
-                    statistics.monthly[monthKey].gender.male++;
-                } else if (gender === 'FEMALE') {
-                    statistics.gender.female++;
-                    statistics.monthly[monthKey].gender.female++;
-                } else {
-                    statistics.gender.unknown++;
-                    statistics.monthly[monthKey].gender.unknown++;
-                }
-
-                // Age group statistics
-                const ageYears = getAgeYears(record.deathCertificateForm);
-                const ageGroup = getAgeGroup(ageYears);
-                recordInfo.ageYears = ageYears;
-                recordInfo.ageGroup = ageGroup;
-
-                // TypeScript needs help to know this is a valid key
-                incrementAgeGroup(statistics.ageGroups, ageGroup);
-                incrementAgeGroup(statistics.monthly[monthKey].ageGroups, ageGroup);
-            } else {
-                // If death certificate data is missing, count as unknown
-                recordInfo.isLate = false;
-                recordInfo.gender = 'UNKNOWN';
-                recordInfo.ageGroup = 'unknown';
-
-                statistics.gender.unknown++;
-                statistics.ageGroups.unknown++;
-                statistics.registration.onTime++; // Assume on-time if not specified
-
-                statistics.monthly[monthKey].gender.unknown++;
-                statistics.monthly[monthKey].ageGroups.unknown++;
-                statistics.monthly[monthKey].registration.onTime++;
+                // Add this record's info to our debug array
+                recordDebug.push(recordInfo);
             }
-
-            // Add this record's info to our debug array
-            recordDebug.push(recordInfo);
         });
 
         // Add detailed debug information to the response

@@ -1,14 +1,26 @@
-//api/marriage-report/base/route.ts
+// Updated api/marriage-report/base/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // TS shapes for JSON columns
-interface LicenseDetails { marriageAgreement?: boolean }
-interface DelayedAffidavit { delayedRegistration?: 'No' | 'Yes' }
+interface LicenseDetails {
+    marriageAgreement?: boolean
+}
+
+interface DelayedAffidavit {
+    delayedRegistration?: 'No' | 'Yes'
+}
+
 interface SolemnizingOfficer {
     name?: string;
     position?: string;
     registryNoExpiryDate?: string
+}
+
+interface RegisteredByOffice {
+    date?: string;
+    nameInPrint?: string;
+    titleOrPosition?: string;
 }
 
 export async function GET(request: NextRequest) {
@@ -20,16 +32,19 @@ export async function GET(request: NextRequest) {
         const endMonth = parseInt(searchParams.get('endMonth') ?? '5', 10)
 
         const startDate = new Date(startYear, startMonth - 1, 1)
-        const endDate = new Date(endYear, endMonth, 1)
+        const endDate = new Date(endYear, endMonth, 0) // Last day of the month
 
-        // Fetch raw forms with precomputed ages
+        // Set time to end of day for the end date to include the entire day
+        endDate.setHours(23, 59, 59, 999)
+
+        // Fetch raw forms with additional fields for date filtering
         const forms = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: 'MARRIAGE',
                 cityMunicipality: { contains: 'Legazpi', mode: 'insensitive' },
-                createdAt: { gte: startDate, lt: endDate },
             },
             select: {
+                registeredByDate: true,
                 marriageCertificateForm: {
                     select: {
                         husbandAge: true,
@@ -37,13 +52,33 @@ export async function GET(request: NextRequest) {
                         marriageLicenseDetails: true,
                         affidavitOfdelayedRegistration: true,
                         solemnizingOfficer: true,
+                        registeredByOffice: true,
                     }
                 }
             }
         })
 
-        // Only include entries with a certificate
-        const validForms = forms.filter(f => f.marriageCertificateForm != null)
+        // Filter forms based on registration date criteria
+        const validForms = forms
+            .filter(f => f.marriageCertificateForm != null)
+            .filter(f => {
+                // First try to use registeredByDate from baseRegistryForm
+                if (f.registeredByDate) {
+                    const regDate = new Date(f.registeredByDate)
+                    return regDate >= startDate && regDate <= endDate
+                }
+
+                // If registeredByDate is empty, fall back to registeredByOffice.date
+                const registeredByOffice = f.marriageCertificateForm?.registeredByOffice as RegisteredByOffice | undefined
+                if (registeredByOffice?.date) {
+                    const regDate = new Date(registeredByOffice.date)
+                    return regDate >= startDate && regDate <= endDate
+                }
+
+                // If neither date is available, exclude this record
+                return false
+            })
+
         const total = validForms.length
 
         // Count with/without license
@@ -98,11 +133,10 @@ export async function GET(request: NextRequest) {
             }
         })
 
-        // Age buckets
+        // Age buckets - already updated
         const buckets = [
-            { label: 'Under 15', min: 0, max: 14 },
-            { label: '15-19', min: 15, max: 19 },
-            { label: '20-24', min: 20, max: 24 },
+            { label: '17 and under', min: 0, max: 17 },
+            { label: '18-24', min: 18, max: 24 },
             { label: '25-29', min: 25, max: 29 },
             { label: '30-34', min: 30, max: 34 },
             { label: '35-39', min: 35, max: 39 },

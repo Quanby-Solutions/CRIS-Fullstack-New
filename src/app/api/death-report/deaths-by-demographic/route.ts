@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         const deathRecords = await prisma.baseRegistryForm.findMany({
             where: {
                 formType: "DEATH",
-                dateOfRegistration: {
+                registeredByDate: {
                     gte: startDate,
                     lt: endDate,
                 },
@@ -152,8 +152,11 @@ export async function GET(request: NextRequest) {
             const deathForm = record.deathCertificateForm;
             if (!deathForm) return;
 
-            // Get month from date of registration
-            const month = new Date(record.dateOfRegistration).getMonth() + 1;
+            // Fix TypeScript error: Check if registeredByDate exists
+            if (!record.registeredByDate) return;
+
+            // Get month from date of registration (now safe because we know registeredByDate is not null)
+            const month = new Date(record.registeredByDate).getMonth() + 1;
 
             // Determine barangay
             let barangay = "Unknown";

@@ -20,7 +20,8 @@ import DatePickerString from "@/components/custom/datepickerfield/date-picker-st
 export default function MarriageInformationCard() {
   const { control, watch, setValue, trigger } =
     useFormContext<BirthCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+  // Set NCR mode to false by default and don't change it automatically
+  const [ncrModess, setNcrModess] = useState(false);
 
   // Watch the province field for marriage place and the marriage date field
   const province = watch("parentMarriage.place.province");
@@ -53,22 +54,15 @@ export default function MarriageInformationCard() {
     return "";
   };
 
+  // Modified effect to no longer automatically set ncrMode based on province
   useEffect(() => {
-    const provinceString = getProvinceString(province) || "Metro Manila";
+    const provinceString = getProvinceString(province) || "";
 
-    // Determine if the province should be NCR (Metro Manila) or not
-    const shouldBeNCR = provinceString.trim().toLowerCase() === "metro manila";
-    setNcrMode(shouldBeNCR);
-
-    // Set the province value based on whether NCR mode is true or false
-    setValue(
-      "parentMarriage.place.province",
-      shouldBeNCR ? "Metro Manila" : provinceString,
-      {
-        shouldValidate: true,
-        shouldDirty: true,
-      }
-    );
+    // Only update the province value for validation, but don't automatically change NCR mode
+    setValue("parentMarriage.place.province", provinceString, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
 
     // Manually trigger revalidation of the province field after setting the value
     trigger("parentMarriage.place.province");
@@ -188,7 +182,7 @@ export default function MarriageInformationCard() {
             </div>
 
             {/* NCR Mode Switch & Location Selector */}
-            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+            <NCRModeSwitch isNCRMode={ncrModess} setIsNCRMode={setNcrModess} />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <LocationSelector
@@ -198,7 +192,7 @@ export default function MarriageInformationCard() {
                 provinceLabel="Province"
                 municipalityLabel="City/Municipality"
                 barangayLabel="Barangay"
-                isNCRMode={ncrMode}
+                isNCRMode={ncrModess}
                 showBarangay={true}
                 provincePlaceholder="Select province"
                 municipalityPlaceholder="Select city/municipality"
