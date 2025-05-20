@@ -808,9 +808,8 @@ export default function DeathReport() {
         </Select>
 
         <Button
-          variant="outline"
           onClick={() => setIsExportModalOpen(true)}
-          className="ml-auto"
+          className="ml-auto text-sm"
         >
           <Download className="mr-2 h-4 w-4" />
           Export CSV

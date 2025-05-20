@@ -262,6 +262,7 @@ model MarriageCertificateForm {
   husbandPlaceOfBirth         Json?
   husbandSex                  Sex?
   husbandCitizenship          String
+  husbandAge                  Int
   husbandResidence            Json?
   husbandReligion             String?
   husbandCivilStatus          String

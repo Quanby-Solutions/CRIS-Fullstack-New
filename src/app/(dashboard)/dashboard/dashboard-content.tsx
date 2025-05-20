@@ -13,9 +13,12 @@ import StatisticsDashboard from "@/components/custom/dashboard/components/statis
 
 import { MarriageAgePyramidChart } from "./marriage-graphs/marriage-per-age";
 import { WeddingRitesComparison } from "./marriage-graphs/marriage-wedding-rites";
-import { BirthPieGraph } from "./birth-graphs/pie-graph";
 import BarangayDeathReport from "./death-graphs/death-per-barangay";
 import PlaceOfDeathPieChart from "./death-graphs/place-of-death";
+import { AttendantChart } from "./birth-graphs/attendant";
+import { PlaceChart } from "./birth-graphs/palce-of-birth";
+
+// Import the birth statistics components
 
 export default function DashboardContent() {
   const { t } = useTranslation();
@@ -27,7 +30,9 @@ export default function DashboardContent() {
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
   const [startYear, setStartYear] = useState(currentYear);
-  const [startMonth, setStartMonth] = useState(threeMonthsAgo);
+  const [startMonth, setStartMonth] = useState(
+    threeMonthsAgo > 0 ? threeMonthsAgo : 1
+  );
   const [endYear, setEndYear] = useState(currentYear);
   const [endMonth, setEndMonth] = useState(currentMonth);
 
@@ -104,7 +109,14 @@ export default function DashboardContent() {
 
       {/* Filtered BirthPieGraph */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-4">
-        <BirthPieGraph
+        {/* Birth charts */}
+        <AttendantChart
+          startYear={startYear}
+          startMonth={startMonth}
+          endYear={endYear}
+          endMonth={endMonth}
+        />
+        <PlaceChart
           startYear={startYear}
           startMonth={startMonth}
           endYear={endYear}
