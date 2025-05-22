@@ -79,6 +79,7 @@
     "react-tagcloud": "^2.3.3",
     "react-use": "^17.6.0",
     "recharts": "^2.15.1",
+    "select-philippines-address": "^1.0.6",
     "sonner": "^1.7.4",
     "swr": "^2.3.2",
     "tailwind-merge": "^2.6.0",

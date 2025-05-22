@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/death-certificate-form-schema";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { useEffect, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import SignatureUploader from "../shared-components/signature-uploader";
@@ -56,9 +56,21 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
   let monthAndYear = "";
 
   if (affidavitDate) {
-    const date = new Date(affidavitDate);
-    dayOfMonth = format(date, "do"); // e.g. "1st", "2nd", "3rd", etc.
-    monthAndYear = format(date, "MMMM yyyy"); // e.g. "January 2025"
+    let date: Date;
+
+    // Handle both string and Date types
+    if (affidavitDate instanceof Date) {
+      date = affidavitDate;
+    } else {
+      // It's a string, try to parse it
+      date = new Date(affidavitDate);
+    }
+
+    // Check if the date is valid before formatting
+    if (isValid(date)) {
+      dayOfMonth = format(date, "do"); // e.g. "1st", "2nd", "3rd", etc.
+      monthAndYear = format(date, "MMMM yyyy"); // e.g. "January 2025"
+    }
   }
 
   const displayPlace = affidavitPlace ? String(affidavitPlace) : "";
@@ -376,18 +388,22 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                 I have affixed my signature below this{" "}
                 <span
                   className={`px-5 border-b border-muted-foreground ${
-                    affidavitDate ? "text-black" : "text-muted-foreground"
+                    affidavitDate && dayOfMonth
+                      ? "text-black"
+                      : "text-muted-foreground"
                   }`}
                 >
-                  {dayOfMonth}
+                  {dayOfMonth || "_____"}
                 </span>{" "}
                 day of{" "}
                 <span
                   className={`px-5 border-b border-muted-foreground ${
-                    affidavitDate ? "text-black" : "text-muted-foreground"
+                    affidavitDate && monthAndYear
+                      ? "text-black"
+                      : "text-muted-foreground"
                   }`}
                 >
-                  {monthAndYear}
+                  {monthAndYear || "__________"}
                 </span>{" "}
                 at{" "}
                 <span
@@ -395,7 +411,7 @@ const AffidavitDelayedRegistrationCard: React.FC = () => {
                     affidavitPlace ? "text-black" : "text-muted-foreground"
                   }`}
                 >
-                  {displayPlace}
+                  {displayPlace || "__________"}
                 </span>
                 Philippines
               </p>
