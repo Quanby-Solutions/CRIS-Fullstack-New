@@ -1,115 +1,124 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { ComponentType } from "react"
-import { useRouter } from "next/navigation"
-import { useState, useEffect, useMemo } from "react"
-import { DateRange } from "react-day-picker"
-import { hasPermission } from "@/types/auth"
-import { Icons } from "@/components/ui/icons"
-import { Table } from "@tanstack/react-table"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useTranslation } from "react-i18next"
-import { Button } from "@/components/ui/button"
-import { useUser } from "@/context/user-context"
-import { Cross2Icon } from "@radix-ui/react-icons"
-import { Calendar } from "@/components/ui/calendar"
-import { FormType, Permission, DocumentStatus } from "@prisma/client"
-import { Card, CardContent } from "@/components/ui/card"
-import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
-import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
-import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
-import { AlertCircle, Info, Search, X } from 'lucide-react'
-import { AnimatePresence, motion } from "framer-motion"
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ComponentType } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
+import { DateRange } from "react-day-picker";
+import { hasPermission } from "@/types/auth";
+import { Icons } from "@/components/ui/icons";
+import { Table } from "@tanstack/react-table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/context/user-context";
+import { Cross2Icon } from "@radix-ui/react-icons";
+import { Calendar } from "@/components/ui/calendar";
+import { FormType, Permission, DocumentStatus } from "@prisma/client";
+import { Card, CardContent } from "@/components/ui/card";
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options";
+import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter";
+import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog";
+import { AlertCircle, Info, Search, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface DataTableToolbarProps {
-  table: Table<BaseRegistryFormWithRelations>
+  table: Table<BaseRegistryFormWithRelations>;
 }
 
 const formTypes = [
   { label: "Marriage", value: FormType.MARRIAGE },
   { label: "Birth", value: FormType.BIRTH },
   { label: "Death", value: FormType.DEATH },
-]
+];
 
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
-  const { t } = useTranslation()
-  const { permissions } = useUser()
-  const router = useRouter()
-  const isFiltered = table.getState().columnFilters.length > 0
+  const { t } = useTranslation();
+  const { permissions } = useUser();
+  const router = useRouter();
+  const isFiltered = table.getState().columnFilters.length > 0;
 
-  const [dateRange, setDateRange] = useState<DateRange | undefined>()
-  const [availableYears, setAvailableYears] = useState<Array<{
-    label: string
-    value: string
-    icon: ComponentType<{ className?: string }>
-  }>>([])
-  const [statusOptions, setStatusOptions] = useState<Array<{
-    label: string
-    value: DocumentStatus
-    icon: ComponentType<{ className?: string }>
-  }>>([])
-  const [pageSearch, setPageSearch] = useState<string>("")
-  const [bookSearch, setBookSearch] = useState<string>("")
-  const [firstNameSearch, setFirstNameSearch] = useState<string>("")
-  const [middleNameSearch, setMiddleNameSearch] = useState<string>("")
-  const [lastNameSearch, setLastNameSearch] = useState<string>("")
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
-  const [showSearch, setShowSearch] = useState<boolean>(false)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [availableYears, setAvailableYears] = useState<
+    Array<{
+      label: string;
+      value: string;
+      icon: ComponentType<{ className?: string }>;
+    }>
+  >([]);
+  const [statusOptions, setStatusOptions] = useState<
+    Array<{
+      label: string;
+      value: DocumentStatus;
+      icon: ComponentType<{ className?: string }>;
+    }>
+  >([]);
+  const [pageSearch, setPageSearch] = useState<string>("");
+  const [bookSearch, setBookSearch] = useState<string>("");
+  const [firstNameSearch, setFirstNameSearch] = useState<string>("");
+  const [middleNameSearch, setMiddleNameSearch] = useState<string>("");
+  const [lastNameSearch, setLastNameSearch] = useState<string>("");
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
 
   // Get status icon based on status
   const getStatusIcon = (status: DocumentStatus) => {
     switch (status) {
-      case 'PENDING':
-        return Icons.clock
-      case 'VERIFIED':
-        return Icons.check
-      case 'LATE_REGISTRATION':
-        return AlertCircle
+      case "PENDING":
+        return Icons.clock;
+      case "VERIFIED":
+        return Icons.check;
+      case "LATE_REGISTRATION":
+        return AlertCircle;
       default:
-        return Info
+        return Info;
     }
-  }
+  };
 
   // Collect unique statuses from data
   useEffect(() => {
-    const rows = table.getPreFilteredRowModel().rows
-    const uniqueStatuses = new Set<DocumentStatus>()
+    const rows = table.getPreFilteredRowModel().rows;
+    const uniqueStatuses = new Set<DocumentStatus>();
 
     rows.forEach((row) => {
-      const status = row.original.status
+      const status = row.original.status;
       if (status) {
-        uniqueStatuses.add(status)
+        uniqueStatuses.add(status);
       }
-    })
+    });
 
     const statuses = Array.from(uniqueStatuses)
       .sort()
       .map((status) => ({
         label: t(status.toLowerCase()),
         value: status,
-        icon: getStatusIcon(status)
-      }))
+        icon: getStatusIcon(status),
+      }));
 
-    setStatusOptions(statuses)
-  }, [table.getPreFilteredRowModel().rows, t])
+    setStatusOptions(statuses);
+  }, [table.getPreFilteredRowModel().rows, t]);
 
   // Get unique years
   useEffect(() => {
-    const rows = table.getPreFilteredRowModel().rows
-    const uniqueYears = new Set<string>()
+    const rows = table.getPreFilteredRowModel().rows;
+    const uniqueYears = new Set<string>();
 
     rows.forEach((row) => {
-      const date = row.original.dateOfRegistration || row.original.createdAt
+      const date =
+        row.original.registeredByDate || row.original.registeredByDate;
       if (date) {
-        const year = new Date(date).getFullYear().toString()
-        uniqueYears.add(year)
+        const year = new Date(date).getFullYear().toString();
+        uniqueYears.add(year);
       }
-    })
+    });
 
     const years = Array.from(uniqueYears)
       .sort((a, b) => b.localeCompare(a))
@@ -117,59 +126,58 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         label: year,
         value: year,
         icon: Icons.calendar,
-      }))
+      }));
 
-    setAvailableYears(years)
-  }, [table.getPreFilteredRowModel().rows])
+    setAvailableYears(years);
+  }, [table.getPreFilteredRowModel().rows]);
 
   // Get preparers for filter
   const preparerOptions = useMemo(() => {
-    const uniquePreparers = new Set<string>()
+    const uniquePreparers = new Set<string>();
 
     table.getPreFilteredRowModel().rows.forEach((row) => {
       // if (row.original.preparedBy?.name) {
       //   uniquePreparers.add(row.original.preparedBy.name)
       // }
-    })
+    });
 
     return Array.from(uniquePreparers)
-      .map(name => ({
+      .map((name) => ({
         label: name,
         value: name,
-        icon: Icons.user
+        icon: Icons.user,
       }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [table.getPreFilteredRowModel().rows])
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [table.getPreFilteredRowModel().rows]);
 
   // Get verifiers for filter
   const verifierOptions = useMemo(() => {
-    const uniqueVerifiers = new Set<string>()
+    const uniqueVerifiers = new Set<string>();
 
     table.getPreFilteredRowModel().rows.forEach((row) => {
       if (row.original.verifiedBy?.name) {
-        uniqueVerifiers.add(row.original.verifiedBy.name)
+        uniqueVerifiers.add(row.original.verifiedBy.name);
       }
-    })
+    });
 
     return Array.from(uniqueVerifiers)
-      .map(name => ({
+      .map((name) => ({
         label: name,
         value: name,
-        icon: Icons.user
+        icon: Icons.user,
       }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [table.getPreFilteredRowModel().rows])
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [table.getPreFilteredRowModel().rows]);
 
-  const formTypeColumn = table.getColumn("formType")
+  const formTypeColumn = table.getColumn("formType");
   // const preparedByColumn = table.getColumn("preparedBy")
-  const verifiedByColumn = table.getColumn("verifiedBy")
-  const createdAtColumn = table.getColumn("createdAt")
-  const statusColumn = table.getColumn("status")
-  const yearColumn = table.getColumn("year")
-  const registryDetailsColumn = table.getColumn("registryDetails")
-  const detailsColumn = table.getColumn("details")
-  const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
-
+  const verifiedByColumn = table.getColumn("verifiedBy");
+  const registeredByDateColumn = table.getColumn("registeredByDate");
+  const statusColumn = table.getColumn("status");
+  const yearColumn = table.getColumn("year");
+  const registryDetailsColumn = table.getColumn("registryDetails");
+  const detailsColumn = table.getColumn("details");
+  const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE);
 
   useEffect(() => {
     const defaultVisibleColumns = [
@@ -180,34 +188,33 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       "verifiedBy",
       "registeredBy",
       "status",
-      "createdAt",
+      "registeredByDate",
       "hasCTC",
-      "Year"
-    ]
+      "Year",
+    ];
 
     table.getAllColumns().forEach((column) => {
-      const columnId = column.id
-      const isVisible = defaultVisibleColumns.includes(columnId)
+      const columnId = column.id;
+      const isVisible = defaultVisibleColumns.includes(columnId);
       if (column.getCanHide()) {
-        column.toggleVisibility(isVisible)
+        column.toggleVisibility(isVisible);
       }
-    })
-  }, [table])
-
+    });
+  }, [table]);
 
   // Collect years from data
   useEffect(() => {
-    const rows = table.getPreFilteredRowModel().rows
-    const uniqueYears = new Set<string>()
+    const rows = table.getPreFilteredRowModel().rows;
+    const uniqueYears = new Set<string>();
 
     rows.forEach((row) => {
-      const rowData = row.original
-      const date = rowData.dateOfRegistration || rowData.createdAt
+      const rowData = row.original;
+      const date = rowData.registeredByDate || rowData.registeredByDate;
       if (date) {
-        const year = new Date(date).getFullYear().toString()
-        uniqueYears.add(year)
+        const year = new Date(date).getFullYear().toString();
+        uniqueYears.add(year);
       }
-    })
+    });
 
     const years = Array.from(uniqueYears)
       .sort((a, b) => b.localeCompare(a))
@@ -215,90 +222,94 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         label: year,
         value: year,
         icon: Icons.calendar,
-      }))
+      }));
 
-    setAvailableYears(years)
-  }, [table.getPreFilteredRowModel().rows])
+    setAvailableYears(years);
+  }, [table.getPreFilteredRowModel().rows]);
 
   // Column definitions
   const formTypes = [
     { label: "Marriage", value: FormType.MARRIAGE },
     { label: "Birth", value: FormType.BIRTH },
     { label: "Death", value: FormType.DEATH },
-  ]
+  ];
 
   // Handle search fields
   const handlePageSearch = (value: string) => {
-    setPageSearch(value)
+    setPageSearch(value);
     if (registryDetailsColumn) {
       registryDetailsColumn.setFilterValue({
         pageNumber: value,
         bookNumber: bookSearch,
-      })
+      });
     }
-  }
+  };
 
   const handleBookSearch = (value: string) => {
-    setBookSearch(value)
+    setBookSearch(value);
     if (registryDetailsColumn) {
       registryDetailsColumn.setFilterValue({
         pageNumber: pageSearch,
         bookNumber: value,
-      })
+      });
     }
-  }
+  };
 
   const handleDateRangeSelect = (range: DateRange | undefined) => {
-    setDateRange(range)
-    if (createdAtColumn) {
+    setDateRange(range);
+    if (registeredByDateColumn) {
       if (range?.from) {
-        createdAtColumn.setFilterValue(range)
+        registeredByDateColumn.setFilterValue(range);
       } else {
-        createdAtColumn.setFilterValue(undefined)
+        registeredByDateColumn.setFilterValue(undefined);
       }
     }
-  }
+  };
 
   const handleReset = () => {
-    table.resetColumnFilters()
-    setDateRange(undefined)
-    setPageSearch("")
-    setBookSearch("")
-    setFirstNameSearch("")
-    setMiddleNameSearch("")
-    setLastNameSearch("")
-  }
+    table.resetColumnFilters();
+    setDateRange(undefined);
+    setPageSearch("");
+    setBookSearch("");
+    setFirstNameSearch("");
+    setMiddleNameSearch("");
+    setLastNameSearch("");
+  };
 
   const handleRefresh = () => {
-    setIsRefreshing(true)
-    router.refresh()
+    setIsRefreshing(true);
+    router.refresh();
     setTimeout(() => {
-      setIsRefreshing(false)
-    }, 1000)
-  }
-
-
+      setIsRefreshing(false);
+    }, 1000);
+  };
 
   return (
     <div className="space-y-4 relative">
-      <AnimatePresence >
+      <AnimatePresence>
         {showSearch && (
           <motion.div
-            initial={{ opacity: 0, y: '-50%' }}
+            initial={{ opacity: 0, y: "-50%" }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '-50%' }}
+            exit={{ opacity: 0, y: "-50%" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <Card>
               <CardContent className="space-y-6 relative h-fit ">
-                <X onClick={() => setShowSearch(false)} className="absolute right-2 -top-4 cursor-pointer" />
+                <X
+                  onClick={() => setShowSearch(false)}
+                  className="absolute right-2 -top-4 cursor-pointer"
+                />
 
                 <div className="w-full max-w-5xl py-4 mx-auto">
                   {/* Row 1: Global Search, Page Number, Book Number */}
                   <div className="grid grid-cols-3 gap-4">
                     {/* Global Search */}
                     <div className="flex flex-col">
-                      <Label htmlFor="globalSearch" className="text-sm font-medium">
+                      <Label
+                        htmlFor="globalSearch"
+                        className="text-sm font-medium"
+                      >
                         {t("Global Search")}
                       </Label>
                       <div className="relative mt-1">
@@ -307,14 +318,19 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                           id="globalSearch"
                           placeholder={t("Search forms...")}
                           className="pl-8"
-                          onChange={(e) => table.setGlobalFilter(e.target.value)}
+                          onChange={(e) =>
+                            table.setGlobalFilter(e.target.value)
+                          }
                         />
                       </div>
                     </div>
 
                     {/* Page Number */}
                     <div className="flex flex-col">
-                      <Label htmlFor="pageNumber" className="text-sm font-medium">
+                      <Label
+                        htmlFor="pageNumber"
+                        className="text-sm font-medium"
+                      >
                         {t("Page number")}
                       </Label>
                       <div className="relative mt-1">
@@ -331,7 +347,10 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
                     {/* Book Number */}
                     <div className="flex flex-col">
-                      <Label htmlFor="bookNumber" className="text-sm font-medium">
+                      <Label
+                        htmlFor="bookNumber"
+                        className="text-sm font-medium"
+                      >
                         {t("Book number")}
                       </Label>
                       <div className="relative mt-1">
@@ -351,7 +370,10 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     {/* First Name */}
                     <div className="flex flex-col">
-                      <Label htmlFor="firstName" className="text-sm font-medium">
+                      <Label
+                        htmlFor="firstName"
+                        className="text-sm font-medium"
+                      >
                         {t("First name")}
                       </Label>
                       <div className="relative mt-1">
@@ -362,13 +384,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                           className="pl-8"
                           value={firstNameSearch}
                           onChange={(e) => {
-                            setFirstNameSearch(e.target.value)
+                            setFirstNameSearch(e.target.value);
                             if (detailsColumn) {
                               detailsColumn.setFilterValue([
                                 e.target.value,
                                 middleNameSearch,
                                 lastNameSearch,
-                              ])
+                              ]);
                             }
                           }}
                         />
@@ -377,7 +399,10 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
                     {/* Middle Name */}
                     <div className="flex flex-col">
-                      <Label htmlFor="middleName" className="text-sm font-medium">
+                      <Label
+                        htmlFor="middleName"
+                        className="text-sm font-medium"
+                      >
                         {t("Middle name")}
                       </Label>
                       <div className="relative mt-1">
@@ -388,13 +413,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                           className="pl-8"
                           value={middleNameSearch}
                           onChange={(e) => {
-                            setMiddleNameSearch(e.target.value)
+                            setMiddleNameSearch(e.target.value);
                             if (detailsColumn) {
                               detailsColumn.setFilterValue([
                                 firstNameSearch,
                                 e.target.value,
                                 lastNameSearch,
-                              ])
+                              ]);
                             }
                           }}
                         />
@@ -414,13 +439,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                           className="pl-8"
                           value={lastNameSearch}
                           onChange={(e) => {
-                            setLastNameSearch(e.target.value)
+                            setLastNameSearch(e.target.value);
                             if (detailsColumn) {
                               detailsColumn.setFilterValue([
                                 firstNameSearch,
                                 middleNameSearch,
                                 e.target.value,
-                              ])
+                              ]);
                             }
                           }}
                         />
@@ -436,7 +461,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
       <div className="flex flex-wrap gap-2 justify-between items-center">
         <div className="flex flex-wrap gap-2">
-
           <Button
             className="bg-background border border-muted h-8 w-36 text-accent-foreground hover:bg-muted/60 text-left text-sm flex items-center justify-start gap-3 px-3 shadow-none"
             onClick={() => setShowSearch(!showSearch)}
@@ -444,7 +468,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             <Search size={16} />
             {showSearch ? "Close Search" : "Search"}
           </Button>
-
 
           {formTypeColumn && (
             <DataTableFacetedFilter
@@ -457,8 +480,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   type.value === FormType.MARRIAGE
                     ? Icons.heart
                     : type.value === FormType.BIRTH
-                      ? Icons.baby
-                      : Icons.skull,
+                    ? Icons.baby
+                    : Icons.skull,
               }))}
             />
           )}
@@ -567,5 +590,5 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -548,8 +548,8 @@ export const createColumns = (
     {
       id: "year",
       accessorFn: (row) => {
-        const date = row.dateOfRegistration || row.createdAt;
-        return new Date(date).getFullYear().toString();
+        const date = row.registeredByDate;
+        return date ? new Date(date).getFullYear().toString() : "N/A";
       },
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={translate("year")} />
@@ -588,13 +588,16 @@ export const createColumns = (
       filterFn: (row, id, value) => value.includes(row.getValue(id)),
     },
     {
-      accessorKey: "createdAt",
+      accessorKey: "registeredByDate",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={translate("createdAt")} />
+        <DataTableColumnHeader
+          column={column}
+          title={translate("registeredByDate")}
+        />
       ),
       cell: ({ row }) => {
-        const createdAt = row.getValue("createdAt");
-        return <span>{safeFormatDate(createdAt, "PPP")}</span>;
+        const registeredByDate = row.getValue("registeredByDate");
+        return <span>{safeFormatDate(registeredByDate, "PPP")}</span>;
       },
       filterFn: (row, id, filterValue) => {
         if (typeof filterValue === "object" && "from" in filterValue) {
