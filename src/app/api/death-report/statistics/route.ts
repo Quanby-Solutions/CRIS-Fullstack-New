@@ -129,27 +129,33 @@ export async function GET(request: NextRequest) {
 
         // Process each death record
         deathRecords.forEach((record, index) => {
-            // Fix TypeScript error by ensuring registeredByDate is not null
             if (record.registeredByDate) {
-                // Make sure we convert date strings to Date objects if needed
                 const recordDate = new Date(record.registeredByDate);
-                const month = recordDate.getMonth() + 1; // 1-based month (January is 1)
+
+                // ✅ Use UTC-based grouping
+                const month = recordDate.getUTCMonth() + 1; // 1-based
+                const recordYear = recordDate.getUTCFullYear();
+
+                if (recordYear !== year) {
+                    console.warn(`Record ${record.id} has UTC year ${recordYear} but we're filtering for ${year}`);
+                    return; // Skip if not in this year
+                }
+
                 const monthKey = month.toString();
 
-                // Keep track of record counts by month for debugging
+                // Debug tracking
                 recordMonths[monthKey] = (recordMonths[monthKey] || 0) + 1;
 
-                // Create a debug entry for this record
                 const recordInfo: any = {
                     id: record.id,
                     date: record.registeredByDate,
-                    month: month,
+                    dateUTC: recordDate.toISOString(),
+                    monthUTC: month,
+                    yearUTC: recordYear,
                     has_death_certificate: !!record.deathCertificateForm,
                 };
 
-                // Process death certificate data if available
                 if (record.deathCertificateForm) {
-                    // Registration type (on-time or late)
                     const isLateRegistration = getIsLateRegistration(record.deathCertificateForm);
                     recordInfo.isLate = isLateRegistration;
 
@@ -161,7 +167,6 @@ export async function GET(request: NextRequest) {
                         statistics.monthly[monthKey].registration.onTime++;
                     }
 
-                    // Gender statistics
                     const gender = getGender(record.deathCertificateForm);
                     recordInfo.gender = gender;
 
@@ -176,34 +181,31 @@ export async function GET(request: NextRequest) {
                         statistics.monthly[monthKey].gender.unknown++;
                     }
 
-                    // Age group statistics
                     const ageYears = getAgeYears(record.deathCertificateForm);
                     const ageGroup = getAgeGroup(ageYears);
                     recordInfo.ageYears = ageYears;
                     recordInfo.ageGroup = ageGroup;
 
-                    // TypeScript needs help to know this is a valid key
                     incrementAgeGroup(statistics.ageGroups, ageGroup);
                     incrementAgeGroup(statistics.monthly[monthKey].ageGroups, ageGroup);
                 } else {
-                    // If death certificate data is missing, count as unknown
                     recordInfo.isLate = false;
                     recordInfo.gender = 'UNKNOWN';
                     recordInfo.ageGroup = 'unknown';
 
                     statistics.gender.unknown++;
                     statistics.ageGroups.unknown++;
-                    statistics.registration.onTime++; // Assume on-time if not specified
+                    statistics.registration.onTime++;
 
                     statistics.monthly[monthKey].gender.unknown++;
                     statistics.monthly[monthKey].ageGroups.unknown++;
                     statistics.monthly[monthKey].registration.onTime++;
                 }
 
-                // Add this record's info to our debug array
                 recordDebug.push(recordInfo);
             }
         });
+
 
         // Add detailed debug information to the response
         const debug = {
@@ -213,6 +215,7 @@ export async function GET(request: NextRequest) {
                 const monthData = statistics.monthly[month];
                 return {
                     month,
+                    monthName: new Date(2000, parseInt(month) - 1, 1).toLocaleString('default', { month: 'long' }),
                     onTime: monthData.registration.onTime,
                     late: monthData.registration.late,
                     male: monthData.gender.male,
@@ -222,7 +225,9 @@ export async function GET(request: NextRequest) {
                 };
             }),
             recordDetails: recordDebug.slice(0, 10), // Just include first 10 records to avoid response size issues
-            statistics: statistics // Include full statistics object in debug for comparison
+            statistics: statistics, // Include full statistics object in debug for comparison
+            timezone: 'Asia/Manila', // Indicate that we're using Philippines time
+            note: 'All date processing uses Philippines time (UTC+8) for grouping by month. Dates stored in UTC are converted to PH time for accurate monthly statistics.'
         };
 
         return NextResponse.json({

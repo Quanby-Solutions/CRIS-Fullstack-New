@@ -117,16 +117,16 @@ export async function GET(request: NextRequest) {
         deathRecords.forEach(record => {
             const form = record.deathCertificateForm;
             if (!form) return;
+            if (!record.registeredByDate) return;
 
-            // Get the month from the registration date
-            const month = new Date(record.dateOfRegistration).getMonth() + 1;
+            // ✅ Use UTC month
+            const month = new Date(record.registeredByDate).getUTCMonth() + 1;
 
             // Extract cause of death from form
             let causeOfDeath = '';
 
             // Try to get cause from different possible locations in the death certificate form
             if (form.causesOfDeath19b) {
-                // Format: { immediate: { cause, interval }, antecedent: { cause, interval }, underlying: { cause, interval } }
                 const causes19b = typeof form.causesOfDeath19b === 'string'
                     ? JSON.parse(form.causesOfDeath19b)
                     : form.causesOfDeath19b;
@@ -165,6 +165,7 @@ export async function GET(request: NextRequest) {
             // Increment the monthly count
             monthlyData[month][category]++;
         });
+
 
         // Return the data
         return NextResponse.json(

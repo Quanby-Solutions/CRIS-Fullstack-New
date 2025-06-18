@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
                 deathCertificateForm: true,
             },
         });
-
         // Initialize counters with three categories
         const deathsByResidenceType = {
             legazpi: 0,

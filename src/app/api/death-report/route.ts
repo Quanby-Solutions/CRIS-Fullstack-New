@@ -26,9 +26,6 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        // Import the barangay list for accurate matching
-
-
         // Create a quick lookup set of all barangays
         const barangays = new Set(legazpiData["LEGAZPI CITY"].barangay_list);
 
@@ -59,48 +56,32 @@ export async function GET(request: NextRequest) {
                     if (barangays.has(rawBarangay)) {
                         deathsByBarangay[rawBarangay]++;
                     } else {
-                        // If not an exact match, try to find a close match
-                        // We'll handle common naming variations like:
-                        // - Missing apostrophes (Ems Barrio vs Em's Barrio)
-                        // - Case differences (em's barrio vs Em's Barrio)
-                        // - But preserve directional indicators (South, North, East, West)
-
-                        // First, normalize the raw barangay name
+                        // Fuzzy matching logic (keeping your existing logic here)
                         const normalizedBarangay = rawBarangay.toLowerCase()
-                            .replace(/['´`]/g, '') // Remove apostrophes
-                            .replace(/\s+/g, ' ')  // Normalize spaces
+                            .replace(/['´`]/g, '')
+                            .replace(/\s+/g, ' ')
                             .trim();
 
-                        // Flag to track if we found a match
                         let foundMatch = false;
 
-                        // Check each barangay from our master list
                         for (const masterBarangay of barangays) {
                             const normalizedMaster = masterBarangay.toLowerCase()
                                 .replace(/['´`]/g, '')
                                 .replace(/\s+/g, ' ')
                                 .trim();
 
-                            // Check for exact match after normalization
                             if (normalizedBarangay === normalizedMaster) {
                                 deathsByBarangay[masterBarangay]++;
                                 foundMatch = true;
                                 break;
                             }
 
-                            // Special handling for directional variants (South, North, East, West)
-                            // First, identify if this is a directional variant
                             const directions = ['south', 'north', 'east', 'west'];
                             const hasDirection = directions.some(dir =>
                                 normalizedBarangay.includes(dir) || normalizedMaster.includes(dir)
                             );
 
-                            // If both have directional indicators, they must match exactly
                             if (hasDirection) {
-                                // We still want some fuzzy matching for the base name
-                                // For example, "Ems Barrio South" should match "Em's Barrio South"
-
-                                // Extract the base name (without direction)
                                 let baseRaw = normalizedBarangay;
                                 let baseMaster = normalizedMaster;
 
@@ -109,8 +90,6 @@ export async function GET(request: NextRequest) {
                                     baseMaster = baseMaster.replace(dir, '').trim();
                                 }
 
-                                // If the base names match, check if the full names
-                                // have the same directional component
                                 if (baseRaw === baseMaster &&
                                     (
                                         (normalizedBarangay.includes('south') && normalizedMaster.includes('south')) ||
@@ -123,14 +102,9 @@ export async function GET(request: NextRequest) {
                                     foundMatch = true;
                                     break;
                                 }
-
-                                // If they don't have the same directional component,
-                                // they're different barangays, so don't count
                                 continue;
                             }
 
-                            // For non-directional barangays, if one is a substring of the other
-                            // and neither has directional indicators, they might be a match
                             if (!hasDirection) {
                                 if (normalizedBarangay.includes(normalizedMaster) ||
                                     normalizedMaster.includes(normalizedBarangay)) {
@@ -141,7 +115,6 @@ export async function GET(request: NextRequest) {
                             }
                         }
 
-                        // If no match found, count under "Unknown"
                         if (!foundMatch) {
                             if (!deathsByBarangay["Unknown"]) {
                                 deathsByBarangay["Unknown"] = 0;
@@ -164,10 +137,21 @@ export async function GET(request: NextRequest) {
                 deathsByMonthAndBarangay[month.toString()][barangay] = 0;
             });
 
-            // Filter deaths for this month
+            // Filter deaths for this month - USING THE SAME DATE FIELD
             const monthDeaths = deathRecords.filter(record => {
-                const recordDate = new Date(record.dateOfRegistration);
-                return recordDate.getMonth() + 1 === month;
+                // Check if registeredByDate exists
+                if (!record.registeredByDate) return false;
+
+                // Use registeredByDate consistently - same field used for year filtering
+                const recordDate = new Date(record.registeredByDate);
+
+                // Handle timezone properly - ensure we're comparing months correctly
+                // Get the month in UTC (0-11)
+                const recordMonth = recordDate.getUTCMonth() + 1;
+                const recordYear = recordDate.getUTCFullYear();
+
+                // Only include if it's the correct month AND year
+                return recordMonth === month && recordYear === year;
             });
 
             // Count deaths by barangay for this month using the same logic as above
@@ -182,11 +166,10 @@ export async function GET(request: NextRequest) {
                     ) {
                         const rawBarangay = residence.barangay ? String(residence.barangay).trim() : 'Unknown';
 
-                        // Try to find the exact matching barangay
                         if (barangays.has(rawBarangay)) {
                             deathsByMonthAndBarangay[month.toString()][rawBarangay]++;
                         } else {
-                            // If not an exact match, use the same matching logic as above
+                            // Fuzzy matching logic (same as above)
                             const normalizedBarangay = rawBarangay.toLowerCase()
                                 .replace(/['´`]/g, '')
                                 .replace(/\s+/g, ' ')
@@ -232,7 +215,6 @@ export async function GET(request: NextRequest) {
                                         foundMatch = true;
                                         break;
                                     }
-
                                     continue;
                                 }
 
@@ -281,7 +263,12 @@ export async function GET(request: NextRequest) {
             totalDeaths: deathRecords.length,
             deathsByBarangay: cleanedDeathsByBarangay,
             deathsByMonthAndBarangay: cleanedDeathsByMonthAndBarangay,
-            year
+            year,
+            // Add debug info if needed
+            debug: {
+                dateFieldUsed: 'registeredByDate',
+                timezone: 'UTC'
+            }
         });
 
     } catch (error: any) {

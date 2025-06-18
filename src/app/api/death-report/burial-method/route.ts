@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         // Phrases that indicate "not stated" or unknown cemetery
         const notStatedPhrases = [
             'do not know',
-            'don\'t know', 
+            'don\'t know',
             'dont know',
             'unknown',
             'n/a',
@@ -90,12 +90,17 @@ export async function GET(request: NextRequest) {
         deathRecords.forEach((record) => {
             const form = record.deathCertificateForm;
             if (!form) return;
+            if (!record.registeredByDate) return;
 
-            const month = new Date(record.dateOfRegistration).getMonth() + 1;
+            // ✅ Use UTC month
+            const month = new Date(record.registeredByDate).getUTCMonth() + 1;
             const bucket = burialCountsMonthly[month];
 
-            const hasPermit = typeof form.transferPermit === 'object' && form.transferPermit !== null && 'number' in form.transferPermit;
-            // track transfer vs no-transfer at both global and monthly
+            const hasPermit =
+                typeof form.transferPermit === 'object' &&
+                form.transferPermit !== null &&
+                'number' in form.transferPermit;
+
             if (hasPermit) {
                 burialCounts.withTransferPermit++;
                 bucket.withTransferPermit++;
@@ -104,28 +109,26 @@ export async function GET(request: NextRequest) {
                 bucket.withoutTransferPermit++;
             }
 
-            // cremation?
+            // Cremation check
             if (form.corpseDisposal?.toLowerCase().includes('cremation')) {
                 burialCounts.cremation++;
                 bucket.cremation++;
                 return;
             }
 
-            // Get cemetery name
+            // Cemetery name and "not stated" check
             const cemeteryName = (form.cemeteryOrCrematory as any)?.name?.toLowerCase() ?? '';
-            
-            // Check if it's a "not stated" case
-            const isNotStated = cemeteryName === '' || 
+            const isNotStated =
+                cemeteryName === '' ||
                 notStatedPhrases.some(phrase => cemeteryName.includes(phrase));
-            
-            // If it's not stated, count it as global Not Stated
+
             if (isNotStated) {
                 burialCounts.notStated++;
                 bucket.notStated++;
-                return; // Skip further processing - it's already counted
+                return;
             }
-            
-            // burial: location + type
+
+            // Burial location + type
             if (form.corpseDisposal?.toLowerCase().includes('burial')) {
                 let loc: LocationType = 'outsideLegazpi';
                 let type: CemeteryType = 'privateCemetery';
@@ -135,7 +138,6 @@ export async function GET(request: NextRequest) {
                     loc = 'legazpi';
                 }
 
-                // Determine if public or private
                 if (
                     cemeteryName.includes('public') ||
                     cemeteryName.includes('municipal') ||
@@ -145,11 +147,11 @@ export async function GET(request: NextRequest) {
                     type = 'publicCemetery';
                 }
 
-                // bump both global and monthly
                 (burialCounts as any)[loc][type]++;
                 (bucket as any)[loc][type]++;
             }
         });
+
 
         return NextResponse.json(
             {

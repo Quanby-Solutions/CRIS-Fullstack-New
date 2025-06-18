@@ -151,12 +151,10 @@ export async function GET(request: NextRequest) {
         deathRecords.forEach((record) => {
             const deathForm = record.deathCertificateForm;
             if (!deathForm) return;
-
-            // Fix TypeScript error: Check if registeredByDate exists
             if (!record.registeredByDate) return;
 
-            // Get month from date of registration (now safe because we know registeredByDate is not null)
-            const month = new Date(record.registeredByDate).getMonth() + 1;
+            // ✅ Use UTC-based month
+            const month = new Date(record.registeredByDate).getUTCMonth() + 1;
 
             // Determine barangay
             let barangay = "Unknown";
@@ -199,6 +197,7 @@ export async function GET(request: NextRequest) {
             if (deathForm.sex && deathForm.sex === "Female" as Sex) {
                 gender = 'female';
             }
+
             // Parse age at death
             let ageAtDeath;
             if (deathForm.ageAtDeath) {
@@ -218,7 +217,6 @@ export async function GET(request: NextRequest) {
 
             // Increment counts if we have valid age group
             if (ageGroup) {
-                // Increment overall counts
                 deathsByDemographic[barangay][gender][ageGroup]++;
                 deathsByDemographic[barangay][gender].total++;
                 deathsByDemographic[barangay].grandTotal++;
@@ -228,6 +226,7 @@ export async function GET(request: NextRequest) {
                 monthlyData[month][barangay].grandTotal++;
             }
         });
+
 
         // Calculate totals across all barangays
         const totalsByDemographic: AgeGenderCount = initializeAgeGenderCount();

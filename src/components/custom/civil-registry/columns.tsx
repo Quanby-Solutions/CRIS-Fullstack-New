@@ -592,7 +592,7 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={translate("registeredByDate")}
+          title={translate("Registration Date")}
         />
       ),
       cell: ({ row }) => {

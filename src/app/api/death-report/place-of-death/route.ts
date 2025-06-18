@@ -29,10 +29,6 @@ export async function GET(request: NextRequest) {
                     gte: startDate,
                     lt: endDate,
                 },
-                cityMunicipality: {
-                    contains: 'Legazpi',
-                    mode: 'insensitive',
-                },
             },
             include: {
                 deathCertificateForm: true,
@@ -69,8 +65,10 @@ export async function GET(request: NextRequest) {
 
                     if (locationType.includes('hospital')) {
                         // Check if it's a transient case
-                        if (placeOfDeath.hospitalInstitution &&
-                            String(placeOfDeath.hospitalInstitution).toLowerCase().includes('transient')) {
+                        if (
+                            placeOfDeath.hospitalInstitution &&
+                            String(placeOfDeath.hospitalInstitution).toLowerCase().includes('transient')
+                        ) {
                             category = 'transient';
                         } else {
                             category = 'hospital';
@@ -84,19 +82,18 @@ export async function GET(request: NextRequest) {
                 // Count by category
                 deathsByPlaceOfDeath[category]++;
 
-                // Count by month and category
-                // Fix: Handle null date by checking if registeredByDate exists before creating a Date
+                // Count by month and category using UTC
                 if (record.registeredByDate) {
                     const recordDate = new Date(record.registeredByDate);
-                    const month = recordDate.getMonth() + 1; // January is 0
+                    const month = recordDate.getUTCMonth() + 1; // UTC month: Jan = 0, so +1
+
                     deathsByPlaceOfDeathMonthly[month.toString()][category]++;
                 } else {
-                    // If no date is available, count it in an "unknown" month or handle as needed
-                    // Here, we're just logging the issue
                     console.warn('Death record without date encountered:', record.id);
                 }
             }
         });
+
 
         // Return the data
         return NextResponse.json({
