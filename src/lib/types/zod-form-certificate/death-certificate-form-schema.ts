@@ -180,6 +180,10 @@ const certificationOfDeathSchema = z.object({
       z.string(),
       z.date()
     ]).optional(),
+    reviewDate: z.union([
+      z.string(),
+      z.date()
+    ]).optional(),
     healthOfficerNameInPrint: z.string().optional(),
   }).optional(),
 });
@@ -190,6 +194,7 @@ const reviewSchema = z.object({
     z.string(),
     z.date()
   ]).optional(),
+  healthOfficerNameInPrint: z.string().optional(),
 });
 
 // --- Certificates Schemas ---

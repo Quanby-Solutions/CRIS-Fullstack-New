@@ -130,6 +130,7 @@ const emptyDefaults: DeathCertificateFormValues = {
     address: '',
     reviewedBy: {
       date: undefined,
+      reviewDate: undefined,
       healthOfficerNameInPrint: '',
     }
 

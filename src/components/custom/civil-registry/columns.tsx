@@ -82,6 +82,8 @@ const safeFormatDate = (date: unknown, dateFormat = "PP"): string => {
 export const safeFormatDateForDeath = (dateField: any): string => {
   // 1) Handle null / undefined / empty‐string cases right away
   if (!dateField) return "";
+
+  // 2) Handle the wrapper-object case
   if (
     typeof dateField === "object" &&
     ("dateOfDeath" in dateField || "dateOfBirth" in dateField)
@@ -95,31 +97,28 @@ export const safeFormatDateForDeath = (dateField: any): string => {
     return safeFormatDateForDeath(inner);
   }
 
-  // 2) From here on you know it's not the empty‐object case
-  try {
-    // If it's a JSON‐looking string, parse once to extract the real field
-    if (typeof dateField === "string" && dateField.trim().startsWith("{")) {
-      const parsed = JSON.parse(dateField);
-      const inner = parsed.dateOfDeath || parsed.dateOfBirth;
-      return safeFormatDateForDeath(inner);
-    }
-
-    // 3) ISO date‐string?
-    if (
-      typeof dateField === "string" &&
-      /^\d{4}-\d{2}-\d{2}T/.test(dateField)
-    ) {
-      const d = new Date(dateField);
-      if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
+  // 3) If it's a string that's not a date, return it as-is
+  if (typeof dateField === "string") {
+    // Check if it's JSON-looking
+    if (dateField.trim().startsWith("{")) {
+      try {
+        const parsed = JSON.parse(dateField);
+        const inner = parsed.dateOfDeath || parsed.dateOfBirth;
+        return safeFormatDateForDeath(inner);
+      } catch {
+        // If JSON parsing fails, return the original string
+        return dateField;
       }
     }
 
-    // 4) Try any other object/string directly
+    // Check if it's not a date string
+    if (!/^\d{4}-\d{2}-\d{2}T/.test(dateField)) {
+      return dateField; // Return the string as-is
+    }
+  }
+
+  // 4) Try to parse as date
+  try {
     const d = new Date(dateField);
     if (!isNaN(d.getTime())) {
       return d.toLocaleDateString("en-US", {
@@ -128,12 +127,13 @@ export const safeFormatDateForDeath = (dateField: any): string => {
         year: "numeric",
       });
     }
-
-    // 5) Fallback to empty if it's some other junk
-    return "";
   } catch {
-    return "";
+    // If date parsing fails, return the original value as string
+    return String(dateField);
   }
+
+  // 5) Fallback to empty if it's some other junk
+  return "";
 };
 
 // Form type styling map

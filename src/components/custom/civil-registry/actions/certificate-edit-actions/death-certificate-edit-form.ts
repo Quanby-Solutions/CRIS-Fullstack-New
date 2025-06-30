@@ -160,6 +160,7 @@ export async function updateDeathCertificateForm(
           titleOfPosition: formData.certificationOfDeath?.titleOfPosition,
           address: formData?.certificationOfDeath?.address,
           reviewedBy: {
+            reviewDate: formData.certificationOfDeath?.reviewedBy?.reviewDate,
             date: formData.certificationOfDeath?.reviewedBy?.date!,
             healthOfficerNameInPrint:
               formData.certificationOfDeath?.reviewedBy?.healthOfficerNameInPrint,

@@ -1,7 +1,12 @@
 // src/components/custom/civil-registry/components/death-details-card.tsx
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
-import { renderName, formatDate, formatLocation } from "./utils";
+import {
+  renderName,
+  formatDate,
+  formatLocation,
+  formatDateDeath,
+} from "./utils";
 import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action";
 import { safeFormatDateForDeath } from "../columns";
 
@@ -16,8 +21,16 @@ interface CertificationOfDeath {
   address: string;
   reviewedBy: {
     date: string | Date | null;
+    reviewDate: string | Date | null;
     healthOfficerNameInPrint: string;
   };
+}
+
+interface CertificationOfInformant {
+  nameInPrint: string;
+  relationshipToDeceased: string;
+  address: string;
+  date: string | Date | null;
 }
 
 /**
@@ -200,16 +213,15 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
   const certificationData =
     d.certificationOfDeath as unknown as CertificationOfDeath;
 
-  const certifier =
-    certificationData &&
-    certificationData.reviewedBy &&
-    certificationData.reviewedBy.healthOfficerNameInPrint
-      ? {
-          name: certificationData.reviewedBy.healthOfficerNameInPrint,
-          title: certificationData.titleOfPosition || "",
-          date: certificationData.reviewedBy.date || new Date(),
-        }
-      : undefined;
+  //     informant: {
+  //   nameInPrint: '',
+  //   relationshipToDeceased: '',
+  //   address: '',
+  //   date: undefined,
+  // },
+
+  const certificationOfInformant =
+    d.informant as unknown as CertificationOfInformant;
 
   // First, modify the section in DeathDetailsCard that gets disposalDetails:
   const disposalDetails = d.corpseDisposal
@@ -403,11 +415,22 @@ export const DeathDetailsCard: React.FC<DeathDetailsCardProps> = ({ form }) => {
             <div>
               <p className="font-medium">{t("Certifier")}</p>
               <div>
-                {certifier ? (
+                {certificationData ? (
                   <>
-                    {certifier.name} {certifier.title && `(${certifier.title})`}
+                    <strong>{t("Name")}:</strong>{" "}
+                    {certificationData.nameInPrint}{" "}
+                    {certificationData.titleOfPosition &&
+                      `(${certificationData.titleOfPosition})`}
                     <br />
-                    {formatDate(certifier.date)}
+                    <strong>{t("Address")}:</strong> {certificationData.address}
+                    <br />
+                    <strong>{t("Date Reviewed")}:</strong>{" "}
+                    {safeFormatDateForDeath(
+                      certificationData.reviewedBy.reviewDate
+                    )}
+                    <br />
+                    <strong>{t("Health Officer")}:</strong>{" "}
+                    {certificationData.reviewedBy.healthOfficerNameInPrint}
                   </>
                 ) : (
                   ""

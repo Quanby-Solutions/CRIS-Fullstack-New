@@ -126,7 +126,7 @@ const CertificationOfDeathCard: React.FC = () => {
 
             <FormField
               control={control}
-              name="certificationOfDeath.date"
+              name="certificationOfDeath.reviewedBy.date"
               render={({ field }) => (
                 <FormItem>
                   <DatePickerString
@@ -170,7 +170,7 @@ const CertificationOfDeathCard: React.FC = () => {
 
             <FormField
               control={control}
-              name="certificationOfDeath.reviewedBy.date"
+              name="certificationOfDeath.reviewedBy.reviewDate"
               render={({ field }) => (
                 <FormItem>
                   <DatePickerString

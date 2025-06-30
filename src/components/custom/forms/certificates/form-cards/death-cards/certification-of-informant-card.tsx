@@ -74,7 +74,7 @@ const CertificationInformantCard: React.FC = () => {
                 <FormControl>
                   <Input
                     className="h-10"
-                    placeholder="Enter relationship"
+                    placeholder="Enter Address"
                     {...field}
                     value={field.value ?? ""}
                   />
