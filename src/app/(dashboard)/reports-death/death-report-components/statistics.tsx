@@ -9,19 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { DeathReportInterfaceProps } from "./interface-death";
 
-// Define interfaces for the statistics API response
-// Define a type for valid age group keys
+// Define interfaces for the enhanced statistics API response
 type AgeGroupKey =
   | "lessThan1Year"
   | "oneToFourYears"
@@ -41,6 +33,22 @@ interface AgeGroups {
   unknown: number;
 }
 
+interface PlaceOfDeathStats {
+  hospital: number;
+  barangay: number;
+  transient: number;
+}
+
+interface DisposalStats {
+  burial: number;
+  cremation: number;
+}
+
+interface TransferPermitStats {
+  withTransferPermit: number;
+  withoutTransferPermit: number;
+}
+
 interface MonthlyStatistics {
   registration: {
     onTime: number;
@@ -52,6 +60,10 @@ interface MonthlyStatistics {
     unknown: number;
   };
   ageGroups: AgeGroups;
+  placeOfDeath: PlaceOfDeathStats;
+  disposal: DisposalStats;
+  transferPermit: TransferPermitStats;
+  totalDocRegistered: number;
 }
 
 interface Statistics {
@@ -66,13 +78,17 @@ interface Statistics {
     unknown: number;
   };
   ageGroups: AgeGroups;
+  placeOfDeath: PlaceOfDeathStats;
+  disposal: DisposalStats;
+  transferPermit: TransferPermitStats;
+  totalDocRegistered: number;
   monthly: Record<string, MonthlyStatistics>;
 }
 
 interface DeathStatisticsData {
   statistics: Statistics;
   year: number;
-  debug?: any; // For debugging purposes
+  debug?: any;
 }
 
 export interface DeathStatisticsInterfaceProps {
@@ -83,7 +99,7 @@ export interface DeathStatisticsInterfaceProps {
 interface Category {
   key: string;
   label: string;
-  section: keyof MonthlyStatistics; // 'registration', 'gender', or 'ageGroups'
+  section: keyof MonthlyStatistics;
   field: string;
 }
 
@@ -101,7 +117,7 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
     setError(null);
 
     try {
-      const response = await fetch(`/api/death-report/statistics?year=${year}`);
+      const response = await fetch(`/api/death-report/new?year=${year}`);
 
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}`);
@@ -145,20 +161,24 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
 
   // Define the categories for the statistics table
   const categories: Category[] = [
+    // Fetal Death row - this would need to be calculated separately if needed
+    // Registration timing
     {
       key: "onTimeRegistration",
-      label: "On-Time Registration",
+      label: "On-Time",
       section: "registration",
       field: "onTime",
     },
     {
       key: "lateRegistration",
-      label: "Late Registration",
+      label: "Late",
       section: "registration",
       field: "late",
     },
+    // Gender
     { key: "male", label: "Male", section: "gender", field: "male" },
     { key: "female", label: "Female", section: "gender", field: "female" },
+    // Age groups
     {
       key: "lessThan1Year",
       label: "< 1 Year",
@@ -195,6 +215,51 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
       section: "ageGroups",
       field: "sixtyFiveAndAbove",
     },
+    // Place of death
+    {
+      key: "hospital",
+      label: "Hospital",
+      section: "placeOfDeath",
+      field: "hospital",
+    },
+    {
+      key: "barangay",
+      label: "Barangay",
+      section: "placeOfDeath",
+      field: "barangay",
+    },
+    {
+      key: "transient",
+      label: "Transient",
+      section: "placeOfDeath",
+      field: "transient",
+    },
+    // Disposal method
+    {
+      key: "burial",
+      label: "Burial",
+      section: "disposal",
+      field: "burial",
+    },
+    {
+      key: "cremation",
+      label: "Cremation",
+      section: "disposal",
+      field: "cremation",
+    },
+    // Transfer permit
+    {
+      key: "withTransferPermit",
+      label: "W/ Transfer Permit",
+      section: "transferPermit",
+      field: "withTransferPermit",
+    },
+    {
+      key: "withoutTransferPermit",
+      label: "W/O Transfer Permit",
+      section: "transferPermit",
+      field: "withoutTransferPermit",
+    },
   ];
 
   // Helper function to get value safely from the specified section and field
@@ -228,6 +293,25 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
 
     if (section === "ageGroups") {
       return (sectionData as AgeGroups)[field as keyof AgeGroups] || 0;
+    }
+
+    if (section === "placeOfDeath") {
+      return (
+        (sectionData as PlaceOfDeathStats)[field as keyof PlaceOfDeathStats] ||
+        0
+      );
+    }
+
+    if (section === "disposal") {
+      return (sectionData as DisposalStats)[field as keyof DisposalStats] || 0;
+    }
+
+    if (section === "transferPermit") {
+      return (
+        (sectionData as TransferPermitStats)[
+          field as keyof TransferPermitStats
+        ] || 0
+      );
     }
 
     return 0;
@@ -288,6 +372,19 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
+                    {/* Fetal Death row - placeholder for now */}
+                    <TableRow>
+                      <TableCell className="font-medium">Fetal Death</TableCell>
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <TableCell key={i} className="text-center">
+                          -
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-center font-medium">
+                        -
+                      </TableCell>
+                    </TableRow>
+
                     {categories.map((category) => (
                       <TableRow key={category.key}>
                         <TableCell className="font-medium">
@@ -346,23 +443,19 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
                       </TableRow>
                     ))}
 
-                    {/* Total row for all deaths */}
+                    {/* Total Documents Registered row */}
                     <TableRow className="bg-muted/50">
-                      <TableCell className="font-bold">Total Deaths</TableCell>
+                      <TableCell className="font-bold">
+                        Total Doc. Registered
+                      </TableCell>
                       {Array.from({ length: 12 }, (_, i) => {
                         const month = i + 1;
                         const monthKey = month.toString();
 
-                        // Calculate total deaths for the month
-                        let monthTotal = 0;
-
-                        if (data?.statistics?.monthly?.[monthKey]) {
-                          // Either use registration or gender counts as they should match the total
-                          const monthData = data.statistics.monthly[monthKey];
-                          monthTotal =
-                            monthData.registration.onTime +
-                            monthData.registration.late;
-                        }
+                        // Get total documents registered for the month
+                        const monthTotal =
+                          data?.statistics?.monthly?.[monthKey]
+                            ?.totalDocRegistered || 0;
 
                         return (
                           <TableCell key={i} className="text-center font-bold">
@@ -371,7 +464,7 @@ const DeathStatisticsInterface = ({ year }: DeathReportInterfaceProps) => {
                         );
                       })}
                       <TableCell className="text-center font-bold">
-                        {data?.statistics?.totalDeaths || 0}
+                        {data?.statistics?.totalDocRegistered || 0}
                       </TableCell>
                     </TableRow>
                   </TableBody>

@@ -30,7 +30,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+interface PlaceOfDeathStats {
+  hospital: number;
+  barangay: number;
+  transient: number;
+}
 
+interface DisposalStats {
+  burial: number;
+  cremation: number;
+}
+
+interface TransferPermitStats {
+  withTransferPermit: number;
+  withoutTransferPermit: number;
+}
 interface Statistics {
   totalDeaths: number;
   registration: {
@@ -51,6 +65,10 @@ interface Statistics {
     sixtyFiveAndAbove: number;
     unknown: number;
   };
+  placeOfDeath: PlaceOfDeathStats;
+  disposal: DisposalStats;
+  transferPermit: TransferPermitStats;
+  totalDocRegistered: number;
   monthly: Record<string, MonthlyStatistics>;
 }
 
@@ -73,6 +91,7 @@ interface MonthlyStatistics {
     sixtyFiveAndAbove: number;
     unknown: number;
   };
+  totalDocRegistered: number;
 }
 
 interface DeathStatisticsData {
@@ -139,13 +158,15 @@ export default function DeathReport() {
   };
 
   // --- EXPORT CSV ------------------------------------------------------------
+  // Updated exportCSV function for your dashboard page
   const exportCSV = async () => {
     // Fetch only the selected reports
     const fetchPromises: Promise<Response>[] = [];
     const dataKeys: string[] = [];
 
     if (selectedSections.statistics) {
-      fetchPromises.push(fetch(`/api/death-report/statistics?year=${year}`));
+      // Update this to use the correct statistics endpoint
+      fetchPromises.push(fetch(`/api/death-report/new?year=${year}`));
       dataKeys.push("statistics");
     }
     if (selectedSections.deathReport) {
@@ -172,7 +193,6 @@ export default function DeathReport() {
       );
       dataKeys.push("deathsByDemographic");
     }
-
     const responses = await Promise.all(fetchPromises);
     const data = await Promise.all(responses.map((res) => res.json()));
 
@@ -185,36 +205,44 @@ export default function DeathReport() {
 
     // Helper function to get value safely from the specified section and field
     const getSectionValue = (
-      stats: Statistics | MonthlyStatistics,
-      section: keyof MonthlyStatistics,
+      stats: any,
+      section: string,
       field: string
     ): number => {
       if (!stats || !stats[section]) return 0;
+
       const sectionData = stats[section];
+
       if (section === "registration") {
         return field === "onTime"
-          ? (sectionData as { onTime: number; late: number }).onTime
-          : (sectionData as { onTime: number; late: number }).late;
+          ? sectionData.onTime || 0
+          : sectionData.late || 0;
       }
+
       if (section === "gender") {
-        if (field === "male")
-          return (
-            sectionData as { male: number; female: number; unknown: number }
-          ).male;
-        if (field === "female")
-          return (
-            sectionData as { male: number; female: number; unknown: number }
-          ).female;
-        return (
-          sectionData as { male: number; female: number; unknown: number }
-        ).unknown;
+        return sectionData[field] || 0;
       }
+
       if (section === "ageGroups") {
-        return (sectionData as { [key: string]: number })[field] || 0;
+        return sectionData[field] || 0;
       }
+
+      if (section === "placeOfDeath") {
+        return sectionData[field] || 0;
+      }
+
+      if (section === "disposal") {
+        return sectionData[field] || 0;
+      }
+
+      if (section === "transferPermit") {
+        return sectionData[field] || 0;
+      }
+
       return 0;
     };
 
+    // Add selected sections to CSV
     // Add selected sections to CSV
     data.forEach((dataItem, index) => {
       const key = dataKeys[index];
@@ -222,26 +250,34 @@ export default function DeathReport() {
         case "statistics":
           {
             const statsData: DeathStatisticsData = dataItem;
-            // — Death Statistics with months as columns
-            csv += `Death Statistics by Month (Year ${statsData.year})
-`;
+            // Death Statistics with months as columns
+            csv += `Death Statistics by Month (Year ${statsData.year})\n`;
             // Header row with months
-            csv += `Particulars,${months.join(",")},Total
-`;
-            // Define the categories for the statistics table
-            const categories: Category[] = [
+            csv += `Particulars,${months.join(",")},Total\n`;
+
+            // Define the enhanced categories including the new fields
+            const categories = [
+              // Fetal Death - placeholder
               {
-                key: "onTimeRegistration",
-                label: "On-Time Registration",
+                key: "fetalDeath",
+                label: "Fetal Death",
+                section: null,
+                field: null,
+              },
+              // Registration timing
+              {
+                key: "onTime",
+                label: "On-Time",
                 section: "registration",
                 field: "onTime",
               },
               {
-                key: "lateRegistration",
-                label: "Late Registration",
+                key: "late",
+                label: "Late",
                 section: "registration",
                 field: "late",
               },
+              // Gender
               { key: "male", label: "Male", section: "gender", field: "male" },
               {
                 key: "female",
@@ -249,6 +285,7 @@ export default function DeathReport() {
                 section: "gender",
                 field: "female",
               },
+              // Age groups
               {
                 key: "lessThan1Year",
                 label: "< 1 Year",
@@ -285,52 +322,121 @@ export default function DeathReport() {
                 section: "ageGroups",
                 field: "sixtyFiveAndAbove",
               },
+              // Place of death
+              {
+                key: "hospital",
+                label: "Hospital",
+                section: "placeOfDeath",
+                field: "hospital",
+              },
+              {
+                key: "barangay",
+                label: "Barangay",
+                section: "placeOfDeath",
+                field: "barangay",
+              },
+              {
+                key: "transient",
+                label: "Transient",
+                section: "placeOfDeath",
+                field: "transient",
+              },
+              // Disposal method
+              {
+                key: "burial",
+                label: "Burial",
+                section: "disposal",
+                field: "burial",
+              },
+              {
+                key: "cremation",
+                label: "Cremation",
+                section: "disposal",
+                field: "cremation",
+              },
+              // Transfer permit
+              {
+                key: "withTransferPermit",
+                label: "W/ Transfer Permit",
+                section: "transferPermit",
+                field: "withTransferPermit",
+              },
+              {
+                key: "withoutTransferPermit",
+                label: "W/O Transfer Permit",
+                section: "transferPermit",
+                field: "withoutTransferPermit",
+              },
             ];
+
             // Add rows for each category
             categories.forEach((category) => {
               let row = `${category.label},`;
               let total = 0;
+
+              // Handle special case for fetal death (placeholder)
+              if (category.key === "fetalDeath") {
+                for (let month = 1; month <= 12; month++) {
+                  row += ","; // Empty cells for fetal death
+                }
+                row += ""; // Empty total
+                csv += row + "\n";
+                return;
+              }
+
+              // Process monthly data
               for (let month = 1; month <= 12; month++) {
                 const monthStr = month.toString();
                 const hasMonthData = statsData.statistics?.monthly?.[monthStr];
-                const monthlyValue = hasMonthData
-                  ? getSectionValue(
-                      statsData.statistics.monthly[monthStr],
-                      category.section,
-                      category.field
-                    )
-                  : 0;
+
+                const monthlyValue =
+                  hasMonthData && category.section && category.field
+                    ? getSectionValue(
+                        statsData.statistics.monthly[monthStr],
+                        category.section,
+                        category.field
+                      )
+                    : 0;
+
                 row += `${monthlyValue > 0 ? monthlyValue : ""},`;
                 total += monthlyValue;
               }
+
+              // Add total for the category
+              if (category.section && category.field && statsData.statistics) {
+                total = getSectionValue(
+                  statsData.statistics,
+                  category.section,
+                  category.field
+                );
+              }
+
               row += total > 0 ? total : "";
               csv += row + "\n";
             });
-            // Total row for all deaths
-            csv += `Total Deaths,`;
+
+            // Total Documents Registered row
+            csv += `Total Doc. Registered,`;
             for (let month = 1; month <= 12; month++) {
               const monthStr = month.toString();
-              let monthTotal = 0;
-              if (statsData.statistics?.monthly?.[monthStr]) {
-                const monthData = statsData.statistics.monthly[monthStr];
-                monthTotal =
-                  monthData.registration.onTime + monthData.registration.late;
-              }
+              const monthTotal =
+                statsData.statistics?.monthly?.[monthStr]?.totalDocRegistered ||
+                0;
               csv += `${monthTotal > 0 ? monthTotal : ""},`;
             }
-            csv += statsData.statistics?.totalDeaths || 0;
-            csv += "\n";
+            csv += statsData.statistics?.totalDocRegistered || 0;
+            csv += "\n\n";
           }
           break;
+
         case "deathReport":
           {
-            const deathData: any = dataItem; // Adjust type as needed
-            // — Death by Barangay with months as columns
-            csv += `Death by Barangay (Year ${deathData.year})
-`;
+            const deathData: any = dataItem;
+            // Death by Barangay with months as columns
+            csv += `Death by Barangay (Year ${deathData.year})\n`;
             // Header row with months
-            csv += `Barangay,${months.join(",")},Total
-`;
+            csv += `Barangay,${months.join(",")},Total\n`;
+
             // For each barangay in the full list, add a row
             legazpiBarangays.forEach((barangay) => {
               let row = `${barangay},`;
@@ -351,6 +457,7 @@ export default function DeathReport() {
               row += total > 0 ? total : "";
               csv += row + "\n";
             });
+
             // Add outside Legazpi rows if present
             if (
               deathData.deathsByBarangay["Outside Legazpi"] ||
@@ -424,15 +531,14 @@ export default function DeathReport() {
             csv += "\n";
           }
           break;
+
+        // Keep all other cases the same (placeOfDeath, burialMethod, causes, deathsByDemographic)
         case "placeOfDeath":
           {
-            const placeData: any = dataItem; // Adjust type as needed
-            // — Place of Death with months as columns
-            csv += `Place of Death (Year ${placeData.year})
-`;
-            // Header row with months
-            csv += `Category,${months.join(",")},Total
-`;
+            const placeData: any = dataItem;
+            csv += `Place of Death (Year ${placeData.year})\n`;
+            csv += `Category,${months.join(",")},Total\n`;
+
             // Hospital row
             let hospitalRow = `Hospital,`;
             let hospitalTotal = 0;
@@ -445,6 +551,7 @@ export default function DeathReport() {
             }
             hospitalRow += hospitalTotal > 0 ? hospitalTotal : "";
             csv += hospitalRow + "\n";
+
             // Transient row
             let transientRow = `Transient,`;
             let transientTotal = 0;
@@ -457,6 +564,7 @@ export default function DeathReport() {
             }
             transientRow += transientTotal > 0 ? transientTotal : "";
             csv += transientRow + "\n";
+
             // Others row
             let othersRow = `Others,`;
             let othersTotal = 0;
